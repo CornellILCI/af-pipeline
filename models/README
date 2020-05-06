@@ -1,4 +1,6 @@
 README for models Folder
 28 April 2020
 
-This folder stores both stat analysis and design scripts.
+This folder stores both stat analysis and design scripts, 
+including required R packages and prequisites for running
+R-based scripts.
