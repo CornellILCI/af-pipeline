@@ -49,7 +49,7 @@ optionList <- list(
   make_option(opt_str = c("--Vserpentine"), type = "logical", default = F,
               help = "Whether plot numbers will be in Vertical serpentine arrangement or Horizontal",
               metavar = "Vertical or Horizontal serpentine"),
-  make_option(opt_str = c("-o", "--outputFile"), type = "character", default = "AL_Expt",
+  make_option(opt_str = c("-o", "--outputFile"), type = "character", default = "AL_Expt_",
               help = "Prefix to be used for the names of the output files",
               metavar = "prefix to be used for the names of the output files"),
   make_option(opt_str = c("-p", "--outputPath"), type = "character", default = getwd(),

@@ -47,7 +47,7 @@ optionList <- list(
               help = "Whether plot numbers will be in Vertical serpentine arrangement or Horizontal", metavar = "Vertical or Horizontal serpentine"),
   make_option(opt_str = c("-f","--randFirst"), type = "logical", default = T,
               help = "If the entries should be randomized in the first rep", metavar = "randomize first rep"),
-  make_option(opt_str = c("-o", "--outputFile"), type = "character", default = "RCBD_Expt",
+  make_option(opt_str = c("-o", "--outputFile"), type = "character", default = "RCBD_Expt_",
               help = "Prefix to be used for the names of the output files",
               metavar = "prefix to be used for the names of the output files"),
   make_option(opt_str = c("-p", "--outputPath"), type = "character", default = getwd(),

@@ -4,7 +4,7 @@
     "date": "08-Jan-2020",
     "author": "Pedro Barbosa | Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "p.medeiros@cgiar.org",
-    "syntax": "Rscript runRCBD2.R -n 30 -b 4 -t 3 | Rscript runRCBD2.R -n 20 -b 4 -t 3 --genLayout T --nFieldRow 10",
+    "syntax": "Rscript runRCBD_cimmyt.R -n 25 -b 3 -t 3 | Rscript runRCBD_cimmyt.R -n 20 -b 4 -t 3 --genLayout T --nFieldRow 10",
     "method": "RCBD",
     "design": "Randomized Complete Block",
     "institute":"CIMMYT",
@@ -25,7 +25,7 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 1,
-        "variable_abbrev": "LOCATION_REPS",
+        "variable_abbrev": "OCCURRENCES",
         "is_layout_variable": "F"
       },
       "nTreatment": {
