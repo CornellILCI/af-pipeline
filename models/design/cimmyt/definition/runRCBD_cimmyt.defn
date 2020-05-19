@@ -116,8 +116,8 @@
         "maximum": null,
         "unit": null,
         "values": {
-          "F": "Plot Order",
-          "T": "Serpentine"
+          "F": "Horizontal Serpentine",
+          "T": "Vertical Serpentine"
         },
         "default": "F",
         "disabled": "F",
@@ -127,14 +127,17 @@
         "variable_abbrev": "FLD_ORDER",
         "is_layout_variable": "T"
       },
-      "randFirst": {
-        "variable_label": "Randomization first rep",
-        "description": "Whether the first rep should be randomized or follow the entry order",
+      "rand1": {
+        "variable_label": "Randomize the first rep",
+        "description": "Whether the first rep should be randomized",
         "visible": "F",
         "minimum": null,
         "maximum": null,
         "unit": null,
-        "values": null,
+        "values": {
+          "F": "Do not randomize",
+          "T": "Randomize"
+        },
         "default": "T",
         "disabled": "F",
         "required": "T",

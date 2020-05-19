@@ -132,8 +132,8 @@
         "maximum": null,
         "unit": null,
         "values": {
-          "F": "Plot Order",
-          "T": "Serpentine"
+          "F": "Horizontal Serpentine",
+          "T": "Vertical Serpentine"
         },
         "default": "F",
         "disabled": "F",

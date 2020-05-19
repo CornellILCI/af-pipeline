@@ -15,7 +15,7 @@
 # Parameters:
 # nTreatment = number of entries
 # nRep = number of replicates (replicate_block)
-# nTrial = number of trials (location rep)
+# nTrial = number of Occurrences
 # sBlk = number of plot in each block (block size)
 # rand1 = logical; if TRUE, the first rep will be randomized
 # RandOcc = logical; if TRUE, run a different randomization for each occurrrence
@@ -43,7 +43,7 @@ optionList <- list(
   make_option(opt_str = c("--RandOcc"), type = "logical", default = T,
               help = "Run a new randomization for each occurrence", metavar = "Same randomizationin all occurrences"),
   make_option(opt_str = c("-t","--nTrial"),  type = "integer", default = as.integer(1),
-              help = "Number of trials", metavar = "number of trials"),
+              help = "Number of occurrences", metavar = "number of occurrences"),
   make_option(opt_str = c("--genLayout"), type = "logical", default = T,
               help = "Whether layout will be generated or not",
               metavar = "whether layout will be generated or not"),
@@ -77,6 +77,7 @@ if(opt$nRep <2 | opt$nRep >4) {stop("Error in designAPLHALATTICE: The number or 
 entry <- c(1:opt$nTreatment)
 trialsName <- paste("Occurrence",c(1:opt$nTrial), sep="")
 trials <- list()
+
 if(opt$nTreatment>99){
   serie = 3
 } else{
@@ -86,7 +87,7 @@ if(opt$nTreatment>99){
 fixseed = 0
 if(!opt$RandOcc){fixseed = sample(c(4000:8000),1)}
 
-# randoization and write the design information in a txt file
+# randomization and write the design information in a txt file
 sink(file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_designInfo.txt", sep = ""))
 temp <- try(
   for(i in 1:opt$nTrial){
@@ -110,7 +111,7 @@ if(all(class(temp) == "try-error")) {
     msg <- trials[[1]]$parameters
     cat("Design:",toupper(msg$design),"\n")
     cat("Number of Genotypes:",length(msg$trt),"\n")
-    cat("Number of Trials:",opt$nTrial,"\n")
+    cat("Number of Occurrences:",opt$nTrial,"\n")
     cat("Number of Replicates (super-block) per Trial:",msg$r,"\n")
     cat("Number of plots per block (Block Size):",msg$k,"\n")
     cat("Number of Blocks per Rep:",length(msg$trt)/msg$k,"\n")

@@ -125,9 +125,9 @@
         "is_layout_variable": "T"
       },
       "rand1" : {
-        "variable_label": "Randomize the 1st rep",
+        "variable_label": "Randomize the first rep",
         "description": "Whether the first rep should be randomized",
-        "visible": "F",
+        "visible": "T",
         "minimum": null,
         "maximum": null,
         "unit": null,
@@ -135,7 +135,7 @@
           "F": "Do not randomize",
           "T": "Randomize"
         },
-        "default": "F",
+        "default": "T",
         "disabled": "F",
         "required": "T",
         "data_type": "boolean",
@@ -151,8 +151,8 @@
         "maximum": null,
         "unit": null,
         "values": {
-          "F": "Plot Order",
-          "T": "Serpentine"
+          "F": "Horizontal Serpentine",
+          "T": "Vertical Serpentine"
         },
         "default": "F",
         "disabled": "F",
