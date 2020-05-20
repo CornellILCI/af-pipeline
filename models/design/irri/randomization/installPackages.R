@@ -1,3 +1,5 @@
+#!/usr/bin/Rscript
+packages_root <- paste(Sys.getenv("EBSAF_ROOT"), "models/packages", sep='/')
 ##==================================================##
 ##==================================================##
 ##		Package: optparse		    ##
@@ -6,10 +8,12 @@
 #dependencies of getopt (none, SUGGESTS: testthat)
 
 #dependencies of optparse ([methods], getopt >= 1.20.2)
-install.packages("$PATH/packages/getopt_1.20.2.tar.gz", repos=NULL, type="source")
+getOpt <- paste(packages_root, "getopt_1.20.2.tar.gz", sep="/") 
+install.packages(getOpt, repos=NULL, type="source")
 
 ##==================================================##
-install.packages("$PATH/packages/optparse_1.6.1.tar.gz", repos=NULL, type="source")
+optParse <- paste(packages_root, "optparse_1.6.1.tar.gz", sep="/")
+install.packages(optParse, repos=NULL, type="source")
 ##==================================================##
 ##end for Package: optparse
 ##==================================================##
@@ -28,20 +32,26 @@ install.packages("$PATH/packages/optparse_1.6.1.tar.gz", repos=NULL, type="sourc
 ##==================================================##
 
 #dependencies of DiGGer (R.oo, R.methodsS3, [MASS])
-install.packages("$PATH/packages/R.oo_1.22.0.tar.gz", repos=NULL, type="source")
-install.packages("$PATH/packages/R.methodsS3_1.7.1.tar.gz", repos=NULL, type="source")
+rOO <- paste(packages_root, "R.oo_1.22.0.tar.gz", sep="/")
+install.packages(rOO, repos=NULL, type="source")
+Rmethods <- paste(packages_root, "R.methodsS3_1.7.1.tar.gz", sep="/")
+install.packages(Rmethods, repos=NULL, type="source")
 
 ##==================================================##
 #dependencies of plyr (R >= 3.1.0, Rcpp)
-install.packages("$PATH/packages/Rcpp_1.0.0.tar.gz", repos=NULL, type="source")
+Rcpp <- paste(packages_root, "Rcpp_1.0.0.tar.gz", sep="/")
+install.packages(Rcpp, repos=NULL, type="source")
 
 ##==================================================##
 #dependencies of PBTools
-install.packages("$PATH/packages/DiGGer_0.2-31.tar.gz", repos=NULL, type="source")
-install.packages("$PATH/packages/plyr_1.8.4.tar.gz", repos=NULL, type="source")
+digger <- paste(packages_root, "DiGGer_0.2-31_R_x86_64-unknown-linux-gnu.tar.gz", sep="/")
+install.packages(digger, repos=NULL, type="source")
+plyr <- paste(packages_root, "plyr_1.8.4.tar.gz", sep="/")
+install.packages(plyr, repos=NULL, type="source")
 
 ##==================================================##
-install.packages("$PATH/packages/PBTools_2.0.0.tar.gz", repos=NULL, type="source")
+pbTools <- paste(packages_root, "PBTools_2.0.0.tar.gz", sep="/")
+install.packages(pbTools, repos=NULL, type="source")
 ##==================================================##
 ##end for Package: PBTools
 ##==================================================##
