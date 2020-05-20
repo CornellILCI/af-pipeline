@@ -4,8 +4,8 @@
     "date": "08-Jan-2020",
     "author": "Pedro Barbosa | Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "p.medeiros@cgiar.org",
-    "syntax": "Rscript runALPHALATTICE_cimmyt.R -n 20 -b 3 -k 4 -t 2 --nFieldRow 10 --genLayout T",
-    "method": "ALPHALATTICE",
+    "syntax": "Rscript runALPHA_cimmyt.R -n 45 -b 3 -k 5 -t 3 --nFieldRow 9 --nPlotBarrier 5 --genLayout T",
+    "method": "ALPHALATTICE_cimmyt",
     "design": "Alpha-Lattice",
     "institute" : "CIMMYT", 
     "note": "Inherent design restrictions apply"
@@ -25,7 +25,7 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 1,
-        "variable_abbrev": "LOCATION_REPS",
+        "variable_abbrev": "OCCURRENCES",
         "is_layout_variable": "F"
       },
       "nTreatment": {
@@ -132,8 +132,8 @@
         "maximum": null,
         "unit": null,
         "values": {
-          "F": "Plot Order",
-          "T": "Serpentine"
+          "F": "Horizontal Serpentine",
+          "T": "Vertical Serpentine"
         },
         "default": "F",
         "disabled": "F",

@@ -4,7 +4,7 @@
     "date": "08-Jan-2020",
     "author": "Pedro Barbosa | Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "p.medeiros@cgiar.org",
-    "syntax": "Rscript runRCBD2.R -n 30 -b 4 -t 3 | Rscript runRCBD2.R -n 20 -b 4 -t 3 --genLayout T --nFieldRow 10",
+    "syntax": "Rscript runRCBD_cimmyt.R -n 25 -b 3 -t 3 | Rscript runRCBD_cimmyt.R -n 20 -b 4 -t 3 --genLayout T --nFieldRow 10",
     "method": "RCBD",
     "design": "Randomized Complete Block",
     "institute":"CIMMYT",
@@ -25,7 +25,7 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 1,
-        "variable_abbrev": "LOCATION_REPS",
+        "variable_abbrev": "OCCURRENCES",
         "is_layout_variable": "F"
       },
       "nTreatment": {
@@ -116,8 +116,8 @@
         "maximum": null,
         "unit": null,
         "values": {
-          "F": "Plot Order",
-          "T": "Serpentine"
+          "F": "Horizontal Serpentine",
+          "T": "Vertical Serpentine"
         },
         "default": "F",
         "disabled": "F",
@@ -127,14 +127,17 @@
         "variable_abbrev": "FLD_ORDER",
         "is_layout_variable": "T"
       },
-      "randFirst": {
-        "variable_label": "Randomization first rep",
-        "description": "Whether the first rep should be randomized or follow the entry order",
+      "rand1": {
+        "variable_label": "Randomize the first rep",
+        "description": "Whether the first rep should be randomized",
         "visible": "F",
         "minimum": null,
         "maximum": null,
         "unit": null,
-        "values": null,
+        "values": {
+          "F": "Do not randomize",
+          "T": "Randomize"
+        },
         "default": "T",
         "disabled": "F",
         "required": "T",
