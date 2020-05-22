@@ -1,5 +1,9 @@
 #!/usr/bin/Rscript
+# 2020.05.19 
+# Modified by vulat from agulles's orignal install.R script
+
 packages_root <- paste(Sys.getenv("EBSAF_ROOT"), "models/packages", sep='/')
+
 ##==================================================##
 ##==================================================##
 ##		Package: optparse		    ##
