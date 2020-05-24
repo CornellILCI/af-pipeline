@@ -34,7 +34,7 @@ suppressWarnings(suppressPackageStartupMessages(library(ebsRtools)))
 optionList <- list(
   make_option(opt_str = c("-n","--nTreatment"), type = "integer", default = NULL,
               help = "Number of entries", metavar = "number of entries"),
-  make_option(opt_str = c("-b","--nRep"), type = "integer", default = NULL,
+  make_option(opt_str = c("-b","--nRep"), type = "integer", default = 2,
               help = "Number of replicates or super-blocks", metavar = "number replicates or super-blocks"),
   make_option(opt_str = c("-k","--sBlk"), type = "integer", default = NULL,
               help = "Number of plots in each block", metavar = "size of blocks"),
@@ -70,62 +70,76 @@ if (!dir.exists(opt$outputPath)) {
   dir.create(opt$outputPath)
 }
 
-if(opt$nTreatment%%opt$sBlk != 0) {stop("Error in designAPLHALATTICE: The size of the block is not appropriate, the number of treatments must be multiple of k (size block)")}
-if(opt$nRep <2 | opt$nRep >4) {stop("Error in designAPLHALATTICE: The number or replicates should be 2, 3 or 4")}
-
+if(opt$nTreatment%%opt$sBlk != 0) {stop("Error in randAPLHA: The size of the block is not appropriate, the number of treatments must be multiple of k (block size)")}
+#if(opt$nRep <2 | opt$nRep >4) {stop("Error in randAPLHA: The number or replicates should be 2, 3 or 4")} #This is if use agricolae
 
 entry <- c(1:opt$nTreatment)
 trialsName <- paste("Occurrence",c(1:opt$nTrial), sep="")
 trials <- list()
 
-if(opt$nTreatment>99){
-  serie = 3
-} else{
-  serie = 2
-}
-
-fixseed = 0
-if(!opt$RandOcc){fixseed = sample(c(4000:8000),1)}
+tag <-  floor(log10(opt$nTreatment))+1
 
 # randomization and write the design information in a txt file
-sink(file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_designInfo.txt", sep = ""))
-temp <- try(
-  for(i in 1:opt$nTrial){
-    invisible(capture.output(trial <- randALPHA(trt = entry,
-                                                k = opt$sBlk,
-                                                r = opt$nRep,
-                                                serie = serie,
-                                                seed = fixseed)
-                             )
-              )
-    trials[[i]] <- trial
-  },
-  silent = T
-)
+sink(file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_DesignInfo.txt", sep = ""))
+temp <- try(trials <- randALPHA(trt = entry,
+                                 k = opt$sBlk,
+                                 r = opt$nRep,
+                                 tag = tag,
+                                 nTrial = ifelse(!opt$RandOcc,1,opt$nTrial)),
+            silent = T)
 
-if(all(class(temp) == "try-error")) {
+if(all(class(temp) == "try-error" | !is.list(temp))) {
   msg <- trimws(strsplit(temp, ":")[[1]])
   msg <- trimws(paste(strsplit(msg, "\n")[[length(msg)]], collapse = " "))
-  cat("Error in designALPHALATTICE:", msg, sep = "")
+  cat("Error in randALPHA: ", msg, sep = "")
 } else{
-    msg <- trials[[1]]$parameters
-    cat("Design:",toupper(msg$design),"\n")
-    cat("Number of Genotypes:",length(msg$trt),"\n")
-    cat("Number of Occurrences:",opt$nTrial,"\n")
-    cat("Number of Replicates (super-block) per Trial:",msg$r,"\n")
-    cat("Number of plots per block (Block Size):",msg$k,"\n")
-    cat("Number of Blocks per Rep:",length(msg$trt)/msg$k,"\n")
-    if(length(trials)>0)
+  if(!opt$RandOcc & opt$nTrial>1){
+    for(i in (2:opt$nTrial)){
+      trials[[i]] <- trials[[1]]
+    }
+  }
+  msg <- trials[[1]]$parameters
+  for(i in (1:opt$nTrial)){
+    cat("\nOccurrence",i,"\n")
+    cat("Design:",toupper(trials[[i]]$parameters$design),"\n")
+    cat("Concurrences:",trials[[i]]$parameters$Concurrences,"\n")
+    if(trials[[i]]$parameters$design == "Alpha-Lattice"){
+      cat("The design may not be an Alpha-Lattice (0,1)\n")
+      if(opt$sBlk > (opt$nTreatment/opt$sBlk)){
+        cat("It is preferable to use several small blocks rather than a few large blocks\n",
+            "Consider to use",opt$sBlk,"blocks","with size of",opt$nTreatment/opt$sBlk,"plots each\n",
+            "and check the conditions for the existence of an Alpha(0,1)-design\n")}
+    }
+  }
+  cat("\nEXPERIMENT PARAMETERS:\n")
+  cat("Number of Genotypes:",length(msg$trt),"\n")
+  cat("Number of Occurrences:",opt$nTrial,"\n")
+  cat("Number of Replicates (super-block) per Trial:",msg$r,"\n")
+  cat("Number of Plots per block (Block Size):",msg$k,"\n")
+  cat("Number of Blocks per Rep:",length(msg$trt)/msg$k,"\n")
+  cat("Efficiency:",round(msg$Efficiency,4))
+  if(length(trials)>0)
     names(trials) <- trialsName
-}
+  }
 sink()
 
-if(all(class(temp) == "try-error")) { stop(paste("Error in designAPLHALATTICE:", msg, sep = "")) }
+if(all(class(temp) == "try-error")) { stop(paste("Error in randAPLHA:", msg, sep = "")) }
 
 if(!opt$rand1){
-for(i in 1:opt$nTrial){
-  trials[[i]]$book$entry[1:opt$nTreatment] <- c(1:opt$nTreatment) 
-}}
+  for(i in 1:opt$nTrial){
+    wht <- data.frame(entry = trials[[i]]$book$entry[1:opt$nTreatment],trt = entry)
+    wht$trt <- as.character(wht$trt)
+    
+    bookWht <- trials[[i]]$book[,c("plots","entry","block","rep")]
+    bookWht <- merge(bookWht[,c("plots","entry","block","rep")],
+                     wht[,c("trt","entry")])
+    bookWht <- bookWht[with(bookWht,order(plots)),]
+    bookWht <- bookWht[,c("plots","trt","block","rep")]
+    colnames(bookWht)[colnames(bookWht)=="trt"] <- "entry"
+    trials[[i]]$book <- bookWht
+    rownames(trials[[i]]$book) <- c(1:nrow(trials[[i]]$book))
+  }
+}
 
 trials <- add.layout(trials = trials,
                      Vserpentine = opt$Vserpentine,

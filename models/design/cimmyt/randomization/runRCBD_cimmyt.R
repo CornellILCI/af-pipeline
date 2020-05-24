@@ -69,20 +69,16 @@ entry <- c(1:opt$nTreatment)
 trialsName <- paste("Occurrence",c(1:opt$nTrial), sep="_")
 trials <- list()
 
-if(opt$nTreatment>99){
-  serie = 3
-} else{
-  serie = 2
-}
+tag <-  floor(log10(opt$nTreatment))+1
 
 # randomization and write the design information in a txt file
-sink(file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_designInfo.txt", sep = ""))
+sink(file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_DesignInfo.txt", sep = ""))
 temp <- try(
   for(i in 1:opt$nTrial){
     trial <- randRCBD(trt = entry,
                          r = opt$nRep,
                          first = opt$rand1,
-                         serie = serie)
+                         serie = tag)
     trials[[i]] <- trial
   }
 )
@@ -91,7 +87,7 @@ names(trials) <- trialsName
 if(all(class(temp) == "try-error")) {
   msg <- trimws(strsplit(temp, ":")[[1]])
   msg <- trimws(paste(strsplit(msg, "\n")[[length(msg)]], collapse = " "))
-  cat("Error in designRCBD:", msg, sep = "")
+  cat("Error in randRCBD:", msg, sep = "")
 } else {
   msg <- trials[[1]]$parameters
   cat("Design:",toupper(msg$design),"\n")
@@ -102,7 +98,7 @@ if(all(class(temp) == "try-error")) {
       }
 sink()
 
-if(all(class(temp) == "try-error")) { stop(paste("Error in designRCBD:", msg, sep = "")) }
+if(all(class(temp) == "try-error")) { stop(paste("Error in randRCBD:", msg, sep = "")) }
 
 if (opt$genLayout) {
   trials <- add.layout(trials = trials,
