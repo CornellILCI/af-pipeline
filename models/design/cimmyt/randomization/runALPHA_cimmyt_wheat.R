@@ -134,7 +134,7 @@ if(!opt$rand1){
     bookWht <- merge(bookWht[,c("plots","entry","block","rep")],
                      wht[,c("trt","entry")])
     bookWht <- bookWht[with(bookWht,order(plots)),]
-    bookWht <- bookWht[,c("plots","trt","block","rep")]
+    bookWht <- bookWht[,c("plots","block","rep","trt")]
     colnames(bookWht)[colnames(bookWht)=="trt"] <- "entry"
     trials[[i]]$book <- bookWht
     rownames(trials[[i]]$book) <- c(1:nrow(trials[[i]]$book))
