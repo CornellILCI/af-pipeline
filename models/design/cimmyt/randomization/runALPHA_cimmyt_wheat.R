@@ -34,7 +34,7 @@ suppressWarnings(suppressPackageStartupMessages(library(ebsRtools)))
 optionList <- list(
   make_option(opt_str = c("-n","--nTreatment"), type = "integer", default = NULL,
               help = "Number of entries", metavar = "number of entries"),
-  make_option(opt_str = c("-b","--nRep"), type = "integer", default = 2,
+  make_option(opt_str = c("-b","--nRep"), type = "integer", default = NULL,
               help = "Number of replicates or super-blocks", metavar = "number replicates or super-blocks"),
   make_option(opt_str = c("-k","--sBlk"), type = "integer", default = NULL,
               help = "Number of plots in each block", metavar = "size of blocks"),
@@ -141,19 +141,31 @@ if(!opt$rand1){
   }
 }
 
-trials <- add.layout(trials = trials,
-                     Vserpentine = opt$Vserpentine,
-                     nFieldRow = opt$nFieldRow,
-                     nPlotsRepBarrier = opt$nPlotBarrier,
-                     save = TRUE,
-                     outputPath = opt$outputPath,
-                     outputFile = opt$outputFile)
+if(is.null(opt$nPlotBarrier)){
+  opt$nPlotBarrier <- opt$sBlk
+}
+
+if(opt$genLayout){
+  trials <- add.layout(trials = trials,
+                       Vserpentine = opt$Vserpentine,
+                       nFieldRow = opt$nFieldRow,
+                       nPlotsRepBarrier = opt$nPlotBarrier,
+                       save = TRUE,
+                       outputPath = opt$outputPath,
+                       outputFile = opt$outputFile)
+}
+
+for(i in c(1:length(trials))){
+  occurrence <- rep(i,length=length(trials[[i]]$book$plots))
+  trials[[i]]$book <- cbind(occurrence,trials[[i]]$book)
+}
 
 DesingArray <- trials[[1]]$book
 if(opt$nTrial>1){
   for(i in 2:opt$nTrial){
     DesingArray <- rbind(DesingArray,trials[[i]]$book)
-  }}
+  }
+}
 
-# save the fieldbook to a csv file
+# save the Design Array to a csv file
 write.csv(DesingArray, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_DesingArray.csv", sep = ""), row.names = FALSE)

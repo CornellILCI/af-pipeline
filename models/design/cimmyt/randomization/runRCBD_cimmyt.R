@@ -77,8 +77,7 @@ temp <- try(
   for(i in 1:opt$nTrial){
     trial <- randRCBD(trt = entry,
                          r = opt$nRep,
-                         first = opt$rand1,
-                         serie = tag)
+                         tag = tag)
     trials[[i]] <- trial
   }
 )
@@ -100,7 +99,7 @@ sink()
 
 if(all(class(temp) == "try-error")) { stop(paste("Error in randRCBD:", msg, sep = "")) }
 
-if (opt$genLayout) {
+if(opt$genLayout){
   trials <- add.layout(trials = trials,
                        Vserpentine = opt$Vserpentine,
                        nFieldRow = opt$nFieldRow,
@@ -108,17 +107,19 @@ if (opt$genLayout) {
                        save = TRUE,
                        outputPath = opt$outputPath,
                        outputFile = opt$outputFile)
-} else {
-  for(i in 1: opt$nTrial){
-    occurrence <- rep(i,length=length(trials[[i]]$book$plots))
-    trials[[i]]$book <- cbind(occurrence,trials[[i]]$book)
-  }}
+}
+
+for(i in c(1:length(trials))){
+  occurrence <- rep(i,length=length(trials[[i]]$book$plots))
+  trials[[i]]$book <- cbind(occurrence,trials[[i]]$book)
+}
 
 DesingArray <- trials[[1]]$book
 if(opt$nTrial>1){
-for(i in 2:opt$nTrial){
-  DesingArray <- rbind(DesingArray,trials[[i]]$book)
-}}
+  for(i in 2:opt$nTrial){
+    DesingArray <- rbind(DesingArray,trials[[i]]$book)
+  }
+}
 
 # save the Design Array to a csv file
 write.csv(DesingArray, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_DesignArray.csv", sep = ""), row.names = FALSE)
