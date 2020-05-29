@@ -1,12 +1,11 @@
 {
     "metadata":{
-        "requestID": "6a3f164a-37b0-400b-9ee4-2d2498a93eb7",
+        "requestId": "6a3f164a-37b0-400b-9ee4-2d2498a93eb7",
         "requestCategory": "Design",
         "requestType": "Trial Design",
         "requestMethod": "runRCBD_cimmyt",
         "requestDesign": "RCBD",
         "requestTimestamp": "",
-        "requestId": "",
         "requestorId": "",
         "requestInstitute": "CIMMYT",
         "requestCrop": "MAIZE",

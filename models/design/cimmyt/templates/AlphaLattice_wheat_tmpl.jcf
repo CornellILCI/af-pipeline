@@ -1,12 +1,11 @@
 {
     "metadata":{
-        "requestID": "6a3f164a-37b0-400b-9ee4-2d2498a93eb6",
+        "requestId": "6a3f164a-37b0-400b-9ee4-2d2498a93eb6",
         "requestCategory": "Desing",
         "requestType": "Trial Design",
         "requestMethod": "runALPHA_cimmyt_wheat",
         "requestDesign": "Alpha-Lattice",
         "requestTimestamp": "",
-        "requestId": "",
         "requestorId": "",
         "requestInstitute": "CIMMYT",
         "requestCrop": "WHEAT",
