@@ -1,0 +1,29 @@
+{
+    "metadata":{
+        "requestID": "6a3f164a-37b0-400b-9ee4-2d2498a93eb6",
+        "requestCategory": "Desing",
+        "requestType": "Trial Design",
+        "requestMethod": "runALPHA_cimmyt_wheat",
+        "requestDesign": "Alpha-Lattice",
+        "requestTimestamp": "",
+        "requestId": "",
+        "requestorId": "",
+        "requestInstitute": "CIMMYT",
+        "requestCrop": "WHEAT",
+        "requestProgram": "GWP",
+        "Expt_ID": "56485987563",
+        "Occurrences_ID": ["654565","454654"]
+  },
+    "parameters":{
+        "entrylist": "56485987563.lst",
+        "rand1": "T",
+        "RandOcc": "T",
+        "nRep": 2,
+        "nTrial": 2,
+        "genLayout":"T",
+        "sBlk": 4,
+        "nFieldRow": 6,
+        "nPlotBarrier": 4, 
+        "serpentine": "T"
+    }
+}

@@ -1,0 +1,36 @@
+{
+    "metadata":{
+        "requestID": "6a3f164a-37b0-400b-9ee4-2d2498a93eb7",
+        "requestCategory": "Design",
+        "requestType": "Trial Design",
+        "requestMethod": "runRCBD_cimmyt",
+        "requestDesign": "RCBD",
+        "requestTimestamp": "",
+        "requestId": "",
+        "requestorId": "",
+        "requestInstitute": "CIMMYT",
+        "requestCrop": "MAIZE",
+        "requestProgram": "GRP",
+        "Expt_ID": "321546866",
+        "Occurrences_ID": ["654565","454654"]
+  },
+    "parameters":{
+        "entrylist": "321546866.lst",
+        "nRep": 4,
+        "nTrial": 2,
+        "genLayout":"T",
+        "nFieldRow": 4,
+        "nRowPerRep": 2,
+        "serpentine": "T"
+    },
+    "entrylist":{
+        "entry_id":  [1,2,3,4,5,6,7,8,9,10,11,12,13,14],
+        "entry_number":  [1,2,3,4,5,6,7,8,9,10,11,12,13,14],
+        "entry_name":  ["a","b","c","d","e","f","g","h","i","j","k","l","m","n"],
+        "entry_type":  ["check","check","test","test","test","test","test","test","test","test","test","test","test","test"],
+        "entry_role":  ["performance check","performance check","test","test","test","test","test","test","test","test","test","test","test","test"],
+        "entry_class":  ["","","","","","","","","","","","","",""],
+        "entry_status":  ["active","active","active","active","active","active","active","active","active","active","active","active","active","active"],
+        "germplasm_id":  [7371,8823,4997,6965,7056,5148,6357,6867,6395,8184,9289,6741,5960,8270]
+  }
+ }
