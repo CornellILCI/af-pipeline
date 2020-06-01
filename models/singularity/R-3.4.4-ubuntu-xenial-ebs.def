@@ -1,0 +1,50 @@
+BootStrap: debootstrap
+OSVersion: xenial
+MirrorURL: http://us.archive.ubuntu.com/ubuntu/
+  #
+  # ebs-af repo is cloned in /opt
+  # it is convenient because singularity build has to run with root
+%files
+  # Copy R script and packages to /models this will avoid to modify the script
+  /opt/ebs-af/models/packages /models/
+  /opt/ebs-af/models/design/cimmyt/randomization/installPackages.R /models/design/cimmyt/randomization/installPackages.R
+
+%post
+  # Install Sofware properties ( to modify repositories)
+  apt-get -y install software-properties-common
+  
+  # Enable apt-transport-https
+  # apt-get -y install apt-transport-https
+  
+  # add key.
+  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+  
+  # Modify the sources
+  sed -i 's/main/main restricted universe/g' /etc/apt/sources.list
+  echo "deb http://cloud.r-project.org/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
+  
+  # update repositories
+  apt-get update
+  
+  apt-get install -y wget unzip
+  
+  # mkdir hpc scratch path
+  #mkdir /local_ssd
+  #mkdir /local_raid
+  
+  # Install core packages apt
+  apt-get install -y --allow-unauthenticated r-base-core libopenblas-dev git nano cmake gfortran g++ autoconf bzip2 libtool libcurl3 libcurl4-openssl-dev libgdal1-dev libproj-dev locales
+  
+  # Cleaning
+  apt-get clean
+  
+  # Configure locales
+  locale-gen en_US.UTF-8
+  
+  #Install R packages
+  cd /models
+  R CMD BATCH --no-save --no-restore /models/design/cimmyt/randomization/installPackages.R
+
+%test
+#!/bin/sh
+exec R --slave -e 'installed.packages()'
