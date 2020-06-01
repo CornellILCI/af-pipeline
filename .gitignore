@@ -1,0 +1,23 @@
+# Ignore files
+*.tar.gz
+*.swp
+*.swo
+*.dt
+*.as
+*.tmp
+*.tbl
+*.conf
+*.out
+*.LOG
+*.DS_Store
+*.pyc
+*.JSON
+*.err
+*.R
+*.Rhistory
+
+# Ignore folders
+__pycache__/
+scratch/
+output/
+models/statAnalyses/pumba/
