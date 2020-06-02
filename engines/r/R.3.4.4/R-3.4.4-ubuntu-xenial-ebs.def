@@ -7,7 +7,7 @@ MirrorURL: http://us.archive.ubuntu.com/ubuntu/
 %files
   # Copy R script and packages to /models this will avoid to modify the script
   /opt/ebs-af/models/packages /models/
-  /opt/ebs-af/models/design/cimmyt/randomization/installPackages.R /models/design/cimmyt/randomization/installPackages.R
+  /opt/ebs-af/models/design/irri/randomization/installPackages.R /models/design/irri/randomization/installPackages.R
 
 %post
   # Install Sofware properties ( to modify repositories)
@@ -43,7 +43,7 @@ MirrorURL: http://us.archive.ubuntu.com/ubuntu/
   
   #Install R packages
   cd /models
-  R CMD BATCH --no-save --no-restore /models/design/cimmyt/randomization/installPackages.R
+  R CMD BATCH --no-save --no-restore /models/design/irri/randomization/installPackages.R
 
 %test
 #!/bin/sh
