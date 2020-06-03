@@ -1,0 +1,60 @@
+SINGULARITY INSTALL
+2 June 2020
+vjmulat@gmail.com
+
+This is install instructions for Ubuntu 18.04
+
+INSTALL DEPENDENCIES
+* $ sudo apt-get update
+* $ sudo apt-get upgrade
+* $ sudo apt-get install -y build-essential \
+                          libssl-dev uuid-dev \
+                          libgpgme11-dev \
+                          squashfs-tools \
+                          libseccomp-dev \
+                          wget \
+                          debootstrap \
+                          pkg-config
+
+INSTALL Go 1.13.5
+* $ wget https://dl.google.com/go/go1.13.5.linux-amd64.tar.gz
+* $ tar -zxvf go1.13.5.linux-amd64.tar.gz
+* $ sudo mv go /usr/local
+* Set up Go environment, by adding the following lines to
+  your ~/.profile or ~/.baschrc (create ~/go first):
+
+  export GOROOT=/usr/local/go
+  export GOPATH=$HOME/go
+  export PATH=$GOPATH/bin:$GOROOT/bin:$PATH 
+
+* You can logout and login to update your current shell
+  session or run:
+  $ source ~/.profile (or ~/.bashrc if you modified this)
+* Invoke go by getting the version and enumerate envronment 
+  variables by issuing the commands respectively:
+  $ go version
+  $ go env
+
+INSTALL singularity 3.5.2 from git
+* Clone git:
+  $ git clone https://github.com/sylabs/singularity.git
+  $ cd singularity
+  $ git checkout v3.5.2
+* Complile and install (to /usr/local, see
+  https://sylabs.io/guides/3.5/admin-guide/installation.html#installation-on-linux
+  if you want to install to another directory or if you have
+  multiple singularity versions):
+  $ ./mconfig 
+  $ make -C ./builddir 
+  $ sudo make -C ./builddir install
+* Invoke singularity:
+  $ singularity version
+* Enable source bash completion by adding the following 
+  line in your ~/.bashrc:
+  . /usr/local/etc/bash_completion.d/singularity
+
+References:
+* Go install:
+  https://medium.com/better-programming/install-go-1-11-on-ubuntu-18-04-16-04-lts-8c098c503c5f
+* Singularity install:
+  https://sylabs.io/guides/3.5/admin-guide/installation.html#installation-on-linux
