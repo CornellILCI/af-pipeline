@@ -14,11 +14,10 @@
 *.JSON
 *.err
 *.R
-*.Rhistory
+.Rhistory
 *.sif
 
 # Ignore folders
 __pycache__/
 scratch/
 output/
-models/statAnalyses/pumba/

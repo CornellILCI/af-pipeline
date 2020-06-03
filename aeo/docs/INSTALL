@@ -1,0 +1,255 @@
+Simba v.0002 INSTALL NOTES
+
+Victor Jun Ulat, CIMMYT
+v.ulat@cgiar.org
+
+Updated: 2019.06.21
+Modified for pySimba: 2020.01.15
+
+Server
+* Installed Ubuntu 18.04 server edition on a virtual machine
+  with quad core processor, 2 GB RAM and 25GB hard drive 
+  space.
+* Machine name (hostname)  is set as thrymr0 but you can 
+  assign your own. The machine name will be used in the 
+  SLURM configuration section.
+* User name: Analytics Admin; profile: aadmin; password:
+  analyticsAdmin
+* On first boot: sudo apt update && sudo apt -y upgrade
+
+Optional: Remove cloud-init
+* sudo dpkg-reconfigure cloud-init (deselect all options
+  except [*] None: Failsafe datasource
+* sudo apt-get purge cloud-init
+* sudo mv /etc/cloud/ ~/
+* sudo mv /var/lib/cloud/ ~/cloud-lib
+* sudo systemctl show -p WantedBy network-online.target
+* sudo systemctl disable open-iscsid.service
+* sudo apt remove open-iscsi
+* sudo shutdown -r now
+* sudo apt-get update && sudo apt-get upgrade
+* sudp apt autoremove 
+
+Install a Mail Client
+* This is useful for troubleshooting cron installs. 
+* sudo apt-get update && sudo apt-get upgrade
+* sudo apt-get -y install mailutils
+   - Choose "local only" and accept defaults.
+  
+Install PostgreSQL
+* sudo apt-get update && sudo apt-get upgrade
+* sudo apt-get install postgresql postgresql-contrib
+* sudo su - postgres
+* createuser --interactive
+   - Enter name of the role to add: aadmin
+   - Shall the new role be a superuser? (y/n) y
+   - exit
+
+Optional: Configure postgresql for remote connections
+* This is required for cluster environment. You need to 
+  be root or use sudo.
+* Edit postgresql.conf (in Ubuntu 18.04, it is located
+  in: /etc/postgresql/10/main/), uncomment the section
+    #listen_addresses = 'localhost'
+  and replace localhost with '*':
+    listen_addresses = '*'
+* Edit pg_hba.conf (in Ubuntu 18.04, it is located in:
+  /etc/postgresql/10/main/), add the following line:
+  host   all   all   all         md5
+  To allow access to all databases for all users with
+  encryted password. Also change IPv6 and IPv4 local 
+  connection settings to:
+  #IPv4 local connections
+  host  all   all    0.0.0.0/0   md5
+  #IPv6 local connections
+  host  all   all    ::0/0       md5
+* Restart postgreql server:
+  - sudo systemctl restart postgresql   
+* Note: You might need to adjust your firewall settings.
+  (Consult your System/Network Administrator for this.) 
+
+Install psycopg2 (Python3 PostgreSQL interface)
+* sudo apt-get update && sudo apt-get upgrade
+* sudo apt-get -y install python3-psycopg2
+
+Install Git
+* sudo apt-get install git
+
+Clone simba
+* git clone https://gitlab.com/vjmulat/pysimba
+   - Username for 'https://gitlab.com': <gitlab username>
+   - Password for 'https://vjmulat@gitlab.com': <gitlab password>
+
+Set PYSIMBA_ROOT environment variable
+* If there is no .bash_profile add this at the end of 
+  .profile:
+    export PYSIMBA_ROOT=/home/aadmin/simba
+* Logout and login.
+* To check for PYSIMBA_ROOT, type: 
+   - echo $PYSIMBA_ROOT
+   - it should print out: /home/aadmin/simba
+* Note: If installed in a cluster, this should be done for
+  all nodes.
+
+Create psql database
+* createdb analytics
+* Add password: sudo -u aadmin psql analytics, then:
+  ALTER USER aadmin WITH PASSWORD 'analyticsAdmin';
+* Type "\q" to exit.
+* Import/Restore schema: cd to pysimba/database and type:
+  psql -U aadmin analytics < 2019.02.22-analytics.pg.sql
+
+Install R
+* sudo apt-get update && sudo apt-get upgrade
+* sudo apt-get install -y r-base libgfortran3
+
+Install Required packages
+* Go to ~/, by cd ~/
+   - git clone https://gitlab.com/vjmulat/nala
+   - Username for 'https://gitlab.com': <gitlab username>
+   - Password for 'https://vjmulat@gitlab.com': <gitlab password>
+* sudo R (install packages for all users)
+   - install.packages('/home/aadmin/nala/packages/getopt_1.20.2.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/nala/packages/optparse_1.6.1.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/nala/packages/R.methodsS3_1.7.1.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/nala/packages/R.oo_1.22.0.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/nala/packages/DiGGer_0.2-31_R_x86_64-unknown-linux-gnu.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/nala/packages/Rcpp_1.0.0.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/nala/packages/plyr_1.8.4.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/nala/packages/PBTools_2.0.0.tar.gz', repos=NULL, type='source')
+* exit R by, typing q() and hitting enter.
+* Copy statistical design scripts from nala to simba
+   - cp /home/aadmin/nala/design/randomization/*.R /pysimba/models/statDesign
+   - nala can be updated(for new designs) by issuing a git 
+     pull and doing the above steps again.
+
+Install SLURM
+* Note: This slurm install is only for a single node 
+  configuration. This document will be updated for 
+  installation on multi-node (cluster) environment.
+* sudo apt-get -y install munge slurm-wlm
+* Go to simba/slurm and copy slurm.tmpl to slurm.conf
+* Edit slurm.conf and change values according to the name of
+  your machine, in this case machine name is thrymr0 (search
+  for the lines that):
+    ControlMachine=thrymr0
+    ClusterName=thrymr0
+    NodeName=thrymr0 Sockets=1 CoresPerSocket=4 ThreadsPerCore=1 State=UNKNOWN 
+    PartitionName=thrymr0 Nodes=thrymr0 Default=YES MaxTime=INFINITE State=UP
+* Alternatively, you can run genSLURMconf.pl without arguments
+  from within the ~/pysimba/slurm directory to generate 
+  slurm.conf from slurm.tmpl: 
+    - ./genSLURMconf.pl
+* Copy/Move slurm.conf to /etc/slurm-llnl/
+*  sudo cp slurm.conf /etc/slurm-llnl/
+* Enable and start the manager slurmctld:
+   - sudo systemctl enable slurmctld
+   - sudo systemctl start slurmctld
+* Enable and start the agent slurmd
+   - sudo systemctl enable slurmd
+   - sudo systemctl start slurmd
+* Check status:
+   - sinfo
+   - scontrol show node
+
+Create simba.conf file
+* Go to pysimba/conf and copy simba.tmpl to simba.conf
+* Edit simba.conf to match your settings:
+    rtd (root directory, /home/aadmin/simba)
+    bin (executables directory)
+    int (input directory)
+    wrd (working directory)
+    out (output directory)
+    mdl (models directory)
+    ldg (logs directory)
+    slg (simba.LOG file)
+    dbh (server: currently localhost, for cluster install,
+        specific ip address should be used.)
+    dpt (port)
+    dbn (database name)
+    dbu (database user)
+    dbp (database user password)
+    rd1 (location of R executable; i.e. /usr/bin)
+    asm (AsREML directory)
+    bsh (bash executable)
+* Make sure that the directories you specified are
+  writable.
+* Values for int, wrd, out and mdl can be symbolic links 
+  to folders in data volumes.
+
+Test the install
+* Go to folder test and generate request files:
+   - ./genTest.pl -n 10 -t random -c y
+   - This will generate 10 request files and move it to the 
+     input folder.
+* Go to the bin folder and execute reaper.pl
+   - ./reaper.pl
+* Check logs, output, scratch folders for errors.
+* Go back to bin folder and run cleaner.pl
+   - ./cleaner.pl
+*  This will delete empty folders and log files from the
+   logs and scratch directories.
+
+Install the reaper.pl and cleaner.pl as cron jobs
+* crontab -e
+    - If first time you invoked cron, you will be made to 
+      choose which editor to use (chose option 3, for 
+      vim.basic)
+* Add the following line before the line  # m h dom mon ...:
+    - SIMBA_ROOT=/home/aadmin/simba
+    - Then add after the line:
+      - */2 * * * * /home/aadmin/simba/bin/reaper.pl
+      - */5 * * * * /home/aadmin/simba/bin/cleaner.pl
+   Save and exit (if using vim: shift+:wq)
+* This will run reaper.pl every two minutes and cleaner.pl
+  every 5 minutes. The cleaner.pl script should be confi-
+  gured to run once a day. 
+* To test, go to the test folder (cd ~/simba/test) and type:
+   - ./genTest.pl -n 100 -t random -c y
+   - This will generate 100 request files and move them to 
+     the input folder (~/simba/input).
+   - Then type "watch squeue" (this will display squeue dyna-
+     mically by updating the terminal every two seconds).
+   - Type ctrl+c to leave watch.
+* Check system mail if to see any messages (type "mail").
+* Check simba.LOG at ~/simba/logs for errors.
+
+Updating SIMBA
+* Go to simba root folder and type:
+   - git pull
+
+Running simba in a container 
+(WARNING: This section is incomplete!)
+* Install docker
+   - sudo apt-get update && sudo apt-get upgrade
+   - sudo apt-get install docker.io
+     Verify install: docker --version
+     Make sure docker starts after reboot:
+     - sudo systemctl start docker
+     - sudo systemctl enable docker
+     - sudo docker info
+* Create an empty folder:
+   - mkdir simba-container
+   - copy contents of /simba/docker to simba-container
+   - rename all *.tmpl files to *.conf
+* Clone simba and nala inside the container
+* Build the container (this will build a docker image that
+  has R and SLURM. PostgreSQL is assumed to be installed in
+  the host. This document will be updated for building an
+  image that contains PostGreSQL).
+  - sudo docker build -t rafiki .
+  - This may take a while, but after it finishes, confirm
+    by executing:
+    - sudo docker images
+    - This will list available images, make sure rafiki is
+      listed.
+  - Create a simba.conf file following the steps above. But
+    take note that the simba root in the container is at
+    /simba.
+  - Specify the input, output, working folders.
+  - Copy R scripts (nala/designs) to simba/models/statDesign
+  - Run the container:
+    - sudo docker run -h rafiki -ti -d --name rafiki -v \
+      <simba folder>:/simba rafiki:latest
+
+
