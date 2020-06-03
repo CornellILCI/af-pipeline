@@ -6,8 +6,8 @@ MirrorURL: http://us.archive.ubuntu.com/ubuntu/
   # it is convenient because singularity build has to run with root
 %files
   # Copy R script and packages to /models this will avoid to modify the script
-  /opt/ebs-af/models/packages /models/
-  /opt/ebs-af/models/design/irri/randomization/installPackages.R /models/design/irri/randomization/installPackages.R
+  ../../../models/packages /models/
+  ../../../models/design/irri/randomization/installPackages.R /models/design/irri/randomization/installPackages.R
 
 %post
   # Install Sofware properties ( to modify repositories)
