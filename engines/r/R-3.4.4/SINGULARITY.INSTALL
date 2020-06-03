@@ -36,7 +36,7 @@ INSTALL Go 1.13.5
   $ go env
 
 INSTALL singularity 3.5.2 from git
-* Clone git:
+* Clone singularity git repository:
   $ git clone https://github.com/sylabs/singularity.git
   $ cd singularity
   $ git checkout v3.5.2
