@@ -2,7 +2,7 @@ SINGULARITY INSTALL
 2 June 2020
 vjmulat@gmail.com
 
-This is install instructions for Ubuntu 18.04
+This is install instruction for Ubuntu 18.04
 
 INSTALL DEPENDENCIES
 * $ sudo apt-get update
