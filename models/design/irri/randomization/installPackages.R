@@ -36,10 +36,10 @@ install.packages(optParse, repos=NULL, type="source")
 ##==================================================##
 
 #dependencies of DiGGer (R.oo, R.methodsS3, [MASS])
-rOO <- paste(packages_root, "R.oo_1.22.0.tar.gz", sep="/")
-install.packages(rOO, repos=NULL, type="source")
 Rmethods <- paste(packages_root, "R.methodsS3_1.7.1.tar.gz", sep="/")
 install.packages(Rmethods, repos=NULL, type="source")
+rOO <- paste(packages_root, "R.oo_1.22.0.tar.gz", sep="/")
+install.packages(rOO, repos=NULL, type="source")
 
 ##==================================================##
 #dependencies of plyr (R >= 3.1.0, Rcpp)
