@@ -2,7 +2,6 @@ BootStrap: debootstrap
 OSVersion: xenial
 MirrorURL: http://us.archive.ubuntu.com/ubuntu/
   #
-  # ebs-af repo is cloned in /opt
   # it is convenient because singularity build has to run with root
 %files
   # Copy R script and packages to /models this will avoid to modify the script
