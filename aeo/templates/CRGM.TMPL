@@ -1,0 +1,17 @@
+#!/bin/bash
+# pySimba v. 0.0003 ASReml SBATCH script
+# generated from [SLTMPL]
+
+# Run ASReml
+#SBATCH --job-name=[JOBNAME]
+#SBATCH --error=[ERRORLOG]
+#SBATCH --output=[OUTPUTLOG]
+#SBATCH --chdir=[WRKNGDIR]
+
+[RUN]
+
+#SBATCH --chdir=[OUTDIR]
+
+# Compress results to output folder
+tar -czf [GZ] -C [SRC] .
+rm -fr [SRC]

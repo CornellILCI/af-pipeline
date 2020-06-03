@@ -1,0 +1,15 @@
+#!/bin/bash
+# pySimba v. 0.0003 Stat Design SBATCH script
+# generated from [SLTMPL]
+
+# Run randomization
+#SBATCH --job-name=[JOBNAME]
+#SBATCH --error=[ERRORLOG]
+#SBATCH --output=[OUTPUTLOG]
+[TRACKNEW]
+[RUN]
+
+# Compress results to output folder
+tar -czf [GZ] -C [SRC] .
+rm -fr [SRC]
+[TRACKUPD]

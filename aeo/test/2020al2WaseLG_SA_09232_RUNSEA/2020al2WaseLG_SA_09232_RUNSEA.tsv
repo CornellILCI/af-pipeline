@@ -1,0 +1,30 @@
+{
+  "metadata":{
+     "requestCategory": "",
+     "requestType": "Statiscal Analysis",
+     "requestMethod": "runSEA",
+     "requestModel": "SnglEnAnl",
+     "requestTimestamp": "2019-11-9T13:57:13+08:00",
+     "requestId": "TDSGN-2019-11-09-6372965",
+     "requestorId": "1934",
+     "analysisId": "2019ZWWTS4C_SA_93090_RUNSEA.1"
+  },
+  "job":{ 
+    "job001":{
+       "jobId": "2019ZWWTS4C_SA_93090_RUNSEA.1.1",
+       "parameters":{
+         "data": "SampleData_AlphaLattice_Study1_.csv",
+         "trialName": "LOC"
+         "designName": "DESIGN"
+         "trait": "GYPH"
+         "treatmentName": "GEN"
+         "replicateName": "REP"
+         "blockName": "BLOCK"
+         "rowBlockName": "FIELDROW"
+         "columnBlockName": "FIELDCOLUMN"
+         "fieldRowName": "FIELDROW"
+         "fieldColumnName": "FIELDCOLUMN"
+       }
+    }
+  }
+} 
