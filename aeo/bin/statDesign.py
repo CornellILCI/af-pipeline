@@ -7,6 +7,18 @@
 # Victor Jun Ulat (v.ulat@cgiar.org)
 # 2019.10.01
 
+# Sprint 2020.06 Todo's
+# * pyPath should use EBSAF_ROOT
+# * should have folder as input argument:
+#     statDesign.py 202341-2342-21231_SD_0000
+# * prereq: req/jcf should have elements that follow 
+#     repository structure for identifying path to models,
+#     for irri:  
+#        EBSAF_ROOT/models/design/irri/randomization
+#     for cimmyt:
+#        EBSAF_ROOT/models/design/cimmyt/randomization
+# * r-version should be speficied
+
 import os
 import sys
 import re
