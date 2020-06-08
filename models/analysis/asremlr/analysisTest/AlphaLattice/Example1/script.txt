@@ -1,0 +1,4 @@
+# commandline script for Alpha-Lattice
+# Design = Alpha-Lattice
+
+Rscript runSEA.R --data "D:/SampleData_AlphaLattice_Study1_.csv" --trialName "LOC" --designName "DESIGN" --trait "GYPH" --treatmentName "GEN" --replicateName "REP" --blockName "BLOCK" --rowBlockName "FIELDROW" --columnBlockName "FIELDCOLUMN" --fieldRowName "FIELDROW" --fieldColumnName "FIELDCOLUMN" --outputPath "D:/AnalysisResults_AlphaLattice"
