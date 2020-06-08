@@ -1,0 +1,13 @@
+DESIGN PROPERTIES:
+	Single Factor
+	Randomized Complete Block Design
+
+DESIGN PARAMETERS:
+	Number of Trials = 3
+	Number of Blocks (or Replicates) = 4
+	Treatment Name = Entry
+	Treatment Levels = Entry1, Entry2, Entry3, ..., Entry1000
+
+	Number of Field Row = 40
+	Number of Field Column = 100
+

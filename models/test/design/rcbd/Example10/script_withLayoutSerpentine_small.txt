@@ -1,0 +1,3 @@
+# with layout, serpentine = TRUE, small
+
+Rscript runRCBD.R --nTreatment 10 --nRep 4 --nTrial 3 --genLayout T --nRowPerRep 5 --nFieldRow 5 --serpentine T -o "RCBD_Output10" -p "D:/RCBD_Output_WithLayoutSerpentine_Small"

@@ -1,0 +1,2 @@
+#sample without layout
+Rscript runALPHALATTICE.R --nTreatment 24 --nBlk 4 --nRep 4 --nTrial 2 --genLayout F -o AlphaLattice -p "D:/Alpha Lattice_Output1"

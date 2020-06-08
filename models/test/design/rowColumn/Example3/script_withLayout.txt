@@ -1,0 +1,2 @@
+#with layout, serpentine (serpentine TRUE) 
+Rscript runRow-Column.R --nTreatment 20 --nRowBlock 4 --nRep 4 --nTrial 3 --genLayout T --nFieldRow 8 --serpentine T -o "RowColumn" -p "D:/RowColumn_Output2_s"

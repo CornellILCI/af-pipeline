@@ -1,0 +1,55 @@
+{
+	"metadata": {
+		"date": "2020-01-27",
+		"author": "Alaine Gulles",
+		"email": "a.gulles@irri.org "
+	},
+	"terms": {
+		"alpha lattice": {
+			"definition": "a generalization of lattice design"
+		},	
+		"augmented design": {
+			"definition": "any standard experimental design to which additional treatment levels which are unreplicated have been added to those standard treatments. This design classify the levels of the treatment into check and test where check are replicated treatment levels while the test are the unreplicated treatment levels"
+		},	
+		"augmented randomized complete block design": {
+			"definition": "check treatment levels follows the randomization of randomized complete block design",
+			"reference": "https://plant-breeding-genomics.extension.org/introduction-to-augmented-experimental-design/"
+		},		
+		"block": {
+			"definition": "grouping of experimental units"
+		},		
+		"completely randomized design": {
+			"definition": "levels of a treatment is assigned completely at random so that each experimental unit has the same chance of receiving any one treatment",
+			"source": "Gomez and Gomez"
+		},
+		"covariate": {
+			"definition": ""
+		},		
+		"experimental unit": {
+			"definition": "unit or group of units of experimental materials to which a treatment is applied",
+			"example": "single leaf, a whole plant, an area of land containing many plants, a pot or a bench in the greenhouse, a single animal, several animals, or an entire herd"
+		},
+		"incomplete block design": {
+			"definition": "used for experiments with a large number of treatments; characterized by blocks, each of which contains only a fraction of the treatments to be tested"
+		},	
+		"lattice design": {
+			"definition": "a type of incomplete block design where number of levels of a treatment is a perfect square"
+		},
+		"randomized complete block design": {
+			"definition": "a type of complete block design where all levels of the treatment are present in a block"
+		},
+		"replication": {
+			"definition": "repetition of the application of a level of a treatment on a number of experimental units",
+		},
+		"response variable": {
+			"definition": "characteristic whose effect you want to be measured or observed"
+		},
+		"row-column design": {
+			"definition": "a type of incomplete block design"
+		},		
+		"trait": {
+			"definition": "characteristic measured or observed",
+			"example": "yield, plant height"
+		}
+	}
+}

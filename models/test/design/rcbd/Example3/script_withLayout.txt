@@ -1,0 +1,2 @@
+#sample with layout, serpentine TRUE
+Rscript runRCBD.R --nTreatment 25 --nRep 4 --nTrial 4 --genLayout T --nFieldRow 10 --nRowPerRep 5 --serpentine T -o RCBD_Expt1 -p "D:/RCBD_Output2_s"

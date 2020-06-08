@@ -1,0 +1,2 @@
+#with layout
+Rscript runAUGMENTEDRCBD.R --nCheckTreatment 6 --nTestTreatment 8 --nRep 4 --nTrial 4 --genLayout T --nFieldRow 4 --nRowPerRep 2 --serpentine T -o AugRCBD2 -p "D:/AugmentedRCBD_Output2_s"

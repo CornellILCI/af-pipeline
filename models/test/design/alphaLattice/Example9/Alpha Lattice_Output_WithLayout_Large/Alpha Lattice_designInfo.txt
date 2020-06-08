@@ -1,0 +1,14 @@
+DESIGN PROPERTIES:
+	Incomplete Block Design
+	Alpha Lattice Design
+
+DESIGN PARAMETERS:
+	Number of Trials = 3
+	Number of Treatments = 750
+	Number of Replicates = 2
+	Number of Plots per Block = 75
+	Number of Blocks per Replicate = 10
+
+	Number of Field Rows = 50
+	Number of Field Columns = 30
+

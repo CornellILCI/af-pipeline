@@ -1,0 +1,3 @@
+# sample without layout, small number of entries
+
+Rscript runALPHALATTICE.R --nTreatment 24 --nBlk 4 --nRep 2 --nTrial 3 --genLayout F -o "Alpha Lattice" -p "D:/Alpha Lattice_Output_No Layout_Small"
