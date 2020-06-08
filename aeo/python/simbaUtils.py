@@ -2,6 +2,9 @@
 # Ported from simba
 # 2019.10.21, vjmulat
 
+# Sprint 2020.06 Todo's
+# * confPath should use EBSAF_ROOT
+
 import os
 import re
 import sys

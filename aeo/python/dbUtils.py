@@ -2,6 +2,9 @@
 # Ported from simba.
 # 2019.11.19, vjmulat
 
+# Sprint 2020.06 Todo's
+# * pyPath should use EBSAF_ROOT
+
 import os
 import re
 import sys
