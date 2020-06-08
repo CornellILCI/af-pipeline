@@ -1,7 +1,0 @@
-This will contain all the R package installers.
-
-R packages to be installed from package archive file:
-PBToolsAnalysis
-asreml
-
-Other R packages to be installed from CRAN:
