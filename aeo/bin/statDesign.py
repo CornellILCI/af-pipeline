@@ -18,6 +18,7 @@
 #     for cimmyt:
 #        EBSAF_ROOT/models/design/cimmyt/randomization
 # * r-version should be speficied
+#     add rversion in conf: r344=<path> r400=<path
 
 import os
 import sys
