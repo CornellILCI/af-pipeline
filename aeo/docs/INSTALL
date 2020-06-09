@@ -75,19 +75,19 @@ Install psycopg2 (Python3 PostgreSQL interface)
 Install Git
 * sudo apt-get install git
 
-Clone simba
-* git clone https://gitlab.com/vjmulat/pysimba
-   - Username for 'https://gitlab.com': <gitlab username>
-   - Password for 'https://vjmulat@gitlab.com': <gitlab password>
+Clone ebs-af
+* git clone https://gitlab.com/vulat/ebs-af.git
+   - Username: <gitlab username>
+   - Password: <gitlab password>
 
 Set PYSIMBA_ROOT environment variable
 * If there is no .bash_profile add this at the end of 
   .profile:
-    export PYSIMBA_ROOT=/home/aadmin/simba
+    export EBSAF_ROOT=/home/aadmin/ebs-af
 * Logout and login.
-* To check for PYSIMBA_ROOT, type: 
-   - echo $PYSIMBA_ROOT
-   - it should print out: /home/aadmin/simba
+* To check for EBSAF_ROOT, type: 
+   - echo $EBSAF_ROOT
+   - it should print out: /home/aadmin/ebs-af
 * Note: If installed in a cluster, this should be done for
   all nodes.
 
@@ -96,32 +96,25 @@ Create psql database
 * Add password: sudo -u aadmin psql analytics, then:
   ALTER USER aadmin WITH PASSWORD 'analyticsAdmin';
 * Type "\q" to exit.
-* Import/Restore schema: cd to pysimba/database and type:
-  psql -U aadmin analytics < 2019.02.22-analytics.pg.sql
+* Import/Restore schema: cd to /home/aadmin/ebs-af/aeo/database 
+  and type:
+    psql -U aadmin analytics < 2019.02.22-analytics.pg.sql
 
 Install R
 * sudo apt-get update && sudo apt-get upgrade
 * sudo apt-get install -y r-base libgfortran3
 
 Install Required packages
-* Go to ~/, by cd ~/
-   - git clone https://gitlab.com/vjmulat/nala
-   - Username for 'https://gitlab.com': <gitlab username>
-   - Password for 'https://vjmulat@gitlab.com': <gitlab password>
 * sudo R (install packages for all users)
-   - install.packages('/home/aadmin/nala/packages/getopt_1.20.2.tar.gz', repos=NULL, type='source')
-   - install.packages('/home/aadmin/nala/packages/optparse_1.6.1.tar.gz', repos=NULL, type='source')
-   - install.packages('/home/aadmin/nala/packages/R.methodsS3_1.7.1.tar.gz', repos=NULL, type='source')
-   - install.packages('/home/aadmin/nala/packages/R.oo_1.22.0.tar.gz', repos=NULL, type='source')
-   - install.packages('/home/aadmin/nala/packages/DiGGer_0.2-31_R_x86_64-unknown-linux-gnu.tar.gz', repos=NULL, type='source')
-   - install.packages('/home/aadmin/nala/packages/Rcpp_1.0.0.tar.gz', repos=NULL, type='source')
-   - install.packages('/home/aadmin/nala/packages/plyr_1.8.4.tar.gz', repos=NULL, type='source')
-   - install.packages('/home/aadmin/nala/packages/PBTools_2.0.0.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/ebs-af/models/packages/getopt_1.20.2.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/ebs-af/models/packages/optparse_1.6.1.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/ebs-af/models/packages/R.methodsS3_1.7.1.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/ebs-af/models/packages/R.oo_1.22.0.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/ebs-af/models/packages/DiGGer_0.2-31_R_x86_64-unknown-linux-gnu.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/ebs-af/models/packages/Rcpp_1.0.0.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/ebs-af/models/packages/plyr_1.8.4.tar.gz', repos=NULL, type='source')
+   - install.packages('/home/aadmin/ebs-af/models/packages/PBTools_2.0.0.tar.gz', repos=NULL, type='source')
 * exit R by, typing q() and hitting enter.
-* Copy statistical design scripts from nala to simba
-   - cp /home/aadmin/nala/design/randomization/*.R /pysimba/models/statDesign
-   - nala can be updated(for new designs) by issuing a git 
-     pull and doing the above steps again.
 
 Install SLURM
 * Note: This slurm install is only for a single node 
@@ -137,7 +130,7 @@ Install SLURM
     NodeName=thrymr0 Sockets=1 CoresPerSocket=4 ThreadsPerCore=1 State=UNKNOWN 
     PartitionName=thrymr0 Nodes=thrymr0 Default=YES MaxTime=INFINITE State=UP
 * Alternatively, you can run genSLURMconf.pl without arguments
-  from within the ~/pysimba/slurm directory to generate 
+  from within the /home/aadmin/ebs-af/aeo/slurm directory to generate 
   slurm.conf from slurm.tmpl: 
     - ./genSLURMconf.pl
 * Copy/Move slurm.conf to /etc/slurm-llnl/
@@ -153,14 +146,14 @@ Install SLURM
    - scontrol show node
 
 Create simba.conf file
-* Go to pysimba/conf and copy simba.tmpl to simba.conf
+* Go to ebs-af/aeo/conf and copy simba.tmpl to simba.conf
 * Edit simba.conf to match your settings:
-    rtd (root directory, /home/aadmin/simba)
+    rtd (root directory, /home/aadmin/ebs-af/aeo)
     bin (executables directory)
     int (input directory)
     wrd (working directory)
     out (output directory)
-    mdl (models directory)
+    mdl (models directory, /home/aadmin/ebs-af/models)
     ldg (logs directory)
     slg (simba.LOG file)
     dbh (server: currently localhost, for cluster install,
@@ -178,13 +171,13 @@ Create simba.conf file
   to folders in data volumes.
 
 Test the install
-* Go to folder test and generate request files:
+* Go to folder ebs-af/aeo/test and generate request files:
    - ./genTest.pl -n 10 -t random -c y
    - This will generate 10 request files and move it to the 
      input folder.
-* Go to the bin folder and execute reaper.pl
+* Go to the ebs-af/aeo/bin folder and execute reaper.pl
    - ./reaper.pl
-* Check logs, output, scratch folders for errors.
+* Check ebs-af/aeo/logs, output, scratch folders for errors.
 * Go back to bin folder and run cleaner.pl
    - ./cleaner.pl
 *  This will delete empty folders and log files from the
@@ -196,23 +189,24 @@ Install the reaper.pl and cleaner.pl as cron jobs
       choose which editor to use (chose option 3, for 
       vim.basic)
 * Add the following line before the line  # m h dom mon ...:
-    - SIMBA_ROOT=/home/aadmin/simba
+    - EBSAF_ROOT=/home/aadmin/ebs-af/
     - Then add after the line:
-      - */2 * * * * /home/aadmin/simba/bin/reaper.pl
-      - */5 * * * * /home/aadmin/simba/bin/cleaner.pl
+      - */2 * * * * /home/aadmin/ebs-af/aeo/bin/reaper.pl
+      - */5 * * * * /home/aadmin/ebs-af/aeo/bin/cleaner.pl
    Save and exit (if using vim: shift+:wq)
 * This will run reaper.pl every two minutes and cleaner.pl
   every 5 minutes. The cleaner.pl script should be confi-
   gured to run once a day. 
-* To test, go to the test folder (cd ~/simba/test) and type:
+* To test, go to the test folder (cd ~/ebs-af/aeo/test) and 
+  type:
    - ./genTest.pl -n 100 -t random -c y
    - This will generate 100 request files and move them to 
-     the input folder (~/simba/input).
+     the input folder (~/ebs-af/aeo/input).
    - Then type "watch squeue" (this will display squeue dyna-
      mically by updating the terminal every two seconds).
    - Type ctrl+c to leave watch.
 * Check system mail if to see any messages (type "mail").
-* Check simba.LOG at ~/simba/logs for errors.
+* Check simba.LOG at ~/ebs-af/aeo/logs for errors.
 
 Updating SIMBA
 * Go to simba root folder and type:
@@ -230,7 +224,7 @@ Running simba in a container
      - sudo docker info
 * Create an empty folder:
    - mkdir simba-container
-   - copy contents of /simba/docker to simba-container
+   - copy contents of ~/ebs-af/aeo/docker to simba-container
    - rename all *.tmpl files to *.conf
 * Clone simba and nala inside the container
 * Build the container (this will build a docker image that
@@ -244,12 +238,11 @@ Running simba in a container
     - This will list available images, make sure rafiki is
       listed.
   - Create a simba.conf file following the steps above. But
-    take note that the simba root in the container is at
-    /simba.
+    take note that the ebs-af root in the container is at
+    /ebs-af.
   - Specify the input, output, working folders.
-  - Copy R scripts (nala/designs) to simba/models/statDesign
   - Run the container:
     - sudo docker run -h rafiki -ti -d --name rafiki -v \
-      <simba folder>:/simba rafiki:latest
+      <ebs-af folder>:/ebs-af rafiki:latest
 
 
