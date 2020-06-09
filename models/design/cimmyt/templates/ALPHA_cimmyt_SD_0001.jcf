@@ -1,20 +1,20 @@
 {
     "metadata":{
-        "requestId": "6a3f164a-37b0-400b-9ee4-2d2498a93eb5",
         "requestCategory": "Desing",
         "requestType": "Trial Design",
         "requestMethod": "runALPHA_cimmyt",
         "requestDesign": "Alpha-Lattice",
-        "requestTimestamp": "",
-        "requestorId": "",
+        "requestTimestamp": "2020-06-08T22:01:13.300",
+	"requestId": "6a3f164a-37b0-400b-9ee4-2d2498a93eb5_SD_0000",
+        "requestorId": "1",
         "requestInstitute": "CIMMYT",
         "requestCrop": "MAIZE",
         "requestProgram": "GMP",
-        "Expt_ID": "56485987563",
-        "Occurrences_ID": ["3321054","3541654"]
+        "Expt_ID": 56485987563,
+        "Occurrences_ID": [3321054,3321055]
   },
     "parameters":{
-        "entrylist": "56485987563.lst",
+        "entrylist": "6a3f164a-37b0-400b-9ee4-2d2498a93eb5_SD_0001.lst",
         "nRep": 2,
         "nTrial": 2,
         "genLayout":"T",

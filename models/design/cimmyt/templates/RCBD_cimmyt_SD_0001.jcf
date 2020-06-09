@@ -1,20 +1,20 @@
 {
     "metadata":{
-        "requestId": "6a3f164a-37b0-400b-9ee4-2d2498a93eb7",
         "requestCategory": "Design",
         "requestType": "Trial Design",
         "requestMethod": "runRCBD_cimmyt",
-        "requestDesign": "RCBD",
-        "requestTimestamp": "",
-        "requestorId": "",
+        "requestDesign": "Randomized Complete Block",
+        "requestTimestamp": "2020-06-08T22:01:13.300",
+	"requestId": "6a3f164a-37b0-400b-9ee4-2d2498a93eb7_SD_0000",
+        "requestorId": "1",
         "requestInstitute": "CIMMYT",
         "requestCrop": "MAIZE",
-        "requestProgram": "GRP",
-        "Expt_ID": "321546866",
-        "Occurrences_ID": ["654565","454654"]
+        "requestProgram": "GWP",
+        "experimentId": 321546866,
+        "occurrenceId": [654565,454654]
   },
     "parameters":{
-        "entrylist": "321546866.lst",
+        "entrylist": "6a3f164a-37b0-400b-9ee4-2d2498a93eb7_SD_0001.lst",
         "nRep": 4,
         "nTrial": 2,
         "genLayout":"T",
