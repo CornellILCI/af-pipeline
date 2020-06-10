@@ -1,0 +1,36 @@
+{
+  "metadata":{
+        "requestId": "9s11m1027-16p11-22p5-11o27-16f20j16n22d_SD_0000",
+        "requestCategory": "Design",
+        "requestType": "Trial Design",
+        "requestMethod": "runALPHALATTICE",
+        "requestDesign": "Alpha-Lattice",
+        "requestTimestamp": "",
+        "requestorId": "",
+        "requestInstitute": "IRRI",
+        "requestCrop": "RICE",
+        "requestProgram": "AGGRI",
+        "Expt_ID": "10272007209",
+        "Occurrences_ID": ["1116081","1222142"]
+  },
+  "parameters": {
+  		"entrylist": "9s11m1027-16p11-22p5-11o27-16f20j16n22d_SD_0001.lst"
+  		"nTrial": 2,
+		"nRep": 2,
+		"nBlk": 3,
+		"genLayout": "T",
+		"nRowPerBlk": 4,
+		"nRowPerRep": 4,
+		"nFieldRow": 8,
+		"serpentine": "T" 
+	},
+	"entrylist": {
+        "entry_id": [37,585,933,93,1920,1546,1704,658,185,72,1485,1672], 
+		"entry_number": [1,2,3,4,5,6,7,8,9,10,11,12],
+		"entry_name": ["IR19A137", "IR19F185", "IR19J133", "IR19A193", "IR19T120", "IR19P146", "IR19R104", "IR19G158", "IR19B185", "IR19A172", "IR19O185", "IR19Q172"], "entry_type": ["test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test"], 
+		"entry_role": ["test", "test", "test", "test", "test", "test", "test", "performance check", "test", "test", "test", "test"], 
+		"entry_class": ["","","","","","","","","","","",""], 
+		"entry_status": ["active", "active", "active", "active", "active", "active", "active", "active", "active", "active", "active", "active"], 
+		"germplasm_d": [303660335,387092619,312712932,322624756,379999352,372082469,362463352,356462417,346092993,350967749,384531253,380347227]
+	}
+}

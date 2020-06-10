@@ -1,0 +1,34 @@
+{
+	"metadata": {
+		"requestId": "11o07f209-16p11-22p5-11o27-j20f16n16d22_SD_0000",
+        "requestCategory": "Design",
+        "requestType": "Trial Design",
+        "requestMethod": "runROWCOLUMN",
+        "requestDesign": "Row-Column",
+        "requestTimestamp": "",
+        "requestorId": "",
+        "requestInstitute": "IRRI",
+        "requestCrop": "RICE",
+        "requestProgram": "MAGIC",
+        "Expt_ID": "620791027",
+        "Occurrences_ID": ["1116081","1222142"]
+	},
+	"parameters": {
+		"entrylist": "11o07f209-16p11-22p5-11o27-j20f16n16d22_SD_0001.lst"
+  		"nTrial": 2,
+		"nRep": 2,
+		"nRowBlk": 10,
+		"genLayout": "T",
+		"nFieldRow": 20,
+		"serpentine": "T"
+	},
+	"entrylist": {
+		"entry_id": [37,585,933,93,1920,1546,1704,658,185,72,1485,1672],
+		"entry_number": [1,2,3,4,5,6,7,8,9,10,11,12], 
+		"entry_name": ["IR19A137", "IR19F185", "IR19J133", "IR19A193", "IR19T120", "IR19P146", "IR19R104", "IR19G158", "IR19B185", "IR19A172", "IR19O185", "IR19Q172"], "entry_type": ["test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test"], 
+		"entry_role": ["test", "test", "test", "test", "test", "test", "test", "performance check", "test", "test", "test", "test"], 
+		"entry_class": ["","","","","","","","","","","",""], 
+		"entry_status": ["active", "active", "active", "active", "active", "active", "active", "active", "active", "active", "active", "active"], 
+		"germplasm_d": [303660335,387092619,312712932,322624756,379999352,372082469,362463352,356462417,346092993,350967749,384531253,380347227]
+	}
+}

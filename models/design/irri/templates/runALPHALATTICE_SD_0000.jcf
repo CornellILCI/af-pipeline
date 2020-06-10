@@ -1,0 +1,27 @@
+{
+  "metadata":{
+        "requestId": "9s11m1027-16p11-22p5-11o27-16f20j16n22d_SD_0000",
+        "requestCategory": "Design",
+        "requestType": "Trial Design",
+        "requestMethod": "runALPHALATTICE",
+        "requestDesign": "Alpha-Lattice",
+        "requestTimestamp": "",
+        "requestorId": "",
+        "requestInstitute": "IRRI",
+        "requestCrop": "RICE",
+        "requestProgram": "AGGRI",
+        "Expt_ID": "10272007209",
+        "Occurrences_ID": ["1116081","1222142"]
+  },
+  "parameters": {
+  		"entrylist": "9s11m1027-16p11-22p5-11o27-16f20j16n22d_SD_0001.lst"
+  		"nTrial": 2,
+		"nRep": 2,
+		"nBlk": 3,
+		"genLayout": "T",
+		"nRowPerBlk": 4,
+		"nRowPerRep": 4,
+		"nFieldRow": 8,
+		"serpentine": "T" 
+	}
+}
