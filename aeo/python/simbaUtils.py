@@ -21,7 +21,7 @@ tmplContents='';
 jobStat=3;
 
 def readConfig():
-  confPath=os.environ['PYSIMBA_ROOT'] + "/conf/simba.conf"
+  confPath=os.environ['EBSAF_ROOT'] + "/aeo/conf/simba.conf"
   
   simbaConf=open(confPath, 'r')
  

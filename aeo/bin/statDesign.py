@@ -26,9 +26,9 @@ import re
 import json
 import argparse
 
-# get value of the PYSIMBA_ROOT environment variable
+# get value of the EBSAF_ROOT environment variable
 # and append to the environment path
-pyPath=os.environ['PYSIMBA_ROOT'] + "/python"
+pyPath=os.environ['EBSAF_ROOT'] + "/aeo/python"
 sys.path.append(pyPath)
 
 import simbaUtils

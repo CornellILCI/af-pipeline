@@ -13,7 +13,7 @@ import re
 
 # get value of the PYSIMBA_ROOT environment variable
 # and append to the environment path
-pyPath=os.environ['PYSIMBA_ROOT'] + "/python"
+pyPath=os.environ['EBSAF_ROOT'] + "/aeo/python"
 sys.path.append(pyPath)
 
 import simbaUtils

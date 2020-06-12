@@ -20,7 +20,7 @@ analysisId=''
 jobId=''
 statusAnalysis=''
 
-pyPath=os.environ['PYSIMBA_ROOT'] + "/python"
+pyPath=os.environ['EBSAF_ROOT'] + "/aeo/python"
 sys.path.append(pyPath)
 
 import simbaUtils

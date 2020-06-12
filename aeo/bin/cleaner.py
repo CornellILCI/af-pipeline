@@ -5,12 +5,14 @@
 # Victor Jun Ulat (v.ulat@cgiar.org)
 # 2019.10.21
 
+# This is not yet fully implemented yet
+
 import os
 import sys
 import re
 from datetime import datetime, timedelta
 
-pyPath=os.environ['PYSIMBA_ROOT'] + "/python"
+pyPath=os.environ['EBSAF_ROOT'] + "/aeo/python"
 
 sys.path.append(pyPath)
 
