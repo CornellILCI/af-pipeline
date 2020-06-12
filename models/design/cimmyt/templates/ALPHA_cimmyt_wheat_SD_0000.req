@@ -1,20 +1,20 @@
 {
     "metadata":{
+        "requestId": "ALPHA_cimmyt_wheat_SD_0000",
         "requestCategory": "Desing",
         "requestType": "Trial Design",
         "requestMethod": "runALPHA_cimmyt_wheat",
         "requestDesign": "Alpha-Lattice",
-        "requestTimestamp": "2020-06-08T22:01:13.300",
-	"requestId": "6a3f164a-37b0-400b-9ee4-2d2498a93eb6_SD_0000",
-        "requestorId": "1",
+        "requestTimestamp": "",
+        "requestorId": "",
         "requestInstitute": "CIMMYT",
         "requestCrop": "WHEAT",
-        "requestProgram": "GMP",
+        "requestProgram": "GWP",
         "Expt_ID": 56485987563,
         "Occurrences_ID": [3321054,3321055]
   },
     "parameters":{
-        "entrylist": "6a3f164a-37b0-400b-9ee4-2d2498a93eb6_SD_0001.lst",
+        "entrylist": "ALPHA_cimmyt_wheat_SD_0001.lst",
         "rand1": "T",
         "RandOcc": "T",
         "nRep": 2,
