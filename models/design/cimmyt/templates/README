@@ -1,5 +1,8 @@
 README for templates Folder
 25 May 2020
 
-This folder stores request and job control file templates for each 
-randomization script.
+This folder stores request, job control file and associated
+input and ouput templates for each randomization script.
+
+These are used as specifications by developers for imple-
+menting components for aeo.
