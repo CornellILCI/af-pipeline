@@ -1,25 +1,26 @@
 {
   "metadata":{
-        "requestId": "9s11m1027-16p11-22p5-11o27-16f20j16n22d_SD_0000",
-        "requestCategory": "Design",
-        "requestType": "Trial Design",
-        "requestMethod": "runRCBD",
-        "requestDesign": "RCBD",
-        "requestTimestamp": "",
+        "id": "RCBD_SD_0000",
+        "category": "Design",
+        "type": "Trial Design",
+		"engine": "R3.4.4",
+		"method": "runRCBD",
+        "design": "RCBD",
+        "timeStamp": "",
         "requestorId": "",
-        "requestInstitute": "IRRI",
-        "requestCrop": "RICE",
-        "requestProgram": "AGGRI",
-        "Expt_ID": "10272007209",
-        "Occurrences_ID": ["1116081","1222142"]
+        "institute": "IRRI",
+        "crop": "RICE",
+        "program": "AGGRI",
+        "experimentId": "10272007209",
+        "occurrenceId": ["1116081","1222142"]
   },
   "parameters": {
-  		"entrylist": "9s11m1027-16p11-22p5-11o27-16f20j16n22d_SD_0001.lst"
+  		"entryList": "RCBD_SD_0001.lst"
   		"nTrial": 2,
 		"nRep": 4,
 		"genLayout": "T",
-		"nRowPerRep": 4,
-		"nFieldRow": 3,
+		"nRowPerRep": 2,
+		"nFieldRow": 8,
 		"serpentine": "T" 
   }
 }
