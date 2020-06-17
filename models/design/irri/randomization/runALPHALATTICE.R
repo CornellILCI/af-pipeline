@@ -13,14 +13,14 @@
 # Script Version   : 2
 # Command          : Rscript runALPHALATTICE.R --entryList "D:SampleEntryList1_n24.csv"
 #                    --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 
-#                    --nRowPerRep 4 --nFieldRow 8 --serpentine F -o "Alpha_Small_Output1" 
-#                    -p "D:/Results/AlphaLattice Result 2020-06-17/WithLayout"
+#                    --nRowPerRep 4 --nFieldRow 8 --serpentine F -o "Output1" 
+#                    -p "D:/Results"
 # -------------------------------------------------------------------------------------
 # Parameters:
 # entryList = a cvs file containing the entry information
+# nTrial = number of trials (occurrence)
 # nRep = number of replicates
 # nBlk = number of blocks per replicate
-# nTrial = number of trials (location rep)
 # genLayout = logical; if TRUE, layout will be generated
 # nFieldRow = number of field rows, required if genLayout is TRUE
 # nRowPerRep = number of rows per replicate, required if genLayout is TRUE
@@ -37,12 +37,12 @@ suppressWarnings(suppressPackageStartupMessages(library(PBTools)))
 optionList <- list(
   make_option(opt_str = c("--entryList"), type = "character", 
               help = "Entry List", metavar = "entry list"),
+  make_option(opt_str = c("-t","--nTrial"), default = as.integer(1),
+              help = "Number of trials", metavar = "number of trials"),
   make_option(opt_str = c("-r","--nRep"), type = "integer", default = NULL,
               help = "Number of replicates", metavar = "number of replicates"),
   make_option(opt_str = c("-b","--nBlk"), type = "integer", default = NULL,
               help = "Number of blocks", metavar = "number of blocks"),
-  make_option(opt_str = c("-t","--nTrial"), default = as.integer(1),
-              help = "Number of trials", metavar = "number of trials"),
   make_option(opt_str = c("--genLayout"), type = "logical", default = F,
               help = "Whether layout will be generated or not", metavar = "whether layout will be generated or not"),
   make_option(opt_str = c("--nFieldRow"), type = "integer", default = as.integer(1),
@@ -113,10 +113,13 @@ if(all(class(temp) == "try-error")) { stop(paste("Error in designAlphaLattice:",
 
 # rename columns
 fbook <- result[[1]]
-names(fbook) <- c("occurrence", "replicate", "block", "entry_id","plot_number", "field_row", "field_col")
+if (opt$genLayout) { names(fbook) <- c("occurrence", "replicate", "block","entry_id","plot_number", "field_row", "field_col")  
+} else { names(fbook) <- c("occurrence", "replicate", "block","entry_id","plot_number") }
+
 
 # rearrange columns
-nfbook <- fbook[,c("occurrence", "plot_number", "replicate", "block", "entry_id","field_row", "field_col")]
+if (opt$genLayout) { nfbook <- fbook[,c("occurrence", "plot_number", "replicate", "block", "entry_id","field_row", "field_col")]
+} else { nfbook <- fbook[,c("occurrence", "plot_number", "replicate", "block", "entry_id")] }
 
 # save the fieldbook to a csv file
-write.csv(result$fieldbook, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_fieldbook.csv", sep = ""), row.names = FALSE)
+write.csv(nfbook, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_DesignArray.csv", sep = ""), row.names = FALSE)

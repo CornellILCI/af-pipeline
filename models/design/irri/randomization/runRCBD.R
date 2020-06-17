@@ -3,6 +3,7 @@
 # Description      : Generate randomization and layout for RCBD which can be run in the 
 #                    command line with arguments
 # R Version        : 3.5.1 
+# Note             : with entryList as argument and uses entry_id in the randomization
 # -------------------------------------------------------------------------------------
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
@@ -12,8 +13,8 @@
 # Maintainer Email : a.gulles@irri.org
 # Script Version   : 3
 # Command          : Rscript runRCBD.R --entryList "D:/SampleEntryList1_n10.csv" 
-#                    --nTrial 3 --nRep 4 --genLayout F -o "RCBD_NoLayout_Small_Output1"
-#                    -p "D:/Results"  
+#                    --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 5 --nFieldRow 5 
+#                    --serpentine F -o "Output1" -p "D:/Results"  
 # -------------------------------------------------------------------------------------
 # Parameters:
 # entryList = a cvs file containing the entry information
@@ -62,7 +63,6 @@ opt_parser = OptionParser(option_list = optionList)
 opt = parse_args(opt_parser)
 
 # check if folder is exist or not
-
 if (!dir.exists(opt$outputPath)) {
   dir.create(opt$outputPath)
 }
@@ -105,10 +105,13 @@ if(all(class(temp) == "try-error")) { stop(paste("Error in designRCBD:", msg, se
 
 # rename columns
 fbook <- result[[1]]
-names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number", "field_row", "field_col")
+if (opt$genLayout) { names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number", "field_row", "field_col")
+} else { names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number") }
 
 # rearrange columns
-nfbook <- fbook[,c("occurrence", "plot_number", "replicate", "entry_id","field_row", "field_col")]
+
+if (opt$genLayout) { nfbook <- fbook[, c("occurrence", "plot_number", "replicate", "entry_id","field_row", "field_col")]
+} else { nfbook <- fbook[, c("occurrence", "plot_number", "replicate", "entry_id")] }
 
 # save the design to a csv file
 write.csv(nfbook, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_DesignArray.csv", sep = ""), row.names = FALSE)

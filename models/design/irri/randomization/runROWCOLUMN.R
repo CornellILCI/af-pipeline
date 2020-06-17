@@ -12,10 +12,13 @@
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
 # Script Version   : 2
+# Command          : Rscript runROWCOLUMN.R --entryList "D:/SampleEntryList1_n24.csv" 
+#                    --nTrial 3 --nRep 4 --nRowBlk 4 --genLayout T --nFieldRow 8 
+#                    --serpentine F -o "Output1" -p "D:/Results"    
 # -------------------------------------------------------------------------------------
 # Parameters:
 # entryList = a cvs file containing the entry information
-# nTrial = number of trials (location rep)
+# nTrial = number of trials (occurrence)
 # nRep = number of replicates
 # nRowBlk = number of blocks per replicate
 # genLayout = logical; if TRUE, layout will be generated
@@ -110,7 +113,7 @@ if (opt$genLayout) { nfbook <- fbook[,c("occurrence", "plot_number", "replicate"
 } else { nfbook <- fbook[,c("occurrence", "plot_number", "replicate", "rowblock", "colblock", "entry_id")] }
 
 # save the fieldbook to a csv file
-write.csv(nfbook, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_fieldbook.csv", sep = ""), row.names = FALSE)
+write.csv(nfbook, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_DesignArray.csv", sep = ""), row.names = FALSE)
 
 
 
