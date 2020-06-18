@@ -19,6 +19,11 @@
 #        EBSAF_ROOT/models/design/cimmyt/randomization
 # * r-version should be speficied
 #     add rversion in conf: r344=<path> r400=<path
+# Algo
+# get input folder (from command line) 
+# read in jcf (name of jcf is the name of folder + jcf)
+# generate sbatch
+# submit sbatch
 
 import os
 import sys
@@ -38,37 +43,57 @@ import dbUtils
 simbaUtils.readConfig()
 
 # specify path for the working directory
-workPath=simbaUtils.cfg['wrd']
+workPath=simbaUtils.cfg['int']
 
-# get the input json from the command line
+# get the input folder from the command line
+# SG will write this folder in workDir
+
 parser=argparse.ArgumentParser()
-parser.add_argument("json",
+parser.add_argument("dir",
                     type=str,
-                    help="Input JSON file")
+                    help="Input folder")
 
 args=parser.parse_args()
 
+# generate path:
+reqDir=workPath + "/" + args.dir 
+
+# generate job control file
+reqJcf=args.dir[:-1] 
+reqJcf=reqJcf + "1" + ".jcf"
+reqJcf=reqDir + "/" + reqJcf
+
 # Generate output folder name
-outFolder=re.sub(".JSON",'',args.json)
+outFolder=reqDir
 
 # Generate ouput prefix
-analysisName=outFolder
-analysisName=re.sub(".+\/",'',analysisName.rstrip())
-jobName=analysisName + ".0"
+analysisName=args.dir
+jobName=analysisName[:-1]
+jobName=jobName + "1"
 
-with open(args.json, 'r') as j:
-  request=j.read()
-
-  obj=json.loads(request)
+with open(reqJcf, 'r') as j:
+  control=j.read()
+  obj=json.loads(control)
 
   # Get system bash
   bashDir='#!'
   bashDir=bashDir + simbaUtils.cfg['bsh']
 
-  # Get the r executable and rscript
-  # Should check if "model" exists
-  RScript=simbaUtils.cfg['rd1'] + "/Rscript --vanilla "
-  RScript=RScript + simbaUtils.cfg['mdl'] + "/statDesign/" \
+  # Get requestEngine
+  engine=obj['metadata']['requestEngine']
+  engine=re.sub(" ", "", engine)
+  engine=re.sub("\.", "", engine)
+  engine=(engine.lower())
+
+  # Get model source (requestInstitute)
+  source=obj['metadata']['requestInstitute']
+  source=(source.lower())
+
+  # Generate path to randomization script
+  # should check if "model" exists
+  RScript=simbaUtils.cfg[engine] + "/Rscript --vanilla "
+  RScript=RScript + simbaUtils.cfg['mdl'] + "/design/" \
+          + source + "/randomization/" \
           + obj['metadata']['requestMethod']
   RScript=RScript + ".R "
   
@@ -76,19 +101,16 @@ with open(args.json, 'r') as j:
   params=''  
 
   for p in obj['parameters'].keys():
-    params=params + \
-           "--{0} {1} ".format(p,obj['parameters'][p])
+    if p=='entrylist':
+      entPath=reqDir+ "/" + obj['parameters'][p]
+      print(entPath)
+      params=params + \
+              "--{0} {1} ".format(p,entPath)
+    else:
+      params=params + \
+             "--{0} {1} ".format(p,obj['parameters'][p])
   
-  # Create output folder
-  cmd="mkdir {}".format(outFolder)
-  os.system(cmd)
-  
-  # Move .JSON file inside output folder
-  # change "cp" to "mv" bellow
-  cmd="mv {0} {1}".format(args.json, outFolder)
-  os.system(cmd)
-
-  # logs
+  # Generate name for logs (.err and .out)
   errLog=simbaUtils.cfg['lgd'] + "/" + analysisName + ".err"
   outLog=simbaUtils.cfg['lgd'] + "/" + analysisName + ".out"
 
@@ -104,7 +126,6 @@ with open(args.json, 'r') as j:
 
   # command to compress
   gz=simbaUtils.cfg['out'] + "/" + analysisName + ".tar.gz"
-  #src=outFolder + "/" + analysisName
   src=outFolder
 
   # update
@@ -122,9 +143,11 @@ with open(args.json, 'r') as j:
   sbatch=re.sub("\[TRACKNEW\]", track, sbatch)
   sbatch=re.sub("\[RUN\]", cmd, sbatch)
   sbatch=re.sub("\[GZ\]", gz, sbatch)
+  sbatch=re.sub("\[INP\]", workPath, sbatch)
+  sbatch=re.sub("\[REQ\]", args.dir, sbatch)
   sbatch=re.sub("\[SRC\]", src, sbatch)
   sbatch=re.sub("\[TRACKUPD\]", trackUpd, sbatch)
-  # print(sbatch)
+  print(sbatch) # comment this out
 
   # write sbatch
   sbatchPath=outFolder + "/" + jobName + ".sh"
@@ -136,9 +159,9 @@ with open(args.json, 'r') as j:
   reqJSON=outFolder + "/" + analysisName + ".JSON"
   track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
        " " +  reqJSON  + " " + "-m new -t SD"
-  os.system(track)
+  # --> os.system(track)
 
-  simbaUtils.queue(sbatchPath)
+  # --> simbaUtils.queue(sbatchPath)
 
   # Print this to log or track this.
-  simbaUtils.writeLog(simbaUtils.msg)
+  # --> simbaUtils.writeLog(simbaUtils.msg)
