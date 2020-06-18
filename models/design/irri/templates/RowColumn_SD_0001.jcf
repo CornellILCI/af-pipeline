@@ -1,25 +1,25 @@
 {
 	"metadata": {
-		"requestId": "11o07f209-16p11-22p5-11o27-j20f16n16d22_SD_0000",
-        "requestCategory": "Design",
-        "requestType": "Trial Design",
-        "requestMethod": "runROWCOLUMN",
-        "requestDesign": "Row-Column",
-        "requestTimestamp": "",
-        "requestorId": "",
-        "requestInstitute": "IRRI",
-        "requestCrop": "RICE",
-        "requestProgram": "MAGIC",
-        "Expt_ID": "620791027",
-        "Occurrences_ID": ["1116081","1222142"]
+		"id": "RowColumn_SD_0000",
+        	"category": "Design",
+        	"type": "Trial Design",
+		"method": "runROWCOLUMN",
+        	"design": "Row-Column",
+		"timestamp": "",
+        	"requestorId": "",
+        	"institute": "IRRI",
+        	"crop": "RICE",
+	        "program": "MAGIC",
+	        "experimentId": "620791027",
+		"occurrencesId": ["1116081","1222142"]
 	},
 	"parameters": {
-		"entrylist": "11o07f209-16p11-22p5-11o27-j20f16n16d22_SD_0001.lst"
+		"entryList": "RowColumn_SD_0001.lst"
   		"nTrial": 2,
 		"nRep": 2,
-		"nRowBlk": 10,
+		"nRowBlk": 4,
 		"genLayout": "T",
-		"nFieldRow": 20,
+		"nFieldRow": 8,
 		"serpentine": "T"
 	}
 }
