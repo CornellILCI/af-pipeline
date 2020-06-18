@@ -3,19 +3,24 @@
 # Description      : Generate randomization and layout for Row-Column Design which 
 #                    can be run in the command line with arguments
 # R Version        : 3.5.1 
+# Note             : with entryList as argument and uses entry_id in the randomization
 # -------------------------------------------------------------------------------------
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2019.03.05
+# Date Modified    : 2020.06.17
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 1
+# Script Version   : 2
+# Command          : Rscript runROWCOLUMN.R --entryList "D:/SampleEntryList1_n24.csv" 
+#                    --nTrial 3 --nRep 4 --nRowBlk 4 --genLayout T --nFieldRow 8 
+#                    --serpentine F -o "Output1" -p "D:/Results"    
 # -------------------------------------------------------------------------------------
 # Parameters:
-# nTreatment = number of entries
-# nRowBlk = number of blocks per replicate
+# entryList = a cvs file containing the entry information
+# nTrial = number of trials (occurrence)
 # nRep = number of replicates
-# nTrial = number of trials (location rep)
+# nRowBlk = number of blocks per replicate
 # genLayout = logical; if TRUE, layout will be generated
 # nFieldRow = number of field rows, required if genLayout is TRUE
 # serpentine = logical; if TRUE, plot numbers will be in serpentine arrangement, required if genLayout is TRUE
@@ -23,18 +28,19 @@
 # outputPath = path where output will be saved
 # ---------------------------------------------------------
 
+# load the needed packages
 suppressWarnings(suppressPackageStartupMessages(library(optparse)))
 suppressWarnings(suppressPackageStartupMessages(library(PBTools)))
 
 optionList <- list(
-  make_option(opt_str = c("-n","--nTreatment"), type = "integer", default = NULL,
-              help = "Number of entries", metavar = "number of entries"),
-  make_option(opt_str = c("--nRowBlk"), type = "integer", default = NULL,
-              help = "Number of row block per replicate", metavar = "number of row block per replicate"),
-  make_option(opt_str = c("-r","--nRep"), type = "integer", default = NULL,
-              help = "Number of replicates", metavar = "number of replicates"),
+  make_option(opt_str = c("--entryList"), type = "character", 
+              help = "Entry List", metavar = "entry list"),
   make_option(opt_str = c("-t","--nTrial"), default = as.integer(1),
               help = "Number of trials", metavar = "number of trials"),
+  make_option(opt_str = c("-r","--nRep"), type = "integer", default = NULL,
+              help = "Number of replicates", metavar = "number of replicates"),
+  make_option(opt_str = c("--nRowBlk"), type = "integer", default = NULL,
+              help = "Number of row block per replicate", metavar = "number of row block per replicate"),
   make_option(opt_str = c("--genLayout"), type = "logical", default = F,
               help = "Whether layout will be generated or not", metavar = "whether layout will be generated or not"),
   make_option(opt_str = c("--nFieldRow"), type = "integer", default = as.integer(1),
@@ -49,21 +55,26 @@ optionList <- list(
               help = "Path where output will be saved",
               metavar = "path where output will be saved")
 )
+# garbage collection 
+gc()
 
 # create an instance of a parser object
 opt_parser = OptionParser(option_list = optionList)
 opt = parse_args(opt_parser)
 
 # check if folder is exist or not
-
 if (!dir.exists(opt$outputPath)) {
   dir.create(opt$outputPath)
 }
 
+# read the file containing the entry list
+entryData <- read.csv(file = opt$entryList)
+entryInfo <- entryData[,"entry_id"]
+
 # write the design information
 sink(file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_designInfo.txt", sep = ""))
 if (opt$genLayout) {
-  temp <- try(result <- designRowColumn(generate = list(Entry = opt$nTreatment),
+  temp <- try(result <- designRowColumn(generate = list(Entry = entryInfo),
                                         numRowBlk = opt$nRowBlk,
                                         numRep = opt$nRep,
                                         numTrial = opt$nTrial,
@@ -73,7 +84,7 @@ if (opt$genLayout) {
                                         display = TRUE),
               silent = TRUE)
 } else {
-  temp <- try(result <- designRowColumn(generate = list(Entry = opt$nTreatment),
+  temp <- try(result <- designRowColumn(generate = list(Entry = entryInfo),
                                         numRowBlk = opt$nRowBlk,
                                         numRep = opt$nRep,
                                         numTrial = opt$nTrial,
@@ -92,32 +103,17 @@ sink()
 
 if(all(class(temp) == "try-error")) { stop(paste("Error in designRowColumn:", msg, sep = "")) }
 
-# save the fieldbook to a csv file
-write.csv(result$fieldbook, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_fieldbook.csv", sep = ""), row.names = FALSE)
+fbook <- result[[1]]
+if (opt$genLayout) { names(fbook) <- c("occurrence", "replicate", "rowblock", "colblock","entry_id","plot_number", "field_row", "field_col")  
+} else { names(fbook) <- c("occurrence", "replicate", "rowblock", "colblock","entry_id","plot_number") }
 
-if (opt$genLayout) {
-  for (i in (1:length(result$plan$TrmtLayout))) {
-    write.csv(result$plan$TrmtLayout[[i]], file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_", 
-                                                        names(result$plan)[1],"_", names(result$plan$TrmtLayout)[i], ".csv", sep = ""))
-  }
-  
-  for (i in 2:length(result$plan)) {
-    write.csv(result$plan[[i]], file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_", names(result$plan)[i],".csv", sep = ""))
-  }
-} else {
-  for (i in (1:length(unique(result$plan$TrmtLayout[,1])))) {
-    tempTL <- result$plan$TrmtLayout[result$plan$TrmtLayout[,1] == unique(result$plan$TrmtLayout[,1])[i],]
-    write.csv(tempTL, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_StatisticalDesignArray_", names(result$plan$TrmtLayout)[1], i, ".csv", sep = ""), row.names = FALSE)
-    if (i == 1) {
-      tempRBL <- result$plan$RowBlockLayout[result$plan$RowBlockLayout[,1] == unique(result$plan$RowBlockLayout[,1])[i],]
-      tempRBL <- tempRBL[,2:ncol(tempRBL)]
-      write.csv(tempRBL, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_", names(result$plan)[2],".csv", sep = ""), row.names = FALSE)
-      
-      tempCBL <- result$plan$ColumnBlockLayout[result$plan$ColumnBlockLayout[,1] == unique(result$plan$ColumnBlockLayout[,1])[i],]
-      tempCBL <- tempCBL[,2:ncol(tempCBL)]
-      write.csv(tempCBL, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_", names(result$plan)[3],".csv", sep = ""), row.names = FALSE)
-      
-    }
-  }
-}
+
+# rearrange columns
+if (opt$genLayout) { nfbook <- fbook[,c("occurrence", "plot_number", "replicate", "rowblock", "colblock", "entry_id","field_row", "field_col")]
+} else { nfbook <- fbook[,c("occurrence", "plot_number", "replicate", "rowblock", "colblock", "entry_id")] }
+
+# save the fieldbook to a csv file
+write.csv(nfbook, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_DesignArray.csv", sep = ""), row.names = FALSE)
+
+
 

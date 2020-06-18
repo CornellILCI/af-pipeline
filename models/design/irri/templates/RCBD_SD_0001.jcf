@@ -1,0 +1,26 @@
+{
+  "metadata":{
+        "id": "RCBD_SD_0000",
+        "category": "Design",
+        "type": "Trial Design",
+	"engine": "R3.4.4",
+	"method": "runRCBD",
+        "design": "RCBD",
+        "timeStamp": "",
+        "requestorId": "",
+        "institute": "IRRI",
+        "crop": "RICE",
+        "program": "AGGRI",
+        "experimentId": "10272007209",
+        "occurrenceId": ["1116081","1222142", "10272007"]
+  },
+  "parameters": {
+	"entryList": "RCBD_SD_0001.lst"
+  	"nTrial": 3,
+	"nRep": 4,
+	"genLayout": "T",
+	"nRowPerRep": 2,
+	"nFieldRow": 8,
+	"serpentine": "T" 
+  }
+}
