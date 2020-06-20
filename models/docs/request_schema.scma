@@ -31,7 +31,7 @@
             },
             "timeStamp": {"type": "date-time"},
             "requestorId": {"type": "string"},
-            "organization_id": {"type": "string"},
+            "organization_code": {"type": "string"},
             "crop": {"type": "string"},
             "program": {"type": "string"},
             "experiment_id": { "type": "number" },
