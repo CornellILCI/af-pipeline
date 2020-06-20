@@ -1,0 +1,212 @@
+{
+  "metadata": {
+    "Rversion": "3.4.4",
+    "date": "15-Jun-2020",
+    "author": "Pedro Barbosa | Alaine Gulles | Rose Imee Zhella Morantte",
+    "email": "p.medeiros@cgiar.org",
+    "syntax": "Rscript randALPHALATTICEcimmyt.R -e ALPHA_cimmyt_SD_0001.lst --nRep 3 --sBlk 4 --nTrial 2 --genLayout T --nFieldRow 6 --nPlotBarrier 4",
+    "engine": "R 3.4.4",
+    "method": "randALPHALATTICEcimmyt",
+    "design": "Alpha-Lattice",
+    "modelVersion": 2,
+    "organization_code" : "CIMMYT", 
+    "note": "Inherent design restrictions apply"
+  },
+  "parameters": {
+    "input": {
+      "nTrial": {
+        "variable_label": "No. of Occurrences",
+        "description": "Number of occurrences within the experiment",
+        "visible": "T",
+        "minimum": "1",
+        "maximum": null,
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "F",
+        "required": "T",
+        "data_type": "integer",
+        "order_number": 1,
+        "variable_abbrev": "OCCURRENCES",
+        "is_layout_variable": "F"
+      },
+      "entryList": {
+        "variable_label": "Entry List",
+        "description": "CSV file with the entries information",
+        "visible": "F",
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "T",
+        "required": "T",
+        "data_type": "csv",
+        "order_number": 2,
+        "variable_abbrev": "entryList",
+        "is_layout_variable": "F"
+      },
+      "nRep": {
+        "variable_label": "No. of Replicates",
+        "description": "Number of replicates",
+        "visible": "T",
+        "minimum": "2",
+        "maximum": "4",
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "F",
+        "required": "T",
+        "data_type": "integer",
+        "order_number": 3,
+        "variable_abbrev": "REP_COUNT",
+        "is_layout_variable": "F"
+      },
+      "sBlk": {
+        "variable_label": "No. of plots per block",
+        "description": "Block size, it is the number of plots in each block",
+        "visible": "T",
+        "minimum": "2",
+        "maximum": "100",
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "F",
+        "required": "T",
+        "data_type": "integer",
+        "order_number": 4,
+        "variable_abbrev": "TREATMENT_BLOCK",
+        "is_layout_variable": "F"
+      },
+      "genLayout": {
+        "variable_label": "Define Field Shape/dimensions",
+        "description": "Define field rows and field columns along with the design",
+        "visible": "F",
+        "minimum": null,
+        "maximum": null,
+        "unit": null,
+        "values": null,
+        "default": "F",
+        "disabled": "F",
+        "required": "T",
+        "data_type": "boolean",
+        "order_number": 4,
+        "variable_abbrev": null,
+        "is_layout_variable": "F"
+      },
+      "nFieldRow": {
+        "variable_label": "Rows",
+        "description": "Total number of rows",
+        "visible": "T",
+        "minimum": "1",
+        "maximum": "10000",
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "F",
+        "required": "F",
+        "data_type": "integer",
+        "order_number": 6,
+        "variable_abbrev": "ROW",
+        "is_layout_variable": "T"
+      },
+      "nPlotBarrier" : {
+        "variable_label": "Plots until turn the serpentine",
+        "description": "Number of plots up to the barrier, if Vserpentine=TRUE it is in vertical direction",
+        "visible": "T",
+        "minimum": "1",
+        "maximum": "",
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "F",
+        "required": "F",
+        "data_type": "integer",
+        "order_number": 7,
+        "variable_abbrev": "ROW",
+        "is_layout_variable": "T"
+      },
+      "Vserpentine": {
+        "variable_label": "Field Order",
+        "description": "Whether plots will be assing in Vertical serpentine arrangement or Horizontal",
+        "visible": "F",
+        "minimum": null,
+        "maximum": null,
+        "unit": null,
+        "values": {
+          "F": "Horizontal Serpentine",
+          "T": "Vertical Serpentine"
+        },
+        "default": "F",
+        "disabled": "F",
+        "required": "T",
+        "data_type": "boolean",
+        "order_number": 8,
+        "variable_abbrev": "FLD_ORDER",
+        "is_layout_variable": "T"
+      },
+      "outputFile": {
+        "variable_label": "Output File",
+        "description": "Prefix to be used for the names of the output files",
+        "visible": "F",
+        "minimum": null,
+        "maximum": null,
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "T",
+        "required": "T",
+        "data_type": "character varying",
+        "order_number": 9,
+        "variable_abbrev": null,
+        "is_layout_variable": "F"
+      },
+      "outputPath": {
+        "variable_label": "Output Path",
+        "description": "Path where output will be saved",
+        "visible": "F",
+        "minimum": null,
+        "maximum": null,
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "T",
+        "required": "T",
+        "data_type": "character varying",
+        "order_number": 10,
+        "variable_abbrev": null,
+        "is_layout_variable": "F"
+      }
+    },
+    "output": {
+      "DesignArray": {
+        "filetype": "csv",
+        "label": "Design Array file",
+        "description": "spreadsheet file showing the result of  the randomization (and layout, if generated)"
+      },
+      "designInfo": {
+        "filetype": "txt",
+        "label": "Design information file",
+        "description": "contains information on the parameters used to generate the randomization"
+      },
+      "LayoutBlock": {
+        "filetype": "csv",
+        "label": "Block arrangement file (Layout)",
+        "description": "contains the arrangement of the blocks within replicates in a location rep"
+      },
+      "LayoutPlots": {
+        "filetype": "csv",
+        "label": "Plot number arrangement file (Layout)",
+        "description": "contains the arrangement of the plot numbers in a location rep, if genLayout is TRUE"
+      },
+      "LayoutRep": {
+        "filetype": "csv",
+        "label": "Replication arrangement file",
+        "description": "contains the arrangement of the replicates (super-block) in a location rep , if genLayout is TRUE"
+      },
+      "LayoutEntry": {
+        "filetype": "csv",
+        "label": "Treatment arrangement file",
+        "description": "contains the arrangement of the treatments (entries) per location rep, if genLayout is TRUE"
+      }
+    }
+  }
+}

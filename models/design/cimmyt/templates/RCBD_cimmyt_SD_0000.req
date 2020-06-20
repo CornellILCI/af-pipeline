@@ -1,17 +1,18 @@
 {
     "metadata":{
-        "requestId": "RCBD_cimmyt_SD_0000",
-        "requestCategory": "Design",
-        "requestType": "Trial Design",
-        "requestMethod": "runRCBD_cimmyt",
-        "requestDesign": "RCBD",
-        "requestTimestamp": "",
+        "id": "RCBD_cimmyt_SD_0000",
+        "category": "Design",
+        "type": "Trial Design",
+	"engine": "R 3.4.4",
+        "method": "randRCBDcimmyt",
+        "design": "Randomized Complete Block",
+        "timeStamp": "",
         "requestorId": "",
-        "requestInstitute": "CIMMYT",
-        "requestCrop": "MAIZE",
-        "requestProgram": "GRP",
-        "Expt_ID": 321546866,
-        "Occurrences_ID": [654565,654566]
+        "organization_code": "CIMMYT",
+        "crop": "MAIZE",
+        "program": "GRP",
+        "experiment_id": 321546866,
+        "occurrence_id": [654565,654566]
   },
     "parameters":{
         "entrylist": "RCBD_cimmyt_SD_0001.lst",
