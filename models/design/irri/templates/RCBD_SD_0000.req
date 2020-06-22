@@ -4,15 +4,15 @@
         "category": "Design",
         "type": "Trial Design",
 	"engine": "R3.4.4",
-	"method": "runRCBD",
+	"method": "randRCBDirri",
         "design": "RCBD",
         "timeStamp": "",
         "requestorId": "",
-        "institute": "IRRI",
+        "organization_code": "IRRI",
         "crop": "RICE",
         "program": "AGGRI",
-        "experimentId": "10272007209",
-        "occurrenceId": ["1116081","1222142","10272007"]
+        "experiment_id": "10272007209",
+        "occurrence_id": ["1116081","1222142","10272007"]
   },
   "parameters": {
 	"entryList": "RCBD_SD_0001.lst"
