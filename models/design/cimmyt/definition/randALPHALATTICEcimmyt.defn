@@ -57,7 +57,7 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 3,
-        "variable_abbrev": "REP_COUNT",
+        "variable_abbrev": "REPLICATION_BLOCK",
         "is_layout_variable": "F"
       },
       "sBlk": {
@@ -73,7 +73,7 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 4,
-        "variable_abbrev": "TREATMENT_BLOCK",
+        "variable_abbrev": "BLOCK_SIZE",
         "is_layout_variable": "F"
       },
       "genLayout": {

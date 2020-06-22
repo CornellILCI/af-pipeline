@@ -15,7 +15,7 @@
         "occurrence_id": [3321054,3321055]
   },
     "parameters":{
-        "entrylist": "ALPHA_cimmyt_wheat_SD_0001.lst",
+        "entryList": "ALPHA_cimmyt_wheat_SD_0001.lst",
         "rand1": "T",
         "RandOcc": "T",
         "nRep": 2,

@@ -15,7 +15,7 @@
         "occurrence_id": [654565,654566]
   },
     "parameters":{
-        "entrylist": "RCBD_cimmyt_SD_0001.lst",
+        "entryList": "RCBD_cimmyt_SD_0001.lst",
         "nRep": 4,
         "nTrial": 2,
         "genLayout":"T",
