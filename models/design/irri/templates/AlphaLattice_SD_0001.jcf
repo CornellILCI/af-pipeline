@@ -4,7 +4,7 @@
         "category": "Design",
         "type": "Trial Design",
 	"engine": "R3.4.4",
-        "method": "runALPHALATTICE",
+        "method": "randALPHALATTICEirri",
         "design": "Alpha-Lattice",
         "timestamp": "",
         "requestorId": "",
