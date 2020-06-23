@@ -19,7 +19,7 @@
             "type": {"type": "string"},
             "engine": {
 		"type": "string",
-		"description": "SOftware used to run the randomization, with version (R3.3.4, R3.6.3, ...)"
+		"description": "SOftware used to run the randomization, with version (R 3.3.4, R 3.6.3, ...)"
 	    },
             "method": {
                 "type": "string",
@@ -29,7 +29,7 @@
                     "type": "string",
                     "description": "experimental design (RCBD, Alpha-Lattice...)"
             },
-            "timeStamp": {"type": "date-time"},
+            "timestamp": {"type": "date-time"},
             "requestorId": {"type": "string"},
             "organization_code": {"type": "string"},
             "crop": {"type": "string"},
