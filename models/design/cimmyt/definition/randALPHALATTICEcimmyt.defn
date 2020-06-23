@@ -4,7 +4,7 @@
     "date": "15-Jun-2020",
     "author": "Pedro Barbosa | Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "p.medeiros@cgiar.org",
-    "syntax": "Rscript randALPHALATTICEcimmyt.R -e ALPHA_cimmyt_SD_0001.lst --nRep 3 --sBlk 4 --nTrial 2 --genLayout T --nFieldRow 6 --nPlotBarrier 4",
+    "syntax": "Rscript randALPHALATTICEcimmyt.R -e ALPHA_cimmyt_SD_0001.lst --nRep 2 --sBlk 4 --nTrial 2 --genLayout T --nFieldRow 6 --nPlotBarrier 4 --Vserpentine F",
     "engine": "R 3.4.4",
     "method": "randALPHALATTICEcimmyt",
     "design": "Alpha-Lattice",

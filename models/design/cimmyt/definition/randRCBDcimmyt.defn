@@ -4,7 +4,7 @@
     "date": "14-Jun-2020",
     "author": "Pedro Barbosa | Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "p.medeiros@cgiar.org",
-    "syntax": "Rscript randRCBDcimmyt.R -e RCBD_cimmyt_SD_0001.lst -b 3 -t 3 --nFieldRow 7 --nPlotBarrier 2",
+    "syntax": "Rscript randRCBDcimmyt.R -e RCBD_cimmyt_SD_0001.lst --nRep 3 --nTrial 2 --genLayout T --nFieldRow 7 --nPlotBarrier 2 --Vserpentine F",
     "engine": "R 3.4.4",
     "method": "randRCBDcimmyt",
     "design": "Randomized Complete Block",

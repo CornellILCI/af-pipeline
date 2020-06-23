@@ -16,12 +16,12 @@
   },
     "parameters":{
         "entryList": "RCBD_cimmyt_SD_0001.lst",
-        "nRep": 4,
+        "nRep": 3,
         "nTrial": 2,
         "genLayout":"T",
-        "nFieldRow": 4,
-        "nRowPerRep": 2,
-        "serpentine": "T"
+        "nFieldRow": 7,
+        "nPlotBarrier": 2,
+        "Vserpentine": "F"
     },
     "entryList":{
         "entry_id":  [1,2,3,4,5,6,7,8,9,10,11,12,13,14],
