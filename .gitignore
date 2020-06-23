@@ -13,7 +13,6 @@
 *.pyc
 *.JSON
 *.err
-*.R
 .Rhistory
 *.sif
 
