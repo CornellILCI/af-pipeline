@@ -15,15 +15,15 @@
     "occurrence_id": [1116081,1222142]
   },
   "parameters": {
-	"entryList": "AlphaLattice_SD_0001.lst"
-	"nTrial": 2,
-	"nRep": 2,
-	"nBlk": 3,
-	"genLayout": "T",
-	"nRowPerBlk": 4,
-	"nRowPerRep": 4,
-	"nFieldRow": 8,
-	"serpentine": "T" 
+    "entryList": "AlphaLattice_SD_0001.lst"
+    "nTrial": 2,
+    "nRep": 2,
+    "nBlk": 3,
+    "genLayout": "T",
+    "nRowPerBlk": 4,
+    "nRowPerRep": 4,
+    "nFieldRow": 8,
+    "serpentine": "T" 
   },
   "entryList": {
     "entry_id": [1,2,3,4,5,6,7,8,9,10,11,12], 
