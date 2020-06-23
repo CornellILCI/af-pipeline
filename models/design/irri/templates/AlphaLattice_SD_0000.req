@@ -15,7 +15,7 @@
     "occurrence_id": [1116081,1222142]
   },
   "parameters": {
-    "entryList": "AlphaLattice_SD_0001.lst"
+    "entryList": "AlphaLattice_SD_0001.lst",
     "nTrial": 2,
     "nRep": 2,
     "nBlk": 3,
