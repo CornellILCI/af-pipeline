@@ -1,20 +1,21 @@
 {
 	"metadata": {
-		"requestId": "abc1234cde-16p11-22p5-11o27-j20f16n16d22_SD_0000",
-        "requestCategory": "Design",
-        "requestType": "Trial Design",
-        "requestMethod": "runAUGMENTEDRCBD",
-        "requestDesign": "AugmentedRCBD",
-        "requestTimestamp": "",
-        "requestorId": "",
-        "requestInstitute": "IRRI",
-        "requestCrop": "RICE",
-        "requestProgram": "MAGIC",
-        "Expt_ID": "620791027",
-        "Occurrences_ID": ["20071116","1412222", "21680209"]
+		"id": "AugmentedRCBD_SD_0000",
+        	"category": "Design",
+       		"type": "Trial Design",
+		"engine": "R 3.4.4",
+		"method": "randAUGMENTEDRCBDirri",
+        	"design": "Augmented RCBD",
+        	"timeStamp": "",
+        	"requestorId": "",
+        	"organization_code": "IRRI",
+        	"crop": "RICE",
+        	"program": "AGGRI",
+        	"experiment_id": "10272007209",
+        	"occurrence_id": ["20071116","1412222", "21680209"]
 	},
 	"parameters": {
-		"entrylist": "abc1234cde-16p11-22p5-11o27-j20f16n16d22_SD_0001.lst"
+		"entryList": "AugmentedRCBD_SD_0001.lst"
   		"nTrial": 3,
 		"nRep": 4,
 		"genLayout": "T",

@@ -1,16 +1,16 @@
-"entry_id","entry_number","entry_name","entry_type","entry_role","entry_class","entry_status","germplasm_d"
-987,1,"IR19J187","test","test","","active",315618227
-92,2,"IR19A192","test","test","","active",331069274
-2235,3,"IR19W135","test","test","","active",341439644
-1963,4,"IR19T163","test","test","","active",331556075
-245,5,"IR19C145","test","test","","active",362568807
-2056,6,"IR19U156","check","test","","active",315806401
-2404,7,"IR19Y104","test","performance check","","active",378778490
-1717,8,"IR19R117","test","test","","active",303126779
-2106,9,"IR19V106","test","test","","active",349141721
-2190,10,"IR19V190","test","test","","active",373683635
-2353,11,"IR19X153","test","test","","active",362460765
-2209,12,"IR19W109","check","test","","active",300337766
-2258,13,"IR19W158","test","test","","active",352067482
-1,14,"IR19A101","check","test","","active",335636278
-625,15,"IR19G125","test","performance check","","active",376164665
+"entry_id","entry_number","entry_name","entry_type","entry_role","entry_class","entry_status","germplasm_id"
+1,1,"IR19E164","test","test",NA,"active",334308505
+2,2,"IR19Z180","check","test",NA,"active",323409610
+3,3,"IR19N186","test","test",NA,"active",361116083
+4,4,"IR19X189","test","test",NA,"active",397948314
+5,5,"IR19Y115","test","test",NA,"active",338052282
+6,6,"IR19K151","check","test",NA,"active",393698259
+7,7,"IR19Z170","test","test",NA,"active",392519086
+8,8,"IR19H199","test","test",NA,"active",322024020
+9,9,"IR19D166","test","test",NA,"active",382747762
+10,10,"IR19I120","check","performance check",NA,"active",312535944
+11,11,"IR19L187","test","test",NA,"active",365994755
+12,12,"IR19U142","test","test",NA,"active",313820464
+13,13,"IR19S129","test","performance check",NA,"active",328258799
+14,14,"IR19F118","test","test",NA,"active",322215306
+15,15,"IR19V146","test","test",NA,"active",333874748

@@ -3,7 +3,7 @@
         "id": "RCBD_SD_0000",
         "category": "Design",
         "type": "Trial Design",
-	"engine": "R3.4.4",
+	"engine": "R 3.4.4",
 	"method": "randRCBDirri",
         "design": "RCBD",
         "timeStamp": "",

@@ -1,20 +1,21 @@
 {
 	"metadata": {
-		"requestId": "abc1234cde-16p11-22p5-11o27-j20f16n16d22_SD_0000",
-        "requestCategory": "Design",
-        "requestType": "Trial Design",
-        "requestMethod": "runAUGMENTEDRCBD",
-        "requestDesign": "AugmentedRCBD",
-        "requestTimestamp": "",
-        "requestorId": "",
-        "requestInstitute": "IRRI",
-        "requestCrop": "RICE",
-        "requestProgram": "MAGIC",
-        "Expt_ID": "620791027",
-        "Occurrences_ID": ["20071116","1412222", "21680209"]
+		"id": "AugmentedRCBD_SD_0000",
+        	"category": "Design",
+       		"type": "Trial Design",
+		"engine": "R 3.4.4",
+		"method": "randAUGMENTEDRCBDirri",
+        	"design": "Augmented RCBD",
+        	"timeStamp": "",
+        	"requestorId": "",
+        	"organization_code": "IRRI",
+        	"crop": "RICE",
+        	"program": "AGGRI",
+        	"experiment_id": "10272007209",
+        	"occurrence_id": ["20071116","1412222", "21680209"]
 	},
 	"parameters": {
-		"entrylist": "abc1234cde-16p11-22p5-11o27-j20f16n16d22_SD_0001.lst"
+		"entryList": "AugmentedRCBD_SD_0001.lst"
   		"nTrial": 3,
 		"nRep": 4,
 		"genLayout": "T",
@@ -22,13 +23,14 @@
 		"nFieldRow": 8,
 		"serpentine": "T"
 	},
-	"entrylist": {
-		"entry_id": [987,92,2235,1963,245,2056,2404,1717,2106,2190,2353,2209,2258,1,625], 
-		"entry_number": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], 
-		"entry_name": ["IR19J187", "IR19A192", "IR19W135", "IR19T163", "IR19C145", "IR19U156", "IR19Y104", "IR19R117", "IR19V106", "IR19V190", "IR19X153", "IR19W109", "IR19W158", "IR19A101", "IR19G125"], 
-		"entry_type": ["test", "test", "test", "test", "test", "check", "test", "test", "test", "test", "test", "check", "test", "check", "test"], "entry_role": ["test", "test", "test", "test", "test", "test", "performance check", "test", "test", "test", "test", "test", "test", "test", "performance check"], 
+	"entryList": {
+		"entry_id": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], 
+		"entry_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 
+		"entry_name": ["IR19E164", "IR19Z180", "IR19N186", "IR19X189", "IR19Y115", "IR19K151", "IR19Z170", "IR19H199", "IR19D166", "IR19I120", "IR19L187", "IR19U142", "IR19S129", "IR19F118", "IR19V146"], 
+		"entry_type": ["test", "check", "test", "test", "test", "check", "test", "test", "test", "check", "test", "test", "test", "test", "test"], 
+		"entry_role": ["test", "test", "test", "test", "test", "test", "test", "test", "test", "performance check", "test", "test", "performance check", "test", "test"], 
 		"entry_class": ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
 		"entry_status": ["active", "active", "active", "active", "active", "active", "active", "active", "active", "active", "active", "active", "active", "active", "active"], 
-		"germplasm_d": [315618227,331069274,341439644,331556075,362568807,315806401,378778490,303126779,349141721,373683635,362460765,300337766,352067482,335636278,376164665]
+		"germplasm_id": [334308505, 323409610, 361116083, 397948314, 338052282, 393698259, 392519086, 322024020, 382747762, 312535944, 365994755, 313820464, 328258799, 322215306, 333874748]
 	}
 }
