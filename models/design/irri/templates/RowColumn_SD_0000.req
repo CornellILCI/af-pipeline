@@ -1,18 +1,18 @@
 {
 	"metadata": {
-		"id": "RowColumn_SD_0000",
-        	"category": "Design",
-        	"type": "Trial Design",
-		"engine": "R 3.4.4",
-		"method": "randROWCOLUMNirri",
-        	"design": "Row-Column",
-		"timeStamp": "",
-        	"requestorId": "",
-        	"organization_code": "IRRI",
-        	"crop": "RICE",
-	        "program": "MAGIC",
-	        "experimentId": "620791027",
-		"occurrencesId": ["1116081","1222142"]
+	    "id": "RowColumn_SD_0000",
+	    "category": "Design",
+	    "type": "Trial Design",
+	    "engine": "R 3.4.4",
+	    "method": "randROWCOLUMNirri",
+	    "design": "Row-Column",
+	    "timestamp": "",
+	    "requestorId": "",
+	    "organization_code": "IRRI",
+	    "crop": "RICE",
+	    "program": "MAGIC",
+	    "experiment_id": 620791027,
+		"occurrences_id": [1116081,1222142]
 	},
 	"parameters": {
 		"entryList": "RowColumn_SD_0001.lst"
