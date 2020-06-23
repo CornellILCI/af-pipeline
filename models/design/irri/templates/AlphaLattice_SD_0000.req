@@ -3,7 +3,7 @@
         "id": "AlphaLattice_SD_0000",
         "category": "Design",
         "type": "Trial Design",
-	"engine": "R 3.4.4",
+        "engine": "R 3.4.4",
         "method": "randALPHALATTICEirri",
         "design": "Alpha-Lattice",
         "timestamp": "",
@@ -11,8 +11,8 @@
         "institute": "IRRI",
         "crop": "RICE",
         "program": "AGGRI",
-        "experimentId": "10272007209",
-        "occurrenceId": ["1116081","1222142"]
+        "experiment_id": 10272007209,
+        "occurrence_id": [1116081,1222142]
   },
   "parameters": {
 	"entryList": "AlphaLattice_SD_0001.lst"
@@ -26,7 +26,7 @@
 	"serpentine": "T" 
   },
   "entryList": {
-        "entry_id": [1,2,3,4,5,6,7,8,9,10,11,12], 
+    "entry_id": [1,2,3,4,5,6,7,8,9,10,11,12], 
 	"entry_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
 	"entry_name": ["IR19I179", "IR19G169", "IR19N114", "IR19C112", "IR19W138", "IR19U185", "IR19E112", "IR19Y101", "IR19I159", "IR19L163", "IR19G140", "IR19K119"], 
 	"entry_type": ["test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test"],
