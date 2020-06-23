@@ -1,5 +1,5 @@
 {
-	"metadata": {
+    "metadata": {
 	    "id": "RowColumn_SD_0000",
 	    "category": "Design",
 	    "type": "Trial Design",
@@ -12,7 +12,7 @@
 	    "crop": "RICE",
 	    "program": "MAGIC",
 	    "experiment_id": 620791027,
-		"occurrences_id": [1116081,1222142]
+	    "occurrences_id": [1116081,1222142]
 	},
 	"parameters": {
 		"entryList": "RowColumn_SD_0001.lst"
