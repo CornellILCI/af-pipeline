@@ -5,5 +5,8 @@ This is the directory for devops.
 
 ## Building the Docker image for EBS AF AEO
 
-At the root of the `ebs-af` project, run the command: `docker build -t {IMAGE_NAME}:{IMAGE_TAG} -f devops/Dockerfile .`.
-  
+At the root of the `ebs-af` project, run the command:
+
+``` bash
+docker build -t {IMAGE_NAME}:{IMAGE_TAG} -f devops/Dockerfile
+```  
