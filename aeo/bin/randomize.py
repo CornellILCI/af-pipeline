@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# statDesign.py -- handles stat design requests; creates an 
+# randomize.py -- handles stat design requests; creates an 
 #   sbatch script that runs the appropriate randomization 
 #   script; submits sbatch to SLURM; this is called from the
 #   working directory.
@@ -142,7 +142,7 @@ with open(reqJcf, 'r') as j:
   sbatch=re.sub("\[REQ\]", args.dir, sbatch)
   sbatch=re.sub("\[SRC\]", src, sbatch)
   sbatch=re.sub("\[TRACKUPD\]", trackUpd, sbatch)
-  print(sbatch) # comment this out
+  # print(sbatch) # comment this out
 
   # write sbatch
   sbatchPath=outFolder + "/" + jobName + ".sh"
