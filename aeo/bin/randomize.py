@@ -154,9 +154,9 @@ with open(reqJcf, 'r') as j:
   reqJSON=outFolder + "/" + analysisName + ".JSON"
   track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
        " " +  reqJSON  + " " + "-m new -t SD"
-  # --> os.system(track)
+  os.system(track)
 
-  # --> simbaUtils.queue(sbatchPath)
+  simbaUtils.queue(sbatchPath)
 
   # Print this to log or track this.
-  # --> simbaUtils.writeLog(simbaUtils.msg)
+  simbaUtils.writeLog(simbaUtils.msg)
