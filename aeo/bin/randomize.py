@@ -96,7 +96,7 @@ with open(reqJcf, 'r') as j:
   params=''  
 
   for p in obj['parameters'].keys():
-    if p=='entrylist':
+    if p=='entryList':
       entPath=reqDir+ "/" + obj['parameters'][p]
       print(entPath)
       params=params + \
