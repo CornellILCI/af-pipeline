@@ -14,7 +14,7 @@ use Getopt::Std;
 # -t  request type (alpha, rowcol, rcbd, random)
 #     i.e. -t alpha (generate alpha-lattice request files)
 
-my $root="$ENV{'PYSIMBA_ROOT'}";
+my $root="$ENV{'EBSAF_ROOT'}";
 my %args=();
 getopt("nct:", \%args);
 
@@ -30,7 +30,7 @@ if ($argN<3){
 
 my $i=1;
 my @designs=();
-my @temp=`ls -1 $root/test/*.tmpl`;
+my @temp=`ls -1 $root/aeo/test/*.tmpl`;
 foreach my $e(@temp){
   if ($e!~/(ASREML)|(runSEA)/){
     push(@designs, $e);
@@ -118,9 +118,9 @@ while ($i <= $args{n}){
 
 if ($args{'c'} eq 'y') {
   if ($args{'t'} eq 'asreml'){
-    `mv $root/test/*_ASREML $root/input/`;
+    `mv $root/aeo/test/*_ASREML $root/aeo/input/`;
   } else {
-    `mv $root/test/*.JSON $root/input/`;
+    `mv $root/aeo/test/*.JSON $root/aeo/input/`;
   }
 }
 
@@ -133,8 +133,8 @@ sub genCN {
   my $ri=genRN('1','2000');
   my $content='';
 
-  open TMPL, "$root/test/$rq" or 
-       die "Cannot open $root/test/$rq: $!";
+  open TMPL, "$root/aeo/test/$rq" or 
+       die "Cannot open $root/aeo/test/$rq: $!";
   
   while (my $line=readline *TMPL) {
     if ($line=~/\[\d+/){
