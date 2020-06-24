@@ -1,8 +1,9 @@
 #!/usr/bin/python3
-# ebsaf.py -- submits request for randmization given
-#   a folder containing *.jcf (job control file), 
-#   *.lst (entrylist)
-#
+# ebsaf.py -- triggers randomization of a given folder 
+#   containing *.jcf (job control file) and *.lst 
+#   (entry list). The folder should be present in the
+#   <mounted volume>/input folder.
+#   
 # Jack Elendil Lagare (j.lagare@irri.org)
 # Victor Jun Ulat (v.ulat@cgiar.org)
 # 2020.06.24
@@ -34,5 +35,4 @@ def start_randomization(folder):
    call(["python3",randExec, folder])
    return jsonify([{'id':'200'}])
 app.run()
-
 
