@@ -8,5 +8,5 @@ This is the directory for devops.
 At the root of the `ebs-af` project, run the command:
 
 ``` bash
-docker build -t {IMAGE_NAME}:{IMAGE_TAG} -f devops/Dockerfile
+docker build -t {IMAGE_NAME}:{IMAGE_TAG} -f devops/Dockerfile .
 ```  
