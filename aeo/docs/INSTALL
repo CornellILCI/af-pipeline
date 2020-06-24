@@ -80,7 +80,7 @@ Clone ebs-af
    - Username: <gitlab username>
    - Password: <gitlab password>
 
-Set PYSIMBA_ROOT environment variable
+Set EBSAF_ROOT environment variable
 * If there is no .bash_profile add this at the end of 
   .profile:
     export EBSAF_ROOT=/home/aadmin/ebs-af
