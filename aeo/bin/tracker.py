@@ -62,8 +62,14 @@ if args.mode == 'new' or args.mode == 'n':
       # get sha of args.name:
       simbaUtils.genShaFile(args.name)
       sha=simbaUtils.strSha
-      analysisName=re.sub(".JSON",'',args.name)
+
+      if re.match("JSON", args.name):
+        analysisName=re.sub(".JSON",'',args.name)
+      else:
+        analysisName=re.sub(".req",'',args.name)
+
       analysisName=re.sub(".+\/",'',analysisName.rstrip())
+      
       dbUtils.addAnalysis(analysisName, sha, args.type)
     else:
       # LOG THIS
