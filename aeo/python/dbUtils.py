@@ -92,7 +92,7 @@ def addJob (analysisId, jobName, parentId):
   
   if jobId:
     # LOG THIS
-    msg="Job: {} ".format(jobname)
+    msg="Job: {} ".format(jobName)
     msg=msg + "exists!"
     simbaUtils.writeLog(msg)
     # print("Job:", jobName, "exists!")
