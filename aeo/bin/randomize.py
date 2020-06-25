@@ -98,7 +98,6 @@ with open(reqJcf, 'r') as j:
   for p in obj['parameters'].keys():
     if p=='entryList':
       entPath=reqDir+ "/" + obj['parameters'][p]
-      print(entPath)
       params=params + \
               "--{0} {1} ".format(p,entPath)
     else:
@@ -151,9 +150,9 @@ with open(reqJcf, 'r') as j:
   sbatchFile.close()
 
   # Track analysis or add this to sbatch?
-  reqJSON=outFolder + "/" + analysisName + ".JSON"
+  reqFile=outFolder + "/" + analysisName + ".req"
   track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
-       " " +  reqJSON  + " " + "-m new -t SD"
+       " " +  reqFile  + " " + "-m new -t SD"
   os.system(track)
 
   simbaUtils.queue(sbatchPath)
