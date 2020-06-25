@@ -7,7 +7,7 @@
     "syntax": "Rscript randRCBDcimmyt.R -e RCBD_cimmyt_SD_0001.lst --nRep 3 --nTrial 2 --genLayout T --nFieldRow 7 --nPlotBarrier 2 --Vserpentine F",
     "engine": "R 3.4.4",
     "method": "randRCBDcimmyt",
-    "design": "Randomized Complete Block",
+    "design": "RCBD",
     "modelVersion": 2,
     "organization_code":"CIMMYT",
     "note": null
@@ -105,7 +105,7 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 6,
-        "variable_abbrev": "plots until the barrier",
+        "variable_abbrev": "barrier",
         "is_layout_variable": "T"
       },
       "Vserpentine": {

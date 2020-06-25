@@ -1,23 +1,22 @@
 {
   "metadata": {
     "Rversion": "3.5.1",
-    "date": "22-Jun-2020",
+    "date": "25-Jun-2020",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
-    "syntax": "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine T -o 'Output3' -p 'D:/Results'",
-    "engine": "R 3.4.4",
-    "method": "randALPHALATTICEirri",
-    "design": "Alpha-Lattice",
-    "modelVersion": 2,
-    "organization_code": "IRRI",
-    "note": "Total number of plots per Location Rep should not exceed 1,500."
-
+    "syntax": "Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" --nTrial 3 --nRep 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 --serpentine T -o 'Output3' -p 'D:/Results'",
+	"engine": "R 3.4.4", 
+    "method": "randAUGMENTEDRCBDirri",
+    "design": "Augmented RCBD",
+	"modelVersion": 2,
+    "organization_code" : "IRRI", 
+    "note": null
   },
   "parameters": {
     "input": {
       "nTrial": {
         "variable_label": "No. of Occurrences",
-        "description": "Number of occurrences within the experiment",
+        "description": "Number of occurrence reps within the experiment",
         "visible": "T",
         "minimum": "1",
         "maximum": null,
@@ -31,7 +30,7 @@
         "variable_abbrev": "OCCURRENCES",
         "is_layout_variable": "F"
       },
-      "entryList": {
+	  "entryList": {
         "variable_label": "Entry List",
         "description": "CSV file with the entries information",
         "visible": "F",
@@ -50,23 +49,7 @@
         "description": "Number of replicates",
         "visible": "T",
         "minimum": "2",
-        "maximum": "166",
-        "unit": null,
-        "values": null,
-        "default": null,
-        "disabled": "F",
-        "required": "T",
-        "data_type": "integer",
-        "order_number": 3,
-        "variable_abbrev": "REP_COUNT",
-        "is_layout_variable": "F"
-      },
-      "nBlk": {
-        "variable_label": "No. of Blocks per Rep",
-        "description": "Number of blocks per rep",
-        "visible": "T",
-        "minimum": "2",
-        "maximum": "375",
+        "maximum": null,
         "unit": null,
         "values": null,
         "default": null,
@@ -93,12 +76,12 @@
         "variable_abbrev": null,
         "is_layout_variable": "F"
       },
-      "nRowPerBlk": {
-        "variable_label": "No. of rows per block",
-        "description": "Number of rows per block",
+      "nFieldRow": {
+        "variable_label": "Rows",
+        "description": "Total number of rows",
         "visible": "T",
         "minimum": "1",
-        "maximum": "375",
+        "maximum": null,
         "unit": null,
         "values": null,
         "default": null,
@@ -106,15 +89,15 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 6,
-        "variable_abbrev": "NO_OF_ROWS_PER_BLOCK",
+        "variable_abbrev": "ROW",
         "is_layout_variable": "T"
       },
       "nRowPerRep": {
         "variable_label": "No. of rows per rep",
-        "description": "Number of rows per replicate",
+        "description": "Number of rows per replication",
         "visible": "T",
         "minimum": "1",
-        "maximum": "750",
+        "maximum": null,
         "unit": null,
         "values": null,
         "default": null,
@@ -122,23 +105,7 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 7,
-        "variable_abbrev": "NO_OF_ROWS_PER_REPLICATE",
-        "is_layout_variable": "T"
-      },
-      "nFieldRow": {
-        "variable_label": "Rows",
-        "description": "Total number of rows",
-        "visible": "T",
-        "minimum": "1",
-        "maximum": "1500",
-        "unit": null,
-        "values": null,
-        "default": null,
-        "disabled": "F",
-        "required": "F",
-        "data_type": "integer",
-        "order_number": 8,
-        "variable_abbrev": "ROW",
+        "variable_abbrev": "NO_OF_ROWS_PER_BLOCK",
         "is_layout_variable": "T"
       },
       "serpentine": {
@@ -156,7 +123,7 @@
         "disabled": "F",
         "required": "T",
         "data_type": "boolean",
-        "order_number": 9,
+        "order_number": 8,
         "variable_abbrev": "FLD_ORDER",
         "is_layout_variable": "T"
       },
@@ -172,7 +139,7 @@
         "disabled": "T",
         "required": "T",
         "data_type": "character varying",
-        "order_number": 10,
+        "order_number": 9,
         "variable_abbrev": null,
         "is_layout_variable": "F"
       },
@@ -188,7 +155,7 @@
         "disabled": "T",
         "required": "T",
         "data_type": "character varying",
-        "order_number": 11,
+        "order_number": 10,
         "variable_abbrev": null,
         "is_layout_variable": "F"
       }

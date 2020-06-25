@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# statDesign.py -- handles stat design requests; creates an 
+# randomize.py -- handles stat design requests; creates an 
 #   sbatch script that runs the appropriate randomization 
 #   script; submits sbatch to SLURM; this is called from the
 #   working directory.
@@ -96,7 +96,7 @@ with open(reqJcf, 'r') as j:
   params=''  
 
   for p in obj['parameters'].keys():
-    if p=='entrylist':
+    if p=='entryList':
       entPath=reqDir+ "/" + obj['parameters'][p]
       print(entPath)
       params=params + \
@@ -142,7 +142,7 @@ with open(reqJcf, 'r') as j:
   sbatch=re.sub("\[REQ\]", args.dir, sbatch)
   sbatch=re.sub("\[SRC\]", src, sbatch)
   sbatch=re.sub("\[TRACKUPD\]", trackUpd, sbatch)
-  print(sbatch) # comment this out
+  # print(sbatch) # comment this out
 
   # write sbatch
   sbatchPath=outFolder + "/" + jobName + ".sh"
@@ -154,9 +154,9 @@ with open(reqJcf, 'r') as j:
   reqJSON=outFolder + "/" + analysisName + ".JSON"
   track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
        " " +  reqJSON  + " " + "-m new -t SD"
-  # --> os.system(track)
+  os.system(track)
 
-  # --> simbaUtils.queue(sbatchPath)
+  simbaUtils.queue(sbatchPath)
 
   # Print this to log or track this.
-  # --> simbaUtils.writeLog(simbaUtils.msg)
+  simbaUtils.writeLog(simbaUtils.msg)
