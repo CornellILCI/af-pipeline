@@ -22,3 +22,11 @@ cp supervisord.tmpl supervisord.tmpl
 ``` bash
 docker build -t {IMAGE_NAME}:{IMAGE_TAG} -f devops/Dockerfile .
 ```  
+
+## EBS AF Services
+
+## Docker Containers
+
+1. EBS AF AEO (irribim/ebs-af-aeo:latest)
+2. EBS AF API (irribim/ebs-af-api:20.06)
+3. EBS AF DB
