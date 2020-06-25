@@ -1,11 +1,11 @@
 {
   "metadata": {
     "Rversion": "3.5.1",
-    "date": "22-06-2020",
+    "date": "22-Jun-2020",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine T -o 'Output3' -p 'D:/Results'",
-    "engine": "R3.4.4",
+    "engine": "R 3.4.4",
     "method": "randALPHALATTICEirri",
     "design": "Alpha-Lattice",
     "modelVersion": 2,
