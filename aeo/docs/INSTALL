@@ -162,7 +162,7 @@ Create simba.conf file
     dbn (database name)
     dbu (database user)
     dbp (database user password)
-    rd1 (location of R executable; i.e. /usr/bin)
+    r344 (location of R 3.4.4 executable; i.e. /usr/bin)
     asm (AsREML directory)
     bsh (bash executable)
 * Make sure that the directories you specified are
