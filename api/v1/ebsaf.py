@@ -22,7 +22,7 @@ binPath=ebsafRoot + "/aeo/bin"
 randExec=binPath + "/randomize.py"
 
 import simbaUtils
-import dbUtils
+# import dbUtils
 
 # read configuration file.
 simbaUtils.readConfig()
@@ -35,8 +35,20 @@ def start_randomization(folder):
    # check if folder exists...
    input=simbaUtils.cfg['int'] + "/" + folder
    if os.path.isdir(input):
-     call(["python3",randExec, folder])
-     return jsonify([{'id':'200'}])
+     # generate filenames for required files
+     jobName=folder[:-1] + '1'
+     reqFile=input + "/" + folder + ".req"
+     reqJcf=input + "/" + jobName + ".jcf"
+     entLst=input + "/" + jobName + ".lst"
+
+     # check if all required files exists
+     if (os.path.exists(reqJcf) and
+        os.path.exists(reqFile) and
+        os.path.exists(entLst)):
+          call(["python3",randExec, folder])
+          return jsonify([{'id':'200'}])
+     else:
+        return jsonify([{'id':'402'}])
    else:
      return jsonify([{'id':'401'}])
 
