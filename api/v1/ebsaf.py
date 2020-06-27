@@ -34,5 +34,7 @@ app.config["DEBUG"] = True
 def start_randomization(folder):
    call(["python3",randExec, folder])
    return jsonify([{'id':'200'}])
-app.run()
+
+if __name__=='__main__':
+   app.run(host='0.0.0.0')
 
