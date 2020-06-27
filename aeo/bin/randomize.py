@@ -40,6 +40,9 @@ simbaUtils.readConfig()
 # specify path for the working directory
 workPath=simbaUtils.cfg['int']
 
+# set tracking, 1 = on, 0 = off
+trackOn = 0
+
 # get the input folder from the command line
 # SG will write this folder in workDir
 
@@ -134,13 +137,19 @@ with open(reqJcf, 'r') as j:
   sbatch=re.sub("\[JOBNAME\]", jobName, sbatch)
   sbatch=re.sub("\[ERRORLOG\]", errLog, sbatch)
   sbatch=re.sub("\[OUTPUTLOG\]", outLog, sbatch)
-  sbatch=re.sub("\[TRACKNEW\]", track, sbatch)
   sbatch=re.sub("\[RUN\]", cmd, sbatch)
   sbatch=re.sub("\[GZ\]", gz, sbatch)
   sbatch=re.sub("\[INP\]", workPath, sbatch)
   sbatch=re.sub("\[REQ\]", args.dir, sbatch)
   sbatch=re.sub("\[SRC\]", src, sbatch)
-  sbatch=re.sub("\[TRACKUPD\]", trackUpd, sbatch)
+
+  if trackOn:
+    sbatch=re.sub("\[TRACKNEW\]", track, sbatch)
+    sbatch=re.sub("\[TRACKUPD\]", trackUpd, sbatch)
+  else:
+    sbatch=re.sub("\[TRACKNEW\]", '', sbatch)
+    sbatch=re.sub("\[TRACKUPD\]", '', sbatch)
+  
   # print(sbatch) # comment this out
 
   # write sbatch
@@ -150,10 +159,11 @@ with open(reqJcf, 'r') as j:
   sbatchFile.close()
 
   # Track analysis or add this to sbatch?
-  reqFile=outFolder + "/" + analysisName + ".req"
-  track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
-       " " +  reqFile  + " " + "-m new -t SD"
-  os.system(track)
+  if trackOn:
+    reqFile=outFolder + "/" + analysisName + ".req"
+    track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
+         " " +  reqFile  + " " + "-m new -t SD"
+    os.system(track)
 
   simbaUtils.queue(sbatchPath)
 
