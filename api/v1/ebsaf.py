@@ -32,8 +32,13 @@ app.config["DEBUG"] = True
 
 @app.route('/v1/randomize/<folder>', methods=['POST'])
 def start_randomization(folder):
-   call(["python3",randExec, folder])
-   return jsonify([{'id':'200'}])
+   # check if folder exists...
+   input=simbaUtils.cfg['int'] + "/" + folder
+   if os.path.isdir(input):
+     call(["python3",randExec, folder])
+     return jsonify([{'id':'200'}])
+   else:
+     return jsonify([{'id':'401'}])
 
 if __name__=='__main__':
    app.run(host='0.0.0.0')
