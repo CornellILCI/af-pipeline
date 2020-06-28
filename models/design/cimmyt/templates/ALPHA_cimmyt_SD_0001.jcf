@@ -3,8 +3,8 @@
         "id": "ALPHA_cimmyt_SD_0000",
         "category": "Desing",
         "type": "Trial Design",
-	"engine": "R 3.4.4"
-        "method": "randALPHALATTICEcimmyt"
+	"engine": "R 3.4.4",
+        "method": "randALPHALATTICEcimmyt",
         "design": "Alpha-Lattice",
         "timeStamp": "",
         "requestorId": "",
