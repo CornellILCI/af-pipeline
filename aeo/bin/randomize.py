@@ -77,14 +77,14 @@ with open(reqJcf, 'r') as j:
   bashDir='#!'
   bashDir=bashDir + simbaUtils.cfg['bsh']
 
-  # Get requestEngine
-  engine=obj['metadata']['requestEngine']
+  # Get engine
+  engine=obj['metadata']['engine']
   engine=re.sub(" ", "", engine)
   engine=re.sub("\.", "", engine)
   engine=(engine.lower())
 
-  # Get model source (requestInstitute)
-  source=obj['metadata']['requestInstitute']
+  # Get model source (organization_code)
+  source=obj['metadata']['organization_code']
   source=(source.lower())
 
   # Generate path to randomization script
@@ -92,7 +92,7 @@ with open(reqJcf, 'r') as j:
   RScript=simbaUtils.cfg[engine] + "/Rscript --vanilla "
   RScript=RScript + simbaUtils.cfg['mdl'] + "/design/" \
           + source + "/randomization/" \
-          + obj['metadata']['requestMethod']
+          + obj['metadata']['method']
   RScript=RScript + ".R "
   
   # Get parameters
