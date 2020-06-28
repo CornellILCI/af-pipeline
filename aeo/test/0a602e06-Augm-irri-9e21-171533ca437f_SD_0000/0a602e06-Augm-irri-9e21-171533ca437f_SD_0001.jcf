@@ -1,0 +1,26 @@
+{
+	"metadata": {
+	    "id": "0a602e06-Augm-irri-9e21-171533ca437f_SD_0000",
+	    "category": "Design",
+	    "type": "Trial Design",
+	    "engine": "R 3.4.4",
+	    "method": "randAUGMENTEDRCBDirri",
+	    "design": "Augmented RCBD",
+	    "timestamp": "",
+	    "requestorId": "",
+	    "organization_code": "IRRI",
+	    "crop": "RICE",
+	    "program": "AGGRI",
+	    "experiment_id": 10272007209,
+	    "occurrence_id": [20071116,1412222,21680209]
+	},
+	"parameters": {
+		"entryList": "0a602e06-Augm-irri-9e21-171533ca437f_SD_0001.lst",
+  		"nTrial": 3,
+		"nRep": 4,
+		"genLayout": "T",
+		"nRowPerRep": 2,
+		"nFieldRow": 8,
+		"serpentine": "T"
+	}
+}

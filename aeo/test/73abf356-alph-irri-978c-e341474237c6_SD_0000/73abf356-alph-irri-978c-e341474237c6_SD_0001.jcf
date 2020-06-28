@@ -1,0 +1,28 @@
+{
+  "metadata":{
+    "id": "73abf356-alph-irri-978c-e341474237c6_SD_0000",
+    "category": "Design",
+    "type": "Trial Design",
+    "engine": "R 3.4.4",
+    "method": "randALPHALATTICEirri",
+    "design": "Alpha-Lattice",
+    "timestamp": "",
+    "requestorId": "",
+    "organization_code": "IRRI",
+    "crop": "RICE",
+    "program": "AGGRI",
+    "experiment_id": 10272007209,
+    "occurrence_id": [1116081,1222142]
+  },
+  "parameters": {
+    "entryList": "73abf356-alph-irri-978c-e341474237c6_SD_0001.lst",
+    "nTrial": 2,
+    "nRep": 2,
+    "nBlk": 3,
+    "genLayout": "T",
+    "nRowPerBlk": 4,
+    "nRowPerRep": 4,
+    "nFieldRow": 8,
+    "serpentine": "T" 
+  }
+}
