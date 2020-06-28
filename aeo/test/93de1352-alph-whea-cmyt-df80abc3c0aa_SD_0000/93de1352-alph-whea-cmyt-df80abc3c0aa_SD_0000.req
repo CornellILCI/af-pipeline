@@ -1,0 +1,39 @@
+{
+    "metadata":{
+        "id": "93de1352-alph-whea-cmyt-df80abc3c0aa_SD_0000",
+        "category": "Desing",
+        "type": "Trial Design",
+	"engine": "R 3.4.5",
+        "method": "randALPHALATTICEcimmytWHEAT",
+        "design": "Alpha-Lattice",
+        "timeStamp": "",
+        "requestorId": "",
+        "organization_code": "CIMMYT",
+        "crop": "WHEAT",
+        "program": "GWP",
+        "experiment_id": 56485987563,
+        "occurrence_id": [3321054,3321055]
+  },
+    "parameters":{
+        "entryList": "93de1352-alph-whea-cmyt-df80abc3c0aa_SD_0001.lst",
+        "rand1": "F",
+        "RandOcc": "T",
+        "nRep": 2,
+        "nTrial": 2,
+        "genLayout":"T",
+        "sBlk": 4,
+        "nFieldRow": 6,
+        "nPlotBarrier": 4, 
+        "Vserpentine": "F"
+    },
+    "entryList":{
+        "entry_id":  [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],
+        "entry_number":  [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],
+        "entry_name":  ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x"],
+        "entry_type":  ["check","check","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test"],
+        "entry_role":  ["performance check","performance check","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test"],
+        "entry_class":  ["","","","","","","","","","","","","","","","","","","","","","","",""],
+        "entry_status":  ["active","active","active","active","active","active","active","active","active","active","active","active","active","active","active","active","active","active","active","active","active","active","active","active"],
+        "germplasm_id":  [7371,8823,4997,6965,7056,5148,6357,6867,6395,8184,9289,6741,5960,8270,6655,6820,6873,7355,6699,7436,7268,6684,7387,7363]
+  }
+ }

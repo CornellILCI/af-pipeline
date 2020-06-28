@@ -1,0 +1,29 @@
+{
+    "metadata":{
+        "id": "93de1352-alph-whea-cmyt-df80abc3c0aa_SD_0000",
+        "category": "Desing",
+        "type": "Trial Design",
+	"engine": "R 3.4.5",
+        "method": "randALPHALATTICEcimmytWHEAT",
+        "design": "Alpha-Lattice",
+        "timeStamp": "",
+        "requestorId": "",
+        "organization_code": "CIMMYT",
+        "crop": "WHEAT",
+        "program": "GWP",
+        "experiment_id": 56485987563,
+        "occurrence_id": [3321054,3321055]
+  },
+    "parameters":{
+        "entryList": "93de1352-alph-whea-cmyt-df80abc3c0aa_SD_0001.lst",
+        "rand1": "T",
+        "RandOcc": "T",
+        "nRep": 2,
+        "nTrial": 2,
+        "genLayout":"T",
+        "sBlk": 4,
+        "nFieldRow": 6,
+        "nPlotBarrier": 4, 
+        "serpentine": "T"
+    }
+}
