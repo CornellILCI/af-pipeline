@@ -56,7 +56,7 @@ optionList <- list(
               metavar = "path where output will be saved")
 )
 # garbage collection 
-gc()
+tmpGC <- gc()
 
 # create an instance of a parser object
 opt_parser = OptionParser(option_list = optionList)
