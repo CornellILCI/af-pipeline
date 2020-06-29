@@ -3,7 +3,7 @@
         "id": "RCBD_cimmyt_SD_0000",
         "category": "Design",
         "type": "Trial Design",
-	"engine": "R 3.4.4",
+	    "engine": "R 3.4.4",
         "method": "randRCBDcimmyt",
         "design": "Randomized Complete Block",
         "timeStamp": "",
@@ -16,11 +16,11 @@
   },
     "parameters":{
         "entryList": "RCBD_cimmyt_SD_0001.lst",
-        "nRep": 4,
+        "nRep": 3,
         "nTrial": 2,
         "genLayout":"T",
-        "nFieldRow": 4,
-        "nRowPerRep": 2,
-        "serpentine": "T"
-    }
+        "nFieldRow": 7,
+        "nPlotBarrier": 2,
+        "Vserpentine": "F"
+    },
  }
