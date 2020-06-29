@@ -46,11 +46,20 @@ def start_randomization(folder):
         os.path.exists(reqFile) and
         os.path.exists(entLst)):
           call(["python3",randExec, folder])
-          return jsonify([{'id':'200'}])
+          return jsonify(msg='Request submitted.')
      else:
-        return jsonify([{'id':'402'}])
+        return jsonify(msg='Missing input files.')
    else:
-     return jsonify([{'id':'401'}])
+     return jsonify(msg='Input folder not found.')
+
+@app.route('/v1/status/<folder>', methods=['POST'])
+def get_status(folder):
+   # check if output has been created.
+   output=simbaUtils.cfg['out'] + "/" + folder + '.tar.gz'
+   if os.path.exists(output):
+      return jsonify(msg='Request complete.')
+   else:
+      return jsonify(msg='Results not ready!')
 
 if __name__=='__main__':
    app.run(host='0.0.0.0')
