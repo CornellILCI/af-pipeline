@@ -100,3 +100,7 @@ while i < numTests:
     else:
       print("Config Error: Missing templates.")
 
+# allow user to input number of tests
+# print out generated tests
+# submit test to webapi
+
