@@ -133,11 +133,11 @@ if(!opt$rand1){
     wht <- data.frame(entry_id = trials[[i]]$book$entry_id[1:nTreatment],trt = entry)
     wht$trt <- as.character(wht$trt)
     
-    bookWht <- trials[[i]]$book[,c("plot_number","entry_id","block","replicate")]
-    bookWht <- merge(bookWht[,c("plot_number","entry_id","block","replicate")],
+    bookWht <- trials[[i]]$book[,c("plot_number","entry_id","replicate","block")]
+    bookWht <- merge(bookWht[,c("plot_number","entry_id","replicate","block")],
                      wht[,c("trt","entry_id")])
     bookWht <- bookWht[with(bookWht,order(plot_number)),]
-    bookWht <- bookWht[,c("plot_number","block","replicate","trt")]
+    bookWht <- bookWht[,c("plot_number","replicate","block","trt")]
     colnames(bookWht)[colnames(bookWht)=="trt"] <- "entry_id"
     trials[[i]]$book <- bookWht
     rownames(trials[[i]]$book) <- c(1:nrow(trials[[i]]$book))
@@ -153,7 +153,7 @@ if(opt$genLayout){
                        Vserpentine = opt$Vserpentine,
                        nFieldRow = opt$nFieldRow,
                        nPlotsRepBarrier = opt$nPlotBarrier,
-                       save = TRUE,
+                       save = FALSE,
                        outputPath = opt$outputPath,
                        outputFile = opt$outputFile)
 }

@@ -106,7 +106,7 @@ if(opt$genLayout){
                        Vserpentine = opt$Vserpentine,
                        nFieldRow = opt$nFieldRow,
                        nPlotsRepBarrier = opt$nPlotBarrier,
-                       save = TRUE,
+                       save = FALSE,
                        outputPath = opt$outputPath,
                        outputFile = opt$outputFile)
 }
