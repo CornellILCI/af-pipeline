@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------
-# Name             : runAUGMENTEDRCBD
+# Name             : randAUGMENTEDRCBDirri
 # Description      : Generate randomization and layout for Augmented Randomized  
 #                    Complete Block Design which can be run in the command line with 
 #                    arguments
@@ -8,7 +8,7 @@
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2019.03.12
-# Date Modified    : 2020.06.22
+# Date Modified    : 2020.06.30
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
 # Script Version   : 2
@@ -33,7 +33,6 @@
 # load the needed packages
 suppressWarnings(suppressPackageStartupMessages(library(optparse)))
 suppressWarnings(suppressPackageStartupMessages(library(PBTools)))
-suppressWarnings(suppressPackageStartupMessages(library(dplyr)))
 
 optionList <- list(
   make_option(opt_str = c("--entryList"), type = "character", 
@@ -72,8 +71,8 @@ if (!dir.exists(opt$outputPath)) {
 
 # read the file containing the entry list
 entryData <- read.csv(file = opt$entryList)
-checkData <- entryData %>% filter(entry_type == "check")
-testData <- entryData %>% filter(entry_type == "test")
+checkData <- entryData[entryData["entry_type"] == "check",]
+testData <- entryData[entryData["entry_type"] == "test",]
 nCheckEntry <- nrow(checkData)
 nTestEntry <- nrow(testData)
 checkEntryList <- checkData[,"entry_id"]
