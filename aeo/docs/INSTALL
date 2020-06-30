@@ -114,6 +114,7 @@ Install Required packages
    - install.packages('/home/aadmin/ebs-af/models/packages/Rcpp_1.0.0.tar.gz', repos=NULL, type='source')
    - install.packages('/home/aadmin/ebs-af/models/packages/plyr_1.8.4.tar.gz', repos=NULL, type='source')
    - install.packages('/home/aadmin/ebs-af/models/packages/PBTools_2.0.0.tar.gz', repos=NULL, type='source')
+   - INSTALL Pedro's packages...
 * exit R by, typing q() and hitting enter.
 
 Install SLURM
@@ -170,7 +171,13 @@ Create simba.conf file
 * Values for int, wrd, out and mdl can be symbolic links 
   to folders in data volumes.
 
+Install webapi
+* INSTALL flask
+* INSTALL gunicorn
+* RUNNING the service
+
 Test the install
+* This needs uuid to be installed (sudo apt-get install uuid)
 * Go to folder ebs-af/aeo/test and generate request files:
    - ./genTest.pl -n 10 -t random -c y
    - This will generate 10 request files and move it to the 
@@ -191,11 +198,11 @@ Install the reaper.pl and cleaner.pl as cron jobs
 * Add the following line before the line  # m h dom mon ...:
     - EBSAF_ROOT=/home/aadmin/ebs-af/
     - Then add after the line:
-      - */2 * * * * /home/aadmin/ebs-af/aeo/bin/reaper.pl
-      - */5 * * * * /home/aadmin/ebs-af/aeo/bin/cleaner.pl
+      - */2 * * * * /home/aadmin/ebs-af/aeo/bin/reaper.py
+      - */5 * * * * /home/aadmin/ebs-af/aeo/bin/cleaner.py
    Save and exit (if using vim: shift+:wq)
-* This will run reaper.pl every two minutes and cleaner.pl
-  every 5 minutes. The cleaner.pl script should be confi-
+* This will run reaper.py every two minutes and cleaner.pl
+  every 5 minutes. The cleaner.py script should be confi-
   gured to run once a day. 
 * To test, go to the test folder (cd ~/ebs-af/aeo/test) and 
   type:
