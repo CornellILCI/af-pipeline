@@ -19,11 +19,13 @@ RUN apt-get update && apt-get install -y \
     munge \
     supervisor \
     slurm-wlm \
-    && pip3 install psycopg2
+    && pip3 install psycopg2 gunicorn flask
 
 COPY aeo /home/aadmin/ebs-af/aeo
 
 COPY models /home/aadmin/ebs-af/models
+
+COPY api /home/aadmin/ebs-af/api
 
 # Install R package
 RUN Rscript -e "install.packages('/home/aadmin/ebs-af/models/packages/getopt_1.20.2.tar.gz',repos=NULL,type='source')"
