@@ -24,4 +24,8 @@ fi
 echo "- Starting all Slurm processes under supervisord"
 /usr/bin/supervisord --configuration /etc/supervisord.conf
 
+echo "- Starting gunicorn -"
+
+exec gunicorn -w 2 -b 0.0.0.0:80 --chdir /home/aadmin/ebs-af/api/v1 wsgi:app
+
 exec "$@"
