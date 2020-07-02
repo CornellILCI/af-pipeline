@@ -52,9 +52,10 @@ def start_randomization(folder):
    else:
      return jsonify(msg='Input folder not found.')
 
-@app.route('/v1/status/<folder>', methods=['POST'])
+@app.route('/v1/status/<folder>', methods=['GET'])
 def get_status(folder):
    # check if output has been created.
+   # future implementation: check *.err and *.out for errors
    output=simbaUtils.cfg['out'] + "/" + folder + '.tar.gz'
    if os.path.exists(output):
       return jsonify(msg='Request complete.')
