@@ -12,8 +12,6 @@ import ntpath
 import random
 import argparse
 
-numTests=1
-
 pyPath=os.environ['EBSAF_ROOT'] + "/aeo/python"
 sys.path.append(pyPath)
 
@@ -22,6 +20,20 @@ simbaUtils.readConfig()
 
 designDir=simbaUtils.cfg['mdl'] + "/design"
 path=os.walk(designDir)
+
+parser=argparse.ArgumentParser()
+parser.add_argument("N",
+                    type=int,
+                    help="Number of tests to generate.")
+parser.add_argument("-m",
+                    "--mode",
+                    choices=['auto', 'manual'],
+                    default=['manual'],
+                    help="mode: auto or manual \
+                    if auto, service must be running.")
+
+args=parser.parse_args()
+numTests=args.N
 
 reqTemplates=[]
 inputFolders=[]
@@ -100,7 +112,16 @@ while i < numTests:
     else:
       print("Config Error: Missing templates.")
 
-# allow user to input number of tests
-# print out generated tests
-# submit test to webapi
+if args.mode == 'auto':
+  cmd="mv *_SD_0000 " + simbaUtils.cfg['int'] + "/"
+  os.system(cmd)
+
+  for input in inputFolders:
+    cmd="curl -X POST http://localhost:5000/v1/randomize/" \
+        + input
+    print(cmd)
+
+elif args.mode == 'manual':
+  print("Generated:", numTests, "sample requests.")
+  exit()
 
