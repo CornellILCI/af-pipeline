@@ -115,11 +115,13 @@ while i < numTests:
 if args.mode == 'auto':
   cmd="mv *_SD_0000 " + simbaUtils.cfg['int'] + "/"
   os.system(cmd)
-
+  
   for input in inputFolders:
+    input=input.rstrip()
     cmd="curl -X POST http://localhost:5000/v1/randomize/" \
-        + input
-    print(cmd)
+         + input
+    #print(cmd)
+    os.system(cmd)
 
 elif args.mode == 'manual':
   print("Generated:", numTests, "sample requests.")
