@@ -8,7 +8,9 @@ import os
 import sys
 import re
 import json
+import time
 import ntpath
+import shutil
 import random
 import argparse
 
@@ -70,11 +72,24 @@ while i < numTests:
       lst=jobID + ".lst"
       
       # create folder
-      cmd = "mkdir " + reqID
+      cmd=''
+      if args.mode == 'auto':
+        # create test input in input folder
+        cmd = "mkdir " + simbaUtils.cfg['int'] + "/" + reqID
+      else:
+        # create test input in current directory
+        cmd = "mkdir " +  reqID
+      
       os.system(cmd)
 
       # copy reqTemplate to folder
-      reqPath = reqID + "/" + req
+      reqPath=''
+      if args.mode == 'auto':
+        # copy request file to input folder
+        reqPath = simbaUtils.cfg['int'] + "/" + reqID + \
+                  "/" + req
+      else:
+        reqPath = reqID + "/" + req
       cmd = "cp " + reqTemplate + " " + reqPath
       os.system(cmd)
       # replace IDs
@@ -86,9 +101,17 @@ while i < numTests:
       reqIn=open(reqPath, "wt")
       reqIn.write(reqContent)
       reqIn.close
+      reqIn.flush()
+      os.fsync(reqIn.fileno())
       
       # copy jcfTemplate to folder
-      jcfPath = reqID + "/" + jcf
+      jcfPath=''
+      if args.mode == 'auto':
+        # copy request file to input folder
+        jcfPath = simbaUtils.cfg['int'] + "/" + reqID + \
+                  "/" + jcf
+      else:
+        jcfPath = reqID + "/" + jcf
       cmd = "cp " + jcfTemplate + " " + jcfPath
       os.system(cmd)
       # replace IDs
@@ -100,9 +123,16 @@ while i < numTests:
       jcfIn=open(jcfPath, "wt")
       jcfIn.write(jcfContent)
       jcfIn.close
+      jcfIn.flush()
+      os.fsync(jcfIn.fileno())
 
       # copy lstTemplate to folder
-      lstPath = reqID + "/" + lst
+      if args.mode == 'auto':
+        # copy entry list to input folder
+        lstPath = simbaUtils.cfg['int'] + "/" + reqID + \
+                  "/" + lst
+      else:
+        lstPath = reqID + "/" + lst
       cmd = "cp " + lstTemplate + " " + lstPath
       os.system(cmd)
 
@@ -113,9 +143,6 @@ while i < numTests:
       print("Config Error: Missing templates.")
 
 if args.mode == 'auto':
-  cmd="mv *_SD_0000 " + simbaUtils.cfg['int'] + "/"
-  os.system(cmd)
-  
   for input in inputFolders:
     input=input.rstrip()
     cmd="curl -X POST http://localhost:5000/v1/randomize/" \
