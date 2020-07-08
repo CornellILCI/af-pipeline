@@ -29,7 +29,7 @@ parser.add_argument("-m",
                     "--mode",
                     choices=['auto', 'manual'],
                     default=['manual'],
-                    help="mode: auto or manual \
+                    help="default is manual; \
                     if auto, service must be running.")
 
 args=parser.parse_args()
