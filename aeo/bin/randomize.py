@@ -8,16 +8,16 @@
 # 2019.10.01
 
 # Sprint 2020.06 Todo's
-# * pyPath should use EBSAF_ROOT
+# prereq:
 # * should have folder as input argument:
-#     statDesign.py 202341-2342-21231_SD_0000
-# * prereq: req/jcf should have elements that follow 
+#     randomize.py 202341-2342-21231_SD_0000
+# * req/jcf should have elements that follow 
 #     repository structure for identifying path to models,
 #     for irri:  
 #        EBSAF_ROOT/models/design/irri/randomization
 #     for cimmyt:
 #        EBSAF_ROOT/models/design/cimmyt/randomization
-# * r-version should be speficied
+# * r-version (engine) should be speficied
 #     add rversion in conf: r344=<path> r400=<path
 
 import os
@@ -122,8 +122,9 @@ with open(reqJcf, 'r') as j:
       "\" -p \"" + outFolder + "\""
 
   # command to compress
-  gz=simbaUtils.cfg['out'] + "/" + analysisName + ".tar.gz"
+  gz=simbaUtils.cfg['arch'] + "/" + analysisName + ".tar.gz"
   src=outFolder
+  out=simbaUtils.cfg['out'] + "/"
 
   # update
   trackUpdOpt=" " + analysisName + " -m update -j " + \
@@ -142,6 +143,7 @@ with open(reqJcf, 'r') as j:
   sbatch=re.sub("\[INP\]", workPath, sbatch)
   sbatch=re.sub("\[REQ\]", args.dir, sbatch)
   sbatch=re.sub("\[SRC\]", src, sbatch)
+  sbatch=re.sub("\[OUT\]", out, sbatch)
 
   if trackOn:
     sbatch=re.sub("\[TRACKNEW\]", track, sbatch)
