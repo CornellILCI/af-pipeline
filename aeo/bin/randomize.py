@@ -41,7 +41,7 @@ simbaUtils.readConfig()
 workPath=simbaUtils.cfg['int']
 
 # set tracking, 1 = on, 0 = off
-trackOn = 0
+trackOn = 1
 
 # get the input folder from the command line
 # SG will write this folder in workDir
