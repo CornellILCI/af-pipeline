@@ -56,7 +56,13 @@ def start_randomization(folder):
 def get_status(folder):
    # check if output has been created.
    # future implementation: check *.err and *.out for errors
-   output=simbaUtils.cfg['out'] + "/" + folder + '.tar.gz'
+   # ready: arch/*.tar.gz true + *.err and *.out is zero
+   # fail: * arch/*.tar.gz false + *.err and *.out is not 
+   #         zero or *.err and *.out is false
+   #       * arch/*.tar.gz true + *.err and *.out is not 
+   #         zero
+   #       * reqID/data is not there/ is 0
+   output=simbaUtils.cfg['arch'] + "/" + folder + '.tar.gz'
    if os.path.exists(output):
       return jsonify(msg='Request complete.')
    else:
