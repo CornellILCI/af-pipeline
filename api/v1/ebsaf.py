@@ -62,6 +62,7 @@ def get_status(folder):
    #       * arch/*.tar.gz true + *.err and *.out is not 
    #         zero
    #       * reqID/data is not there/ is 0
+   # in queue - response from squeue <folder>
    output=simbaUtils.cfg['arch'] + "/" + folder + '.tar.gz'
    if os.path.exists(output):
       return jsonify(msg='Request complete.')
