@@ -114,7 +114,7 @@ Install Required packages
    - install.packages('/home/aadmin/ebs-af/models/packages/Rcpp_1.0.0.tar.gz', repos=NULL, type='source')
    - install.packages('/home/aadmin/ebs-af/models/packages/plyr_1.8.4.tar.gz', repos=NULL, type='source')
    - install.packages('/home/aadmin/ebs-af/models/packages/PBTools_2.0.0.tar.gz', repos=NULL, type='source')
-   - INSTALL Pedro's packages...
+   - install.packages('/home/aadmin/ebs-af/models/packages/ebsRtools_0.2.0.tar.gz' repos=NULL, type='source')
 * exit R by, typing q() and hitting enter.
 
 Install SLURM
