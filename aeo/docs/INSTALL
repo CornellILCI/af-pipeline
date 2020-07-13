@@ -156,6 +156,7 @@ Create simba.conf file
     out (output directory)
     mdl (models directory, /home/aadmin/ebs-af/models)
     ldg (logs directory)
+    arch (archive directory)
     slg (simba.LOG file)
     dbh (server: currently localhost, for cluster install,
         specific ip address should be used.)
@@ -164,33 +165,32 @@ Create simba.conf file
     dbu (database user)
     dbp (database user password)
     r344 (location of R 3.4.4 executable; i.e. /usr/bin)
-    asm (AsREML directory)
+    asm (AsREML path)
     bsh (bash executable)
 * Make sure that the directories you specified are
   writable.
-* Values for int, wrd, out and mdl can be symbolic links 
-  to folders in data volumes.
+* Values for int, wrd, out, arch and mdl can be symbolic 
+  links to folders in data volumes.
 
 Install webapi
-* INSTALL flask
-* INSTALL gunicorn
-* RUNNING the service
+* Install flask and gunicorn
+  * sudo apt-get update && sudo apt-get -y upgrade
+  * sudo apt-get install python3-pip python3-dev
+  * pip3 install gunicorn flask
+* Run the service
+  * cd /home/aadmin/ebs-af/api/v1
+  * gunicorn --bind 0.0.0.0:5000 wsgi:app
 
 Test the install
 * This needs uuid to be installed (sudo apt-get install uuid)
 * Go to folder ebs-af/aeo/test and generate request files:
-   - ./genTest.pl -n 10 -t random -c y
-   - This will generate 10 request files and move it to the 
-     input folder.
-* Go to the ebs-af/aeo/bin folder and execute reaper.pl
-   - ./reaper.pl
-* Check ebs-af/aeo/logs, output, scratch folders for errors.
-* Go back to bin folder and run cleaner.pl
-   - ./cleaner.pl
-*  This will delete empty folders and log files from the
-   logs and scratch directories.
+   - ./genTest.py -m auto 10
+   - This will generate 10 request files and submit it.
+* Check ebs-af/aeo/logs, output folders for errors.
 
-Install the reaper.pl and cleaner.pl as cron jobs
+Install cleaner.py as cron job to periodically delete old
+output files (clear the output directory of files that are
+more than a month old).
 * crontab -e
     - If first time you invoked cron, you will be made to 
       choose which editor to use (chose option 3, for 
@@ -198,28 +198,14 @@ Install the reaper.pl and cleaner.pl as cron jobs
 * Add the following line before the line  # m h dom mon ...:
     - EBSAF_ROOT=/home/aadmin/ebs-af/
     - Then add after the line:
-      - */2 * * * * /home/aadmin/ebs-af/aeo/bin/reaper.py
       - */5 * * * * /home/aadmin/ebs-af/aeo/bin/cleaner.py
    Save and exit (if using vim: shift+:wq)
-* This will run reaper.py every two minutes and cleaner.pl
-  every 5 minutes. The cleaner.py script should be confi-
-  gured to run once a day. 
-* To test, go to the test folder (cd ~/ebs-af/aeo/test) and 
-  type:
-   - ./genTest.pl -n 100 -t random -c y
-   - This will generate 100 request files and move them to 
-     the input folder (~/ebs-af/aeo/input).
-   - Then type "watch squeue" (this will display squeue dyna-
-     mically by updating the terminal every two seconds).
-   - Type ctrl+c to leave watch.
+* This will run cleaner.pl every 5 minutes. The cleaner.py 
+  script should be configured to run once a day. 
 * Check system mail if to see any messages (type "mail").
 * Check simba.LOG at ~/ebs-af/aeo/logs for errors.
 
-Updating SIMBA
-* Go to simba root folder and type:
-   - git pull
-
-Running simba in a container 
+Running ebs-af in a container 
 (WARNING: This section is incomplete!)
 * Install docker
    - sudo apt-get update && sudo apt-get upgrade
