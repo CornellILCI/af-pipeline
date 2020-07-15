@@ -119,6 +119,7 @@ def queue(str):
   
 
 def getJobStat(str):
+  # 2020.07.15 Work on this for status
   # 1 fail, no msg 
   # 2 fail, with msg 
   # 3 success, no msg

@@ -92,6 +92,9 @@ elif args.mode == 'update' or args.mode == 'u':
       # LOG THIS
       msg="Unknown error(100) for: {}".format(args.job)
       simbaUtils.writeLog(msg)
+
+  # elsif analysis
+    update analysis...
   else:
     # LOG THIS
     msg="Missing job name to update!"
