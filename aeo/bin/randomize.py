@@ -69,105 +69,115 @@ analysisName=args.dir
 jobName=analysisName[:-1]
 jobName=jobName + "1"
 
-with open(reqJcf, 'r') as j:
-  control=j.read()
-  obj=json.loads(control)
+# Read job control file
+try:
+  with open(reqJcf, 'r') as j:
+    control=j.read()
+    obj=json.loads(control)
 
-  # Get system bash
-  bashDir='#!'
-  bashDir=bashDir + simbaUtils.cfg['bsh']
+    # Get system bash
+    bashDir='#!'
+    bashDir=bashDir + simbaUtils.cfg['bsh']
 
-  # Get engine
-  engine=obj['metadata']['engine']
-  engine=re.sub(" ", "", engine)
-  engine=re.sub("\.", "", engine)
-  engine=(engine.lower())
+    # Get engine
+    engine=obj['metadata']['engine']
+    engine=re.sub(" ", "", engine)
+    engine=re.sub("\.", "", engine)
+    engine=(engine.lower())
 
-  # Get model source (organization_code)
-  source=obj['metadata']['organization_code']
-  source=(source.lower())
+    # Get model source (organization_code)
+    source=obj['metadata']['organization_code']
+    source=(source.lower())
 
-  # Generate path to randomization script
-  # should check if "model" exists
-  RScript=simbaUtils.cfg[engine] + "/Rscript --vanilla "
-  RScript=RScript + simbaUtils.cfg['mdl'] + "/design/" \
-          + source + "/randomization/" \
-          + obj['metadata']['method']
-  RScript=RScript + ".R "
+    # Generate path to randomization script
+    # should check if "model" exists
+    RScript=simbaUtils.cfg[engine] + "/Rscript --vanilla "
+    RScript=RScript + simbaUtils.cfg['mdl'] + "/design/" \
+            + source + "/randomization/" \
+            + obj['metadata']['method']
+    RScript=RScript + ".R "
   
-  # Get parameters
-  params=''  
+    # Get parameters
+    params=''  
 
-  for p in obj['parameters'].keys():
-    if p=='entryList':
-      entPath=reqDir+ "/" + obj['parameters'][p]
-      params=params + \
-              "--{0} {1} ".format(p,entPath)
-    else:
-      params=params + \
-             "--{0} {1} ".format(p,obj['parameters'][p])
+    for p in obj['parameters'].keys():
+      if p=='entryList':
+        entPath=reqDir+ "/" + obj['parameters'][p]
+        params=params + \
+                "--{0} {1} ".format(p,entPath)
+      else:
+        params=params + \
+               "--{0} {1} ".format(p,obj['parameters'][p])
   
-  # Generate name for logs (.err and .out)
-  errLog=simbaUtils.cfg['lgd'] + "/" + analysisName + ".err"
-  outLog=simbaUtils.cfg['lgd'] + "/" + analysisName + ".out"
+    # Generate name for logs (.err and .out)
+    errLog=simbaUtils.cfg['lgd'] + "/" + analysisName \
+           + ".err"
+    outLog=simbaUtils.cfg['lgd'] + "/" + analysisName \
+           + ".out"
 
-  # add new job to track
-  trackOpt=" " + analysisName + " -m new -j " + jobName + \
-           " -p 0"
-  track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
-        trackOpt
-
-  # command to run 
-  cmd=RScript + params + "-o \"" + analysisName + \
-      "\" -p \"" + outFolder + "\""
-
-  # command to compress
-  gz=simbaUtils.cfg['arch'] + "/" + analysisName + ".tar.gz"
-  src=outFolder
-  out=simbaUtils.cfg['out'] + "/"
-
-  # update
-  trackUpdOpt=" " + analysisName + " -m update -j " + \
-              jobName
-  trackUpd=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
-           trackUpdOpt 
-
-  # fill template
-  simbaUtils.getTemplate("SLSD.TMPL")
-  sbatch=simbaUtils.tmplContents
-  sbatch=re.sub("\[JOBNAME\]", jobName, sbatch)
-  sbatch=re.sub("\[ERRORLOG\]", errLog, sbatch)
-  sbatch=re.sub("\[OUTPUTLOG\]", outLog, sbatch)
-  sbatch=re.sub("\[RUN\]", cmd, sbatch)
-  sbatch=re.sub("\[GZ\]", gz, sbatch)
-  sbatch=re.sub("\[INP\]", workPath, sbatch)
-  sbatch=re.sub("\[REQ\]", args.dir, sbatch)
-  sbatch=re.sub("\[SRC\]", src, sbatch)
-  sbatch=re.sub("\[OUT\]", out, sbatch)
-
-  if trackOn:
-    sbatch=re.sub("\[TRACKNEW\]", track, sbatch)
-    sbatch=re.sub("\[TRACKUPD\]", trackUpd, sbatch)
-  else:
-    sbatch=re.sub("\[TRACKNEW\]", '', sbatch)
-    sbatch=re.sub("\[TRACKUPD\]", '', sbatch)
-  
-  # print(sbatch) # comment this out
-
-  # write sbatch
-  sbatchPath=outFolder + "/" + jobName + ".sh"
-  sbatchFile=open(sbatchPath, 'w')
-  sbatchFile.write(sbatch)
-  sbatchFile.close()
-
-  # Track analysis or add this to sbatch?
-  if trackOn:
-    reqFile=outFolder + "/" + analysisName + ".req"
+    # add new job to track
+    trackOpt=" " + analysisName + " -m new -j " \
+             + jobName + " -p 0"
     track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
-         " " +  reqFile  + " " + "-m new -t SD"
-    os.system(track)
+          trackOpt
 
-  simbaUtils.queue(sbatchPath)
+    # command to run 
+    cmd=RScript + params + "-o \"" + analysisName + \
+        "\" -p \"" + outFolder + "\""
 
-  # Print this to log or track this.
-  simbaUtils.writeLog(simbaUtils.msg)
+    # command to compress
+    gz=simbaUtils.cfg['arch'] + "/" + analysisName \
+       + ".tar.gz"
+    src=outFolder
+    out=simbaUtils.cfg['out'] + "/"
+
+    # update
+    trackUpdOpt=" " + analysisName + " -m update -j " + \
+                jobName
+    trackUpd=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
+             trackUpdOpt 
+
+    # fill template
+    simbaUtils.getTemplate("SLSD.TMPL")
+    sbatch=simbaUtils.tmplContents
+    sbatch=re.sub("\[JOBNAME\]", jobName, sbatch)
+    sbatch=re.sub("\[ERRORLOG\]", errLog, sbatch)
+    sbatch=re.sub("\[OUTPUTLOG\]", outLog, sbatch)
+    sbatch=re.sub("\[RUN\]", cmd, sbatch)
+    sbatch=re.sub("\[GZ\]", gz, sbatch)
+    sbatch=re.sub("\[INP\]", workPath, sbatch)
+    sbatch=re.sub("\[REQ\]", args.dir, sbatch)
+    sbatch=re.sub("\[SRC\]", src, sbatch)
+    sbatch=re.sub("\[OUT\]", out, sbatch)
+
+    if trackOn:
+      sbatch=re.sub("\[TRACKNEW\]", track, sbatch)
+      sbatch=re.sub("\[TRACKUPD\]", trackUpd, sbatch)
+    else:
+      sbatch=re.sub("\[TRACKNEW\]", '', sbatch)
+      sbatch=re.sub("\[TRACKUPD\]", '', sbatch)
+  
+    # print(sbatch) # comment this out
+
+    # write sbatch
+    sbatchPath=outFolder + "/" + jobName + ".sh"
+    sbatchFile=open(sbatchPath, 'w')
+    sbatchFile.write(sbatch)
+    sbatchFile.close()
+
+    # Track analysis or add this to sbatch?
+    if trackOn:
+      reqFile=outFolder + "/" + analysisName + ".req"
+      track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
+           " " +  reqFile  + " " + "-m new -t SD"
+      os.system(track)
+
+    simbaUtils.queue(sbatchPath)
+
+    # Print this to log or track this.
+    simbaUtils.writeLog(simbaUtils.msg)
+
+except ValueError:
+  print(args.dir, "jcf is corrupted!")
+
+  # track
