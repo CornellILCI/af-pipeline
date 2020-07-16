@@ -94,7 +94,7 @@ elif args.mode == 'update' or args.mode == 'u':
       simbaUtils.writeLog(msg)
 
   # elsif analysis
-    update analysis...
+    # update analysis...
   else:
     # LOG THIS
     msg="Missing job name to update!"
