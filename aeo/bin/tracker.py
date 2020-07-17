@@ -63,6 +63,9 @@ if args.mode == 'new' or args.mode == 'n':
       simbaUtils.genShaFile(args.name)
       sha=simbaUtils.strSha
 
+      # place holder status until this is deprecated
+      reqStat=sha
+
       if re.match("JSON", args.name):
         analysisName=re.sub(".JSON",'',args.name)
       else:
@@ -70,7 +73,8 @@ if args.mode == 'new' or args.mode == 'n':
 
       analysisName=re.sub(".+\/",'',analysisName.rstrip())
       
-      dbUtils.addAnalysis(analysisName, sha, args.type)
+      dbUtils.addAnalysis(analysisName, sha, args.type,
+                          reqStat)
     else:
       # LOG THIS
       msg="Needed request type for " 
