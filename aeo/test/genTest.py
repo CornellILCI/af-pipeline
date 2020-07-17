@@ -149,6 +149,6 @@ if args.mode == 'auto':
     os.system(cmd)
 
 elif args.mode == 'manual':
-  print("Generated:", numTests, "sample requests.")
+  print("Generated:", numTests, "sample request(s).")
   exit()
 
