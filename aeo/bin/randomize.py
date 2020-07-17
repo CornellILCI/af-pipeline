@@ -110,9 +110,9 @@ try:
                "--{0} {1} ".format(p,obj['parameters'][p])
   
     # Generate name for logs (.err and .out)
-    errLog=simbaUtils.cfg['lgd'] + "/" + analysisName \
+    errLog=simbaUtils.cfg['lgd'] + "/" + jobName \
            + ".err"
-    outLog=simbaUtils.cfg['lgd'] + "/" + analysisName \
+    outLog=simbaUtils.cfg['lgd'] + "/" + jobName \
            + ".out"
 
     # add new job to track
