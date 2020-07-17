@@ -53,23 +53,24 @@ def closeConn():
   dbConn.close()
   # print("Connection closed!")
 
-def addAnalysis (rqId, sha, rqType):
+def addAnalysis (rqId, sha, rqType, status):
   getAnalysisId(sha, 1)
   
   if analysisId:
     # LOG THIS
-    msg="Analysis: {} ".format(sha)
-    msg=msg + "is already in the database!"
+    msg="Request: {0}; sha: {1}".format(rqId,sha)
+    msg=msg + " is already in the database!"
     simbaUtils.writeLog(msg)
-    # print("Analysis:", sha, " is already in the database!")
+    # print("Analysis:", sha, "is already in the database!")
   else:
     createConn()
     sql="INSERT INTO analysis (" + \
           "request_id, sha, request_type, " + \
-          "time_submitted" + \
+          "time_submitted, status" + \
         ") VALUES (" + \
           "'{0}', '{1}', '{2}',".format(rqId,sha,rqType) + \
-          "current_timestamp" + \
+          "current_timestamp," + \
+          "'{0}'".format(status) + \
           ")"
     cursor=dbConn.cursor()
     
