@@ -120,10 +120,10 @@ def queue(str):
 
 def getJobStat(str):
   # 2020.07.15 Work on this for status
-  # 1 fail, no msg 
-  # 2 fail, with msg 
-  # 3 success, no msg
-  # 4 success, with msg 
+  # 1 complete: err and out files are empty 
+  # 2 complete with error: err file is not empty 
+  # 3 complete with msg: out file is not empty
+  # 4 fail: no out and err files
   
   readConfig()
 
@@ -162,7 +162,7 @@ def getJobStat(str):
       jobStat=4
     elif (errFsize != 0) and (outFsize==0):
       # have to check this -- perhaps read contents of
-      # orrFile to determine actual status i.e. getErrMsg 
+      # errFile to determine actual status i.e. getErrMsg 
       jobStat=2
     elif (errFsize != 0) and (outFsize != 0):
       # have to check this -- perhaps read contents of
