@@ -96,19 +96,41 @@ def writeLog(str):
   log.write(line)
   log.close()  
   
-def getErrMsg(str):
-  errFile=str + ".err"
+def getErrMsg(str, errCode):
   global errMsg
   
   readConfig()
-  errPath = cfg['lgd'] + "/" + errFile
+  errFile=str + ".err"
+  errFile=cfg['lgd'] + "/" + errFile
+
+  outFile=str + ".out"
+  outFile=cfg['lgd'] + "/" + outFile
   
-  if not os.path.isfile(errPath):
-    errMsg='NULL'
-  else:
-    with open(errPath, 'r') as tmp:
+  # errCode:
+  # 101 - get err msg
+  # 110 - get out msg
+  # 111 - get out and err msg
+  
+  if errCode != 111:
+    msgSLURM=''
+    if errCode == 101:
+      msgSLURM = errFile
+    if errCode == 110:
+      msgSLURM = outFile
+
+    with open(msgSLURM, 'r') as tmp:
       errMsg = tmp.read()
-      errMsg=errMsg.strip()
+      errMsg = errMsg.strip()
+
+  elif errCode == 111:
+    with open(errFile, 'r') as tmp:
+      errFileMsg = tmp.read()
+      errFileMsg = errFileMsg.strip()
+    with open(outFile, 'r') as tmp:
+      outFileMsg = tmp.read()
+      outFileMsg = outFileMsg.strip()
+
+    errMsg = "Out: " + outFileMsg + "\nErr: " + errFileMsg
 
 def queue(str):
   global msg
@@ -119,17 +141,10 @@ def queue(str):
   
 
 def getJobStat(str):
-  # 2020.07.15 Work on this for status
-  # 1 complete: err and out files are empty 
-  # 2 complete with error: err file is not empty 
-  # 3 complete with msg: out file is not empty
-  # 4 fail: no out and err files
-  
   readConfig()
-
   global jobStat 
-  x=0
 
+  # generate .out and .err paths
   errFile=str + ".err"
   errFile=cfg['lgd'] + "/" + errFile
 
@@ -137,39 +152,28 @@ def getJobStat(str):
   outFile=cfg['lgd'] + "/" + outFile
   
   # check if both files exists
-
-  if not os.path.isfile(errFile):
-    x=x+0
+  if os.path.exists(outFile) and os.path.exists(errFile):
+     #get file sizes
+     errFsize=os.path.getsize(errFile)
+     outFsize=os.path.getsize(outFile)
+     if (errFsize==0) and (outFsize==0):
+       # both files zero size
+       # (100: complete)
+       jobStat=100
+     elif (errFsize > 0) and (outFsize==0):
+       # runtime error
+       # (101: complete, with error)
+       jobStat=101
+     elif (errFsize==0) and (outFsize > 0):
+       # (110: complete with msg)
+       jobStat=110
+     elif (errFsize > 0) and (outFsize > 0):
+       # both files not empty
+       # error and stdout msg
+       jobStat=111
   else:
-    x=x+1
-
-  if not os.path.isfile(outFile):
-    x=x+0
-  else:
-    x=x+1
-  
-  # check file sizes
-  if (x==2):
-    errFsize=os.path.getsize(errFile)
-    outFsize=os.path.getsize(outFile)
-    fsize=errFsize+outFsize 
-    if (fsize==0):
-      # for stat design both files == 0 means success. 
-      jobStat=3
-    elif (errFsize==0) and (outFsize != 0):
-      # have to check this -- perhaps read contents of
-      # outFile to determine actual status i.e. getErrMsg 
-      jobStat=4
-    elif (errFsize != 0) and (outFsize==0):
-      # have to check this -- perhaps read contents of
-      # errFile to determine actual status i.e. getErrMsg 
-      jobStat=2
-    elif (errFsize != 0) and (outFsize != 0):
-      # have to check this -- perhaps read contents of
-      # orrFile to determine actual status i.e. getErrMsg 
-      jobStat=1
-  else:
-    # unknown error
+    # one or both files missing
+    # (0: fail)
     jobStat=0
 
 def genFolderName():
