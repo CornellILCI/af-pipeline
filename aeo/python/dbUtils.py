@@ -88,6 +88,64 @@ def addAnalysis (rqId, sha, rqType, status):
         cursor.close()
         closeConn()
 
+def updateAnalysis(analysisId):
+  createConn()
+  # get all jobs for the analysis
+  # job.analysisId = analysisId 
+  print("Update this:", analysisId)
+  sql="SELECT time_end, status " + \
+      "FROM job " + \
+      "WHERE analysis_id=\'{0}\'".format(analysisId)
+
+  cursor=dbConn.cursor()
+  cursor.execute(sql)
+
+  result=cursor.fetchall()
+
+  i=0
+  c=0 # complete/has time end
+  m=0 # has msg
+  f=0 # fail
+  s=0 # success
+  e=0 # error
+
+  if result:
+    for r in result:
+      i=i+1
+      if r[0]:
+        c=c+1
+      if r[1] == 0:
+        f=f+1
+      if r[1] == 100:
+        s=s+1
+      if r[1] == 101:
+        e=e+1 
+      if r[1] == 110:
+        m=m+1
+      if r[1] == 111:
+        e=e+1
+        m=m+1
+
+    if i == c:
+      # all jobs complete
+      print(c, "of", i, "jobs complete with", \
+             m, "message(s),", \
+             e, "error(s).", \
+             f, "job(s) failed.")
+    else:
+      # Job(s) seemed stuck, completion signal sent but
+      # no ending timestamp given.
+      if c:
+        # some jobs are stuck.
+        print(c,"of",i,"job(s) stuck.")
+      else:
+        # all jobs stuck.
+        print(i,"of",i,"job(s) stuck.")
+  else:
+    print("No job(s) found for:", analysisId)
+
+  closeConn()
+
 def addJob (analysisId, jobName, parentId): 
   getJobId(jobName)
   
