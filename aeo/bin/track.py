@@ -54,15 +54,12 @@ if args.reqID:
       # get request type
       reqType=re.sub("_0000",'',args.reqID)
       reqType=re.sub(".+?\_",'',reqType)
-      ## print("Will add new reqID: ", args.reqID, \
-      ##      "with status:", args.status, \
-      ##      "and type:", reqType)
+
       # no need to check if it exists
       # generate sha for the request
       # get req path
       reqPath=simbaUtils.cfg['int'] + "/" + args.reqID \
               + "/" + args.reqID + ".req"
-      ## print(reqPath)
       if os.path.exists(reqPath):
         simbaUtils.genShaFile(reqPath)
         sha=simbaUtils.strSha
@@ -75,21 +72,17 @@ if args.reqID:
 
   elif args.mode == 'update':
 
-    ## print("Will update reqID: ", args.reqID)
     # get status of all jobs from the request, if all
     # are successful, update status to success!
 
     dbUtils.getAnalysisId(args.reqID, 0)
     analysisId=dbUtils.analysisId
-    ## print(analysisId)
     
     dbUtils.updateAnalysis(analysisId)
     
   elif args.mode == 'addJob':
 
     if args.jobID and args.parent:
-      ## print("Will add job:", args.jobID, \
-      ##      "to reqID:", args.reqID)
 
       # get requestID
       dbUtils.getAnalysisId(args.reqID, 0)
@@ -114,7 +107,6 @@ if args.reqID:
   elif args.mode == 'updateJob':
 
     if args.jobID:
-      ## print("Will update jobID:", args.jobID)
 
       # get job status:
       # 0: fail
@@ -127,14 +119,12 @@ if args.reqID:
       
       simbaUtils.getJobStat(args.jobID)
       status=simbaUtils.jobStat
-      ## print(status)
       
       # get err/out msg 
       if (status != 0) and (status != 100):
           # get message
           simbaUtils.getErrMsg(args.jobID,status)
           msg=simbaUtils.errMsg
-          ## print(msg)
 
       # update job
       dbUtils.updateJob(args.jobID,status,msg) 
