@@ -116,9 +116,12 @@ try:
            + ".out"
 
     # add new job to track
-    trackOpt=" " + analysisName + " -m new -j " \
+    # NEW: remember to change tracker.py to track.py
+    # trackOpt=args.dir + " -m addJob -jobID " + \
+    #          jobName + "-p " + jobName 
+    trackOpt=analysisName + " -m new -j " \
              + jobName + " -p 0"
-    track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
+    track=simbaUtils.cfg['bin'] + "/" + "tracker.py " + \
           trackOpt
 
     # command to run 
@@ -131,11 +134,17 @@ try:
     src=outFolder
     out=simbaUtils.cfg['out'] + "/"
 
-    # update
-    trackUpdOpt=" " + analysisName + " -m update -j " + \
+    # update job
+    # NEW: remember to change tracker.py to track.py 
+    # trackUpdOpt=args.dir + " -m updateJob -j " + jobName
+    trackUpdOpt=analysisName + " -m update -j " + \
                 jobName
-    trackUpd=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
-             trackUpdOpt 
+    trackUpd=simbaUtils.cfg['bin'] + "/" + "tracker.py " + \
+             trackUpdOpt
+    # NEW: update analysis
+    # trackReqOpt=args.dir + " -m update"
+    # trackReq=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+    #          trackReqOpt
 
     # fill template
     simbaUtils.getTemplate("SLSD.TMPL")
@@ -153,9 +162,11 @@ try:
     if trackOn:
       sbatch=re.sub("\[TRACKNEW\]", track, sbatch)
       sbatch=re.sub("\[TRACKUPD\]", trackUpd, sbatch)
+      sbatch=re.sub("\[TRACKREQ\]", trackReq, sbatch)
     else:
       sbatch=re.sub("\[TRACKNEW\]", '', sbatch)
       sbatch=re.sub("\[TRACKUPD\]", '', sbatch)
+      sbatch=re.sub("\[TRACKREQ\]", '', sbatch)
   
     # print(sbatch) # comment this out
 
@@ -165,11 +176,13 @@ try:
     sbatchFile.write(sbatch)
     sbatchFile.close()
 
-    # Track analysis or add this to sbatch?
+    # Track analysis: submitted to the queue 
     if trackOn:
       reqFile=outFolder + "/" + analysisName + ".req"
       track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
            " " +  reqFile  + " " + "-m new -t SD"
+      # track=simbaUtils.cfg['bin'] + "/" + track.py + \
+      #       args.dir + " -m new -s queued"
       os.system(track)
 
     simbaUtils.queue(sbatchPath)
@@ -180,4 +193,14 @@ try:
 except ValueError:
   print(args.dir, "jcf is corrupted!")
 
-  # track
+  # track error parsing jcf
+  # track=simbaUtils.cfg['bin'] + "/" + track.py " + \
+  #       args.dir + " -m new -s fail"
+  # os.system(track)
+
+  # update
+  # track=simbaUtils.cfg['bin'] + "/" + track.py " + \
+  #       args.dir + " -m update -status fail"
+  # os.system(track)
+
+  # return message: "Fail to read job control file."
