@@ -92,7 +92,6 @@ def updateAnalysis(analysisId):
   createConn()
   # get all jobs for the analysis
   # job.analysisId = analysisId 
-  ## print("Update this:", analysisId)
   sql="SELECT time_end, status " + \
       "FROM job " + \
       "WHERE analysis_id=\'{0}\'".format(analysisId)
@@ -144,11 +143,6 @@ def updateAnalysis(analysisId):
              "{0} error(s) ".format(e) + \
              "{0} failed job(s).".format(f)
 
-      ##print(code, c, "of", i, "jobs complete with", \
-      ##      m, "message(s),", \
-      ##      e, "error(s),", \
-      ##      f, "failed job(s).")
-
     else:
       # Job(s) seemed stuck, completion signal sent but
       # no ending timestamp given.
@@ -156,11 +150,9 @@ def updateAnalysis(analysisId):
       if c:
         # some jobs are stuck.
         annMsg="{0} of {0} job(s) stuck.".format(c,i)
-        ## print(c,"of",i,"job(s) stuck.")
       else:
         # all jobs stuck.
         annMsg="{0} of {0} job(s) stuck.".format(i)
-        ## print(i,"of",i,"job(s) stuck.")
 
   else:
     annMsg="Failed to read job control file."
@@ -170,7 +162,6 @@ def updateAnalysis(analysisId):
       "SET status= \'{0}\', ".format(annStatus) + \
           "msg=\'{0}\' ".format(annMsg) + \
       "WHERE id=\'{0}\'".format(analysisId)
-  ## print(sql)
 
   try:
     cursor.execute(sql)
