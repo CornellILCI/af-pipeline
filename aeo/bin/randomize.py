@@ -116,12 +116,9 @@ try:
            + ".out"
 
     # add new job to track
-    # NEW: remember to change tracker.py to track.py
-    # trackOpt=args.dir + " -m addJob -jobID " + \
-    #          jobName + "-p " + jobName 
-    trackOpt=analysisName + " -m new -j " \
-             + jobName + " -p 0"
-    track=simbaUtils.cfg['bin'] + "/" + "tracker.py " + \
+    trackOpt=args.dir + " -m addJob -j " + \
+             jobName + " -p " + jobName 
+    track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
           trackOpt
 
     # command to run 
@@ -135,16 +132,14 @@ try:
     out=simbaUtils.cfg['out'] + "/"
 
     # update job
-    # NEW: remember to change tracker.py to track.py 
-    # trackUpdOpt=args.dir + " -m updateJob -j " + jobName
-    trackUpdOpt=analysisName + " -m update -j " + \
-                jobName
-    trackUpd=simbaUtils.cfg['bin'] + "/" + "tracker.py " + \
+    trackUpdOpt=args.dir + " -m updateJob -j " + jobName
+    trackUpd=simbaUtils.cfg['bin'] + "/" + "track.py " + \
              trackUpdOpt
+ 
     # NEW: update analysis
-    # trackReqOpt=args.dir + " -m update"
-    # trackReq=simbaUtils.cfg['bin'] + "/" + "track.py " + \
-    #          trackReqOpt
+    trackReqOpt=args.dir + " -m update"
+    trackReq=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+             trackReqOpt
 
     # fill template
     simbaUtils.getTemplate("SLSD.TMPL")
@@ -178,11 +173,8 @@ try:
 
     # Track analysis: submitted to the queue 
     if trackOn:
-      reqFile=outFolder + "/" + analysisName + ".req"
-      track=simbaUtils.cfg['bin'] + "/" + "tracker.py" + \
-           " " +  reqFile  + " " + "-m new -t SD"
-      # track=simbaUtils.cfg['bin'] + "/" + track.py + \
-      #       args.dir + " -m new -s queued"
+      track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+            args.dir + " -m new -s queued"
       os.system(track)
 
     simbaUtils.queue(sbatchPath)
@@ -191,16 +183,14 @@ try:
     simbaUtils.writeLog(simbaUtils.msg)
 
 except ValueError:
-  print(args.dir, "jcf is corrupted!")
-
   # track error parsing jcf
-  # track=simbaUtils.cfg['bin'] + "/" + track.py " + \
-  #       args.dir + " -m new -s fail"
-  # os.system(track)
+  track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+        args.dir + " -m new -s fail"
+  os.system(track)
 
   # update
-  # track=simbaUtils.cfg['bin'] + "/" + track.py " + \
-  #       args.dir + " -m update -status fail"
-  # os.system(track)
+  track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+        args.dir + " -m update -status fail"
+  os.system(track)
 
-  # return message: "Fail to read job control file."
+  # Should return message: "Fail to read job control file."?
