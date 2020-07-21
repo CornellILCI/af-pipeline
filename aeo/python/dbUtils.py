@@ -128,23 +128,62 @@ def updateAnalysis(analysisId):
 
     if i == c:
       # all jobs complete
-      print(c, "of", i, "jobs complete with", \
-             m, "message(s),", \
-             e, "error(s).", \
-             f, "job(s) failed.")
+      # complete: n000 (n = no. of jobs)
+      # fail: nnnn (n = no. of jobs and 
+      #                 no. of err and out msgs
+      #                 no. of failed jobs)
+      code="{0}{1}{2}{3}: ".format(c,m,e,f)
+      if m != 0 and e !=0 and f !=0:
+        annStatus="fail"
+      else:
+        annStatus="complete"
+      annMsg=code + \
+             "{0} of {1}".format(c,i) + \
+             " jobs complete with " + \
+             "{0} message(s) ".format(m) + \
+             "{0} error(s) ".format(e) + \
+             "{0} failed job(s).".format(f)
+
+      #print(code, c, "of", i, "jobs complete with", \
+      #      m, "message(s),", \
+      #      e, "error(s),", \
+      #      f, "failed job(s).")
+
     else:
       # Job(s) seemed stuck, completion signal sent but
       # no ending timestamp given.
+      annStatus="stuck"
       if c:
         # some jobs are stuck.
-        print(c,"of",i,"job(s) stuck.")
+        annMsg="{0} of {0} job(s) stuck.".format(c,i)
+        # print(c,"of",i,"job(s) stuck.")
       else:
         # all jobs stuck.
-        print(i,"of",i,"job(s) stuck.")
+        annMsg="{0} of {0} job(s) stuck.".format(i)
+        # print(i,"of",i,"job(s) stuck.")
+
+         
+    sql="UPDATE analysis " + \
+        "SET status= \'{0}\', ".format(annStatus) + \
+            "msg=\'{0}\' ".format(annMsg) + \
+        "WHERE id=\'{0}\'".format(analysisId)
+    print(sql)
+
+    try:
+      cursor.execute(sql)
+      dbConn.commit()
+    except(Exception,psycopg2.Error) as error:
+      if(dbConn):
+        msg="Update failed for "
+        msg=msg + "analysis: {} {1}".format(analysisId, error)
+        simbaUtils.writeLog(msg)
+    finally:
+      if (dbConn):
+        cursor.close()
+        closeConn()
   else:
     print("No job(s) found for:", analysisId)
-
-  closeConn()
+    closeConn()
 
 def addJob (analysisId, jobName, parentId): 
   getJobId(jobName)
