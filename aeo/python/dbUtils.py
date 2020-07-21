@@ -92,7 +92,7 @@ def updateAnalysis(analysisId):
   createConn()
   # get all jobs for the analysis
   # job.analysisId = analysisId 
-  print("Update this:", analysisId)
+  ## print("Update this:", analysisId)
   sql="SELECT time_end, status " + \
       "FROM job " + \
       "WHERE analysis_id=\'{0}\'".format(analysisId)
@@ -134,7 +134,7 @@ def updateAnalysis(analysisId):
       #                 no. of failed jobs)
       code="{0}{1}{2}{3}: ".format(c,m,e,f)
       if m != 0 and e !=0 and f !=0:
-        annStatus="fail"
+        annStatus="failed"
       else:
         annStatus="complete"
       annMsg=code + \
@@ -144,10 +144,10 @@ def updateAnalysis(analysisId):
              "{0} error(s) ".format(e) + \
              "{0} failed job(s).".format(f)
 
-      #print(code, c, "of", i, "jobs complete with", \
-      #      m, "message(s),", \
-      #      e, "error(s),", \
-      #      f, "failed job(s).")
+      ##print(code, c, "of", i, "jobs complete with", \
+      ##      m, "message(s),", \
+      ##      e, "error(s),", \
+      ##      f, "failed job(s).")
 
     else:
       # Job(s) seemed stuck, completion signal sent but
@@ -156,34 +156,34 @@ def updateAnalysis(analysisId):
       if c:
         # some jobs are stuck.
         annMsg="{0} of {0} job(s) stuck.".format(c,i)
-        # print(c,"of",i,"job(s) stuck.")
+        ## print(c,"of",i,"job(s) stuck.")
       else:
         # all jobs stuck.
         annMsg="{0} of {0} job(s) stuck.".format(i)
-        # print(i,"of",i,"job(s) stuck.")
+        ## print(i,"of",i,"job(s) stuck.")
 
-         
-    sql="UPDATE analysis " + \
-        "SET status= \'{0}\', ".format(annStatus) + \
-            "msg=\'{0}\' ".format(annMsg) + \
-        "WHERE id=\'{0}\'".format(analysisId)
-    print(sql)
-
-    try:
-      cursor.execute(sql)
-      dbConn.commit()
-    except(Exception,psycopg2.Error) as error:
-      if(dbConn):
-        msg="Update failed for "
-        msg=msg + "analysis: {} {1}".format(analysisId, error)
-        simbaUtils.writeLog(msg)
-    finally:
-      if (dbConn):
-        cursor.close()
-        closeConn()
   else:
-    print("No job(s) found for:", analysisId)
-    closeConn()
+    annMsg="Failed to read job control file."
+    annStatus="failed"
+
+  sql="UPDATE analysis " + \
+      "SET status= \'{0}\', ".format(annStatus) + \
+          "msg=\'{0}\' ".format(annMsg) + \
+      "WHERE id=\'{0}\'".format(analysisId)
+  ## print(sql)
+
+  try:
+    cursor.execute(sql)
+    dbConn.commit()
+  except(Exception,psycopg2.Error) as error:
+    if(dbConn):
+      msg="Update failed for "
+      msg=msg + "analysis: {0} {1}".format(analysisId, error)
+      simbaUtils.writeLog(msg)
+  finally:
+    if (dbConn):
+      cursor.close()
+      closeConn()
 
 def addJob (analysisId, jobName, parentId): 
   getJobId(jobName)
