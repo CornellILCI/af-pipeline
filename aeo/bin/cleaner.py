@@ -64,3 +64,6 @@ for d in folders:
     cmd="rm -fr " + d
     os.system(cmd)
     print(d, "\t", dtime)
+
+# organize archive in folders with 1000 files each.
+
