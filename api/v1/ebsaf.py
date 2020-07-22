@@ -55,14 +55,6 @@ def start_randomization(folder):
 @app.route('/v1/status/<folder>', methods=['GET'])
 def get_status(folder):
    # check if output has been created.
-   # future implementation: check *.err and *.out for errors
-   # ready: arch/*.tar.gz true + *.err and *.out is zero
-   # fail: * arch/*.tar.gz false + *.err and *.out is not 
-   #         zero or *.err and *.out is false
-   #       * arch/*.tar.gz true + *.err and *.out is not 
-   #         zero
-   #       * reqID/data is not there/ is 0
-   # in queue - response from squeue <folder>
 
    dbUtils.getStatusAnalysis(folder, 0)
    reqStatus=dbUtils.statusAnalysis
@@ -71,7 +63,7 @@ def get_status(folder):
    if '000:' in reqMsg and reqStatus=='complete':
      output=simbaUtils.cfg['arch'] + "/" + folder + '.tar.gz'
      if os.path.exists(output):
-       return jsonify(status='complete.')
+       return jsonify(status='complete.', msg='Files ready!')
      else:
        return jsonify(msg='Results not ready!')
    else:
