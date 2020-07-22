@@ -45,8 +45,18 @@ def start_randomization(folder):
      if (os.path.exists(reqJcf) and
         os.path.exists(reqFile) and
         os.path.exists(entLst)):
-          call(["python3",randExec, folder])
-          return jsonify(msg='Request submitted.')
+          
+          # check for duplicate submission
+          simbaUtils.genShaFile(reqFile)
+          sha=simbaUtils.strSha
+          dbUtils.getAnalysisId(sha, 1)
+          reqID=dbUtils.analysisId
+          
+          if reqID:
+            return jsonify(msg='error: duplicate')
+          else:
+            call(["python3",randExec, folder])
+            return jsonify(msg='Request submitted.')
      else:
         return jsonify(msg='Missing input files.')
    else:
