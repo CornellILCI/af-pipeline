@@ -19,6 +19,7 @@ dbConn=''
 analysisId=''
 jobId=''
 statusAnalysis=''
+statusMsg=''
 
 pyPath=os.environ['EBSAF_ROOT'] + "/aeo/python"
 sys.path.append(pyPath)
@@ -297,40 +298,35 @@ def getJobId (qry):
   closeConn()
 
 def getStatusAnalysis (qry, is_sha):
-  getAnalysisId(q, is_sha)
+  getAnalysisId(qry, is_sha)
+
   global statusAnalysis
-  
+  global statusMsg
+
   if analysisId:
     createConn()
     sql=''
 
     if is_sha:
-      sql="SELECT count(*) " + \
-          "FROM analysis a, job j " + \
-          "WHERE a.sha='{0}' ".format(qry) + \
-          "AND a.id=j.analysis_id " + \
-          "AND j.status=0";
+      sql="SELECT status, msg " + \
+          "FROM analysis " + \
+          "WHERE sha='{0}' ".format(qry)
     else:
-      sql="SELECT count(*) " + \
-          "FROM analysis a, job j " + \
-          "WHERE a.request_id='{0}' ".format(qry) + \
-          "AND a.id=j.analysis_id " + \
-          "AND j.status=0";
+      sql="SELECT status, msg " + \
+          "FROM analysis " + \
+          "WHERE request_id='{0}' ".format(qry)
   
     cursor=dbConn.cursor()
     cursor.execute(sql)
 
     result=cursor.fetchall()
-    result=[i[0] for i in result]
 
-    count=result[0]
+    if result:
+     for r in result:
+       statusAnalysis=r[0]
+       if r[1]:
+         statusMsg=r[1]
+       else:
+         statusMsg='NULL'
  
     closeConn()    
-
-    if count:
-      # Some/all jobs failed!
-      statusAnalysis=0
-    else:
-      # All jobs finished successfuly!
-      statusAnalysis=1
-
