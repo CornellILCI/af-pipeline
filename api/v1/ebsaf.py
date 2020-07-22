@@ -22,7 +22,7 @@ binPath=ebsafRoot + "/aeo/bin"
 randExec=binPath + "/randomize.py"
 
 import simbaUtils
-# import dbUtils
+import dbUtils
 
 # read configuration file.
 simbaUtils.readConfig()
@@ -63,11 +63,20 @@ def get_status(folder):
    #         zero
    #       * reqID/data is not there/ is 0
    # in queue - response from squeue <folder>
-   output=simbaUtils.cfg['arch'] + "/" + folder + '.tar.gz'
-   if os.path.exists(output):
-      return jsonify(msg='Request complete.')
+
+   dbUtils.getStatusAnalysis(folder, 0)
+   reqStatus=dbUtils.statusAnalysis
+   reqMsg=dbUtils.statusMsg
+
+   if '000:' in reqMsg and reqStatus=='complete':
+     output=simbaUtils.cfg['arch'] + "/" + folder + '.tar.gz'
+     if os.path.exists(output):
+       return jsonify(status='complete.')
+     else:
+       return jsonify(msg='Results not ready!')
    else:
-      return jsonify(msg='Results not ready!')
+     # either queued, fail, stuck
+     return jsonify(status=reqStatus, msg=reqMsg)
 
 if __name__=='__main__':
    app.run(host='0.0.0.0')
