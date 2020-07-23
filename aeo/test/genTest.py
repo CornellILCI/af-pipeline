@@ -146,7 +146,7 @@ if args.mode == 'auto':
   for input in inputFolders:
     input=input.rstrip()
     i=i+1
-    print("--", i, "of", args.N, "--")
+    print("\n-- Test", i, "of", args.N, "--")
     print("Submitting request:",input)
     print("Service response:")
     cmd="curl -X POST http://localhost:5000/v1/randomize/" \
@@ -154,20 +154,20 @@ if args.mode == 'auto':
     os.system(cmd)
     time.sleep(1)
 
-  # check status
-  print("Will check status after 10 seconds.")
+  #check status
+  print("\nWill check status after 10 seconds.")
   time.sleep(10)
   i=0
   for input in inputFolders:
     input=input.rstrip()
     i=i+1
-    print("--", i, "of", args.N,"--")
+    print("\n-- Result", i, "of", args.N,"--")
     print("Checking status of request:",input)
     print("Service response:")
     cmd="curl -X GET http://localhost:5000/v1/status/" \
         +input
     os.system(cmd)
-    msg="If response is \"queued\", manually check " + \
+    msg="\nIf response is \"queued\", manually check " + \
         "status with:"
     print(msg)
     print(cmd)
