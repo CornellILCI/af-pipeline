@@ -8,6 +8,7 @@
 import os
 import re
 import sys
+import json
 from datetime import datetime
 
 cfg={}
@@ -16,6 +17,7 @@ strSha=''
 date=''
 errMsg='NULL'
 msg=''
+jsonMsg=''
 folderName='';
 tmplContents='';
 jobStat=3;
@@ -180,4 +182,19 @@ def genFolderName():
    global folderName
    folderName=datetime.now()
    folderName=folderName.strftime("%Y%m%d%H%M%S%f")
+
+def genApiMsg(status, str):
+   global jsonMsg
+   msgCode=200
+
+   if status=='failed':
+     msgCode=400
+
+   data={'status':[{'message': str,
+                    'messageType': 'INFO',
+                    'messageCode': msgCode,
+                    'requestStatus': status
+        }]}
+   jsonMsg=json.dumps(data,indent=4)
+
 
