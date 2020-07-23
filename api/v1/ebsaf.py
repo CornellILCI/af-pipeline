@@ -10,6 +10,7 @@
 
 import os
 import sys
+import json 
 import flask
 from flask import request, jsonify
 from subprocess import call
@@ -53,14 +54,26 @@ def start_randomization(folder):
           reqID=dbUtils.analysisId
           
           if reqID:
-            return jsonify(msg='error: duplicate')
+            msg="Duplicate submission."
+            simbaUtils.genApiMsg('failed',msg)
+            jsonMsg=simbaUtils.jsonMsg 
+            return (jsonMsg)
           else:
             call(["python3",randExec, folder])
-            return jsonify(msg='Request submitted.')
+            msg="Request has been submitted."
+            simbaUtils.genApiMsg('submitted',msg)
+            jsonMsg=simbaUtils.jsonMsg 
+            return (jsonMsg)
      else:
-        return jsonify(msg='Missing input files.')
+        msg="Missing input files."
+        simbaUtils.genApiMsg('failed',msg)
+        jsonMsg=simbaUtils.jsonMsg
+        return(jsonMsg)
    else:
-     return jsonify(msg='Input folder not found.')
+     msg="Input folder not found."
+     simbaUtils.genApiMsg('failed',msg)
+     jsonMsg=simbaUtils.jsonMsg
+     return(jsonMsg)
 
 @app.route('/v1/status/<folder>', methods=['GET'])
 def get_status(folder):
@@ -73,12 +86,27 @@ def get_status(folder):
    if '000:' in reqMsg and reqStatus=='complete':
      output=simbaUtils.cfg['arch'] + "/" + folder + '.tar.gz'
      if os.path.exists(output):
-       return jsonify(status='complete.', msg='Files ready!')
+       msg="Request has been successfully completed."
+       simbaUtils.genApiMsg('completed',msg)
+       jsonMsg=simbaUtils.jsonMsg 
+       return(jsonMsg)
      else:
-       return jsonify(msg='Results not ready!')
+       msg="Request is in the queue."
+       simbaUtils.genApiMsg('queued',msg)
+       jsonMsg=simbaUtils.jsonMsg 
+       return (jsonMsg)
    else:
      # either queued, fail, stuck
-     return jsonify(status=reqStatus, msg=reqMsg)
+     if reqStatus=='queued':
+       status='queued'
+       msg="Request is in the queue."
+     else:
+       status='failed'
+       msg=reqMsg
+    
+     simbaUtils.genApiMsg(status,msg)
+     jsonMsg=simbaUtils.jsonMsg
+     return (jsonMsg)
 
 if __name__=='__main__':
    app.run(host='0.0.0.0')
