@@ -8,9 +8,10 @@
 # This is not yet fully implemented yet
 
 import os
-import sys
 import re
-from datetime import datetime, timedelta
+import sys
+import math
+from datetime import date, datetime, timedelta
 
 pyPath=os.environ['EBSAF_ROOT'] + "/aeo/python"
 
@@ -19,18 +20,21 @@ sys.path.append(pyPath)
 import simbaUtils
 
 simbaUtils.readConfig()
-logPath=simbaUtils.cfg['lgd']
-outPath=simbaUtils.cfg['out']
+intPath=simbaUtils.cfg['int']   # input
+logPath=simbaUtils.cfg['lgd']   # log 
+outPath=simbaUtils.cfg['out']   # output
+archPath=simbaUtils.cfg['arch'] # archive
 
-# print(logPath)
-# print(outPath)
+n=0         # number of old files to delete
+t=0         # total number of files
+a=5        # delete files older than a (age)
+filesN=200  # total number of files/folder
 
-n=1
 files=[]
 folders=[]
-monthAgo=datetime.now() - timedelta(days=1)
+monthAgo=datetime.now() - timedelta(days=a)
 
-# delete slurm log files that are a month old
+# delete slurm log files that are a days old
 for r, d, f in os.walk(logPath):
   for file in f:
     # Ignore simba.LOG and README
@@ -39,31 +43,111 @@ for r, d, f in os.walk(logPath):
 
 for f in files:
   ftime=datetime.fromtimestamp(os.stat(f).st_mtime)
-  
-  # print (f, "\t", ftime, "\t", monthAgo)
-
+  t=t+1
   if ftime < monthAgo:
-    # delete files older than a month
+    n=n+1
+    # delete files older than a a days 
     cmd="rm -fr " + f
     os.system(cmd)
-    print(f, "\t", ftime)
 
-# delete folders that are a month old.
-for r, d, f in os.walk(outPath):
+if n:
+  msg="cleaner.py: deleted {0} of ".format(n) + \
+      "{0} slurm log files older than ".format(t) + \
+      "{0} days.".format(a)
+  simbaUtils.writeLog(msg)
+
+n=0
+t=0
+folders=[]
+
+# delete folders in input that are a days old.
+for r, d, f in os.walk(intPath):
   for dir in d:
-    if '_SD_0000' in dir:
+    if '_0000' in dir:
       folders.append(os.path.join(r,dir))
 
 for d in folders:
   dtime=datetime.fromtimestamp(os.stat(d).st_mtime)
- 
-  # print(d,"\t", dtime)
-
+  t=t+1 
   if dtime < monthAgo:
-    # delete folders older than a month
+    # delete folders older than a d days 
+    n=n+1
     cmd="rm -fr " + d
     os.system(cmd)
-    print(d, "\t", dtime)
 
-# organize archive in folders with 1000 files each.
+if n:
+  msg="cleaner.py: deleted {0} of ".format(n) + \
+      "{0} folders in input that are older ".format(t) + \
+      "than {0} days.".format(a)
+  simbaUtils.writeLog(msg)
 
+n=0
+t=0
+folders=[]
+
+# delete folders in output  that are a days old.
+for r, d, f in os.walk(outPath):
+  for dir in d:
+    if '_0000' in dir:
+      folders.append(os.path.join(r,dir))
+
+for d in folders:
+  dtime=datetime.fromtimestamp(os.stat(d).st_mtime)
+  t=t+1 
+  if dtime < monthAgo:
+    # delete folders older than a d days 
+    n=n+1
+    cmd="rm -fr " + d
+    os.system(cmd)
+
+if n:
+  msg="cleaner.py: deleted {0} of ".format(n) + \
+      "{0} folders in output  that are older ".format(t) + \
+      "than {0} days.".format(a)
+  simbaUtils.writeLog(msg)
+
+n=0
+t=0
+files=[]
+
+# organize archive in folders with filesN files each.
+for r, d, f in os.walk(archPath):
+  for file in f:
+    if 'tar.gz' in file:
+      files.append(os.path.join(r,file))
+  break
+
+for f in files:
+  t=t+1
+
+if t >= filesN:
+  nFolders=math.trunc(t/filesN)
+  archFolders=[]
+  i=0
+  while i < nFolders:
+    simbaUtils.genFolderName()
+    fPath=archPath + "/" + simbaUtils.folderName
+    # create folder
+    cmd="mkdir {0}".format(fPath)
+    os.system(cmd)
+    archFolders.append(fPath)
+    i=i+1
+  i=0
+  c=1
+  for f in files:
+    dest=archFolders[i]
+    if c > filesN:
+      c=1
+      i=i+1
+      if i == nFolders:
+        break
+      else:
+        dest=archFolders[i]
+
+    cmd="mv {0} {1}".format(f,dest)
+    os.system(cmd)
+    c=c+1
+  
+  msg="cleaner.py: {0}".format(t) + \
+      " files moved into {0} folder(s).".format(nFolders)
+  simbaUtils.writeLog(msg)
