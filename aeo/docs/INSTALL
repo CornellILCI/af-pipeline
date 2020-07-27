@@ -68,9 +68,9 @@ Optional: Configure postgresql for remote connections
 * Note: You might need to adjust your firewall settings.
   (Consult your System/Network Administrator for this.) 
 
-Install psycopg2 (Python3 PostgreSQL interface)
+Install psycopg2 and UUID (Python3 PostgreSQL interface)
 * sudo apt-get update && sudo apt-get upgrade
-* sudo apt-get -y install python3-psycopg2
+* sudo apt-get -y install python3-psycopg2 UUID
 
 Install Git
 * sudo apt-get install git
@@ -98,7 +98,7 @@ Create psql database
 * Type "\q" to exit.
 * Import/Restore schema: cd to /home/aadmin/ebs-af/aeo/database 
   and type:
-    psql -U aadmin analytics < 2019.02.22-analytics.pg.sql
+    psql -U aadmin analytics < 2020.07.21-analytics.pg.sql
 
 Install R
 * sudo apt-get update && sudo apt-get upgrade
@@ -149,6 +149,8 @@ Install SLURM
 Create simba.conf file
 * Go to ebs-af/aeo/conf and copy simba.tmpl to simba.conf
 * Edit simba.conf to match your settings:
+    age (age of file (in days) to delete)
+    set (number of files per folder in archive)
     rtd (root directory, /home/aadmin/ebs-af/aeo)
     bin (executables directory)
     int (input directory)
@@ -157,7 +159,7 @@ Create simba.conf file
     mdl (models directory, /home/aadmin/ebs-af/models)
     ldg (logs directory)
     arch (archive directory)
-    slg (simba.LOG file)
+    slg (path to simba.LOG file)
     dbh (server: currently localhost, for cluster install,
         specific ip address should be used.)
     dpt (port)
@@ -182,7 +184,6 @@ Install webapi
   * gunicorn --bind 0.0.0.0:5000 wsgi:app
 
 Test the install
-* This needs uuid to be installed (sudo apt-get install uuid)
 * Go to folder ebs-af/aeo/test and generate request files:
    - ./genTest.py -m auto 10
    - This will generate 10 request files and submit it.
@@ -198,10 +199,9 @@ more than a month old).
 * Add the following line before the line  # m h dom mon ...:
     - EBSAF_ROOT=/home/aadmin/ebs-af/
     - Then add after the line:
-      - */5 * * * * /home/aadmin/ebs-af/aeo/bin/cleaner.py
+      - 0 23 * * 6 /home/aadmin/ebs-af/aeo/bin/cleaner.py
    Save and exit (if using vim: shift+:wq)
-* This will run cleaner.pl every 5 minutes. The cleaner.py 
-  script should be configured to run once a day. 
+* This will run cleaner.py 11pm every Saturday.
 * Check system mail if to see any messages (type "mail").
 * Check simba.LOG at ~/ebs-af/aeo/logs for errors.
 
@@ -237,5 +237,3 @@ Running ebs-af in a container
   - Run the container:
     - sudo docker run -h rafiki -ti -d --name rafiki -v \
       <ebs-af folder>:/ebs-af rafiki:latest
-
-
