@@ -25,10 +25,10 @@ logPath=simbaUtils.cfg['lgd']   # log
 outPath=simbaUtils.cfg['out']   # output
 archPath=simbaUtils.cfg['arch'] # archive
 
-n=0         # number of old files to delete
-t=0         # total number of files
-a=5        # delete files older than a (age)
-filesN=200  # total number of files/folder
+n=0  # number of old files to delete
+t=0  # total number of files
+a=int(simbaUtils.cfg['age']) # age of file to delete
+filesN=int(simbaUtils.cfg['set'])  # N of files/folder
 
 files=[]
 folders=[]
