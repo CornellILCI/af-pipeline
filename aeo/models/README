@@ -1,9 +1,0 @@
-Model folder for pysimba.
-2019.11.20, vjmulat
-
-Currently has two folders:
-statDesign - r-based randomization scripts
-statAnalyses - r and asreml based data analysis scripts.
-
-These two folders are populated from nala (see docs/INSTALL
-for details).
