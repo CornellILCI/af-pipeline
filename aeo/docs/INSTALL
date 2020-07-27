@@ -4,7 +4,7 @@ Victor Jun Ulat, CIMMYT
 v.ulat@cgiar.org
 
 Updated: 2019.06.21
-Modified for pySimba: 2020.01.15
+Modified for ebs-af: 2020.07.27
 
 Server
 * Installed Ubuntu 18.04 server edition on a virtual machine
@@ -24,7 +24,7 @@ Optional: Remove cloud-init
 * sudo mv /etc/cloud/ ~/
 * sudo mv /var/lib/cloud/ ~/cloud-lib
 * sudo systemctl show -p WantedBy network-online.target
-* sudo systemctl disable open-iscsid.service
+* sudo systemctl disable open-iscsi.service
 * sudo apt remove open-iscsi
 * sudo shutdown -r now
 * sudo apt-get update && sudo apt-get upgrade
@@ -68,9 +68,9 @@ Optional: Configure postgresql for remote connections
 * Note: You might need to adjust your firewall settings.
   (Consult your System/Network Administrator for this.) 
 
-Install psycopg2 and UUID (Python3 PostgreSQL interface)
+Install psycopg2 and uuid (Python3 PostgreSQL interface)
 * sudo apt-get update && sudo apt-get upgrade
-* sudo apt-get -y install python3-psycopg2 UUID
+* sudo apt-get -y install python3-psycopg2 uuid
 
 Install Git
 * sudo apt-get install git
