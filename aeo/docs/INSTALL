@@ -68,9 +68,9 @@ Optional: Configure postgresql for remote connections
 * Note: You might need to adjust your firewall settings.
   (Consult your System/Network Administrator for this.) 
 
-Install psycopg2 and UUID (Python3 PostgreSQL interface)
+Install psycopg2 and uuid (Python3 PostgreSQL interface)
 * sudo apt-get update && sudo apt-get upgrade
-* sudo apt-get -y install python3-psycopg2 UUID
+* sudo apt-get -y install python3-psycopg2 uuid
 
 Install Git
 * sudo apt-get install git
