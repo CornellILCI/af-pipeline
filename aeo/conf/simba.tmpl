@@ -1,25 +1,35 @@
 # SIMBA CONF
 # version 0.002
 # 2019.10.09
-# Specify paths:
+
+# File management (settings for cleaner.py)
+# age: age of file (in days) to delete
+# set: number of files per folder in archive
+age=30
+set=1000 
+
+# Directory settings:
 rtd=/home/vulat/Projects/pysimba 
 bin=/home/vulat/Projects/pysimba/bin
 int=/home/vulat/Projects/pysimba/input
 wrd=/home/vulat/Projects/pysimba/scratch
 out=/home/vulat/Projects/pysimba/output
-arch=/home/home/vulat/Projects/pysimba/arch
+arch=/home/home/vulat/Projects/pysimba/archive
 mdl=/home/vulat/Projects/pysimba/models
 tpl=/home/vulat/Projects/pysimba/templates
 lgd=/home/vulat/Projects/pysimba/logs
+
 # Specify log file:
 slg=/home/vulat/Projects/pysimba/logs/simba.LOG
+
 # Database credentials:
 dbh=localhost
 dpt=5432
 dbn=pysimba
 dbu=vulat
 dbp=hyperCloudX
-# Specify paths to engines:
+
+# Engine configuration:
 r344=/usr/bin
 asm=null
 bsh=/bin/bash
