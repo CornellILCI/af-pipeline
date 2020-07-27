@@ -31,9 +31,11 @@ def readConfig():
 
   while line:
     if not line.startswith("#"):
-       line=line.strip()
-       key,value = line.split("=")
-       cfg[key]=value
+       line=line.rstrip()
+       if line:
+         line=line.strip()
+         key,value = line.split("=")
+         cfg[key]=value
     line=simbaConf.readline()
 
   simbaConf.close()
