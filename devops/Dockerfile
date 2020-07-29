@@ -36,7 +36,11 @@ RUN Rscript -e "install.packages('/home/aadmin/ebs-af/models/packages/R.oo_1.22.
 RUN Rscript -e "install.packages('/home/aadmin/ebs-af/models/packages/DiGGer_0.2-31_R_x86_64-unknown-linux-gnu.tar.gz',repos=NULL,type='source')"
 RUN Rscript -e "install.packages('/home/aadmin/ebs-af/models/packages/plyr_1.8.4.tar.gz', repos=NULL, type='source')"
 RUN Rscript -e "install.packages('/home/aadmin/ebs-af/models/packages/PBTools_2.0.0.tar.gz', repos=NULL, type='source')"
-RUN Rscript -e "install.packages('/home/aadmin/ebs-af/models/packages/ebsRtools_0.2.0.tar.gz' repos=NULL, type='source')"
+RUN Rscript -e "install.packages('/home/aadmin/ebs-af/models/packages/ebsRtools_0.2.0.tar.gz',repos=NULL, type='source')"
+
+# Add crontab entry for cleaner.py
+
+RUN echo "0 23 * * 6 /home/aadmin/ebs-af/aeo/bin/cleaner.py" >> /etc/crontab
 
 # Create aadmin user
 RUN useradd -rm -d /home/aadmin -s /bin/bash -g root \
