@@ -84,6 +84,8 @@ def get_status(folder):
    reqMsg=dbUtils.statusMsg
 
    if '000:' in reqMsg and reqStatus=='complete':
+     # returns "Request is in queue" after results has 
+     # been archived as a result of running cleaner.py
      output=simbaUtils.cfg['arch'] + "/" + folder + '.tar.gz'
      if os.path.exists(output):
        msg="Request has been successfully completed."
