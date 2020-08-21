@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     libpq-dev \
     r-base \
-    libgfortran5 \
+    libgfortran3 \
     python3.8 \
     python3-pip \
     munge \
