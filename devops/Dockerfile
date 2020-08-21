@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 LABEL MAINTAINER = Jack Elendil B. Lagare <j.lagare@irri.org>
 
 ENV TZ=Asia/Manila
@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y \
     munge \
     supervisor \
     slurm-wlm \
-    && pip3 install psycopg2 gunicorn flask
+    curl \
+    && pip3 install psycopg2 uuid gunicorn flask
 
 COPY aeo /home/aadmin/ebs-af/aeo
 
