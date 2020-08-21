@@ -20,7 +20,8 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     slurm-wlm \
     curl \
-    && pip3 install psycopg2 uuid gunicorn flask
+    uuid \
+    && pip3 install psycopg2 gunicorn flask
 
 COPY aeo /home/aadmin/ebs-af/aeo
 
