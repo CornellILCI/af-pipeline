@@ -51,7 +51,7 @@ RUN useradd -rm -d /home/aadmin -s /bin/bash -g root \
 WORKDIR /home/aadmin
 
 COPY devops/slurm.tmpl /etc/slurm-llnl/slurm.conf
-COPY devops/supervisord.conf /etc/
+COPY devops/supervisord.tmpl /etc/supervisord.conf
 COPY devops/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
