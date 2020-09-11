@@ -50,7 +50,7 @@ RUN useradd -rm -d /home/aadmin -s /bin/bash -g root \
 
 WORKDIR /home/aadmin
 
-COPY devops/slurm.conf /etc/slurm-llnl/slurm.conf
+COPY devops/slurm.tmpl /etc/slurm-llnl/slurm.conf
 COPY devops/supervisord.conf /etc/
 COPY devops/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
