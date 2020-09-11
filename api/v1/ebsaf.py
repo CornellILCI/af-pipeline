@@ -12,7 +12,7 @@ import os
 import sys
 import json 
 import flask
-from flask import request, jsonify
+from flask import request, jsonify, Response
 from subprocess import call
 
 ebsafRoot=os.environ['EBSAF_ROOT']
@@ -57,23 +57,23 @@ def start_randomization(folder):
             msg="Duplicate submission."
             simbaUtils.genApiMsg('failed',msg)
             jsonMsg=simbaUtils.jsonMsg 
-            return (jsonMsg)
+	    return Response(jsonMsg,content_type='application/json')
           else:
             call(["python3",randExec, folder])
             msg="Request has been submitted."
             simbaUtils.genApiMsg('submitted',msg)
             jsonMsg=simbaUtils.jsonMsg 
-            return (jsonMsg)
+            return Response(jsonMsg,content_type='application/json')
      else:
         msg="Missing input files."
         simbaUtils.genApiMsg('failed',msg)
         jsonMsg=simbaUtils.jsonMsg
-        return(jsonMsg)
+        return Response(jsonMsg,content_type='application/json')
    else:
      msg="Input folder not found."
      simbaUtils.genApiMsg('failed',msg)
      jsonMsg=simbaUtils.jsonMsg
-     return(jsonMsg)
+     return Response(jsonMsg,content_type='application/json')
 
 @app.route('/v1/status/<folder>', methods=['GET'])
 def get_status(folder):
@@ -91,12 +91,12 @@ def get_status(folder):
        msg="Request has been successfully completed."
        simbaUtils.genApiMsg('completed',msg)
        jsonMsg=simbaUtils.jsonMsg 
-       return(jsonMsg)
+       return Response(jsonMsg,content_type='application/json')
      else:
        msg="Request is in the queue."
        simbaUtils.genApiMsg('queued',msg)
        jsonMsg=simbaUtils.jsonMsg 
-       return (jsonMsg)
+       return Response(jsonMsg,content_type='application/json')
    else:
      # either queued, fail, stuck
      if reqStatus=='queued':
@@ -108,7 +108,7 @@ def get_status(folder):
     
      simbaUtils.genApiMsg(status,msg)
      jsonMsg=simbaUtils.jsonMsg
-     return (jsonMsg)
+     return Response(jsonMsg,content_type='application/json')
 
 if __name__=='__main__':
    app.run(host='0.0.0.0')
