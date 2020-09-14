@@ -56,13 +56,13 @@ def start_randomization(folder):
           if reqID:
             msg="Duplicate submission."
             simbaUtils.genApiMsg('failed',msg)
-            jsonMsg=simbaUtils.jsonMsg 
-	    return Response(jsonMsg,content_type='application/json')
+            jsonMsg=simbaUtils.jsonMsg
+            return Response(jsonMsg,content_type='application/json')
           else:
             call(["python3",randExec, folder])
             msg="Request has been submitted."
             simbaUtils.genApiMsg('submitted',msg)
-            jsonMsg=simbaUtils.jsonMsg 
+            jsonMsg=simbaUtils.jsonMsg
             return Response(jsonMsg,content_type='application/json')
      else:
         msg="Missing input files."
