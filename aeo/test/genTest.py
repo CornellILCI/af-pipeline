@@ -149,7 +149,7 @@ if args.mode == 'auto':
     print("\n-- Test", i, "of", args.N, "--")
     print("Submitting request:",input)
     print("Service response:")
-    cmd="curl -X POST http://localhost:5000/v1/randomize/" \
+    cmd="curl -X POST http://localhost/v1/randomize/" \
          + input
     os.system(cmd)
     time.sleep(1)
@@ -164,7 +164,7 @@ if args.mode == 'auto':
     print("\n-- Result", i, "of", args.N,"--")
     print("Checking status of request:",input)
     print("Service response:")
-    cmd="curl -X GET http://localhost:5000/v1/status/" \
+    cmd="curl -X GET http://localhost/v1/status/" \
         +input
     os.system(cmd)
     msg="\nIf response is \"queued\", manually check " + \
