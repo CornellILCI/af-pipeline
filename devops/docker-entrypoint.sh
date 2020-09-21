@@ -28,5 +28,5 @@ echo "- Starting gunicorn -"
 
 cp /config/simba.conf /home/aadmin/ebs-af/aeo/conf/simba.conf
 
-exec gunicorn -w 2 -b 0.0.0.0:80 --access-logfile /var/log/gunicorn.log --chdir /home/aadmin/ebs-af/api/v1 wsgi:app
+exec gunicorn -w 2 -b 0.0.0.0:80 --log-file /var/log/gunicorn.log --chdir /home/aadmin/ebs-af/api/v1 wsgi:app
 exec "$@"
