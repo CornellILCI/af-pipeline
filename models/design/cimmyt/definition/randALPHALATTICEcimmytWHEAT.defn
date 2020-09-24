@@ -39,7 +39,7 @@
         "default": null,
         "disabled": "T",
         "required": "T",
-        "data_type": "csv",
+        "data_type": "string",
         "order_number": 2,
         "variable_abbrev": "entryList",
         "is_layout_variable": "F"
@@ -57,7 +57,7 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 3,
-        "variable_abbrev": "REP_COUNT",
+        "variable_abbrev": "REPLICATION_BLOCK",
         "is_layout_variable": "F"
       },
       "sBlk": {
@@ -74,12 +74,22 @@
         "data_type": "integer",
         "order_number": 4,
         "variable_abbrev": "TREATMENT_BLOCK",
-        "is_layout_variable": "F"
+        "is_layout_variable": "F",
+        "rule": [
+          {
+            "type": "allowed-value",
+            "expression": "factor(totalEntries)"
+          },
+          {
+            "type": "allowed-value",
+            "expression": "value<(totalEntries)"
+          }
+        ]
       },
       "genLayout": {
         "variable_label": "Define Shape/Dimension",
         "description": "Define rows and columns along with the design",
-        "visible": "F",
+        "visible": "T",
         "minimum": null,
         "maximum": null,
         "unit": null,
@@ -106,14 +116,20 @@
         "data_type": "integer",
         "order_number": 6,
         "variable_abbrev": "ROW",
-        "is_layout_variable": "T"
+        "is_layout_variable": "T",
+        "rule": [
+          {
+            "type": "allowed-value",
+            "expression": "factor(totalPlots)"
+          }
+        ]
       },
       "nPlotBarrier" : {
         "variable_label": "Plots until turn the serpentine",
-        "description": "Number of plots up to the barrier, if Vserpentine=TRUE it is in vertical direction",
+        "description": "Number of plots until turn the serpentine, if Vserpentine=TRUE it is in vertical direction",
         "visible": "T",
-        "minimum": "1",
-        "maximum": "",
+        "minimum": "2",
+        "maximum": null,
         "unit": null,
         "values": null,
         "default": null,
@@ -121,8 +137,14 @@
         "required": "F",
         "data_type": "integer",
         "order_number": 7,
-        "variable_abbrev": "ROW",
-        "is_layout_variable": "T"
+        "variable_abbrev": null,
+        "is_layout_variable": "T",
+        "rule": [
+          {
+            "type": "allowed-value",
+            "expression": "<(totalPlots/nFieldRow)"
+          }
+        ]
       },
       "rand1" : {
         "variable_label": "Randomize the first rep",
@@ -132,33 +154,52 @@
         "maximum": null,
         "unit": null,
         "values": {
-          "F": "Do not randomize",
-          "T": "Randomize"
+          "F": "No",
+          "T": "Yes"
         },
         "default": "T",
         "disabled": "F",
         "required": "T",
         "data_type": "boolean",
         "order_number": 8,
-        "variable_abbrev": "FLD_ORDER",
-        "is_layout_variable": "T"
+        "variable_abbrev": null,
+        "is_layout_variable": "F"
       },
-      "Vserpentine": {
-        "variable_label": "Field Order",
-        "description": "Whether plots will be assing in Vertical serpentine arrangement or Horizontal",
-        "visible": "F",
+	"RandOcc" : {
+        "variable_label": "Randomize each occurrence",
+        "description": "Whether run a randomization for each occurrence or use the same randomization for all of them",
+        "visible": "T",
         "minimum": null,
         "maximum": null,
         "unit": null,
         "values": {
-          "F": "Horizontal Serpentine",
-          "T": "Vertical Serpentine"
+          "F": "No",
+          "T": "Yes"
+        },
+        "default": "T",
+        "disabled": "F",
+        "required": "T",
+        "data_type": "boolean",
+        "order_number": 9,
+        "variable_abbrev": null,
+        "is_layout_variable": "F"
+      },
+      "Vserpentine": {
+        "variable_label": "Field Order",
+        "description": "Whether plots will be assing in Vertical serpentine arrangement or Horizontal",
+        "visible": "T",
+        "minimum": null,
+        "maximum": null,
+        "unit": null,
+        "values": {
+          "F": "Horizontal",
+          "T": "Vertical"
         },
         "default": "F",
         "disabled": "F",
         "required": "T",
         "data_type": "boolean",
-        "order_number": 9,
+        "order_number": 10,
         "variable_abbrev": "FLD_ORDER",
         "is_layout_variable": "T"
       },
@@ -174,7 +215,7 @@
         "disabled": "T",
         "required": "T",
         "data_type": "character varying",
-        "order_number": 10,
+        "order_number": 11,
         "variable_abbrev": null,
         "is_layout_variable": "F"
       },
@@ -190,7 +231,7 @@
         "disabled": "T",
         "required": "T",
         "data_type": "character varying",
-        "order_number": 11,
+        "order_number": 12,
         "variable_abbrev": null,
         "is_layout_variable": "F"
       }
