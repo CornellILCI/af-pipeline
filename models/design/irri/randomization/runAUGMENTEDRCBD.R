@@ -73,7 +73,7 @@ if (!dir.exists(opt$outputPath)) {
 # read the file containing the entry list
 entryData <- read.csv(file = opt$entryList)
 checkData <- entryData %>% filter(entry_type == "check")
-testData <- entryData %>% filter(entry_type == "test")
+testData <- entryData %>% filter(entry_type == "entry")
 nCheckEntry <- nrow(checkData)
 nTestEntry <- nrow(testData)
 checkEntryList <- checkData[,"entry_id"]
