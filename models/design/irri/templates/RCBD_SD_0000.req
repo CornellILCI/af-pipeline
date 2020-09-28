@@ -27,8 +27,8 @@
   	"entry_id": [1,2,3,4,5,6,7,8,9,10], 
 	"entry_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 
 	"entry_name": ["IR19U149", "IR19I169", "IR19C183", "IR19U146", "IR19P141", "IR19D151", "IR19H156", "IR19T105", "IR19J187", "IR19D180"], 
-	"entry_type": ["test", "test", "test", "test", "test", "test", "test", "test", "test", "test"], 
-	"entry_role": ["test", "test", "test", "test", "test", "test", "test", "test", "test", "performance check"], 
+	"entry_type": ["entry", "entry", "entry", "entry", "entry", "entry", "entry", "entry", "entry", "entry"], 
+	"entry_role": ["", "", "", "", "", "", "", "", "", "performance check"], 
 	"entry_class": ["", "", "", "", "", "", "", "", "", ""], 
 	"entry_status": ["active", "active", "active", "active", "active", "active", "active", "active", "active", "active"], 
 	"germplasm_id": [354785246, 337005925, 377608471, 348852198, 339506863, 307452350, 317164423, 395022881, 365645852, 346117552]
