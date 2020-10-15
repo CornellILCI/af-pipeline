@@ -1,7 +1,7 @@
 {
   "metadata": {
     "Rversion": "3.4.4",
-    "date": "15-Jun-2020",
+    "date": "15-Oct-2020",
     "author": "Pedro Barbosa | Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "p.medeiros@cgiar.org",
     "syntax": "Rscript randALPHALATTICEcimmytWHEAT.R -e ALPHA_cimmyt_wheat_SD_0001.lst --nRep 2 --sBlk 4 --nTrial 2 --genLayout T --nFieldRow 6 --nPlotBarrier 4 --rand1 F --RandOcc T --Vserpentine F",
@@ -9,7 +9,7 @@
     "method": "randALPHALATTICEcimmytWHEAT",
     "design": "Alpha-Lattice",
     "modelVersion": 2,
-    "organization_code" : "CIMMYT", 
+    "organization_code": "CIMMYT",
     "note": "Inherent design restrictions apply"
   },
   "parameters": {
@@ -18,7 +18,7 @@
         "variable_label": "No. of Occurrences",
         "description": "Number of occurrences within the experiment",
         "visible": "T",
-        "minimum": "1",
+        "minimum": 1,
         "maximum": null,
         "unit": null,
         "values": null,
@@ -42,17 +42,26 @@
         "data_type": "string",
         "order_number": 2,
         "variable_abbrev": "entryList",
-        "is_layout_variable": "F"
+        "is_layout_variable": "F",
+        "rule": [
+          {
+            "order number": 1,
+            "type": "validate-design",
+            "expression": "!prime(totalEntries)",
+            "notification": "Total number of entries should not be a prime number. Kindly update the entry list or select an appropriated design",
+            "action": "error"
+          }
+        ]
       },
       "nRep": {
         "variable_label": "No. of Replicates",
         "description": "Number of replicates",
         "visible": "T",
-        "minimum": "2",
-        "maximum": "4",
+        "minimum": 2,
+        "maximum": 4,
         "unit": null,
         "values": null,
-        "default": null,
+        "default": 2,
         "disabled": "F",
         "required": "T",
         "data_type": "integer",
@@ -62,10 +71,10 @@
       },
       "sBlk": {
         "variable_label": "No. of plots per block",
-        "description": "Block size, it is the number of plots in each block",
+        "description": "Block size, it is the number of plots per block. Consider using several small blocks instead of a few large blocks",
         "visible": "T",
-        "minimum": "2",
-        "maximum": "100",
+        "minimum": null,
+        "maximum": null,
         "unit": null,
         "values": null,
         "default": null,
@@ -73,16 +82,29 @@
         "required": "T",
         "data_type": "integer",
         "order_number": 4,
-        "variable_abbrev": "TREATMENT_BLOCK",
+        "variable_abbrev": "BLOCK_SIZE",
         "is_layout_variable": "F",
         "rule": [
           {
+            "order number": 1,
             "type": "allowed-value",
-            "expression": "factor(totalEntries)"
+            "expression": "factor(totalEntries)",
+            "notification": null,
+            "action": null
           },
           {
+            "order number": 2,
             "type": "allowed-value",
-            "expression": "value<(totalEntries)"
+            "expression": "value>1",
+            "notification": null,
+            "action": null
+          },
+          {
+            "order number": 3,
+            "type": "allowed-value",
+            "expression": "value<( totalEntries)",
+            "notification": null,
+            "action": null
           }
         ]
       },
@@ -98,7 +120,7 @@
         "disabled": "F",
         "required": "T",
         "data_type": "boolean",
-        "order_number": 5,
+        "order_number": 7,
         "variable_abbrev": null,
         "is_layout_variable": "F"
       },
@@ -106,29 +128,7 @@
         "variable_label": "Rows",
         "description": "Total number of rows",
         "visible": "T",
-        "minimum": "1",
-        "maximum": "10000",
-        "unit": null,
-        "values": null,
-        "default": null,
-        "disabled": "F",
-        "required": "F",
-        "data_type": "integer",
-        "order_number": 6,
-        "variable_abbrev": "ROW",
-        "is_layout_variable": "T",
-        "rule": [
-          {
-            "type": "allowed-value",
-            "expression": "factor(totalPlots)"
-          }
-        ]
-      },
-      "nPlotBarrier" : {
-        "variable_label": "Plots until turn the serpentine",
-        "description": "Number of plots until turn the serpentine, if Vserpentine=TRUE it is in vertical direction",
-        "visible": "T",
-        "minimum": "2",
+        "minimum": 1,
         "maximum": null,
         "unit": null,
         "values": null,
@@ -136,17 +136,52 @@
         "disabled": "F",
         "required": "F",
         "data_type": "integer",
-        "order_number": 7,
+        "order_number": 8,
+        "variable_abbrev": "ROW",
+        "is_layout_variable": "T",
+        "rule": [
+          {
+            "order number": 1,
+            "type": "allowed-value",
+            "expression": "factor(totalEntries*nRep)",
+            "notification": null,
+            "action": null
+          }
+        ]
+      },
+      "nPlotBarrier": {
+        "variable_label": "Plots until turn the serpentine",
+        "description": "Number of plots until turn the serpentine, it will follow the same direction of the serpentine (horizontal or vertical)",
+        "visible": "T",
+        "minimum": null,
+        "maximum": null,
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "F",
+        "required": "F",
+        "data_type": "integer",
+        "order_number": 10,
         "variable_abbrev": null,
         "is_layout_variable": "T",
         "rule": [
           {
+            "order number": 1,
             "type": "allowed-value",
-            "expression": "<(totalPlots/nFieldRow)"
+            "expression": "if(!Vserpentine){value<=((totalEntries*nRep)/nFieldRow)}",
+            "notification": null,
+            "action": null
+          },
+          {
+            "order number": 2,
+            "type": "allowed-value",
+            "expression": "if(vSerpentine){value<=(nFieldRow)}",
+            "notification": null,
+            "action": null
           }
         ]
       },
-      "rand1" : {
+      "rand1": {
         "variable_label": "Randomize the first rep",
         "description": "Whether the first rep should be randomized",
         "visible": "T",
@@ -161,11 +196,11 @@
         "disabled": "F",
         "required": "T",
         "data_type": "boolean",
-        "order_number": 8,
+        "order_number": 5,
         "variable_abbrev": null,
         "is_layout_variable": "F"
       },
-	"RandOcc" : {
+      "RandOcc": {
         "variable_label": "Randomize each occurrence",
         "description": "Whether run a randomization for each occurrence or use the same randomization for all of them",
         "visible": "T",
@@ -180,7 +215,7 @@
         "disabled": "F",
         "required": "T",
         "data_type": "boolean",
-        "order_number": 9,
+        "order_number": 6,
         "variable_abbrev": null,
         "is_layout_variable": "F"
       },
@@ -199,7 +234,7 @@
         "disabled": "F",
         "required": "T",
         "data_type": "boolean",
-        "order_number": 10,
+        "order_number": 9,
         "variable_abbrev": "FLD_ORDER",
         "is_layout_variable": "T"
       },
@@ -240,7 +275,7 @@
       "DesignArray": {
         "filetype": "csv",
         "label": "Design Array file",
-        "description": "spreadsheet file showing the result of  the randomization (and layout, if generated)"
+        "description": "spreadsheet file showing the result of the randomization (and layout, if generated)"
       },
       "designInfo": {
         "filetype": "txt",
