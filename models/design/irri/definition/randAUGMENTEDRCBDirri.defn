@@ -1,7 +1,7 @@
 {
   "metadata": {
     "Rversion": "3.5.1",
-    "date": "25-Jun-2020",
+    "date": "19-Oct-2020",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" --nTrial 3 --nRep 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 --serpentine T -o 'Output3' -p 'D:/Results'",
@@ -18,11 +18,11 @@
         "variable_label": "No. of Occurrences",
         "description": "Number of occurrence reps within the experiment",
         "visible": "T",
-        "minimum": "1",
+        "minimum": 1,
         "maximum": null,
         "unit": null,
         "values": null,
-        "default": null,
+        "default": 1,
         "disabled": "F",
         "required": "T",
         "data_type": "integer",
@@ -30,7 +30,7 @@
         "variable_abbrev": "OCCURRENCES",
         "is_layout_variable": "F"
       },
-	  "entryList": {
+      "entryList": {
         "variable_label": "Entry List",
         "description": "CSV file with the entries information",
         "visible": "F",
@@ -42,13 +42,29 @@
         "data_type": "csv",
         "order_number": 2,
         "variable_abbrev": "entryList",
-        "is_layout_variable": "F"
+        "is_layout_variable": "F",
+		"rule": [
+			{
+				"order_number": 1,
+				"type": "validation-design",
+				"expression": "nCheck>1",
+				"notification": "Number of check entries should be greater than 1.",
+				"action": "error"
+          	},
+			{
+				"order_number": 2,
+				"type": "validation-design",
+				"expression": "nEntries>1",
+				"notification": "Number of test entries should be greater than 1.",
+				"action": "error"
+          	}
+        ]
       },
       "nRep": {
         "variable_label": "No. of Replicates",
         "description": "Number of replicates",
         "visible": "T",
-        "minimum": "2",
+        "minimum": null,
         "maximum": null,
         "unit": null,
         "values": null,
@@ -58,12 +74,35 @@
         "data_type": "integer",
         "order_number": 4,
         "variable_abbrev": "REPLICATION_BLOCK",
-        "is_layout_variable": "F"
+        "is_layout_variable": "F",
+		"rule": [
+			{
+				"order_number": 1,
+				"type": "validation-design",
+				"expression": "factor(nEntries)",
+				"notification": "Should be a factor of the number of test entries.",
+				"action": "error"
+          	},
+			{
+				"order_number": 2,
+				"type": "default-value",
+				"expression": "min(factor(Entries))>1",
+				"notification": null,
+				"action": null
+          	},
+			{
+				"order_number": 3,
+				"type": "validation-design",
+				"expression": "value>=(12/(nCheck-1)+1)",
+				"notification": "The error degrees of freedom associated with number of check entries should be at most 12.",
+				"action": "warning"
+          	}
+        ]
       },
       "genLayout": {
         "variable_label": "Define Shape/Dimension",
         "description": "Define rows and columns along with the design",
-        "visible": "F",
+        "visible": "T",
         "minimum": null,
         "maximum": null,
         "unit": null,
@@ -76,22 +115,6 @@
         "variable_abbrev": null,
         "is_layout_variable": "F"
       },
-      "nFieldRow": {
-        "variable_label": "Rows",
-        "description": "Total number of rows",
-        "visible": "T",
-        "minimum": "1",
-        "maximum": null,
-        "unit": null,
-        "values": null,
-        "default": null,
-        "disabled": "F",
-        "required": "T",
-        "data_type": "integer",
-        "order_number": 6,
-        "variable_abbrev": "ROW",
-        "is_layout_variable": "T"
-      },
       "nRowPerRep": {
         "variable_label": "No. of rows per rep",
         "description": "Number of rows per replication",
@@ -100,13 +123,47 @@
         "maximum": null,
         "unit": null,
         "values": null,
+        "default": "1",
+        "disabled": "F",
+        "required": "T",
+        "data_type": "integer",
+        "order_number": 6,
+        "variable_abbrev": "NO_OF_ROWS_PER_BLOCK",
+        "is_layout_variable": "T",
+		"rule": [
+			{
+				"order_number": 1,
+				"type": "allowed-value",
+				"expression": "factor(nCheck+(nEntries/nRep))",
+				"notification": null,
+				"action": null
+          	}
+        ]
+      },
+      "nFieldRow": {
+        "variable_label": "Rows",
+        "description": "Total number of rows",
+        "visible": "T",
+        "minimum": null,
+        "maximum": null,
+        "unit": null,
+        "values": null,
         "default": null,
         "disabled": "F",
         "required": "T",
         "data_type": "integer",
         "order_number": 7,
-        "variable_abbrev": "NO_OF_ROWS_PER_BLOCK",
-        "is_layout_variable": "T"
+        "variable_abbrev": "ROW",
+        "is_layout_variable": "T",
+		"rule": [
+			{
+				"order_number": 1,
+				"type": "validation-design",
+				"expression": "factor(nRep)*nRowPerRep",
+				"notification": null,
+				"action": null
+          	}
+        ]
       },
       "serpentine": {
         "variable_label": "Field Order",

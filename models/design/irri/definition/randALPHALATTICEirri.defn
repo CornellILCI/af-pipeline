@@ -1,7 +1,7 @@
 {
   "metadata": {
     "Rversion": "3.5.1",
-    "date": "15-Oct-2020",
+    "date": "19-Oct-2020",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine T -o 'Output3' -p 'D:/Results'",
@@ -50,6 +50,13 @@
 				"type": "validation-design",
 				"expression": "!prime(totalEntries)",
 				"notification": "Total number of entries should not be a prime number.",
+				"action": "error"
+          	},
+			{
+				"order_number": 2,
+				"type": "validation-design",
+				"expression": "(totalEntries)>=6",
+				"notification": "Number of entries should be at most 6.",
 				"action": "error"
           	}
         ]
@@ -112,7 +119,7 @@
 			{
 				"order_number": 3,
 				"type": "allowed-value",
-				"expression": "value<totalEntries",
+				"expression": "value<(totalEntries)",
 				"notification": null,
 				"action": null
           	}
