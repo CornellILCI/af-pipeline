@@ -1,7 +1,7 @@
 {
   "metadata": {
     "Rversion": "3.5.1",
-    "date": "19-Oct-2020",
+    "date": "23-Oct-2020",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randROWCOLUMNirri.R --entryList "ROWCOLUMN_SD_0001.lst" --nTrial 3 --nRep 4 --nRowBlk 4 --genLayout F -o "Output1" -p 'D:/Results'" | "Rscript randROWCOLUMNirri.R --entryList "ROWCOLUMN_SD_0001.lst" --nTrial 3 --nRep 4 --nRowBlk 4 --genLayout T --nFieldRow 8 --serpentine F -o "Output2" -p 'D:/Results'" | "Rscript randROWCOLUMNirri.R --entryList "ROWCOLUMN_SD_0001.lst" --nTrial 3 --nRep 4 --nRowBlk 4 --genLayout T --nFieldRow 8 --serpentine T -o "Output3" -p 'D:/Results'",
@@ -40,7 +40,7 @@
         "default": null,
         "disabled": "T",
         "required": "T",
-        "data_type": "csv",
+        "data_type": "string",
         "order_number": 2,
         "variable_abbrev": "entryList",
         "is_layout_variable": "F",
@@ -55,7 +55,7 @@
 			{
 				"order_number": 2,
 				"type": "validation-design",
-				"expression": "(totalEntries)>=9",
+				"expression": "totalEntries>=9",
 				"notification": "Number of entries should be at most 9.",
 				"action": "error"
           	}
@@ -119,7 +119,7 @@
 			{
 				"order_number": 3,
 				"type": "allowed-value",
-				"expression": "value<(totalEntries)",
+				"expression": "value<totalEntries",
 				"notification": null,
 				"action": null
           	}
@@ -143,7 +143,7 @@
       },
       "nFieldRow": {
         "variable_label": "Rows",
-        "description": "Number of field rows, required if genLayout is TRUE",
+        "description": "Total number of rows",
         "visible": "T",
         "minimum": null,
         "maximum": null,
@@ -168,8 +168,8 @@
       },
       "serpentine": {
         "variable_label": "Field Order",
-        "description": "If TRUE, plot numbers will be in serpentine arrangement, required if genLayout is TRUE",
-        "visible": "F",
+        "description": "Plot arrangement",
+        "visible": "T",
         "minimum": null,
         "maximum": null,
         "unit": null,

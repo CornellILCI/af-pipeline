@@ -1,7 +1,7 @@
 {
   "metadata": {
     "Rversion": "3.5.1",
-    "date": "19-Oct-2020",
+    "date": "23-Oct-2020",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine T -o 'Output3' -p 'D:/Results'",
@@ -40,7 +40,7 @@
         "default": null,
         "disabled": "T",
         "required": "T",
-        "data_type": "csv",
+        "data_type": "string",
         "order_number": 2,
         "variable_abbrev": "entryList",
         "is_layout_variable": "F",
@@ -55,7 +55,7 @@
 			{
 				"order_number": 2,
 				"type": "validation-design",
-				"expression": "(totalEntries)>=6",
+				"expression": "totalEntries>=6",
 				"notification": "Number of entries should be at most 6.",
 				"action": "error"
           	}
@@ -218,8 +218,8 @@
       },
       "serpentine": {
         "variable_label": "Field Order",
-        "description": "Field ordering for the generation of rows and columns",
-        "visible": "F",
+        "description": "Plot arrangement",
+        "visible": "T",
         "minimum": null,
         "maximum": null,
         "unit": null,
