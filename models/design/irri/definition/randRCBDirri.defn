@@ -1,7 +1,7 @@
 {
   "metadata": {
     "Rversion": "3.5.1",
-    "date": "23-Oct-2020",
+    "date": "26-Oct-2020",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randRCBDirri.R --entryList 'RCBD_SD_0001.lst' --nTrial 3 --nRep 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randRCBDirri.R --entryList 'RCBD_SD_0001.lst' --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 5 --nFieldRow 5 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randRCBDirri.R --entryList 'RCBD_SD_0001.lst' --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 5 --nFieldRow 5 --serpentine T -o 'Output3' -p 'D:/Results'",
@@ -100,16 +100,15 @@
         "order_number": 5,
         "variable_abbrev": "NO_OF_ROWS_PER_BLOCK",
         "is_layout_variable": "T",
-        "rule": [
-          {
-            "type": "allowed-value",
-            "expression": "factor(totalEntries)"
-          },
-          {
-            "type": "allowed-value",
-            "expression": "max=totalEntries"
-          }
-        ]
+		"rule": [
+			{
+				"order_number": 1,
+				"type": "allowed-value",
+				"expression": "factor(totalEntries)",
+				"notification": null,
+				"action": null
+			}
+		]
       },
       "nFieldRow": {
         "variable_label": "Rows",
@@ -126,24 +125,15 @@
         "order_number": 6,
         "variable_abbrev": "ROW",
         "is_layout_variable": "T",
-        "rule": [
-          {
-            "type": "allowed-value",
-            "expression": "min = nRowPerRep"
-          },	
-          {
-            "type": "allowed-value",
-            "expression": "divisible by nRowPerRep"
-          },
-          {
-            "type": "allowed-value",
-            "expression": "quotient nFieldRow/nRowPerRep should be a factor of nRep"
-          },
-          {
-            "type": "allowed-value",
-            "expression": "max=nRowPerRep*nRep"
-          }
-        ]
+		"rule": [
+			{
+				"order_number": 1,
+				"type": "allowed-value",
+				"expression": "factor(nRep)*nRowPerRep",
+				"notification": null,
+				"action": null
+          	}
+		]
       },
       "serpentine": {
         "variable_label": "Field Order",
