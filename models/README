@@ -35,7 +35,7 @@ File extensions
 .dict - dictionary, term file (json)
 .sql  - sql file
 .scma - json schema file
-.conf - configuration file
+.cfg  - asreml configuration file
 
 
 Folders:
