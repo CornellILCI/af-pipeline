@@ -47,7 +47,7 @@
 			{
 				"order number": 1,
 				"type": "validation-design",
-				"expression": "totalEntries>30",
+				"expression": "totalEntries<=30",
 				"notification": "Total number of entries is too large for a RCBD. Consider selecting a more appropriate design.",
 				"action": "warning"
 			}
