@@ -18,6 +18,7 @@ jsonMsg=''
 folderName='';
 tmplContents='';
 jobStat=3;
+nJobs=0;
 
 def readConfig():
   confPath=os.environ['EBSAF_ROOT'] + "/aeo/conf/simba.conf"
@@ -196,4 +197,24 @@ def genApiMsg(status, str):
         }]}
    jsonMsg=json.dumps(data,indent=4)
 
+def getNjobs(expLocAnPat,trtAnPat,nExp,nOcc,nTrt,nRespVar):
+   global nJobs
+   tmpJobN=0
 
+   if expLocAnPat==1:
+     tmpJobN=nExp*nOcc
+   elif expLocAnPat==2:
+     tmpJobN=nExp
+   elif expLocAnPat==3:
+     tmpJobN=nOcc
+   elif expLocAnPat==4:
+     tmpJobN=1
+
+   if trtAnPat==1:
+     nJobs=tmpJobN*nTrt 
+   elif trtAnPat==2:
+     nJobs=tmpJobN*nRespVar
+   elif trtAnPat==3:
+     nJobs=tmpJobN
+   elif trtAnPat==4:
+     nJobs=tmpJobN
