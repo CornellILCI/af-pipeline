@@ -32,6 +32,11 @@ parser.add_argument("-m",
                     default=['manual'],
                     help="default is manual; \
                     if auto, service must be running.")
+parser.add_argument("-p",
+                    "--port",
+                    type=int,
+                    default=80,
+                    help="default is 80.")
 
 args=parser.parse_args()
 numTests=args.N
@@ -149,8 +154,9 @@ if args.mode == 'auto':
     print("\n-- Test", i, "of", args.N, "--")
     print("Submitting request:",input)
     print("Service response:")
-    cmd="curl -X POST http://localhost/v1/randomize/" \
-         + input
+    cmd="curl -X POST " + \
+        "http://localhost:{}/v1/randomize/".format(args.port) + \
+        input
     os.system(cmd)
     time.sleep(1)
 
@@ -164,8 +170,9 @@ if args.mode == 'auto':
     print("\n-- Result", i, "of", args.N,"--")
     print("Checking status of request:",input)
     print("Service response:")
-    cmd="curl -X GET http://localhost/v1/status/" \
-        +input
+    cmd="curl -X GET " + \
+        "http://localhost:{}/v1/status/".format(args.port) + \
+        input
     os.system(cmd)
     msg="\nIf response is \"queued\", manually check " + \
         "status with:"
