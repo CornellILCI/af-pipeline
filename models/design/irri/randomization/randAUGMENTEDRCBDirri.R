@@ -121,6 +121,15 @@ if(all(class(temp) == "try-error")) { stop(paste("Error in designAugmentedRCB:",
 
 # rename columns
 fbook <- result$fieldbook
+
+fbook$tmpEntryCode <- mapvalues(fbook$Entry, from = c(checkEntryList, testEntryList), 
+                                to = c(checkEntryList, rep(NA, each = nTestEntry)))
+newTestList <- NULL
+for (i in 1:opt$nTrial) { newTestList <- c(newTestList, sample(testEntryList, nTestEntry)) }
+fbook[is.na(fbook$tmpEntryCode),"tmpEntryCode"] <- newTestList
+fbook$Entry <- fbook$tmpEntryCode
+fbook$tmpEntryCode <- NULL
+
 if (opt$genLayout) { names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number", "field_row", "field_col")
 } else { names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number") }
 
