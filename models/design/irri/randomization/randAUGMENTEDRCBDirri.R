@@ -8,10 +8,10 @@
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2019.03.12
-# Date Modified    : 2020.06.30
+# Date Modified    : 2020.11.10
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 2
+# Script Version   : 3
 # Command          : Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" 
 #                    --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 
 #                    --serpentine F -o "Output" -p "D:/Results" 
