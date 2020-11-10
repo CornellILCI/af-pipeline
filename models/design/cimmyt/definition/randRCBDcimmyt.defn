@@ -129,10 +129,17 @@
           {
             "order number": 1,
             "type": "allowed-value",
-            "expression": "value<=((totalEntries*nRep)/nFieldRow)",
+            "expression": "if(!Vserpentine){value<=((totalEntries*nRep)/nFieldRow)}",
             "notification": null,
             "action": null
-          }
+          },
+          {
+            "order number": 2,
+            "type": "allowed-value",
+            "expression": "if(vSerpentine){value<=(nFieldRow)}",
+            "notification": null,
+            "action": null
+          }          
         ]
       },
       "Vserpentine": {
@@ -152,23 +159,7 @@
         "data_type": "boolean",
         "order_number": 6,
         "variable_abbrev": "FLD_ORDER",
-        "is_layout_variable": "T",
-        "rule": [
-          {
-            "order number": 1,
-            "type": "allowed-value",
-            "expression": "if(!Vserpentine){value<=((totalEntries*nRep)/nFieldRow)}",
-            "notification": null,
-            "action": null
-          },
-          {
-            "order number": 2,
-            "type": "allowed-value",
-            "expression": "if(vSerpentine){value<=(nFieldRow)}",
-            "notification": null,
-            "action": null
-          }
-        ]
+        "is_layout_variable": "T"
       },
       "rand1": {
         "variable_label": "Randomize the first rep",
