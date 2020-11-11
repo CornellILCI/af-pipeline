@@ -8,10 +8,10 @@
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2019.03.12
-# Date Modified    : 2020.11.10
+# Date Modified    : 2020.06.30
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 3
+# Script Version   : 2
 # Command          : Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" 
 #                    --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 
 #                    --serpentine F -o "Output" -p "D:/Results" 
@@ -121,15 +121,6 @@ if(all(class(temp) == "try-error")) { stop(paste("Error in designAugmentedRCB:",
 
 # rename columns
 fbook <- result$fieldbook
-
-fbook$tmpEntryCode <- mapvalues(fbook$Entry, from = c(checkEntryList, testEntryList), 
-                                to = c(checkEntryList, rep(NA, each = nTestEntry)))
-newTestList <- NULL
-for (i in 1:opt$nTrial) { newTestList <- c(newTestList, sample(testEntryList, nTestEntry)) }
-fbook[is.na(fbook$tmpEntryCode),"tmpEntryCode"] <- newTestList
-fbook$Entry <- fbook$tmpEntryCode
-fbook$tmpEntryCode <- NULL
-
 if (opt$genLayout) { names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number", "field_row", "field_col")
 } else { names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number") }
 
