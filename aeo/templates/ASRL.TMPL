@@ -1,6 +1,6 @@
 #!/bin/bash
 # pySimba v. 0.0003 ASReml SBATCH script
-# generated from [SLTMPL]
+# generated from [ASRLTMPL]
 
 # Run ASReml
 #SBATCH --job-name=[JOBNAME]
@@ -13,5 +13,6 @@
 #SBATCH --chdir=[OUTDIR]
 
 # Compress results to output folder
-tar -czf [GZ] -C [SRC] .
-rm -fr [SRC]
+tar -C [INP] -czf [GZ] [REQ]
+mv [SRC] [OUT]
+[TRACKREQ]
