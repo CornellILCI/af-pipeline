@@ -21,6 +21,7 @@ sys.path.append(pyPath)
 
 binPath=ebsafRoot + "/aeo/bin"
 randExec=binPath + "/randomize.py"
+analyzExec=binPath + "/analyze.py"
 
 import simbaUtils
 import dbUtils
@@ -31,49 +32,83 @@ simbaUtils.readConfig()
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
+@app.route('/v1/analyze/<folder>', methods=['POST'])
+def start_analysis(folder):
+  # check if folder exists...
+  input=simbaUtils.cfg['int'] + "/" + folder
+  if os.path.isdir(input):
+    # generate request filename...
+    reqFile=input + "/" + folder + ".req"
+
+    # check if request file exists
+    if (os.path.exists(reqFile):
+      # check for duplicate submission
+      simbaUtils.genShaFile(reqFile)
+      sha=simbaUtils.strSha
+      dbUtils.getAnalysisId(sha, 1)
+      reqID=dbUtils.analysisId
+
+      if reqID:
+        msg="Duplicate submission."
+        simbaUtils.genApiMsg(failed',msg)
+        jsonMsg=simbaUtils.jsonMsg
+        return Response(jsonMsg,content_type='application/json')
+      else:
+
+    else:
+      msg="Missing request file."
+      simbaUtils.genApiMsg('failed',msg)
+      jsonMsg=simbaUtils.jsonMsg
+      return Response(jsonMsg,content_type='application/json')
+  else:
+    msg="Input folder not found."
+    simbaUtils.genApiMsg('failed',msg)
+    jsonMsg=simbaUtils.jsonMsg
+    return Response(jsonMsg,content_type='application/json')
+
 @app.route('/v1/randomize/<folder>', methods=['POST'])
 def start_randomization(folder):
-   # check if folder exists...
-   input=simbaUtils.cfg['int'] + "/" + folder
-   if os.path.isdir(input):
-     # generate filenames for required files
-     jobName=folder[:-1] + '1'
-     reqFile=input + "/" + folder + ".req"
-     reqJcf=input + "/" + jobName + ".jcf"
-     entLst=input + "/" + jobName + ".lst"
+  # check if folder exists...
+  input=simbaUtils.cfg['int'] + "/" + folder
+  if os.path.isdir(input):
+    # generate filenames for required files
+    jobName=folder[:-1] + '1'
+    reqFile=input + "/" + folder + ".req"
+    reqJcf=input + "/" + jobName + ".jcf"
+    entLst=input + "/" + jobName + ".lst"
 
-     # check if all required files exists
-     if (os.path.exists(reqJcf) and
-        os.path.exists(reqFile) and
-        os.path.exists(entLst)):
+    # check if all required files exists
+    if (os.path.exists(reqJcf) and
+       os.path.exists(reqFile) and
+       os.path.exists(entLst)):
           
-          # check for duplicate submission
-          simbaUtils.genShaFile(reqFile)
-          sha=simbaUtils.strSha
-          dbUtils.getAnalysisId(sha, 1)
-          reqID=dbUtils.analysisId
+       # check for duplicate submission
+       simbaUtils.genShaFile(reqFile)
+       sha=simbaUtils.strSha
+       dbUtils.getAnalysisId(sha, 1)
+       reqID=dbUtils.analysisId
           
-          if reqID:
-            msg="Duplicate submission."
-            simbaUtils.genApiMsg('failed',msg)
-            jsonMsg=simbaUtils.jsonMsg
-            return Response(jsonMsg,content_type='application/json')
-          else:
-            call(["python3",randExec, folder])
-            msg="Request has been submitted."
-            simbaUtils.genApiMsg('submitted',msg)
-            jsonMsg=simbaUtils.jsonMsg
-            return Response(jsonMsg,content_type='application/json')
-     else:
-        msg="Missing input files."
+      if reqID:
+        msg="Duplicate submission."
         simbaUtils.genApiMsg('failed',msg)
         jsonMsg=simbaUtils.jsonMsg
         return Response(jsonMsg,content_type='application/json')
-   else:
-     msg="Input folder not found."
-     simbaUtils.genApiMsg('failed',msg)
-     jsonMsg=simbaUtils.jsonMsg
-     return Response(jsonMsg,content_type='application/json')
+      else:
+        call(["python3",randExec, folder])
+        msg="Request has been submitted."
+        simbaUtils.genApiMsg('submitted',msg)
+        jsonMsg=simbaUtils.jsonMsg
+        return Response(jsonMsg,content_type='application/json')
+    else:
+      msg="Missing input files."
+      simbaUtils.genApiMsg('failed',msg)
+      jsonMsg=simbaUtils.jsonMsg
+      return Response(jsonMsg,content_type='application/json')
+  else:
+    msg="Input folder not found."
+    simbaUtils.genApiMsg('failed',msg)
+    jsonMsg=simbaUtils.jsonMsg
+    return Response(jsonMsg,content_type='application/json')
 
 @app.route('/v1/status/<folder>', methods=['GET'])
 def get_status(folder):
