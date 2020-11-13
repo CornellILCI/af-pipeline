@@ -54,7 +54,11 @@ def start_analysis(folder):
         jsonMsg=simbaUtils.jsonMsg
         return Response(jsonMsg,content_type='application/json')
       else:
-
+        call(["python3",analyzExec, folder])
+        msg="Request has been submitted."
+        simbaUtils.genApiMsg('submitted'msg)
+        jsonMsg=simbaUtils.jsonMsg
+        return Response(jsonMsg,content_type='application/json')
     else:
       msg="Missing request file."
       simbaUtils.genApiMsg('failed',msg)
