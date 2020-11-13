@@ -41,7 +41,7 @@ def start_analysis(folder):
     reqFile=input + "/" + folder + ".req"
 
     # check if request file exists
-    if (os.path.exists(reqFile):
+    if os.path.exists(reqFile):
       # check for duplicate submission
       simbaUtils.genShaFile(reqFile)
       sha=simbaUtils.strSha
@@ -50,13 +50,13 @@ def start_analysis(folder):
 
       if reqID:
         msg="Duplicate submission."
-        simbaUtils.genApiMsg(failed',msg)
+        simbaUtils.genApiMsg('failed',msg)
         jsonMsg=simbaUtils.jsonMsg
         return Response(jsonMsg,content_type='application/json')
       else:
         call(["python3",analyzExec, folder])
         msg="Request has been submitted."
-        simbaUtils.genApiMsg('submitted'msg)
+        simbaUtils.genApiMsg('submitted',msg)
         jsonMsg=simbaUtils.jsonMsg
         return Response(jsonMsg,content_type='application/json')
     else:
@@ -86,11 +86,11 @@ def start_randomization(folder):
        os.path.exists(reqFile) and
        os.path.exists(entLst)):
           
-       # check for duplicate submission
-       simbaUtils.genShaFile(reqFile)
-       sha=simbaUtils.strSha
-       dbUtils.getAnalysisId(sha, 1)
-       reqID=dbUtils.analysisId
+      # check for duplicate submission
+      simbaUtils.genShaFile(reqFile)
+      sha=simbaUtils.strSha
+      dbUtils.getAnalysisId(sha, 1)
+      reqID=dbUtils.analysisId
           
       if reqID:
         msg="Duplicate submission."
