@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-# ebsaf.py -- triggers randomization of a given folder 
-#   containing *.jcf (job control file) and *.lst 
-#   (entry list). The folder should be present in the
+# ebsaf.py -- triggers randomization, phenotypic analysis of
+#   a given folder containing *.jcf (job control file) and
+#   *.lst (entry list). The folder should be present in the
 #   <mounted volume>/input folder.
 #   
 # Jack Elendil Lagare (j.lagare@irri.org)
