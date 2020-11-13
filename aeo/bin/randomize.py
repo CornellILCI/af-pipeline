@@ -184,13 +184,14 @@ try:
 
 except ValueError:
   # track error parsing jcf
-  track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
-        args.dir + " -m new -s fail"
-  os.system(track)
+  if trackOn:
+    track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+          args.dir + " -m new -s fail"
+    os.system(track)
 
-  # update
-  track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
-        args.dir + " -m update -status fail"
-  os.system(track)
+    # update
+    track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+          args.dir + " -m update -status fail"
+    os.system(track)
 
-  # Should return message: "Fail to read job control file."?
+    # Should return message: "Fail to read job control file."?
