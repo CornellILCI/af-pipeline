@@ -175,6 +175,11 @@ try:
     sbatchFile.write(sbatch)
     sbatchFile.close()
 
+    if trackOn:
+      track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+            args.dir + " -m new -s queued"
+      os.system(track)
+
     # submit sbatch to queue
     # simbaUtils.queue(sbatchPath)
 
@@ -182,4 +187,12 @@ try:
     # simbaUtils.writeLog(simbaUtils.msg)
 
 except ValueError:
-  print("Cannot read request file!")
+  # track error parsing req file
+  if trackOn:
+    track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+          args.dir + " -m new -s fail"
+    os.system(track)
+
+    track=simbaUtils.cfg['bin'] + "/" + "track.py " + \
+          args.dir + " -m update -s fail"
+    os.system(track)
