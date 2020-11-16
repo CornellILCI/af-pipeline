@@ -30,8 +30,7 @@
         "formula": 1,
         "residual": 5,
         "prediction": [
-            1,
-            2
+            1
         ]
     }
 }
