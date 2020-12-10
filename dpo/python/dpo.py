@@ -154,8 +154,7 @@ class Dpo:
 
                     # filter filtered df where occurrence id == requested occ
                     df = fdf[fdf["occurr_id"] == self.occ]
-                    df = df.drop(['trait_id'], axis=1)  # drop 'occurr_id'
-                    print(df)
+                    df = df.drop(['trait_id', "occurr_id"], axis=1)  # drop 'occurr_id'!
 
                     # write the merged, twice-filtered dataframe to a csv file
                     df.to_csv(self.out + "/" + self.id[:-4] + "100" +
@@ -186,8 +185,7 @@ class Dpo:
 
                 # filter mdf where trait id == trait n in tdf
                 df = fdf[fdf["occurr_id"].isin(self.occList)]
-                df = df.drop(['trait_id'], axis=1)  # drop 'occurr_id'
-                print(df)
+                df = df.drop(["trait_id", "occurr_id"], axis=1)  # drop 'occurr_id'
 
                 # write the filtered dataframe to the proper csv
                 df.to_csv(self.out + "/" + self.id[:-4] + "100" + str(self.idx + 1) + ".csv", index=False)
