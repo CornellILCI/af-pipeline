@@ -1,17 +1,26 @@
-# 2020.10.31, vparis
+# 2021.1.11, vparis
 # Sprint 2020.06
 
 import sys, os, json
 import pandas as pd
+import numpy as np
 from glob import glob
 
 tmp = "/models/analysis/cimmyt/phenotypic/asreml"
+
+
+try:
+    arg = sys.argv[1]
+except IndexError:
+    print("Expected 1 argument, got None")
+    raise SystemExit
 
 
 class Dpo:
 
     request = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
               + sys.argv[1] + "/" + sys.argv[1] + ".req"
+    print(len([sys.argv[1]]))
     array = request.replace("req", "arr")
     conf = glob(os.environ["EBSAF_ROOT"] + tmp + "/config/")
     output = glob(os.environ["EBSAF_ROOT"] + "/aeo/input/")
@@ -27,7 +36,8 @@ class Dpo:
         self.measDf = None
         self.traitDf = None
         self.conf = Dpo.conf
-        self.cfgPath = None
+        self.cfg = None
+        self.cfgId = None
         self.fields = None
         self.occList = None
         self.mergedDf = None
@@ -41,7 +51,6 @@ class Dpo:
     def preDF(self):
 
         with open(self.request, "r") as req:
-
             # load req and set id
             self.req = json.load(req)
             self.id = self.req["metadata"]["id"]
@@ -51,18 +60,21 @@ class Dpo:
             if not os.path.exists(self.out): os.makedirs(self.out)
 
             # set experiment location pattern + config based on request
-            self.cfgPath = self.conf[0] + self.req['parameters']['configFile'] + ".cfg"
+            self.cfg = self.conf[0] + self.req['parameters']['configFile'] + ".cfg"
+            self.cfgId = self.req['parameters']['configFile'][-1:]
 
     def buildDFs(self):
 
         # open the input array + config JSONs:
-        with open(self.cfgPath, "r") as cfg, open(self.array, "r") as arr:
-
+        with open(self.cfg, "r") as cfg, open(self.array, "r") as arr:
             # get the plot and measurement subarrays
             self.arr = json.load(arr)
             plotArray = self.arr["data"]["plotArray"]
             measArray = self.arr["data"]["measurementArray"]
             traitList = self.arr["data"]["traitList"]
+            # tlb = traitList[0].values()
+            # tlb = [str(x) for x in tlb]
+            # print(tlb)
 
             # transform the subarrays into DataFrames
             self.plotDf = pd.DataFrame(plotArray["data"], columns=plotArray["headers"])
@@ -70,9 +82,14 @@ class Dpo:
             self.traitDf = pd.DataFrame(traitList[0])
 
             # get fields from the config
-            self.cfgPath = json.load(cfg)
-            fields = self.cfgPath["Analysis_Module"]["fields"]
+            self.cfg = json.load(cfg)
+            fields = self.cfg["Analysis_Module"]["fields"]
             self.fields = [fields[n]["definition"] for n in range(len(fields))]
+
+            # # ! this may be unnecessary with proper inputs!
+            # self.fields[0] = 'loc_id'
+            # self.fields[1] = 'expt_id'
+            # self.fields[-1] = 'blk'
 
     def mergeDFs(self):
 
@@ -86,6 +103,7 @@ class Dpo:
         mdf = mdf[self.fields].join(traitId).join(traitVal).join(occurrence)
 
         # rename cols for the merged dataframe
+        mdf = mdf.replace('NA', np.nan)
         self.mergedDf = mdf.rename(
             columns={"loc_id": "loc",
                      "expt_id": "expt",
@@ -95,7 +113,8 @@ class Dpo:
                      "pa_y": "row",
                      "rep_factor": "rep",
                      "trait_value": "trait"})
-        # ^ hard-coded; make an iterative map
+        # ^ this is all in the configuration file, pull from config
+        # ^ and its also hard-coded; make an iterative map
 
     def buildAs(self):  # only called through filter df
 
@@ -103,16 +122,23 @@ class Dpo:
         asr = self.out + "/" + self.id[:-4] + "100" + str(self.idx + 1) + ".as"
         csv = self.id[:-1] + str(self.idx + 1) + ".csv"
         trait = self.arr['data']['traitList'][0]['name'][self.idx2]
-        module = self.cfgPath['Analysis_Module']
-        title = str(self.id)
+        module = self.cfg['Analysis_Module']
+        jobL = len(str(self.idx + 1))
+        title = str(self.id[:-jobL] + str(self.idx + 1))
 
         # get the fields for the .as file from the cfg module
-        options = csv + " " + module['asrmel_options']['options']
+        options = csv + " " + module['asrmel_options'][0]['options']
 
-        tabulate = "tabulate " + module['tabulate']['statement'].replace("{trait_name}", trait)
-        formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
-        residual = "residual " + module['residual'][0]['spatial_model']
+        tabulate = "tabulate " + module['tabulate'][0]['statement'].replace("{trait_name}", trait)
+
+        if self.cfgId == "4":
+            formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
+        else:
+            formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
+
         predictedTrait = "prediction " + module['predict'][0]['statement']
+
+        residual = "residual " + module['residual'][0]['spatial_model']
 
         # get the sf, dt, and c fields from the cfg module
         asr = open(asr, "w")
@@ -142,7 +168,6 @@ class Dpo:
 
                 # for each occ in the occList
                 for self.occ in self.occList:
-
                     # get the trait name, for same position as trait id in tdf
                     name = tdf.loc[tdf["trait_id"] == trait, "name"].values[0]
 
@@ -156,6 +181,10 @@ class Dpo:
                     df = fdf[fdf["occurr_id"] == self.occ]
                     df = df.drop(['trait_id', "occurr_id"], axis=1)  # drop 'occurr_id'!
 
+                    # drop nans
+                    df = df.dropna(axis=1, how='all')
+                    print(df)
+
                     # write the merged, twice-filtered dataframe to a csv file
                     df.to_csv(self.out + "/" + self.id[:-4] + "100" +
                               str(self.idx + 1) + ".csv", index=False)
@@ -168,12 +197,12 @@ class Dpo:
 
                     # for output
                     self.idx += 1
+
                 self.idx2 += 1
 
         if expLocPat == 2:
 
             for self.idx, trait in enumerate(tdf['trait_id']):
-
                 # get the trait name for the current pass
                 name = tdf.loc[tdf["trait_id"] == trait, "name"].values[0]
 
@@ -186,6 +215,10 @@ class Dpo:
                 # filter mdf where trait id == trait n in tdf
                 df = fdf[fdf["occurr_id"].isin(self.occList)]
                 df = df.drop(["trait_id", "occurr_id"], axis=1)  # drop 'occurr_id'
+
+                # drop nans
+                df = df.dropna(axis=1, how='all')
+                print(df)
 
                 # write the filtered dataframe to the proper csv
                 df.to_csv(self.out + "/" + self.id[:-4] + "100" + str(self.idx + 1) + ".csv", index=False)
