@@ -2,6 +2,7 @@
 # Sprint 2020.06
 
 import sys, os, json
+import argparse
 import pandas as pd
 import numpy as np
 from glob import glob
@@ -9,6 +10,7 @@ from glob import glob
 tmp = "/models/analysis/cimmyt/phenotypic/asreml"
 
 
+# replace with argparse
 try:
     arg = sys.argv[1]
 except IndexError:
@@ -51,6 +53,7 @@ class Dpo:
     def preDF(self):
 
         with open(self.request, "r") as req:
+
             # load req and set id
             self.req = json.load(req)
             self.id = self.req["metadata"]["id"]
@@ -67,14 +70,12 @@ class Dpo:
 
         # open the input array + config JSONs:
         with open(self.cfg, "r") as cfg, open(self.array, "r") as arr:
+
             # get the plot and measurement subarrays
             self.arr = json.load(arr)
             plotArray = self.arr["data"]["plotArray"]
             measArray = self.arr["data"]["measurementArray"]
             traitList = self.arr["data"]["traitList"]
-            # tlb = traitList[0].values()
-            # tlb = [str(x) for x in tlb]
-            # print(tlb)
 
             # transform the subarrays into DataFrames
             self.plotDf = pd.DataFrame(plotArray["data"], columns=plotArray["headers"])
@@ -85,11 +86,6 @@ class Dpo:
             self.cfg = json.load(cfg)
             fields = self.cfg["Analysis_Module"]["fields"]
             self.fields = [fields[n]["definition"] for n in range(len(fields))]
-
-            # # ! this may be unnecessary with proper inputs!
-            # self.fields[0] = 'loc_id'
-            # self.fields[1] = 'expt_id'
-            # self.fields[-1] = 'blk'
 
     def mergeDFs(self):
 
@@ -103,7 +99,6 @@ class Dpo:
         mdf = mdf[self.fields].join(traitId).join(traitVal).join(occurrence)
 
         # rename cols for the merged dataframe
-        mdf = mdf.replace('NA', np.nan)
         self.mergedDf = mdf.rename(
             columns={"loc_id": "loc",
                      "expt_id": "expt",
@@ -113,22 +108,21 @@ class Dpo:
                      "pa_y": "row",
                      "rep_factor": "rep",
                      "trait_value": "trait"})
-        # ^ this is all in the configuration file, pull from config
-        # ^ and its also hard-coded; make an iterative map
+        # rename definition as stat factor!
 
     def buildAs(self):  # only called through filter df
 
+        jobL = len(str(self.idx + 1))
+
         # set the variables, with indices to be used by filtering loop
         asr = self.out + "/" + self.id[:-4] + "100" + str(self.idx + 1) + ".as"
-        csv = self.id[:-1] + str(self.idx + 1) + ".csv"
+        csv = str(self.id[:-jobL] + str(self.idx + 1)) + ".csv"
         trait = self.arr['data']['traitList'][0]['name'][self.idx2]
         module = self.cfg['Analysis_Module']
-        jobL = len(str(self.idx + 1))
         title = str(self.id[:-jobL] + str(self.idx + 1))
 
         # get the fields for the .as file from the cfg module
         options = csv + " " + module['asrmel_options'][0]['options']
-
         tabulate = "tabulate " + module['tabulate'][0]['statement'].replace("{trait_name}", trait)
 
         if self.cfgId == "4":
@@ -137,7 +131,6 @@ class Dpo:
             formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
 
         predictedTrait = "prediction " + module['predict'][0]['statement']
-
         residual = "residual " + module['residual'][0]['spatial_model']
 
         # get the sf, dt, and c fields from the cfg module
@@ -181,9 +174,9 @@ class Dpo:
                     df = fdf[fdf["occurr_id"] == self.occ]
                     df = df.drop(['trait_id', "occurr_id"], axis=1)  # drop 'occurr_id'!
 
-                    # drop nans
+                    # replace and drop NaNs
+                    df = df.replace('NA', np.nan)
                     df = df.dropna(axis=1, how='all')
-                    print(df)
 
                     # write the merged, twice-filtered dataframe to a csv file
                     df.to_csv(self.out + "/" + self.id[:-4] + "100" +
@@ -216,9 +209,10 @@ class Dpo:
                 df = fdf[fdf["occurr_id"].isin(self.occList)]
                 df = df.drop(["trait_id", "occurr_id"], axis=1)  # drop 'occurr_id'
 
-                # drop nans
+                # replace and drop NaNs
+                df = df.replace('NA', np.nan)
                 df = df.dropna(axis=1, how='all')
-                print(df)
+                # print(df)
 
                 # write the filtered dataframe to the proper csv
                 df.to_csv(self.out + "/" + self.id[:-4] + "100" + str(self.idx + 1) + ".csv", index=False)
