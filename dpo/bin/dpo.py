@@ -1,5 +1,8 @@
+#!/usr/bin/python3
+# dpo.py
+# uses json input to generate .as and csv files for analysis
 # 2021.1.11, vparis
-# Sprint 2020.06
+# Sprint 2021.1.11
 
 import sys, os, json
 import argparse
@@ -9,20 +12,15 @@ from glob import glob
 
 tmp = "/models/analysis/cimmyt/phenotypic/asreml"
 
-
 # replace with argparse
-try:
-    arg = sys.argv[1]
-except IndexError:
-    print("Expected 1 argument, got None")
-    raise SystemExit
+parser = argparse.ArgumentParser()
+parser.add_argument("input", type=str, help="Input folder")
+args = parser.parse_args()
 
 
 class Dpo:
-
     request = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
               + sys.argv[1] + "/" + sys.argv[1] + ".req"
-    print(len([sys.argv[1]]))
     array = request.replace("req", "arr")
     conf = glob(os.environ["EBSAF_ROOT"] + tmp + "/config/")
     output = glob(os.environ["EBSAF_ROOT"] + "/aeo/input/")
@@ -53,12 +51,11 @@ class Dpo:
     def preDF(self):
 
         with open(self.request, "r") as req:
-
             # load req and set id
             self.req = json.load(req)
             self.id = self.req["metadata"]["id"]
 
-            # set and create the output directory
+            # create the output directory
             self.out = self.out[0] + "/" + self.id
             if not os.path.exists(self.out): os.makedirs(self.out)
 
@@ -124,14 +121,12 @@ class Dpo:
         # get the fields for the .as file from the cfg module
         options = csv + " " + module['asrmel_options'][0]['options']
         tabulate = "tabulate " + module['tabulate'][0]['statement'].replace("{trait_name}", trait)
-
+        predictedTrait = "prediction " + module['predict'][0]['statement']
+        residual = "residual " + module['residual'][0]['spatial_model']
         if self.cfgId == "4":
             formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
         else:
             formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
-
-        predictedTrait = "prediction " + module['predict'][0]['statement']
-        residual = "residual " + module['residual'][0]['spatial_model']
 
         # get the sf, dt, and c fields from the cfg module
         asr = open(asr, "w")
