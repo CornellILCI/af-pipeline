@@ -3731,9 +3731,9 @@
     },
     "traitList": [
     {
-        "trait_id": ["2","1"],
-        "abbreviation": ["grwgt","gryld"],
-        "name": ["grain_weight","yield"]
+        "trait_id": ["1","2"],
+        "abbreviation": ["gryld","grwgt"],
+        "name": ["yield","grain_weight"]
     }]
   }
 }
