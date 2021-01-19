@@ -112,7 +112,7 @@ class Dpo:
 
         # merge dfs, filter fields, add traits
         mdf = pd.merge(self.plotDf, self.measDf)
-        mdf = mdf[self.fields].join(traitId).join(traitVal).join(occurrence)
+        print(mdf)
 
         # rename cols for the merged dataframe
         self.mergedDf = mdf.rename(
