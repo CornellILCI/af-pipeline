@@ -10,7 +10,22 @@ import pandas as pd
 import numpy as np
 from glob import glob
 
+
+# import dbUtils
+print(os.environ['EBSAF_ROOT'])
+
+aeoPython = os.environ["EBSAF_ROOT"] + "/aeo/python"
+sys.path.append(aeoPython)
+import simbaUtils
+
+simbaUtils.readConfig()
+print(simbaUtils.cfg['int'])
+
+
 tmp = "/models/analysis/cimmyt/phenotypic/asreml"
+phenomodels = simbaUtils.cfg['mdl'] + "analysis/cimmyt/phenotypic/asreml"
+print(phenomodels)
+# redo request file as workpath simbautils.cfg['int']
 
 # replace with argparse
 parser = argparse.ArgumentParser()
@@ -19,6 +34,9 @@ args = parser.parse_args()
 
 
 class Dpo:
+
+    # currently to linked to pedros,
+    # now it should be connected to the input path (int)
     request = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
               + sys.argv[1] + "/" + sys.argv[1] + ".req"
     array = request.replace("req", "arr")
@@ -51,15 +69,16 @@ class Dpo:
     def preDF(self):
 
         with open(self.request, "r") as req:
-            # load req and set id
+            # load req and set output id
             self.req = json.load(req)
             self.id = self.req["metadata"]["id"]
+            self.id = self.id[:-4] + "1000"
 
             # create the output directory
-            self.out = self.out[0] + "/" + self.id
+            self.out = self.out[0] + self.id
             if not os.path.exists(self.out): os.makedirs(self.out)
 
-            # set experiment location pattern + config based on request
+            # set experiment location pattern, config, and config Id
             self.cfg = self.conf[0] + self.req['parameters']['configFile'] + ".cfg"
             self.cfgId = self.req['parameters']['configFile'][-1:]
 
@@ -103,48 +122,16 @@ class Dpo:
                      "plot_id": "plot",
                      "pa_x": "col",
                      "pa_y": "row",
+                     "blk": "block",
                      "rep_factor": "rep",
                      "trait_value": "trait"})
         # rename definition as stat factor!
 
-    def buildAs(self):  # only called through filter df
-
-        jobL = len(str(self.idx + 1))
-
-        # set the variables, with indices to be used by filtering loop
-        asr = self.out + "/" + self.id[:-4] + "100" + str(self.idx + 1) + ".as"
-        csv = str(self.id[:-jobL] + str(self.idx + 1)) + ".csv"
-        trait = self.arr['data']['traitList'][0]['name'][self.idx2]
-        module = self.cfg['Analysis_Module']
-        title = str(self.id[:-jobL] + str(self.idx + 1))
-
-        # get the fields for the .as file from the cfg module
-        options = csv + " " + module['asrmel_options'][0]['options']
-        tabulate = "tabulate " + module['tabulate'][0]['statement'].replace("{trait_name}", trait)
-        predictedTrait = "prediction " + module['predict'][0]['statement']
-        residual = "residual " + module['residual'][0]['spatial_model']
-        if self.cfgId == "4":
-            formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
-        else:
-            formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
-
-        # get the sf, dt, and c fields from the cfg module
-        asr = open(asr, "w")
-        fs = module['fields']
-        sf, dt, c = 'stat_factor', 'data_type', 'condition'
-        fields = [f"\n \t{fs[x][sf]} {fs[x][dt]} {fs[x][c]}" for x in range(len(fs))]
-
-        # write the .as file
-        asr.writelines(title)
-        asr.writelines(fields)
-        asr.writelines("\n" + trait + "\n" + options + "\n" + tabulate +
-                       "\n" + formula + "\n" + residual + "\n" + predictedTrait)
-
     def filterDF(self):
-
         mdf = self.mergedDf
         tdf = self.traitDf
-        self.idx, self.idx2 = 0, 0
+        self.id = self.id[:-4]+"1000"
+        jobL = len(str(self.idx))
         self.occList = self.req["data"]["occurrence_id"]
         self.occList = [float(n) for n in self.occList]
         expLocPat = self.req['parameters']["exptloc_analysis_pattern"]
@@ -156,6 +143,7 @@ class Dpo:
 
                 # for each occ in the occList
                 for self.occ in self.occList:
+
                     # get the trait name, for same position as trait id in tdf
                     name = tdf.loc[tdf["trait_id"] == trait, "name"].values[0]
 
@@ -171,10 +159,14 @@ class Dpo:
 
                     # replace and drop NaNs
                     df = df.replace('NA', np.nan)
-                    df = df.dropna(axis=1, how='all')
+                    # print(df)
+                    df = df.dropna(axis=1)
 
                     # write the merged, twice-filtered dataframe to a csv file
-                    df.to_csv(self.out + "/" + self.id[:-4] + "100" +
+                    # write the filtered dataframe to the proper csv
+                    # print(self.id[:-jobL])
+                    l = self.idx + 1
+                    df.to_csv(self.out + "/" + self.id[:-len(str(l))] +
                               str(self.idx + 1) + ".csv", index=False)
 
                     # reset name of the trait column in the df for next pass
@@ -210,7 +202,8 @@ class Dpo:
                 # print(df)
 
                 # write the filtered dataframe to the proper csv
-                df.to_csv(self.out + "/" + self.id[:-4] + "100" + str(self.idx + 1) + ".csv", index=False)
+                df.to_csv(self.out + "/" + self.id[:-jobL]
+                          + str(self.idx + 1) + ".csv", index=False)
 
                 # reset name of the trait column in the df for next pass
                 mdf.rename(columns={f"{str(name)}": "trait"}, inplace=True)
@@ -219,6 +212,46 @@ class Dpo:
                 dpo.buildAs()
 
                 self.idx += 1
+
+    def buildAs(self):  # only called through filter df
+
+        jobL = len(str(self.idx + 1))
+        csv = self.id[:-jobL] + str(self.idx + 1) + ".csv"
+
+        # set the variables, with indices to be used by filtering loop
+        asr = self.out + "/" + self.id[:-jobL] + str(self.idx + 1) + ".as"
+        trait = self.arr['data']['traitList'][0]['name'][self.idx2]
+        module = self.cfg['Analysis_Module']
+        title = str(self.id[:-jobL] + str(self.idx + 1))
+        # res = self.req['parameters']["residual"]
+        # print(res)
+        # pred = self.req['parameters']["prediction"]
+        # print(pred)
+
+        # get the fields for the .as file from the cfg module
+        options = csv + " " + module['asrmel_options'][0]['options']
+        tabulate = "tabulate " + module['tabulate'][0]['statement'].replace("{trait_name}", trait)
+        predictedTrait = "prediction " + module['predict'][0]['statement']
+        residual = "residual " + module['residual'][0]['spatial_model']
+        # print("residual ", module['residual'][0]['spatial_id'])
+        # print("residual ", module['predict'][0]['spatial_id'])
+
+        if self.cfgId == "4":
+            formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
+        else:
+            formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
+
+        # get the sf, dt, and c fields from the cfg module
+        asr = open(asr, "w")
+        fs = module['fields']
+        sf, dt, c = 'stat_factor', 'data_type', 'condition'
+        fields = [f"\n \t{fs[x][sf]} {fs[x][dt]} {fs[x][c]}" for x in range(len(fs))]
+
+        # write the .as file
+        asr.writelines(title)
+        asr.writelines(fields)
+        asr.writelines("\n" + trait + "\n" + options + "\n" + tabulate +
+                       "\n" + formula + "\n" + residual + "\n" + predictedTrait)
 
 
 dpo = Dpo()
