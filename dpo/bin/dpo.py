@@ -128,6 +128,8 @@ class Dpo:
 
         expt = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"] if d['definition'] == 'loc_id'][0]
 
+        self.mergedDf = self.mergedDf.drop(["plot_qc","block", "trait_qc"], axis=1)
+
         # rename definition as stat factor!
 
     def filterDF(self):
@@ -152,23 +154,22 @@ class Dpo:
                     self.name = name
 
                     # rename merged df trait column to the selected trait name
-                    mdf.rename(columns={"trait": f"{str(name)}"}, inplace=True)
+                    mdf.rename(columns={"trait": f"{str(self.name)}"}, inplace=True)
 
                     # filter mdf where trait id == trait n in tdf
                     fdf = mdf.loc[mdf["trait_id"] == int(trait)]
+                    print(self.name)
 
                     # filter filtered df where occurrence id == requested occ
                     df = fdf[fdf["occurr_id"] == self.occ]
                     df = df.drop(['trait_id', "occurr_id"], axis=1)  # drop 'occurr_id'!
+                    print(df)
 
                     # replace and drop NaNs
                     df = df.replace('NA', np.nan)
-                    # print(df)
-                    df = df.dropna(axis=1)
+                    df = df.dropna(axis=1, how="all")
 
                     # write the merged, twice-filtered dataframe to a csv file
-                    # write the filtered dataframe to the proper csv
-                    # print(self.id[:-jobL])
                     l = self.idx + 1
                     df.to_csv(self.out + "/" + self.id[:-len(str(l))] +
                               str(self.idx + 1) + ".csv", index=False)
@@ -192,19 +193,18 @@ class Dpo:
                 self.name = name
 
                 # rename mdf trait column, filter mdf x trait to make fdf
-                mdf.rename(columns={"trait": f"{str(name)}"}, inplace=True)
+                mdf.rename(columns={"trait": f"{self.name}"}, inplace=True)
 
                 # filter mdf trait id column == tdf trait n
                 fdf = mdf.loc[mdf["trait_id"] == int(trait)]
 
                 # filter mdf where trait id == trait n in tdf
                 df = fdf[fdf["occurr_id"].isin(self.occList)]
-                df = df.drop(["trait_id", "occurr_id"], axis=1)  # drop 'occurr_id'
+                df = df.drop(["trait_id", "occurr_id", "plot"], axis=1)  # drop 'occurr_id'
 
                 # replace and drop NaNs
                 df = df.replace('NA', np.nan)
                 df = df.dropna(axis=1, how='all')
-                # print(df)
 
                 # write the filtered dataframe to the proper csv
                 df.to_csv(self.out + "/" + self.id[:-jobL]
