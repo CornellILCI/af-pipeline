@@ -12,19 +12,18 @@ from glob import glob
 
 
 # import dbUtils
-print(os.environ['EBSAF_ROOT'])
+# print(os.environ['EBSAF_ROOT'])
 
 aeoPython = os.environ["EBSAF_ROOT"] + "/aeo/python"
 sys.path.append(aeoPython)
 import simbaUtils
 
 simbaUtils.readConfig()
-print(simbaUtils.cfg['int'])
-
+# print(simbaUtils.cfg['int'])
 
 tmp = "/models/analysis/cimmyt/phenotypic/asreml"
 phenomodels = simbaUtils.cfg['mdl'] + "analysis/cimmyt/phenotypic/asreml"
-print(phenomodels)
+# print(phenomodels)
 # redo request file as workpath simbautils.cfg['int']
 
 # replace with argparse
@@ -72,10 +71,10 @@ class Dpo:
             # load req and set output id
             self.req = json.load(req)
             self.id = self.req["metadata"]["id"]
+            self.out = self.out[0] + self.id
             self.id = self.id[:-4] + "1000"
 
             # create the output directory
-            self.out = self.out[0] + self.id
             if not os.path.exists(self.out): os.makedirs(self.out)
 
             # set experiment location pattern, config, and config Id
@@ -112,11 +111,12 @@ class Dpo:
 
         # merge dfs, filter fields, add traits
         mdf = pd.merge(self.plotDf, self.measDf)
-        print(mdf)
 
         # rename cols for the merged dataframe
+        loc = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"] if d['definition'] == 'loc_id'][0]
+
         self.mergedDf = mdf.rename(
-            columns={"loc_id": "loc",
+            columns={"loc_id": loc,
                      "expt_id": "expt",
                      "entry_id": "entry",
                      "plot_id": "plot",
@@ -125,6 +125,9 @@ class Dpo:
                      "blk": "block",
                      "rep_factor": "rep",
                      "trait_value": "trait"})
+
+        expt = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"] if d['definition'] == 'loc_id'][0]
+
         # rename definition as stat factor!
 
     def filterDF(self):
@@ -223,18 +226,23 @@ class Dpo:
         trait = self.arr['data']['traitList'][0]['name'][self.idx2]
         module = self.cfg['Analysis_Module']
         title = str(self.id[:-jobL] + str(self.idx + 1))
-        # res = self.req['parameters']["residual"]
-        # print(res)
-        # pred = self.req['parameters']["prediction"]
-        # print(pred)
+
+        res = self.req['parameters']["residual"]
+
+        res = [d['spatial_model'] for d in module["residual"] if d['spatial_id'] == f'{res}']
+
+        pred = self.req['parameters']["prediction"][0]
+        pred = [d['statement'] for d in module["predict"] if d['id'] == f'{pred}']
 
         # get the fields for the .as file from the cfg module
         options = csv + " " + module['asrmel_options'][0]['options']
         tabulate = "tabulate " + module['tabulate'][0]['statement'].replace("{trait_name}", trait)
-        predictedTrait = "prediction " + module['predict'][0]['statement']
-        residual = "residual " + module['residual'][0]['spatial_model']
-        # print("residual ", module['residual'][0]['spatial_id'])
-        # print("residual ", module['predict'][0]['spatial_id'])
+        predictedTrait = "prediction " + str(pred[0])
+
+        if str(res[0]) == "":
+            residual = ""
+        else:
+            residual = "residual " + str(res[0] + "\n")
 
         if self.cfgId == "4":
             formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
@@ -251,7 +259,7 @@ class Dpo:
         asr.writelines(title)
         asr.writelines(fields)
         asr.writelines("\n" + trait + "\n" + options + "\n" + tabulate +
-                       "\n" + formula + "\n" + residual + "\n" + predictedTrait)
+                       "\n" + formula + "\n" + residual + predictedTrait)
 
 
 dpo = Dpo()
