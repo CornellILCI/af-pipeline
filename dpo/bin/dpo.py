@@ -188,6 +188,8 @@ class Dpo:
             for self.idx, trait in enumerate(tdf['trait_id']):
                 # get the trait name for the current pass
                 name = tdf.loc[tdf["trait_id"] == trait, "name"].values[0]
+                self.name = name
+                print(self.name)
 
                 # rename mdf trait column, filter mdf x trait to make fdf
                 mdf.rename(columns={"trait": f"{str(name)}"}, inplace=True)
@@ -228,7 +230,6 @@ class Dpo:
         title = str(self.id[:-jobL] + str(self.idx + 1))
 
         res = self.req['parameters']["residual"]
-
         res = [d['spatial_model'] for d in module["residual"] if d['spatial_id'] == f'{res}']
 
         pred = self.req['parameters']["prediction"][0]
@@ -258,7 +259,7 @@ class Dpo:
         # write the .as file
         asr.writelines(title)
         asr.writelines(fields)
-        asr.writelines("\n" + trait + "\n" + options + "\n" + tabulate +
+        asr.writelines("\n" + self.name + "\n" + options + "\n" + tabulate +
                        "\n" + formula + "\n" + residual + predictedTrait)
 
 
