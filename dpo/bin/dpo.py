@@ -149,6 +149,7 @@ class Dpo:
 
                     # get the trait name, for same position as trait id in tdf
                     name = tdf.loc[tdf["trait_id"] == trait, "name"].values[0]
+                    self.name = name
 
                     # rename merged df trait column to the selected trait name
                     mdf.rename(columns={"trait": f"{str(name)}"}, inplace=True)
@@ -189,7 +190,6 @@ class Dpo:
                 # get the trait name for the current pass
                 name = tdf.loc[tdf["trait_id"] == trait, "name"].values[0]
                 self.name = name
-                print(self.name)
 
                 # rename mdf trait column, filter mdf x trait to make fdf
                 mdf.rename(columns={"trait": f"{str(name)}"}, inplace=True)
