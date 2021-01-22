@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 # dpo.py
 # uses json input to generate .as and csv files for analysis
-# 2021.1.11, vparis
-# Sprint 2021.1.11
+# 2021.1.12, vparis, vsp35@cornell.edu
 
 import sys, os, json
 import argparse
@@ -19,11 +18,12 @@ sys.path.append(aeoPython)
 import simbaUtils
 
 simbaUtils.readConfig()
-# print(simbaUtils.cfg['int'])
+print(simbaUtils.cfg['int'])
 
 tmp = "/models/analysis/cimmyt/phenotypic/asreml"
-phenomodels = simbaUtils.cfg['mdl'] + "analysis/cimmyt/phenotypic/asreml"
-# print(phenomodels)
+print(tmp)
+phenomodels = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
+print(phenomodels)
 # redo request file as workpath simbautils.cfg['int']
 
 # replace with argparse
@@ -104,15 +104,22 @@ class Dpo:
 
     def mergeDFs(self):
 
-        # get trait id + trait value columns
-        traitId = self.measDf["trait_id"]
-        traitVal = self.measDf["trait_value"]
-        occurrence = self.plotDf["occurr_id"]
-
         # merge dfs, filter fields, add traits
         mdf = pd.merge(self.plotDf, self.measDf)
+        # print(self.cfg['Analysis_Module']["fields"]["stat_factor"])
 
         # rename cols for the merged dataframe
+        defs = [d['definition'] for d in self.cfg['Analysis_Module']["fields"]]
+        sf = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"]]
+        mapdf = pd.DataFrame()
+        mapdf['def'] = defs
+        mapdf['sf'] = sf
+        d = mapdf.set_index('def').to_dict()
+        ti = mdf['trait_id']
+        tv = mdf['trait_value']
+
+        mdf.columns = mdf.columns.to_series().map(d['sf'])
+
         loc = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"] if d['definition'] == 'loc_id'][0]
 
         self.mergedDf = mdf.rename(
@@ -125,10 +132,12 @@ class Dpo:
                      "blk": "block",
                      "rep_factor": "rep",
                      "trait_value": "trait"})
+        self.mergedDf['trait'] = tv
+        self.mergedDf['trait_id'] = ti
 
         expt = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"] if d['definition'] == 'loc_id'][0]
 
-        self.mergedDf = self.mergedDf.drop(["plot_qc","block", "trait_qc"], axis=1)
+        # self.mergedDf = self.mergedDf.drop(["plot_qc","block", "trait_qc"], axis=1)
 
         # rename definition as stat factor!
 
@@ -158,16 +167,13 @@ class Dpo:
 
                     # filter mdf where trait id == trait n in tdf
                     fdf = mdf.loc[mdf["trait_id"] == int(trait)]
-                    print(self.name)
-
-                    # filter filtered df where occurrence id == requested occ
-                    df = fdf[fdf["occurr_id"] == self.occ]
-                    df = df.drop(['trait_id', "occurr_id"], axis=1)  # drop 'occurr_id'!
-                    print(df)
+                    fdf = fdf.drop(['trait_id'], axis=1)
 
                     # replace and drop NaNs
-                    df = df.replace('NA', np.nan)
+                    df = fdf.replace('NA', np.nan)
+                    df = df.loc[:, df.columns.notnull()]
                     df = df.dropna(axis=1, how="all")
+                    print(df)
 
                     # write the merged, twice-filtered dataframe to a csv file
                     l = self.idx + 1
@@ -195,16 +201,15 @@ class Dpo:
                 # rename mdf trait column, filter mdf x trait to make fdf
                 mdf.rename(columns={"trait": f"{self.name}"}, inplace=True)
 
-                # filter mdf trait id column == tdf trait n
-                fdf = mdf.loc[mdf["trait_id"] == int(trait)]
-
                 # filter mdf where trait id == trait n in tdf
-                df = fdf[fdf["occurr_id"].isin(self.occList)]
-                df = df.drop(["trait_id", "occurr_id", "plot"], axis=1)  # drop 'occurr_id'
+                fdf = mdf.loc[mdf["trait_id"] == int(trait)]
+                fdf = fdf.drop(['trait_id'], axis=1)
 
                 # replace and drop NaNs
-                df = df.replace('NA', np.nan)
-                df = df.dropna(axis=1, how='all')
+                df = fdf.replace('NA', np.nan)
+                df = df.loc[:, df.columns.notnull()]
+                df = df.dropna(axis=1, how="all")
+                print(df)
 
                 # write the filtered dataframe to the proper csv
                 df.to_csv(self.out + "/" + self.id[:-jobL]
