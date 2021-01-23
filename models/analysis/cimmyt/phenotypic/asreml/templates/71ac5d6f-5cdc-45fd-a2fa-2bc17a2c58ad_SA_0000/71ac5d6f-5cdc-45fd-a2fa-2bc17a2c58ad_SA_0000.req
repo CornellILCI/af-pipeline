@@ -27,7 +27,7 @@
         "trait_analysis_pattern": 1,
         "exptloc_analysis_pattern": 2,
         "configFile": "config_00002",
-        "formula": 1,
+        "formula": 2,
         "residual": 5,
         "prediction": [
             2
