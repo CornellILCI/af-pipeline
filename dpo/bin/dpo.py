@@ -15,18 +15,14 @@ from glob import glob
 
 aeoPython = os.environ["EBSAF_ROOT"] + "/aeo/python"
 sys.path.append(aeoPython)
+
 import simbaUtils
 
 simbaUtils.readConfig()
-print(simbaUtils.cfg['int'])
-
 tmp = "/models/analysis/cimmyt/phenotypic/asreml"
-print(tmp)
-phenomodels = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
-print(phenomodels)
+# phenomodels = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
+# print(phenomodels)
 # redo request file as workpath simbautils.cfg['int']
-
-# replace with argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("input", type=str, help="Input folder")
 args = parser.parse_args()
@@ -36,7 +32,7 @@ class Dpo:
 
     # currently to linked to pedros,
     # now it should be connected to the input path (int)
-    request = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
+    request = os.environ["EBSAF_ROOT"] + tmp+ "/templates/" \
               + sys.argv[1] + "/" + sys.argv[1] + ".req"
     array = request.replace("req", "arr")
     conf = glob(os.environ["EBSAF_ROOT"] + tmp + "/config/")
@@ -92,7 +88,7 @@ class Dpo:
             measArray = self.arr["data"]["measurementArray"]
             traitList = self.arr["data"]["traitList"]
 
-            # transform the subarrays into DataFrames
+            # transform the sub-arrays into DataFrames
             self.plotDf = pd.DataFrame(plotArray["data"], columns=plotArray["headers"])
             self.measDf = pd.DataFrame(measArray["data"], columns=measArray["headers"])
             self.traitDf = pd.DataFrame(traitList[0])
@@ -106,7 +102,6 @@ class Dpo:
 
         # merge dfs, filter fields, add traits
         mdf = pd.merge(self.plotDf, self.measDf)
-        # print(self.cfg['Analysis_Module']["fields"]["stat_factor"])
 
         # rename cols for the merged dataframe
         defs = [d['definition'] for d in self.cfg['Analysis_Module']["fields"]]
@@ -118,28 +113,15 @@ class Dpo:
         ti = mdf['trait_id']
         tv = mdf['trait_value']
 
+        # map the stat factor columns to the dataframe
         mdf.columns = mdf.columns.to_series().map(d['sf'])
 
         loc = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"] if d['definition'] == 'loc_id'][0]
 
-        self.mergedDf = mdf.rename(
-            columns={"loc_id": loc,
-                     "expt_id": "expt",
-                     "entry_id": "entry",
-                     "plot_id": "plot",
-                     "pa_x": "col",
-                     "pa_y": "row",
-                     "blk": "block",
-                     "rep_factor": "rep",
-                     "trait_value": "trait"})
+        self.mergedDf = mdf
+        print(self.mergedDf)
         self.mergedDf['trait'] = tv
         self.mergedDf['trait_id'] = ti
-
-        expt = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"] if d['definition'] == 'loc_id'][0]
-
-        # self.mergedDf = self.mergedDf.drop(["plot_qc","block", "trait_qc"], axis=1)
-
-        # rename definition as stat factor!
 
     def filterDF(self):
         mdf = self.mergedDf
