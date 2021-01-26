@@ -51,7 +51,8 @@ class Dpo:
         self.conf = Dpo.conf
         self.cfg = None
         self.cfgId = None
-        self.fields = None
+        self.defs = None
+        self.sf = None
         self.occList = None
         self.mergedDf = None
         self.csv = None
@@ -96,49 +97,63 @@ class Dpo:
             # get fields from the config
             self.cfg = json.load(cfg)
             fields = self.cfg["Analysis_Module"]["fields"]
-            self.fields = [fields[n]["definition"] for n in range(len(fields))]
+            self.defs = [fields[n]["definition"] for n in range(len(fields))]
 
     def mergeDFs(self):
 
         # merge dfs, filter fields, add traits
         mdf = pd.merge(self.plotDf, self.measDf)
+        print(mdf.columns)
 
         # rename cols for the merged dataframe
         defs = [d['definition'] for d in self.cfg['Analysis_Module']["fields"]]
-        sf = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"]]
+        self.sf = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"]]
         mapdf = pd.DataFrame()
         mapdf['def'] = defs
-        mapdf['sf'] = sf
+        mapdf['sf'] = self.sf
         d = mapdf.set_index('def').to_dict()
+        # print(d)
+        # for key, value in d.items():
+        #     print(key, value)
         ti = mdf['trait_id']
         tv = mdf['trait_value']
+        oi = mdf['occurr_id']
 
         # map the stat factor columns to the dataframe
         mdf.columns = mdf.columns.to_series().map(d['sf'])
 
-        loc = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"] if d['definition'] == 'loc_id'][0]
-
         self.mergedDf = mdf
-        print(self.mergedDf)
         self.mergedDf['trait'] = tv
         self.mergedDf['trait_id'] = ti
+        self.mergedDf['occid'] = oi
 
     def filterDF(self):
         mdf = self.mergedDf
+        print(mdf)
         tdf = self.traitDf
         self.id = self.id[:-4]+"1000"
+        self.idx, self.idx2 = 0, 0
         jobL = len(str(self.idx))
         self.occList = self.req["data"]["occurrence_id"]
         self.occList = [float(n) for n in self.occList]
         expLocPat = self.req['parameters']["exptloc_analysis_pattern"]
 
+        f = self.sf
+        f.append("trait")
+        f.append("trait_id")
+        f.append('occid')
+        # print(f)
+
         if expLocPat == 1:
+            print("SESL")
 
             # for each unique trait
             for trait in tdf["trait_id"]:
 
                 # for each occ in the occList
                 for self.occ in self.occList:
+
+                    mdf = mdf[f].copy(deep=True)
 
                     # get the trait name, for same position as trait id in tdf
                     name = tdf.loc[tdf["trait_id"] == trait, "name"].values[0]
@@ -150,8 +165,11 @@ class Dpo:
                     # filter mdf where trait id == trait n in tdf
                     fdf = mdf.loc[mdf["trait_id"] == int(trait)]
                     fdf = fdf.drop(['trait_id'], axis=1)
+                    fdf = fdf[fdf["occid"] == self.occ]
+
 
                     # replace and drop NaNs
+                    df = fdf[fdf["occid"] == self.occ]
                     df = fdf.replace('NA', np.nan)
                     df = df.loc[:, df.columns.notnull()]
                     df = df.dropna(axis=1, how="all")
@@ -174,6 +192,7 @@ class Dpo:
                 self.idx2 += 1
 
         if expLocPat == 2:
+            print("SEML")
 
             for self.idx, trait in enumerate(tdf['trait_id']):
                 # get the trait name for the current pass
