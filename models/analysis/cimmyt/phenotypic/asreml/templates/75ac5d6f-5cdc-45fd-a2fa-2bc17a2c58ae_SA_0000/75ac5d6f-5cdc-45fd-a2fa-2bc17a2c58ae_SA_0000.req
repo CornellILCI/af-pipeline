@@ -28,7 +28,7 @@
         "exptloc_analysis_pattern": 1,
         "configFile": "config_00003",
         "formula": 3,
-        "residual": 2,
+        "residual": 4,
         "prediction": [
             1
         ]
