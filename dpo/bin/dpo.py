@@ -9,7 +9,6 @@ import pandas as pd
 import numpy as np
 from glob import glob
 
-
 # import dbUtils
 # print(os.environ['EBSAF_ROOT'])
 
@@ -29,10 +28,7 @@ args = parser.parse_args()
 
 
 class Dpo:
-
-    # currently to linked to pedros,
-    # now it should be connected to the input path (int)
-    request = os.environ["EBSAF_ROOT"] + tmp+ "/templates/" \
+    request = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
               + sys.argv[1] + "/" + sys.argv[1] + ".req"
     array = request.replace("req", "arr")
     conf = glob(os.environ["EBSAF_ROOT"] + tmp + "/config/")
@@ -82,7 +78,6 @@ class Dpo:
 
         # open the input array + config JSONs:
         with open(self.cfg, "r") as cfg, open(self.array, "r") as arr:
-
             # get the plot and measurement subarrays
             self.arr = json.load(arr)
             plotArray = self.arr["data"]["plotArray"]
@@ -101,9 +96,8 @@ class Dpo:
 
     def mergeDFs(self):
 
-        # merge dfs, filter fields, add traits
+
         mdf = pd.merge(self.plotDf, self.measDf)
-        print(mdf.columns)
 
         # rename cols for the merged dataframe
         defs = [d['definition'] for d in self.cfg['Analysis_Module']["fields"]]
@@ -112,15 +106,12 @@ class Dpo:
         mapdf['def'] = defs
         mapdf['sf'] = self.sf
         d = mapdf.set_index('def').to_dict()
-        # print(d)
-        # for key, value in d.items():
-        #     print(key, value)
+
         ti = mdf['trait_id']
         tv = mdf['trait_value']
         oi = mdf['occurr_id']
 
-        # map the stat factor columns to the dataframe
-        mdf.columns = mdf.columns.to_series().map(d['sf'])
+        mdf.columns = mdf.columns.to_series().map(d['sf'])             # map the stat factor columns to the dataframe
 
         self.mergedDf = mdf
         self.mergedDf['trait'] = tv
@@ -129,9 +120,8 @@ class Dpo:
 
     def filterDF(self):
         mdf = self.mergedDf
-        print(mdf)
         tdf = self.traitDf
-        self.id = self.id[:-4]+"1000"
+        self.id = self.id[:-4] + "1000"
         self.idx, self.idx2 = 0, 0
         jobL = len(str(self.idx))
         self.occList = self.req["data"]["occurrence_id"]
@@ -142,7 +132,6 @@ class Dpo:
         f.append("trait")
         f.append("trait_id")
         f.append('occid')
-        # print(f)
 
         if expLocPat == 1:
             print("SESL")
@@ -152,7 +141,6 @@ class Dpo:
 
                 # for each occ in the occList
                 for self.occ in self.occList:
-
                     mdf = mdf[f].copy(deep=True)
 
                     # get the trait name, for same position as trait id in tdf
@@ -166,27 +154,24 @@ class Dpo:
                     fdf = mdf.loc[mdf["trait_id"] == int(trait)]
                     fdf = fdf.drop(['trait_id'], axis=1)
                     fdf = fdf[fdf["occid"] == self.occ]
-
+                    fdf = fdf.drop(['occid'], axis=1)
 
                     # replace and drop NaNs
-                    df = fdf[fdf["occid"] == self.occ]
-                    df = fdf.replace('NA', np.nan)
-                    df = df.loc[:, df.columns.notnull()]
-                    df = df.dropna(axis=1, how="all")
-                    print(df)
+                    # df = fdf.replace('NA', np.nan)
+                    # df = fdf.loc[:, fdf.columns.notnull()]
+                    # df = df.dropna(axis=1, how="all")
+                    print(fdf)
 
                     # write the merged, twice-filtered dataframe to a csv file
                     l = self.idx + 1
-                    df.to_csv(self.out + "/" + self.id[:-len(str(l))] +
+                    fdf.to_csv(self.out + "/" + self.id[:-len(str(l))] +
                               str(self.idx + 1) + ".csv", index=False)
 
                     # reset name of the trait column in the df for next pass
                     mdf.rename(columns={f"{str(name)}": "trait"}, inplace=True)
 
-                    # build .as
                     dpo.buildAs()
 
-                    # for output
                     self.idx += 1
 
                 self.idx2 += 1
@@ -205,15 +190,14 @@ class Dpo:
                 # filter mdf where trait id == trait n in tdf
                 fdf = mdf.loc[mdf["trait_id"] == int(trait)]
                 fdf = fdf.drop(['trait_id'], axis=1)
+                fdf = fdf.drop(['occid'], axis=1)
 
                 # replace and drop NaNs
-                df = fdf.replace('NA', np.nan)
-                df = df.loc[:, df.columns.notnull()]
-                df = df.dropna(axis=1, how="all")
-                print(df)
+                fdf = fdf.loc[:, fdf.columns.notnull()]
+                print(fdf)
 
                 # write the filtered dataframe to the proper csv
-                df.to_csv(self.out + "/" + self.id[:-jobL]
+                fdf.to_csv(self.out + "/" + self.id[:-jobL]
                           + str(self.idx + 1) + ".csv", index=False)
 
                 # reset name of the trait column in the df for next pass
