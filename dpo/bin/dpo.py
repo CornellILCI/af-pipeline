@@ -180,6 +180,8 @@ class Dpo:
             print("SEML")
 
             for self.idx, trait in enumerate(tdf['trait_id']):
+                mdf = mdf[f].copy(deep=True)
+
                 # get the trait name for the current pass
                 name = tdf.loc[tdf["trait_id"] == trait, "name"].values[0]
                 self.name = name
@@ -260,3 +262,4 @@ if __name__ == "__main__":
     dpo.buildDFs()
     dpo.mergeDFs()
     dpo.filterDF()
+
