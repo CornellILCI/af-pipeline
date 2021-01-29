@@ -74,7 +74,6 @@ class Dpo:
 
             # set experiment location pattern, config, and config Id
 
-
     def buildDFs(self):
 
         # open the input array + config JSONs:
@@ -86,8 +85,10 @@ class Dpo:
             traitList = self.arr["data"]["traitList"]
 
             # transform the sub-arrays into DataFrames
-            self.plotDf = pd.DataFrame(plotArray["data"], columns=plotArray["headers"])
-            self.measDf = pd.DataFrame(measArray["data"], columns=measArray["headers"])
+            self.plotDf = pd.DataFrame(plotArray["data"],
+                                       columns=plotArray["headers"])
+            self.measDf = pd.DataFrame(measArray["data"],
+                                       columns=measArray["headers"])
             self.traitDf = pd.DataFrame(traitList[0])
 
             # get fields from the config
@@ -96,10 +97,7 @@ class Dpo:
             self.defs = [fields[n]["definition"] for n in range(len(fields))]
 
     def mergeDFs(self):
-
-
         mdf = pd.merge(self.plotDf, self.measDf)
-
         # rename cols for the merged dataframe
         defs = [d['definition'] for d in self.cfg['Analysis_Module']["fields"]]
         self.sf = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"]]
@@ -219,6 +217,7 @@ class Dpo:
         # set the variables, with indices to be used by filtering loop
         asr = self.out + "/" + self.id[:-jobL] + str(self.idx + 1) + ".as"
         trait = self.arr['data']['traitList'][0]['name'][self.idx2]
+        print(self.name)
         module = self.cfg['Analysis_Module']
         title = str(self.id[:-jobL] + str(self.idx + 1))
 
@@ -228,11 +227,11 @@ class Dpo:
         pred = [d['statement'] for d in module["predict"] if d['id'] == f'{pred}']
         form = self.req['parameters']["formula"]
         form = [d['statement'] for d in module["formula"] if d['id'] == f'{form}']
-        formula = form[0].replace("{trait_name}", trait)
+        formula = form[0].replace("{trait_name}", self.name)
 
         # get the fields for the .as file from the cfg module
         options = csv + " " + module['asrmel_options'][0]['options']
-        tabulate = "tabulate " + module['tabulate'][0]['statement'].replace("{trait_name}", trait)
+        tabulate = "tabulate " + module['tabulate'][0]['statement'].replace("{trait_name}", self.name)
         predictedTrait = "prediction " + str(pred[0])
 
         if str(res[0]) == "":
