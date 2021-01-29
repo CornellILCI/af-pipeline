@@ -66,13 +66,14 @@ class Dpo:
             self.id = self.req["metadata"]["id"]
             self.out = self.out[0] + self.id
             self.id = self.id[:-4] + "1000"
+            self.cfg = self.conf[0] + self.req['parameters']['configFile'] + ".cfg"
+            self.cfgId = self.req['parameters']['configFile'][-1:]
 
             # create the output directory
             if not os.path.exists(self.out): os.makedirs(self.out)
 
             # set experiment location pattern, config, and config Id
-            self.cfg = self.conf[0] + self.req['parameters']['configFile'] + ".cfg"
-            self.cfgId = self.req['parameters']['configFile'][-1:]
+
 
     def buildDFs(self):
 
@@ -223,9 +224,11 @@ class Dpo:
 
         res = self.req['parameters']["residual"]
         res = [d['spatial_model'] for d in module["residual"] if d['spatial_id'] == f'{res}']
-
         pred = self.req['parameters']["prediction"][0]
         pred = [d['statement'] for d in module["predict"] if d['id'] == f'{pred}']
+        form = self.req['parameters']["formula"]
+        form = [d['statement'] for d in module["formula"] if d['id'] == f'{form}']
+        formula = form[0].replace("{trait_name}", trait)
 
         # get the fields for the .as file from the cfg module
         options = csv + " " + module['asrmel_options'][0]['options']
@@ -236,11 +239,6 @@ class Dpo:
             residual = ""
         else:
             residual = "residual " + str(res[0] + "\n")
-
-        if self.cfgId == "4":
-            formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
-        else:
-            formula = module['formula'][0]['statement'].replace("{trait_name}", trait)
 
         # get the sf, dt, and c fields from the cfg module
         asr = open(asr, "w")
