@@ -83,11 +83,13 @@ class Dpo(object):
         meas = pd.DataFrame(meas["data"], columns=meas["headers"])
         self.mdf = pd.merge(plots, meas)
 
-    def mapColumns(self):
+    def makeMap(self):
         map = pd.DataFrame()
         map['def'] = [d['definition'] for d in self.fields]
         map['sf'] = [f['stat_factor'] for f in self.fields]
         self.map = map.set_index('def').to_dict()
+
+    def mapColumns(self):
         ti = self.mdf['trait_id']
         tv = self.mdf['trait_value']
         oi = self.mdf['occurr_id']
@@ -96,76 +98,65 @@ class Dpo(object):
         self.mdf['trait_id'] = ti
         self.mdf['occid'] = oi
 
-    def preloop(self):
-        self.traitList = self.arr["data"]["traitList"]
-        self.tdf = pd.DataFrame(self.traitList[0])
+    def preFilter(self):
         self.occList = self.req["data"]["occurrence_id"]
         self.occList = [float(n) for n in self.occList]
-        fields = [d['stat_factor'] for d in self.cfg['Analysis_Module']["fields"]]
-        fields.append("trait")
-        fields.append("trait_id")
-        fields.append('occid')
-        self.fields = fields
+        sf = [d['stat_factor'] for d in self.fields]
+        sf.append("trait")
+        sf.append("trait_id")
+        sf.append('occid')
+        self.sf = sf
 
     def dataFilter(self):
         mdf = self.mdf
-        jobL = len(str(self.idx))
-        self.idx, self.idx2 = 0, 0
+        idx, idx2 = 0, 0
+        traits = pd.DataFrame( self.arr["data"]["traitList"][0])
+
         if self.pat == 1:
-
-            for trait in self.tdf["trait_id"]:
-
+            for trait in traits["trait_id"]:
                 for self.occ in self.occList:
-
-                    mdf = mdf[self.fields].copy(deep=True)
-                    name = self.tdf.loc[self.tdf["trait_id"] == trait, "name"].values[0]
-                    self.name = name
-                    mdf.rename(columns={"trait": f"{str(self.name)}"}, inplace=True)
-                    fdf = mdf[mdf["occid"] == self.occ]
-                    fdf = fdf.loc[mdf["trait_id"] == int(trait)]
+                    self.mdf = self.mdf[self.sf].copy(deep=True)
+                    self.name = traits.loc[traits["trait_id"] == trait, "name"].values[0]
+                    fdf = self.mdf[self.mdf["occid"] == self.occ]
+                    fdf = fdf.loc[fdf["trait_id"] == int(trait)]
                     fdf = fdf.drop(['trait_id'], axis=1)
                     fdf = fdf.drop(['occid'], axis=1)
+                    fdf = fdf.rename(columns={"trait": f"{self.name}"})
                     print(fdf)
-                    l = self.idx + 1
-                    fdf.to_csv(self.outdir + "/" + self.id[:-len(str(l))] +
-                               str(self.idx + 1) + ".csv", index=False)
-                    mdf.rename(columns={f"{str(name)}": "trait"}, inplace=True)
-                    dpo.buildAs()
-
-                    self.idx += 1
-                self.idx2 += 1
+                    fdf.to_csv(self.outdir + "/" + self.id[:-len(str(idx+1))] +
+                               str(idx + 1) + ".csv", index=False)
+                    mdf.rename(columns={f"{str(self.name)}": "trait"}, inplace=True)
+                    dpo.buildAs(idx)
+                    idx += 1
+                idx2 += 1
 
         if self.pat == 2:
-
-            for self.idx, trait in enumerate(self.tdf['trait_id']):
-
-                mdf = mdf[self.fields].copy(deep=True)
-                name = self.tdf.loc[self.tdf["trait_id"] == trait, "name"].values[0]
-                self.name = name
-                mdf.rename(columns={"trait": f"{self.name}"}, inplace=True)
-                fdf = mdf.loc[mdf["trait_id"] == int(trait)]
+            for idx, trait in enumerate(traits['trait_id']):
+                self.mdf = self.mdf[self.sf].copy(deep=True)
+                self.name = traits.loc[traits["trait_id"] == trait, "name"].values[0]
+                fdf = self.mdf.loc[self.mdf["trait_id"] == int(trait)]
                 fdf = fdf.drop(['trait_id'], axis=1)
                 fdf = fdf.drop(['occid'], axis=1)
+                fdf = fdf.rename(columns={"trait": f"{self.name}"})
                 fdf = fdf.loc[:, fdf.columns.notnull()]
                 print(fdf)
-                fdf.to_csv(self.outdir + "/" + self.id[:-jobL]
-                           + str(self.idx + 1) + ".csv", index=False)
-                mdf.rename(columns={f"{str(name)}": "trait"}, inplace=True)
-                dpo.buildAs()
+                fdf.to_csv(self.outdir + "/" + self.id[:-len(str(idx + 1))] +
+                           str(idx + 1) + ".csv", index=False)
+                mdf.rename(columns={f"{str(self.name)}": "trait"}, inplace=True)
+                dpo.buildAs(idx)
 
-                self.idx += 1
+                idx += 1
 
-    def buildAs(self):  # only called through filter df
+    def buildAs(self, idx):  # only called through filter df
 
-        jobL = len(str(self.idx + 1))
-        csv = self.id[:-jobL] + str(self.idx + 1) + ".csv"
+        jobL = len(str(idx + 1))
+        csv = self.id[:-jobL] + str(idx + 1) + ".csv"
 
         # set the variables, with indices to be used by filtering loop
-        asr = self.outdir + "/" + self.id[:-jobL] + str(self.idx + 1) + ".as"
-        trait = self.arr['data']['traitList'][0]['name'][self.idx2]
+        asr = self.outdir + "/" + self.id[:-jobL] + str(idx + 1) + ".as"
         print(self.name)
         module = self.cfg['Analysis_Module']
-        title = str(self.id[:-jobL] + str(self.idx + 1))
+        title = str(self.id[:-jobL] + str(idx + 1))
 
         res = self.req['parameters']["residual"]
         res = [d['spatial_model'] for d in module["residual"] if d['spatial_id'] == f'{res}']
@@ -205,6 +196,7 @@ if __name__ == "__main__":
     dpo.loadConfig()
     dpo.loadArrays()
     dpo.mergeArrays()
+    dpo.makeMap()
     dpo.mapColumns()
-    dpo.preloop()
+    dpo.preFilter()
     dpo.dataFilter()
