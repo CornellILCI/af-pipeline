@@ -24,6 +24,7 @@ req = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
 
 
 class Dpo(object):
+
     array = req.replace("req", "arr")
     conf = glob(os.environ["EBSAF_ROOT"] + tmp + "/config/")
     output = glob(os.environ["EBSAF_ROOT"] + "/aeo/input/")
@@ -59,37 +60,31 @@ class Dpo(object):
         self.occ = 0
 
     def loadReq(self):
-        with open(self.request, "r") as req:
-            self.req = json.load(req)
-            self.id = self.req["metadata"]["id"][:-4] + "1000"
-            self.pat = self.req['parameters']["exptloc_analysis_pattern"]
-            self.outdir = self.outdir[0] + self.req["metadata"]["id"]
-            if not os.path.exists(self.outdir): os.makedirs(self.outdir)
+        with open(self.request, "r") as req: self.req = json.load(req)
+        self.id = self.req["metadata"]["id"][:-4] + "1000"
+        self.outdir = self.outdir[0] + self.req["metadata"]["id"]
+        if not os.path.exists(self.outdir): os.makedirs(self.outdir)
+        self.pat = self.req['parameters']["exptloc_analysis_pattern"]
+
 
     def loadConfig(self):
         self.cfg = self.conf[0] + self.req['parameters']['configFile'] + ".cfg"
-        with open(self.cfg, "r") as cfg:
-            self.cfg = json.load(cfg)
-            self.fields = self.cfg['Analysis_Module']["fields"]
-
-    def loadArrays(self):
-        with open(self.array, "r") as arr:
-            self.arr = json.load(arr)
+        with open(self.cfg, "r") as cfg: self.cfg = json.load(cfg)
+        self.fields = self.cfg['Analysis_Module']["fields"]
 
     def mergeArrays(self):
+        with open(self.array, "r") as arr:  self.arr = json.load(arr)
         plots = self.arr["data"]["plotArray"]
         meas = self.arr["data"]["measurementArray"]
         plots = pd.DataFrame(plots["data"], columns=plots["headers"])
         meas = pd.DataFrame(meas["data"], columns=meas["headers"])
         self.mdf = pd.merge(plots, meas)
 
-    def makeMap(self):
+    def mapColumns(self):
         map = pd.DataFrame()
         map['def'] = [d['definition'] for d in self.fields]
         map['sf'] = [f['stat_factor'] for f in self.fields]
         self.map = map.set_index('def').to_dict()
-
-    def mapColumns(self):
         ti = self.mdf['trait_id']
         tv = self.mdf['trait_value']
         oi = self.mdf['occurr_id']
@@ -99,8 +94,8 @@ class Dpo(object):
         self.mdf['occid'] = oi
 
     def preFilter(self):
-        self.occList = self.req["data"]["occurrence_id"]
-        self.occList = [float(n) for n in self.occList]
+        occList = self.req["data"]["occurrence_id"]
+        self.occList = [float(n) for n in occList]
         sf = [d['stat_factor'] for d in self.fields]
         sf.append("trait")
         sf.append("trait_id")
@@ -108,30 +103,15 @@ class Dpo(object):
         self.sf = sf
 
     def dataFilter(self):
-        mdf = self.mdf
-        idx, idx2 = 0, 0
-        traits = pd.DataFrame( self.arr["data"]["traitList"][0])
-
         if self.pat == 1:
-            for trait in traits["trait_id"]:
-                for self.occ in self.occList:
-                    self.mdf = self.mdf[self.sf].copy(deep=True)
-                    self.name = traits.loc[traits["trait_id"] == trait, "name"].values[0]
-                    fdf = self.mdf[self.mdf["occid"] == self.occ]
-                    fdf = fdf.loc[fdf["trait_id"] == int(trait)]
-                    fdf = fdf.drop(['trait_id'], axis=1)
-                    fdf = fdf.drop(['occid'], axis=1)
-                    fdf = fdf.rename(columns={"trait": f"{self.name}"})
-                    print(fdf)
-                    fdf.to_csv(self.outdir + "/" + self.id[:-len(str(idx+1))] +
-                               str(idx + 1) + ".csv", index=False)
-                    mdf.rename(columns={f"{str(self.name)}": "trait"}, inplace=True)
-                    dpo.buildAs(idx)
-                    idx += 1
-                idx2 += 1
-
+            dpo.sesl()
         if self.pat == 2:
-            for idx, trait in enumerate(traits['trait_id']):
+            dpo.seml()
+
+    def seml(self):
+        mdf = self.mdf
+        traits = pd.DataFrame(self.arr["data"]["traitList"][0])
+        for idx, trait in enumerate(traits['trait_id']):
                 self.mdf = self.mdf[self.sf].copy(deep=True)
                 self.name = traits.loc[traits["trait_id"] == trait, "name"].values[0]
                 fdf = self.mdf.loc[self.mdf["trait_id"] == int(trait)]
@@ -144,8 +124,28 @@ class Dpo(object):
                            str(idx + 1) + ".csv", index=False)
                 mdf.rename(columns={f"{str(self.name)}": "trait"}, inplace=True)
                 dpo.buildAs(idx)
-
                 idx += 1
+
+    def sesl(self):
+        mdf = self.mdf
+        idx, idx2 = 0, 0
+        traits = pd.DataFrame( self.arr["data"]["traitList"][0])
+        for trait in traits["trait_id"]:
+            for self.occ in self.occList:
+                self.mdf = self.mdf[self.sf].copy(deep=True)  #
+                self.name = traits.loc[traits["trait_id"] == trait, "name"].values[0]  #
+                fdf = self.mdf.loc[self.mdf["trait_id"] == int(trait)]
+                fdf = fdf.drop(['trait_id'], axis=1)
+                fdf = fdf[fdf["occid"] == self.occ]
+                fdf = fdf.drop(['occid'], axis=1)
+                fdf = fdf.rename(columns={"trait": f"{self.name}"})
+                print(fdf)
+                fdf.to_csv(self.outdir + "/" + self.id[:-len(str(idx + 1))] +
+                           str(idx + 1) + ".csv", index=False)
+                mdf.rename(columns={f"{str(self.name)}": "trait"}, inplace=True)
+                dpo.buildAs(idx)
+                idx += 1
+            idx2 += 1
 
     def buildAs(self, idx):  # only called through filter df
 
@@ -194,9 +194,7 @@ dpo = Dpo(req)
 if __name__ == "__main__":
     dpo.loadReq()
     dpo.loadConfig()
-    dpo.loadArrays()
     dpo.mergeArrays()
-    dpo.makeMap()
     dpo.mapColumns()
     dpo.preFilter()
     dpo.dataFilter()
