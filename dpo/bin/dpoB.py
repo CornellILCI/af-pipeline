@@ -1,7 +1,9 @@
 ##!/usr/bin/python3
 # dpo.py
-# uses json input to generate .as and csv files for analysis
-# 2021.1.12, vparis, vsp35@cornell.edu
+# the DPO  takes a request and gathers instructions  from it’s parameters
+#  and  configures an output csv and an instruction file for statistical analysis.
+# uses json input to generate output .as and csv files
+# 2021.1.12, vince paris
 
 import sys, os, json
 import argparse
@@ -37,7 +39,6 @@ class Dpo(object):
         self.cfg = None
         self.fields = None
         self.traitList = None
-        self.expLocPat = None
         self.array = Dpo.array
         self.arr = None
         self.conf = Dpo.conf
@@ -52,26 +53,38 @@ class Dpo(object):
         self.occ = 0
 
     def loadReq(self):
-        with open(self.request, "r") as req: self.req = json.load(req)
+        try:
+            with open(self.request, "r") as req: self.req = json.load(req)
+        except ValueError:
+            pass
         self.id = self.req["metadata"]["id"][:-4] + "1000"
         self.outdir = self.outdir[0] + self.req["metadata"]["id"]
         if not os.path.exists(self.outdir): os.makedirs(self.outdir)
         self.pat = self.req['parameters']["exptloc_analysis_pattern"]
 
+    #  gather the fields which will
     def loadConfig(self):
         self.cfg = self.conf[0] + self.req['parameters']['configFile'] + ".cfg"
-        with open(self.cfg, "r") as cfg: self.cfg = json.load(cfg)
+        try:
+            with open(self.cfg, "r") as cfg: self.cfg = json.load(cfg)
+        except ValueError:
+            pass
         self.fields = self.cfg['Analysis_Module']["fields"]
 
+    # created single dataframe from the multiple arrays in the .array
     def mergeArrays(self):
-        with open(self.array, "r") as arr:  self.arr = json.load(arr)
-        plots = self.arr["data"]["plotArray"]
-        meas = self.arr["data"]["measurementArray"]
-        plots = pd.DataFrame(plots["data"], columns=plots["headers"])
-        meas = pd.DataFrame(meas["data"], columns=meas["headers"])
-        self.mdf = pd.merge(plots, meas)
+        try:
+            with open(self.array, "r") as arr:  self.arr = json.load(arr)
+        except ValueError:
+            pass
+        p = self.arr["data"]["plotArray"]
+        m = self.arr["data"]["measurementArray"]
+        p = pd.DataFrame(p["data"], columns=p["headers"])
+        m = pd.DataFrame(m["data"], columns=m["headers"])
+        self.mdf = pd.merge(p, m)
 
-    # map def to statFactor
+    # map definition to the ,stat factor by creating a map object,
+    # and map  stat factor to the definition named columns in the df
     def mapColumns(self):
         map = pd.DataFrame()
         map['def'] = [d['definition'] for d in self.fields]
@@ -85,6 +98,7 @@ class Dpo(object):
         self.mdf['trait_id'] = ti
         self.mdf['occid'] = oi
 
+    # set the occurrence list for
     def preFilter(self):
         occList = self.req["data"]["occurrence_id"]
         self.occList = [float(n) for n in occList]
@@ -162,7 +176,6 @@ class Dpo(object):
         fs = module['fields']
         sf, dt, c = 'stat_factor', 'data_type', 'condition'
         fields = [f"\n \t{fs[x][sf]} {fs[x][dt]} {fs[x][c]}" for x in range(len(fs))]
-
         # write the .as file
         asr.writelines(title)
         asr.writelines(fields)
