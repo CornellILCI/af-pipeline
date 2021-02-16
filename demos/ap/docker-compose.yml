@@ -1,0 +1,52 @@
+#docker-compose.yaml
+version: "3.4"
+services:
+  # redis:
+  #   image: redis:latest
+  #   hostname: redis
+  
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:management
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  # jobapi:
+  #   build:
+  #     context: ./jobapi
+  #     dockerfile: Dockerfile
+  #     command: ./scripts/run_api.sh
+  #   depends_on:
+  #     - redis
+  
+  worker:
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    working_dir: /app
+    command: ["celery", "-A", "orchestrator.app", "worker", "--pool=gevent", "--concurrency=20", "-l", "debug" ]
+    environment:
+      - BROKER=amqp://admin:mypass@rabbitmq:5672
+      - BACKEND=rpc://
+      - CONSUMER_QUEUE=jobs
+    links:
+      - rabbitmq
+    depends_on:
+      - rabbitmq
+
+  # beat:
+  #   build:
+  #     context: ./orchestrator
+  #     dockerfile: Dockerfile
+  #   image: *img
+  #   command: [celery, beat, --app=worker.app, --loglevel=INFO]
+  #   depends_on:
+  #     - rabbitmq
+  #   restart: 'no'
+  #   volumes:
+  #     - ./app:/app
+      
+  
