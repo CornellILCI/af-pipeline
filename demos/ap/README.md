@@ -44,4 +44,16 @@ or
 
 ...and watch celery execute our workflow through the logs.
 
+### How To Run Without Docker/Docker-compose
+
+1.  You should have RabbitMQ running.
+2.  You'll need to set the following env vars:
+
+* `BROKER='amqp://<rabbituser>:<rabbitpass>@localhost:5672'`
+* `BACKEND='rpc://'`
+* `CONSUMER_QUEUE=jobs`
+
+3.  Install python requirements: (on ap folder)  `pip3 install -r requirements.txt`
+4.  You can celery worker:  (on ap folder) `celery -A orchestrator.app worker --pool=gevent --concurrency=20 -l debug`
+
 
