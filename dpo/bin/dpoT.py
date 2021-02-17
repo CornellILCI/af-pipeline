@@ -1,4 +1,4 @@
-from dpoB import  Dpo
+from dpo import  Dpo
 import  sys, os, argparse
 import  pytest
 aeoPython = os.environ["EBSAF_ROOT"] + "/aeo/python"
@@ -17,12 +17,3 @@ request = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
 i = Dpo(request)
 
 print(i.request)
-
-
-# def f(x):
-#     return x**2
-#
-# def test():
-#     assert f(3) ==9
-#     assert f(2) ==7
-
