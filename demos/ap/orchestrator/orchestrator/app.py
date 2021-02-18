@@ -16,7 +16,8 @@ LOGGER = get_task_logger(__name__)
 
 INSTALLED_WORKFLOWS = [
     "orchestrator.common",
-    "orchestrator.workflows.sample_workflow"
+    "orchestrator.workflows.sample_workflow",
+    "orchestrator.workflows.sample_workflow_2"
 ]
 
 

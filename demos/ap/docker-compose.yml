@@ -1,9 +1,9 @@
 #docker-compose.yaml
 version: "3.4"
 services:
-  # redis:
-  #   image: redis:latest
-  #   hostname: redis
+  redis:
+    image: redis:latest
+    hostname: redis
   
   rabbitmq:
     hostname: rabbitmq
@@ -17,8 +17,8 @@ services:
   # jobapi:
   #   build:
   #     context: ./jobapi
-  #     dockerfile: Dockerfile
-  #     command: ./scripts/run_api.sh
+  #        dockerfile: Dockerfile
+
   #   depends_on:
   #     - redis
   

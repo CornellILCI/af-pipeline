@@ -53,7 +53,7 @@ or
 * `BACKEND='rpc://'`
 * `CONSUMER_QUEUE=jobs`
 
-3.  Install python requirements: (on ap folder)  `pip3 install -r requirements.txt`
+3.  Install python requirements: (on ap/orchestrator folder)  `pip3 install -r requirements.txt`
 4.  You can celery worker:  (on ap folder) `celery -A orchestrator.app worker --pool=gevent --concurrency=20 -l debug`
 
 
