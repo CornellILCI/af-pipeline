@@ -1,0 +1,103 @@
+{
+    "metadata": {
+        "pagination": {
+            "pageSize": 2,
+            "totalCount": 67,
+            "currentPage": 1,
+            "totalPages": 34
+        },
+        "status": [
+            {
+                "message": "Request has been successfully completed.",
+                "messageType": "INFO"
+            }
+        ],
+        "datafiles": []
+    },
+    "result": {
+        "data": [
+            {
+                "plotDbId": 59406,
+                "entryDbId": 72804,
+                "entryCode": "null#72804",
+                "entryNumber": 18,
+                "entryName": "IR 103715-B-B RGA-B RGA",
+                "entryType": "entry",
+                "entryRole": null,
+                "entryClass": null,
+                "entryStatus": "active",
+                "germplasmDbId": 92004,
+                "germplasmCode": "GE000000004354",
+                "parentage": "IR06N234/MILYANG 23//IR04A115 ",
+                "seedDbId": 98276,
+                "seedCode": "300000544",
+                "seedName": "300000544",
+                "packageDbId": 46627,
+                "packageCode": "101100011072013121210017",
+                "packageLabel": "IR 103715-B-B RGA-B RGA-SEEDS",
+                "plotCode": "1",
+                "plotNumber": 1,
+                "plotType": "plot",
+                "rep": 1,
+                "designX": null,
+                "designY": null,
+                "plotOrderNumber": 1,
+                "paX": null,
+                "paY": null,
+                "fieldX": null,
+                "fieldY": null,
+                "blockNumber": 1,
+                "harvestStatus": "NO_HARVEST",
+                "plotStatus": "active",
+                "plotQcCode": "G",
+                "creationTimestamp": "2020-10-30T09:33:16.203Z",
+                "creatorDbId": 1,
+                "creator": "Irri, Bims",
+                "modificationTimestamp": "2020-10-30T09:35:25.401Z",
+                "modifierDbId": null,
+                "modifier": null
+            },
+            {
+                "plotDbId": 285118,
+                "entryDbId": 280279,
+                "entryCode": "null#280279",
+                "entryNumber": 22,
+                "entryName": "IR 100136-B-B RGA-B RGA",
+                "entryType": "entry",
+                "entryRole": null,
+                "entryClass": null,
+                "entryStatus": "active",
+                "germplasmDbId": 210029,
+                "germplasmCode": "GE000000012174",
+                "parentage": "IR10A125/MILYANG 23 ",
+                "seedDbId": 205464,
+                "seedCode": "300000568",
+                "seedName": "300000568",
+                "packageDbId": 189494,
+                "packageCode": "101100011072013121210010",
+                "packageLabel": "IR 100136-B-B RGA-B RGA-SEEDS",
+                "plotCode": "2#285118",
+                "plotNumber": 2,
+                "plotType": "plot",
+                "rep": 1,
+                "designX": null,
+                "designY": null,
+                "plotOrderNumber": 2,
+                "paX": null,
+                "paY": null,
+                "fieldX": null,
+                "fieldY": null,
+                "blockNumber": 1,
+                "harvestStatus": "NO_HARVEST",
+                "plotStatus": "active",
+                "plotQcCode": "G",
+                "creationTimestamp": "2020-10-30T09:33:16.203Z",
+                "creatorDbId": 1,
+                "creator": "Irri, Bims",
+                "modificationTimestamp": "2020-10-30T09:42:34.357Z",
+                "modifierDbId": null,
+                "modifier": null
+            }
+        ]
+    }
+}
