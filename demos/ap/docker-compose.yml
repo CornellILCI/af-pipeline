@@ -14,9 +14,9 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-  # jobapi:
+  # api:
   #   build:
-  #     context: ./jobapi
+  #     context: ./api
   #        dockerfile: Dockerfile
 
   #   depends_on:

@@ -17,7 +17,12 @@ LOGGER = get_task_logger(__name__)
 INSTALLED_WORKFLOWS = [
     "orchestrator.common",
     "orchestrator.workflows.sample_workflow",
-    "orchestrator.workflows.sample_workflow_2"
+    "orchestrator.workflows.sample_workflow_2",
+    "orchestrator.tasks.calculation",
+    "orchestrator.tasks.data_gathering",
+    "orchestrator.tasks.data_upload",
+    "orchestrator.tasks.workflow",
+    "orchestrator.routes.example_route"
 ]
 
 
