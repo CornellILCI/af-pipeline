@@ -9,6 +9,7 @@ import common
 import config
 
 SEARCH_PLOTS_BY_OCCURRENCE_URL = "/occurrences/{occurrence_id}/plots-search"
+# we'll fill that dynamically
 
 
 class PlotsReader:
@@ -23,5 +24,7 @@ class PlotsReader:
 
         plots_url = common.url_join(config.API_BASE_URL,
                                     SEARCH_PLOTS_BY_OCCURRENCE_URL)
+                                    # config has the environment variable
+                                    # plots by occurrence
         data = {}
         return pd.DataFrame(data)
