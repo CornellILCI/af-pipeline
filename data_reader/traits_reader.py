@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 import common
 import config
 
-SEARCH_TRAITS_BY_OCCURRENCE_URL = "/occurrences/{occurrence_id}/plots-search"
+SEARCH_MEAS_BY_PLOT_DATA = "/plot-data/{plot_data_id}/plots-data-search"
 
 
 class TraitsReader:
