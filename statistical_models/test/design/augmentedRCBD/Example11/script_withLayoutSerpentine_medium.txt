@@ -1,0 +1,3 @@
+# with layout, serpentine = TRUE, medium
+
+Rscript runAugmentedRCBD.R --nCheckTreatment 6  --nTestTreatment 80 --nRep 4 --nTrial 3 --genLayout T --nRowPerRep 13 --nFieldRow 26 --serpentine T -o "AugmentedRCBD_Output11" -p "D:/AugmentedRCBD_Output_withLayoutSerpentine_Medium"

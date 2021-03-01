@@ -1,0 +1,11 @@
+DESIGN PROPERTIES:
+	Augmented Randomized Complete Block Design (Augmented RCBD)
+
+DESIGN PARAMETERS
+	Number of Trials = 3
+	Number of Replicated Treatments = 6
+	Levels of Replicated Treatments = check1, check2, check3, ..., check6
+	Number of Blocks = 4
+	Number of UnReplicated Treatments = 800
+	Levels of UnReplicated Treatments = new1, new2, new3, ..., new800
+

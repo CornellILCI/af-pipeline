@@ -1,0 +1,20 @@
+This will contain test input and output files for each 
+analysis in their respective directories. 
+
+The subdirectory structure of the test directory is as follows:
+-  <design>
+   -  Example1
+      - input data
+      - output data
+      - script
+   -  Example2
+      - input data
+      - output data
+      - script
+   .
+   .
+   .
+
+<design> = Alpha Lattice
+
+In each example subdirectory, the input folder will contain sample script that can be run on the terminal.

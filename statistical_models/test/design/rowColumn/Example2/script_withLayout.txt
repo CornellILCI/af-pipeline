@@ -1,0 +1,2 @@
+#with layout, plot order (serpentine FALSE)
+Rscript runROWCOLUMN.R --nTreatment 20 --nRowBlk 4 --nRep 4 --nTrial 3 --genLayout T --nFieldRow 8 --serpentine F -o "RowColumn" -p "D:/RowColumn_Output2"

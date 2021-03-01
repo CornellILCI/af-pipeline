@@ -1,0 +1,27 @@
+{
+    "metadata":{
+        "id": "ALPHA_cimmyt_SD_0000",
+        "category": "Desing",
+        "type": "Trial Design",
+	"engine": "R 3.4.4",
+        "method": "randALPHALATTICEcimmyt",
+        "design": "Alpha-Lattice",
+        "timeStamp": "",
+        "requestorId": "",
+        "organization_code": "CIMMYT",
+        "crop": "MAIZE",
+        "program": "GMP",
+        "experiment_id": 56485987563,
+        "occurrence_id": [3321054,3321055]
+  },
+    "parameters":{
+        "entryList": "ALPHA_cimmyt_SD_0001.lst",
+        "nRep": 2,
+        "nTrial": 2,
+        "genLayout":"T",
+        "sBlk": 4,
+        "nFieldRow": 6,
+        "nPlotBarrier": 4, 
+        "serpentine": "T"
+    }
+}

@@ -1,0 +1,29 @@
+README for randomization Folder
+6 May 2020
+
+This folder stores randomization scripts. Each script has 
+a corresponding definition file that describes how it is 
+executed.
+
+Install all the required packages first using 
+installPackages.R. It requires sudo and the global 
+environment variable "EBSAF_ROOT" set to where ebs-af is 
+located.
+
+To set the global environment variable EBSAF_ROOT, add the
+following line to /etc/environment (replace with your own 
+settings):
+
+EBSAF_ROOT=/home/admin/ebs-af
+
+*You might need to restart your computer.
+
+Check if EBSAF_ROOT is set by typing the following:
+
+$ echo $EBSAF_ROOT
+
+It should display the path you set.
+
+Run installPackages.R:
+
+$ sudo ./installPackages.R

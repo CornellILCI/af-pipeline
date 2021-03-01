@@ -1,0 +1,17 @@
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=RCBDSMALL Rscript runRCBD_cimmyt.R --nTreatment 10 --nRep 4 --nTrial 3 --genLayout T --nFieldRow 5 --nPlotBarrier 2 --outputFile test_RCBD_1
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=RCBDMEDIUM Rscript runRCBD_cimmyt.R --nTreatment 100 --nRep 4 --nTrial 3 --genLayout T --nFieldRow 20 --nPlotBarrier 10 --outputFile test_RCBD_2
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=RCBDBIG Rscript runRCBD_cimmyt.R --nTreatment 1000 --nRep 4 --nTrial 3 --genLayout T --nFieldRow 40 --nPlotBarrier 100 --outputFile test_RCBD_3
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=ALPHASMALL Rscript runALPHA_cimmyt.R --nTreatment 24 --nRep 2 --sBlk 4 --nTrial 3 --genLayout T --nFieldRow 8 --nPlotBarrier 2 --outputFile test_ALPHA_1
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=ALPHAMEDIUM Rscript runALPHA_cimmyt.R --nTreatment 100 --nRep 2 --sBlk 10 --nTrial 3 --genLayout T --nFieldRow 10 --nPlotBarrier 5 --outputFile test_ALPHA_2
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=ALPHABIG Rscript runALPHA_cimmyt.R --nTreatment 750 --nRep 2 --sBlk 10 --nTrial 3 --genLayout T --nFieldRow 50 --nPlotBarrier 5 --outputFile test_ALPHA_3
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=WHEATSMALL Rscript runALPHA_cimmyt_wheat.R --nTreatment 24 --nRep 2 --sBlk 4 --nTrial 3 --genLayout T --nFieldRow 8 --nPlotBarrier 2 --rand1 F --outputFile test_ALPHA_W_1
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=WHEATMEDIUM Rscript runALPHA_cimmyt_wheat.R --nTreatment 100 --nRep 2 --sBlk 10 --nTrial 3 --genLayout T --nFieldRow 10 --nPlotBarrier 5 --rand1 F --outputFile test_ALPHA_W_2
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=WHEATBIG Rscript runALPHA_cimmyt_wheat.R --nTreatment 750 --nRep 2 --sBlk 10 --nTrial 3 --genLayout T --nFieldRow 50 --nPlotBarrier 5 --rand1 F --outputFile test_ALPHA_W_3

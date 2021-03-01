@@ -1,0 +1,81 @@
+{
+	"metadata": {
+		"date": "2020-01-27",
+    	"author": "Alaine Gulles",
+    	"email": "a.gulles@irri.org"
+	},
+	"parameters": {
+		"nTrial": {
+			"definition": "number of occurrences"
+		},
+		"nTreatment": {
+			"definition": "number of entries"
+		},
+		"nCheckTreatment": {
+			"definition": "number of checks or replicated entries"
+		},
+		"nTestTreatment": {
+			"definition": "number of test or unreplicated entries"
+		},
+		"nRep": {
+			"definition": "number of replicates (or blocks, in the case of randomized complete block design)"
+		},
+		"nBlk": {
+			"definition": "number of blocks (Alpha Lattice design)"
+		},
+		"nRowBlk": {
+			"definition": "number of row blocks (Row-Column design)"
+		},
+		"genLayout": {
+			"definition": "logical; if TRUE, layout will be generated"
+		},
+		"nFieldRow": {
+			"definition": "total number of field rows, required if genLayout is TRUE"
+		},
+		"nRowPerRep": {
+			"definition": "number of rows per replicate, required if genLayout is TRUE"
+		},
+		"nRowPerBlk": {
+			"definition": "number of rows per block, required if genLayout is TRUE"
+		},
+		"serpentine": {
+			"definition": "logical; if TRUE, plot numbers will be in serpentine arrangement, required if genLayout is TRUE"
+		},
+		"outputFile": {
+			"definition": "prefix to be used for the names of the output files"
+		},
+		"outputPath": {
+			"definition": "path where output will be saved"
+		},
+		"data": {
+			"description": "name of the phenotypic dataset in csv format"
+		},
+		"trialName": {
+			"description": "name of the column in the data which pertains to the occurrence"
+		},
+		"trait": {
+			"description": "name of the column in the data which pertains to the response variable to be analyze"
+		},
+		"treatmentName": {
+			"description": "name of the column in the data which corresponds to the entry/treatment"
+		},
+		"replicateName": {
+			"description": "name of the column in the data which corresponds to the replicate"
+		},
+		"blockName": {
+			"description": "name of the column in the data which corresponds to the block information (for Alpha Lattice design)"
+		},
+		"rowBlockName": {
+			"description": "name of the column in the data which corresponds to the row block information (for Row-Column design)"
+		},
+		"columnBlockName": {
+			"description": "name of the column in the data which corresponds to the column block information (for Row-Column design)"
+		},
+		"fieldRowName": {
+			"description": "name of the column in the data which corresponds to the field row information"
+		},
+		"fieldColumnName": {
+			"description": "name of the column in the data which corresponds to the field column information"
+		}
+	}
+}

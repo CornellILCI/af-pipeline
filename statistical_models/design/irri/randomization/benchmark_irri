@@ -1,0 +1,23 @@
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=AUGSMALL Rscript runAUGMENTEDRCBD.R --nCheckTreatment 6 --nTestTreatment 8 --nRep 4 --nTrial 3 --genLayout T --nRowPerRep 4 --nFieldRow 8 --serpentine T -o "AugmentedRCBD_Output10" -p "AugmentedRCBD_Output_withLayoutSerpentine_Small"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=AUGMEDIUM Rscript runAUGMENTEDRCBD.R --nCheckTreatment 6 --nTestTreatment 80 --nRep 4 --nTrial 3 --genLayout T --nRowPerRep 13 --nFieldRow 26 --serpentine T -o "AugmentedRCBD_Output11" -p "AugmentedRCBD_Output_withLayoutSerpentine_Medium"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=AUGBIG Rscript runAUGMENTEDRCBD.R --nCheckTreatment 6 --nTestTreatment 800 --nRep 4 --nTrial 3 --genLayout T --nRowPerRep 103 --nFieldRow 206 --serpentine T -o "AugmentedRCBD_Output12" -p "AugmentedRCBD_Output_withLayoutSerpentine_Large"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=RCBDSMALL Rscript runRCBD.R --nTreatment 10 --nRep 4 --nTrial 3 --genLayout T --nRowPerRep 5 --nFieldRow 5 --serpentine T -o "RCBD_Output10" -p "Rcbd_Output_WithLayoutSerpentine_Small"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=RCBDMEDIUM Rscript runRCBD.R --nTreatment 100 --nRep 4 --nTrial 3 --genLayout T --nRowPerRep 10 --nFieldRow 20 --serpentine T -o "RCBD_Output11" -p "Rcbd_Output_WithLayoutSerpentine_Medium"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=RCBDBIG Rscript runRCBD.R --nTreatment 1000 --nRep 4 --nTrial 3 --genLayout T --nRowPerRep 10 --nFieldRow 40 --serpentine T -o "RCBD_Output12" -p "Rcbd_Output_WithLayoutSerpentine_Large"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=ALPHASMALL Rscript runALPHALATTICE.R --nTreatment 24 --nBlk 4 --nRep 2 --nTrial 2 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine T -o AlphaLattice -p "Alpha Lattice_Output_WithLayout_Serpentine_Small"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=ALPHAMEDIUM Rscript runALPHALATTICE.R --nTreatment 100 --nBlk 10 --nRep 2 --nTrial 2 --genLayout T --nRowPerBlk 5 --nRowPerRep 5 --nFieldRow 10 --serpentine T -o AlphaLattice -p "AlphaLattice_Output_WithLayout_Serpentine_Medium"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=ALPHABIG Rscript runALPHALATTICE.R --nTreatment 750 --nBlk 10 --nRep 2 --nTrial 2 --genLayout T --nRowPerBlk 25 --nRowPerRep 25 --nFieldRow 50 --serpentine T -o AlphaLattice -p "Alpha Lattice_Output_WithLayout_Serpentine_Large"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=ROWCOLSMALL Rscript runROWCOLUMN.R --nTreatment 24 --nRowBlk 4 --nRep 4 --nTrial 3 --genLayout T --nFieldRow 8 --serpentine T -o "RowColumn_Output10" -p "RowColumn_Output_WithLayout_Serpentine_Small"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=ROWCOLMEDIUM Rscript runROWCOLUMN.R --nTreatment 100 --nRowBlk 10 --nRep 2 --nTrial 3 --genLayout T --nFieldRow 20 --serpentine T -o "RowColumn_Output11" -p "RowColumn_Output_WithLayout_Serpentine_Medium"
+
+/usr/bin/time --format="Command: '%C'\nTime   : '%E'" --output=ROWCOLBIG Rscript runROWCOLUMN.R --nTreatment 750 --nRowBlk 25 --nRep 2 --nTrial 3 --genLayout T --nFieldRow 50 --serpentine T -o "RowColumn_Output12" -p "RowColumn_Output_WithLayout_Serpentine_Large"

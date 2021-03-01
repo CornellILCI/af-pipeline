@@ -1,0 +1,3 @@
+# without layout, large
+
+Rscript runRCBD.R --nTreatment 1000 --nRep 4 --nTrial 3 --genLayout F -o "RCBD_Output6" -p "D:/RCBD_Output_NoLayout_Large"

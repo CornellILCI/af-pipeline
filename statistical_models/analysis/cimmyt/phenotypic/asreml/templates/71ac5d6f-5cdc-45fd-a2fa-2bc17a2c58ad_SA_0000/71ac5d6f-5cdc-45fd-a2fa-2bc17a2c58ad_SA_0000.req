@@ -1,0 +1,36 @@
+{
+    "metadata": {
+        "id": "71ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ad_SA_0000",
+        "category": "Analysis",
+        "type": "Phenotypic Analysis",
+        "engine": "ASReml-4",
+        "timestamp": "",
+        "requestorId": "",
+        "organization_code": "CIMMYT",
+        "crop": "MAIZE",
+        "program": "GRM",
+        "pipeline": ""
+    },
+    "data": {
+        "experiment_id": [
+            "4"
+        ],
+        "occurrence_id": [
+            "8","10"
+        ],
+        "trait_id": [
+            "1","3"
+        ]
+    },
+    "parameters": {
+        "analysisObjective": 1,
+        "trait_analysis_pattern": 1,
+        "exptloc_analysis_pattern": 2,
+        "configFile": "config_00002",
+        "formula": 2,
+        "residual": 5,
+        "prediction": [
+            2
+        ]
+    }
+}

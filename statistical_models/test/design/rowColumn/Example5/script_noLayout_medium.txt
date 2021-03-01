@@ -1,0 +1,3 @@
+# without layout, medium
+
+Rscript runROWCOLUMN.R --nTreatment 100 --nRowBlk 10 --nRep 2 --nTrial 3 --genLayout F -o "RowColumn_Output5" -p "D:/RowColumn_Output_NoLayout_Medium"

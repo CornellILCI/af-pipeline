@@ -1,0 +1,14 @@
+DESIGN PROPERTIES:
+	Incomplete Block Design
+	Row-Column Design
+
+DESIGN PARAMETERS:
+	Number of Trials = 3
+	Number of Treatments = 20
+	Number of Replicates = 4
+	Number of Rows per Replicate = 4
+	Number of Columns per Replicate = 5
+
+	Number of Field Rows = 8
+	Number of Field Columns = 10
+

@@ -1,0 +1,2 @@
+#sample without layout
+Rscript runRCBD.R --nTreatment 25 --nRep 4 --nTrial 4 --genLayout F -o RCBD_Expt1 -p "D:/RCBD_Output1"

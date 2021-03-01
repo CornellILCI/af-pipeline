@@ -1,0 +1,40 @@
+Parameter	Description	Design
+nTreatment	number of entries	RCBD
+nRep	number of replicates or blocks	RCBD
+nTrial	number of location reps (trials)	RCBD
+genLayout	"if TRUE, layout will be generated"	RCBD
+nFieldRow	"number of field rows, required if genLayout is TRUE"	RCBD
+nRowPerRep	"number of rows per replicate, required if genLayout is TRUE"	RCBD
+serpentine	"if TRUE, plot numbers will be in serpentine arrangement, required if genLayout is TRUE"	RCBD
+outputFile	prefix to be used for the names of the output files	RCBD
+outputPath	path where output will be saved	RCBD
+nTreatment	number of entries	Alpha Lattice
+nRep	number of blocks or replicates	Alpha Lattice
+nBlk	number of blocks	Alpha Lattice
+nTrial	number of location reps (trials)	Alpha Lattice
+genLayout	"if TRUE, layout will be generated"	Alpha Lattice
+nFieldRow	"number of field rows, required if genLayout is TRUE"	Alpha Lattice
+nRowPerRep	"number of rows per replicate, required if genLayout is TRUE"	Alpha Lattice
+nRowPerBlk	"number of rows per block, required if genLayout is TRUE"	Alpha Lattice
+serpentine	"if TRUE, plot numbers will be in serpentine arrangement, required if genLayout is TRUE"	Alpha Lattice
+outputFile	prefix to be used for the names of the output files	Alpha Lattice
+outputPath	path where output will be saved	Alpha Lattice
+nTreatment	number of entries	Row-Column
+nRowBlk	number of row blocks	Row-Column
+nRep	number of replicates	Row-Column
+nTrial	number of location reps (trials)	Row-Column
+genLayout	"if TRUE, layout will be generated"	Row-Column
+nFieldRow	"number of field rows, required if genLayout is TRUE"	Row-Column
+serpentine	"if TRUE, plot numbers will be in serpentine arrangement, required if genLayout is TRUE"	Row-Column
+outputFile	prefix to be used for the names of the output files	Row-Column
+outputPath	path where output will be saved	Row-Column
+nCheckTreatment	number of checks or replicated entries	Augmented RCBD
+nTestTreatment	number of test or unreplicated entries	Augmented RCBD
+nRep	number of replicates	Augmented RCBD
+nTrial	number of location reps (trials)	Augmented RCBD
+genLayout	"if TRUE, layout will be generated"	Augmented RCBD
+nFieldRow	"number of field rows, required if genLayout is TRUE"	Augmented RCBD
+nRowPerRep	"number of rows per replicate, required if genLayout is TRUE"	Augmented RCBD
+serpentine	"if TRUE, plot numbers will be in serpentine arrangement, required if genLayout is TRUE"	Augmented RCBD
+outputFile	prefix to be used for the names of the output files	Augmented RCBD
+outputPath	path where output will be saved	Augmented RCBD
