@@ -1,3 +1,0 @@
-# sample without layout, medium number of entries
-
-Rscript runALPHALATTICE.R --nTreatment 100 --nBlk 10 --nRep 2 --nTrial 3 --genLayout F -o "Alpha Lattice" -p "D:/Alpha Lattice_Output_NoLayout_Medium"

@@ -1,3 +1,0 @@
-# sample with layout, serpentine = FALSE, small number of entries
-
-Rscript runALPHALATTICE.R --nTreatment 24 --nBlk 4 --nRep 2 --nTrial 3 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine F -o "Alpha Lattice" -p "D:/Alpha Lattice_Output_WithLayout_Small"

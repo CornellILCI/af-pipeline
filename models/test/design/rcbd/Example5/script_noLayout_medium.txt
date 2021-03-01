@@ -1,3 +1,0 @@
-# without layout, medium
-
-Rscript runRCBD.R --nTreatment 100 --nRep 4 --nTrial 3 --genLayout F -o "RCBD_Output5" -p "D:/RCBD_Output_NoLayout_Medium"

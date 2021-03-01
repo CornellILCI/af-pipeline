@@ -1,3 +1,0 @@
-# with layout, serpentine = FALSE, medium
-
-Rscript runROWCOLUMN.R --nTreatment 100 --nRowBlk 10 --nRep 2 --nTrial 3 --genLayout T --nFieldRow 20 --serpentine F -o "RowColumn_Output8" -p "D:/RowColumn_Output_WithLayout_Medium"

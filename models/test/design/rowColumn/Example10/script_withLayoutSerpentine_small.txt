@@ -1,3 +1,0 @@
-# with layout, serpentine = TRUE, small
-
-Rscript runROWCOLUMN.R --nTreatment 24 --nRowBlk 4 --nRep 4 --nTrial 3 --genLayout T --nFieldRow 8 --serpentine T -o "RowColumn_Output10" -p "D:/RowColumn_Output_WithLayoutSerpentine_Small"

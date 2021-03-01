@@ -1,4 +1,0 @@
-# with layout, Serpentine = FALSE, small
-
-Rscript runAugmentedRCBD.R --nCheckTreatment 6  --nTestTreatment 8 --nRep 4 --nTrial 3 --genLayout T --nRowPerRep 8 --nFieldRow 16 --serpentine F -o "AugmentedRCBD_Output7" -p "D:/AugmentedRCBD_Output_withLayout_Small"
-

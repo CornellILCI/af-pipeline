@@ -1,2 +1,0 @@
-#without layout
-Rscript runAUGMENTEDRCBD.R --nCheckTreatment 6 --nTestTreatment 8 --nRep 4 --nTrial 2 --genLayout F -o AugRCBD1 -p "D:/AugmentedRCBD_Output1"

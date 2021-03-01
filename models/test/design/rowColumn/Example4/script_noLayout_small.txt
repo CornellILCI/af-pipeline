@@ -1,3 +1,0 @@
-# without layout, small
-
-Rscript runROWCOLUMN.R --nTreatment 24 --nRowBlk 4 --nRep 4 --nTrial 3 --genLayout F -o "RowColumn_Output4" -p "D:/RowColumn_Output_NoLayout_Small"
