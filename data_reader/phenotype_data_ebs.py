@@ -40,7 +40,6 @@ class PhenotypeDataEbs:
     def get_plot_data_by_occurrence_id(
             self,
             occurrence_id: int = None) -> pd.DataFrame:
-
         raise NotImplementedError
 
     def get_experiment(self, experiment_id: int = None) -> Experiment:
