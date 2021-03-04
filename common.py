@@ -1,6 +1,18 @@
-# For common utils methos across packages
+# For common utils methods across packages
 
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
+
+
+def valid_url(url):
+    """ retruns True if url is a valid http url"""
+
+    valid_schemes = {"http", "https"}
+
+    if not isinstance(url, str) or not url.strip():
+        return False
+    urlparts = urlparse(url)
+
+    return urlparts.scheme in valid_schemes
 
 
 def url_join(base_url: str, relative_url: str) -> str:
