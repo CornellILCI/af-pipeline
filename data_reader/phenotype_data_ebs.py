@@ -1,19 +1,17 @@
-import os
-import requests
-
 import pandas as pd
-
-import common
-import config
 
 from models.experiment import Experiment
 from models.trait import Trait
 
+from data_reader.phenotype_data import PhenotypeData
+
+from exceptions import DataReaderException
+
 SEARCH_PLOTS_BY_OCCURRENCE_URL = "/occurrences/{occurrence_id}/plots-search"
 
 
-class PhenotypeDataEbs:
-    """ reads plots data from data source through API.
+class PhenotypeDataEbs(PhenotypeData):
+    """ reads phenotype data from a ebs data source.
     """
 
     API_FIELDS_TO_LOCAL_FIELDS = {
@@ -26,18 +24,28 @@ class PhenotypeDataEbs:
         "plotQcCode": "plot_qc"
     }
 
-    def __init__(self, **kwargs):
-        pass
-
     def get_plots_by_occurrence_id(self,
                                    occurrence_id: int = None) -> pd.DataFrame:
 
-        plots_url = common.url_join(config.API_BASE_URL,
-                                    SEARCH_PLOTS_BY_OCCURRENCE_URL)
-        data = {}
-        return pd.DataFrame(data)
+        plots_endpoint = SEARCH_PLOTS_BY_OCCURRENCE_URL.format(
+            occurrence_id=occurrence_id)
 
-    def get_plot_data_by_occurrence_id(
+        api_response = self.post(endpoint=plots_endpoint)
+
+        if not api_response.is_success:
+            raise DataReaderException(api_response.error)
+
+        plots_data = api_response.body["result"]["data"]
+
+        plots_df = pd.DataFrame(plots_data)
+        plots_df.rename(
+            columns=self.API_FIELDS_TO_LOCAL_FIELDS,
+            inplace=True
+        )
+
+        return plots_df
+
+    def get_plots_measurements_by_occurrence_id(
             self,
             occurrence_id: int = None) -> pd.DataFrame:
         raise NotImplementedError
