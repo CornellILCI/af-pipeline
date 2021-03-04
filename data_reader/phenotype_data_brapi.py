@@ -1,7 +1,6 @@
 import pandas as pd
 
-from models.experiment import Experiment
-from models.trait import Trait
+from models import Experiment, Occurrence, Trait
 
 from data_reader.phenotype_data import PhenotypeData
 
@@ -17,13 +16,15 @@ class PhenotypeDataBrapi(PhenotypeData):
     API_FIELDS_TO_LOCAL_FIELDS = {
     }
 
-    def get_plots_by_occurrence_id(self,
-                                   occurrence_id: int = None) -> pd.DataFrame:
+    def get_plots(self, occurrence_id: int = None) -> pd.DataFrame:
         raise NotImplementedError
 
-    def get_plots_measurements_by_occurrence_id(
+    def get_plot_measurements(
             self,
             occurrence_id: int = None) -> pd.DataFrame:
+        raise NotImplementedError
+
+    def get_occurrence(self, occurrence_id: int = None) -> Occurrence:
         raise NotImplementedError
 
     def get_experiment(self, experiment_id: int = None) -> Experiment:

@@ -13,13 +13,15 @@ class PhenotypeData(ABC, DataReader):
     """
 
     @abstractmethod
-    def get_plots_by_occurrence_id(self, occurrence_id: str) -> pd.DataFrame:
+    def get_plots(self, occurrence_id: str) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def get_plots_measurements_by_occurrence_id(self,
-                                                occurrence_id: str
-                                                ) -> pd.DataFrame:
+    def get_plot_measurements(self, occurrence_id: str) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    def get_occurrence(seld, occurrence_id: str) -> pd.DataFrame:
         pass
 
     @abstractmethod
