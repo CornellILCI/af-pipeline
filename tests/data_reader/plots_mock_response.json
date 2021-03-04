@@ -17,8 +17,8 @@
     "result": {
         "data": [
             {
-                "plotDbId": 59406,
-                "entryDbId": 72804,
+                "plotDbId": 2909,
+                "entryDbId": 180,
                 "entryCode": "null#72804",
                 "entryNumber": 18,
                 "entryName": "IR 103715-B-B RGA-B RGA",
@@ -42,8 +42,8 @@
                 "designX": null,
                 "designY": null,
                 "plotOrderNumber": 1,
-                "paX": null,
-                "paY": null,
+                "paX": 3,
+                "paY": 5,
                 "fieldX": null,
                 "fieldY": null,
                 "blockNumber": 1,
@@ -58,8 +58,8 @@
                 "modifier": null
             },
             {
-                "plotDbId": 285118,
-                "entryDbId": 280279,
+                "plotDbId": 2910,
+                "entryDbId": 103,
                 "entryCode": "null#280279",
                 "entryNumber": 22,
                 "entryName": "IR 100136-B-B RGA-B RGA",
@@ -83,8 +83,8 @@
                 "designX": null,
                 "designY": null,
                 "plotOrderNumber": 2,
-                "paX": null,
-                "paY": null,
+                "paX": 4,
+                "paY": 5,
                 "fieldX": null,
                 "fieldY": null,
                 "blockNumber": 1,
