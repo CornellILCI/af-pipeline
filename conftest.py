@@ -13,11 +13,35 @@ def get_ebs_plots_response():
 
     mock_response_file_path = (
         os.path.join(sys.path[0],
-                     "plots_mock_response.json"))
+                     "tests/data_reader/plots_mock_response.json"))
     with open(mock_response_file_path) as mock_response_file:
         test_plot_data = json.load(mock_response_file)
 
     return test_plot_data
+
+
+def get_ebs_unauthorized_error_response():
+    error_response = """{
+        "metadata": {
+            "pagination": {
+                "pageSize": null,
+                "totalCount": null,
+                "currentPage": null,
+                "totalPages": null
+            },
+            "status": [
+                {
+                    "message": "",
+                    "messageType": "Unauthorized"
+                }
+            ],
+            "datafiles": []
+        },
+        "result": {
+            "data": []
+        }
+    }"""
+    return json.loads(error_response)
 
 
 def get_test_plots():
