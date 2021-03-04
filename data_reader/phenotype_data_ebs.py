@@ -8,7 +8,7 @@ from data_reader.phenotype_data import PhenotypeData
 
 from exceptions import DataReaderException
 
-SEARCH_PLOTS_ENDPOINT = "/plots-search"
+SEARCH_PLOTS_ENDPOINT = "/occurrences/{occurrence_id}/plots-search"
 
 SEARCH_OCCRRENCES_ENDPOINT = "/occurrences-search"
 
@@ -29,12 +29,9 @@ class PhenotypeDataEbs(PhenotypeData):
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
 
-        search_query = {
-            "occurrenceDbId": occurrence_id
-        }
+        plots_url = SEARCH_PLOTS_ENDPOINT.format(occurrence_id=occurrence_id)
 
-        api_response = self.post(endpoint=SEARCH_PLOTS_ENDPOINT,
-                                 data=search_query)
+        api_response = self.post(endpoint=plots_url)
 
         if not api_response.is_success:
             raise DataReaderException(api_response.error)
