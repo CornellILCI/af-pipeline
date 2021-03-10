@@ -1,4 +1,5 @@
 import os
+import json
 
 from flask import Flask, request, jsonify
 from pika import BlockingConnection, ConnectionParameters
@@ -25,14 +26,14 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE")
 @app.route('/jobs', methods=['POST'])
 def create_job():
     content = request.json
-    print(jsonify(content))
+
     #
     conn = get_connection()
     channel = conn.channel()
     channel.basic_publish(
         exchange='',
         routing_key=CONSUMER_QUEUE,
-        body=jsonify(content)
+        body=json.dumps(content)
     )
     conn.close()
     return jsonify({"status": "ok"}), 201
