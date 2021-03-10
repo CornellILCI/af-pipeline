@@ -1,9 +1,9 @@
 #docker-compose.yaml
 version: "3.4"
 services:
-  redis:
-    image: redis:latest
-    hostname: redis
+  # redis:
+  #   image: redis:latest
+  #   hostname: redis
   
   rabbitmq:
     hostname: rabbitmq
@@ -14,13 +14,25 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-  # api:
-  #   build:
-  #     context: ./api
-  #        dockerfile: Dockerfile
+  
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    working_dir: /app
+    command: ["./gunicorn.sh"]
+    environment:
+      - CONSUMER_QUEUE=jobs
+      - MQ_EXCHANGE=
+      - MQ_HOST=rabbitmq
+      - MQ_PORT=5672
+      - MQ_USER=admin
+      - MQ_PASS=mypass
+    ports:
+      - "80:80"
 
-  #   depends_on:
-  #     - redis
+    depends_on:
+      - rabbitmq
   
   worker:
     build:

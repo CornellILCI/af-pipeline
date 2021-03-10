@@ -1,0 +1,4 @@
+Flask==1.1.2
+pika==1.2.0
+rabbitmq-pika-flask==0.0.10
+gunicorn==20.0.4

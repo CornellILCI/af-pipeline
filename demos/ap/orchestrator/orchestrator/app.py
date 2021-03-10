@@ -8,8 +8,6 @@ from event_consumer.handlers import AMQPRetryConsumerStep
 
 from .registry import WORKFLOW_REGISTRY
 
-
-
 BROKER = os.getenv("BROKER")
 BACKEND = os.getenv("BACKEND")
 CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE")
@@ -29,10 +27,12 @@ INSTALLED_WORKFLOWS = [
 
 @message_handler(CONSUMER_QUEUE)
 def process_external_requests(body):
-    LOGGER.warning('=============================================================================')
+    LOGGER.warning(
+        '=================================================================='
+    )
     LOGGER.warning(body)
     LOGGER.warning(str(type(body)))
-    if (isinstance(body, list)): 
+    if (isinstance(body, list)):
         body = body[1]
     # do some logging here
     else:
@@ -43,7 +43,7 @@ def process_external_requests(body):
         LOGGER.info(f"Workflow: {func.__name__} with ID:{job_id} initiated.")
         func(body)
         return
-    
+
     # else no func registered for workflow requested
     LOGGER.warning(
         "No available workflow func for request " + json.dumps(body)
@@ -55,4 +55,3 @@ def process_external_requests(body):
 app = Celery("ap-worker", broker=BROKER, backend=BACKEND)
 app.autodiscover_tasks(INSTALLED_WORKFLOWS)
 app.steps["consumer"].add(AMQPRetryConsumerStep)
-
