@@ -12,6 +12,8 @@ SEARCH_PLOTS_ENDPOINT = "/occurrences/{occurrence_id}/plots-search"
 
 SEARCH_OCCRRENCES_ENDPOINT = "/occurrences-search"
 
+SEARCH_EXPERIMENT_ENDPOINT = "/experiments/{id}"
+
 
 class PhenotypeDataEbs(PhenotypeData):
     """ reads phenotype data from a ebs data source.
@@ -66,7 +68,7 @@ class PhenotypeDataEbs(PhenotypeData):
 
         return plots_df
 
-    def get_plot_measurements(self, occurrence_id: str = None) -> pd.DataFrame:
+    def get_measurements(self, occurrence_id: str = None) -> pd.DataFrame:
         raise NotImplementedError
 
     def get_occurrence(self, occurrence_id: str = None) -> Occurrence:
@@ -109,7 +111,36 @@ class PhenotypeDataEbs(PhenotypeData):
         return Occurrence(**occurrence)
 
     def get_experiment(self, experiment_id: str = None) -> Experiment:
-        raise NotImplementedError
+
+        search_query = {
+        "experimentDbId": experiment_id
+        }
+
+        api_response = self.get(endpoint=SEARCH_EXPERIMENT_ENDPOINT,
+                                 data=search_query)
+
+        if not api_response.is_success:
+            raise DataReaderException(api_response.error)
+
+        result_list = api_response.body["result"]["data"]
+
+        if len(result_list) > 1:
+            raise DataReaderException("More than one resource found for id")
+        elif len(result_list) == 0:
+            raise DataReaderException("No Occurrence found")
+
+        # load it to model to make sure required fields are found
+        try:
+            _experiment_ebs = Experiment(**result_list[0])
+        except ValidationError as e:
+            raise DataReaderException(str(e))
+
+        experiment = {
+            "experimentDbId": _experiment_ebs.experimentDbId,
+        }
+
+        return Experiment(**experiment)
+
 
     def get_trait(self, trait_id: str = None) -> Trait:
         raise NotImplementedError

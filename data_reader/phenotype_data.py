@@ -17,7 +17,7 @@ class PhenotypeData(ABC, DataReader):
         pass
 
     @abstractmethod
-    def get_plot_measurements(self, occurrence_id: str) -> pd.DataFrame:
+    def get_measurements(self, occurrence_id: str) -> pd.DataFrame:
         pass
 
     @abstractmethod
