@@ -36,7 +36,7 @@ class DataReader:
                                is_success=False,
                                error=response.json())
 
-    def get(self, endpoint: str = None, **kwargs):
+    def get(self, endpoint: str = None, **kwargs) -> ApiResponse:
         """ subimits http GET requsts from the given endpoint
         params:
             endpoint: relative endpoint to base url

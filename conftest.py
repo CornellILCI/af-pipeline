@@ -9,11 +9,13 @@ import json
 
 os.environ["B4R_API_BASE_URL"] = ""
 
+
 def __read_mock_json_file(file_path):
     mock_response_file_path = os.path.join(sys.path[0], file_path)
     with open(mock_response_file_path) as mock_response_file:
         test_response = json.load(mock_response_file)
     return test_response
+
 
 def get_ebs_plots_response():
     """ returns a plots response json object to be used as mock """
@@ -26,6 +28,14 @@ def get_ebs_occurrence_response():
 
     return __read_mock_json_file(
         "tests/data_reader/occurrence_mock_response.json")
+
+
+def get_brapi_observation_units_response():
+    """ returns a mock brapi response for observation units """
+
+    return __read_mock_json_file(
+        "tests/data_reader/brapi_observationunits_mock_response.json")
+
 
 def get_ebs_unauthorized_error_response():
     error_response = """{

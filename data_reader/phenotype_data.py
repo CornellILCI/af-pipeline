@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 import pandas as pd
 
-from models.experiment import Experiment
-from models.trait import Trait
+from models import Experiment, Trait, Occurrence
 
 from data_reader.data_reader import DataReader
 
@@ -14,20 +13,25 @@ class PhenotypeData(ABC, DataReader):
 
     @abstractmethod
     def get_plots(self, occurrence_id: str) -> pd.DataFrame:
+        """Reads plots from api source and returns a dataframe."""
         pass
 
     @abstractmethod
     def get_plot_measurements(self, occurrence_id: str) -> pd.DataFrame:
+        """Reads plot measurements from api source and returns a dataframe"""
         pass
 
     @abstractmethod
-    def get_occurrence(seld, occurrence_id: str) -> pd.DataFrame:
+    def get_occurrence(seld, occurrence_id: str) -> Occurrence:
+        """Returns occurrence from api source"""
         pass
 
     @abstractmethod
     def get_experiment(self, experiment_id: str) -> Experiment:
+        """Returns an experiment from the api source"""
         pass
 
     @abstractmethod
     def get_trait(self, trait_id: str) -> Trait:
+        """Returns a trait from the api source"""
         pass

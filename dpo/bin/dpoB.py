@@ -131,6 +131,7 @@ class Dpo(object):
                 idx += 1
             idx2 += 1
 
+
     def semlFilter(self):
         traits = pd.DataFrame(self.arr["data"]["traitList"][0])
         for idx, trait in enumerate(traits['trait_id']):
