@@ -94,19 +94,17 @@ class PhenotypeDataEbs(PhenotypeData):
         except ValidationError as e:
             raise DataReaderException(str(e))
 
-        occurrence = {
-            "occurrence_id": _occurrence_ebs.occurrenceDbId,
-            "occurrence_name": _occurrence_ebs.occurrenceName,
-            "experiment_id": _occurrence_ebs.experimentDbId,
-            "experiment_name": _occurrence_ebs.experiment,
-            "location_id": _occurrence_ebs.locationDbId,
-            "location": _occurrence_ebs.location,
-            "rep_count": _occurrence_ebs.repCount,
-            "entry_count": _occurrence_ebs.entryCount,
-            "plot_count": _occurrence_ebs.plotCount
-        }
-
-        return Occurrence(**occurrence)
+        return Occurrence(
+            occurrence_id=_occurrence_ebs.occurrenceDbId,
+            occurrence_name=_occurrence_ebs.occurrenceName,
+            experiment_id=_occurrence_ebs.experimentDbId,
+            experiment_name=_occurrence_ebs.experiment,
+            location_id=_occurrence_ebs.locationDbId,
+            location=_occurrence_ebs.location,
+            rep_count=_occurrence_ebs.repCount,
+            entry_count=_occurrence_ebs.entryCount,
+            plot_count=_occurrence_ebs.plotCount
+        )
 
     def get_experiment(self, experiment_id: str = None) -> Experiment:
         raise NotImplementedError
