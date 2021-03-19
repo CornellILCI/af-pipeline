@@ -17,7 +17,7 @@ class PhenotypeDataEbs(PhenotypeData):
     """ reads phenotype data from a ebs data source.
     """
 
-    PLOTS_API_FIELDS_TO_LOCAL_FIELDS = {
+    plots_api_fields_to_local_fields = {
         "plotDbId": "plot_id",
         "entryDbId": "entry_id",
         "paX": "pa_x",
@@ -43,15 +43,15 @@ class PhenotypeDataEbs(PhenotypeData):
         # keep only local field columns
         plots_df_columns_to_drop = (
             set(plots_df.columns) -
-            self.PLOTS_API_FIELDS_TO_LOCAL_FIELDS.keys())
+            self.plots_api_fields_to_local_fields.keys())
         plots_df_columns_to_keep = (
-            self.PLOTS_API_FIELDS_TO_LOCAL_FIELDS.keys() -
+            self.plots_api_fields_to_local_fields.keys() -
             plots_df_columns_to_drop)
         plots_df = plots_df[plots_df_columns_to_keep]
 
         # rename dataframe column with local field names
         plots_df.rename(
-            columns=self.PLOTS_API_FIELDS_TO_LOCAL_FIELDS,
+            columns=self.plots_api_fields_to_local_fields,
             inplace=True
         )
 
@@ -64,7 +64,7 @@ class PhenotypeDataEbs(PhenotypeData):
         for column in columns_from_occurrence:
             plots_df[column] = occurrence.dict()[column]
 
-        return plots_df
+        return plots_df.astype(str)
 
     def get_plot_measurements(self, occurrence_id: str = None) -> pd.DataFrame:
         raise NotImplementedError

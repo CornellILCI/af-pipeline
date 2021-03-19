@@ -23,15 +23,15 @@ class PhenotypeData(ABC, DataReader):
 
     @abstractmethod
     def get_occurrence(seld, occurrence_id: str) -> Occurrence:
-        """Returns occurrence from api source"""
+        """Returns occurrence for given id"""
         pass
 
     @abstractmethod
     def get_experiment(self, experiment_id: str) -> Experiment:
-        """Returns an experiment from the api source"""
+        """Returns an experiment for given id"""
         pass
 
     @abstractmethod
     def get_trait(self, trait_id: str) -> Trait:
-        """Returns a trait from the api source"""
+        """Returns a trait for given trait id"""
         pass

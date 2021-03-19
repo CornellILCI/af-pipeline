@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
 
-class ObservationUnitQueryParams(BaseModel):
-    observationUnitDbId: str = None
+class ObservationQueryParams(BaseModel):
+    observationDbId: str = None
     studyDbId: str = None
     observationLevel: str = None
     pageSize: int = None

@@ -15,11 +15,11 @@ from exceptions import DataReaderException
 
 from data_reader.phenotype_data_ebs import PhenotypeDataEbs
 
+
 class TestPhenotypeDataEbs(TestCase):
 
     @patch('data_reader.data_reader.requests.post')
     def test_get_plots(self, mock_post):
-
 
         mock_post.return_value.status_code = 200
 
@@ -27,7 +27,7 @@ class TestPhenotypeDataEbs(TestCase):
             get_ebs_plots_response(),
             get_ebs_occurrence_response()])
 
-        plots_test_df = get_test_plots()
+        plots_test_df = get_test_plots().astype(str)
 
         plots_result_df = PhenotypeDataEbs(
             api_base_url="http://test").get_plots("testid")
@@ -39,7 +39,6 @@ class TestPhenotypeDataEbs(TestCase):
 
         assert_frame_equal(plots_result_df, plots_test_df)
 
-
     @patch('data_reader.data_reader.requests.post')
     def test_get_plots_raise_exception_for_401(self, mock_post):
 
@@ -48,14 +47,13 @@ class TestPhenotypeDataEbs(TestCase):
             side_effect=get_ebs_unauthorized_error_response)
 
         with self.assertRaises(DataReaderException):
-            plots_result_df = PhenotypeDataEbs(
+            PhenotypeDataEbs(
                 api_base_url="http://test"
             ).get_plots(occurrence_id="testid")
 
-
     def test_get_plots_raise_exception_for_invalid_url(self):
         with self.assertRaises(DataReaderException):
-            plots_result_df = PhenotypeDataEbs(
+            PhenotypeDataEbs(
                 api_base_url="htp").get_plots("testid")
 
     @patch('data_reader.data_reader.requests.post')

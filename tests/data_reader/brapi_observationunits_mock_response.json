@@ -91,7 +91,7 @@
                         "levelName": "plot",
                         "levelCode": "10"
                     },
-                    "positionCoordinateX": 3,
+                    "positionCoordinateX": 4,
                     "positionCoordinateXType": "GRID_COL",
                     "positionCoordinateY": 5,
                     "entryType": "check",

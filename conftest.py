@@ -37,6 +37,20 @@ def get_brapi_observation_units_response():
         "tests/data_reader/brapi_observationunits_mock_response.json")
 
 
+def get_brapi_observations_response():
+    """ returns a mock brapi response for observation units """
+
+    return __read_mock_json_file(
+        "tests/data_reader/brapi_observations_mock_response.json")
+
+
+def get_brapi_studies_response():
+    """ returns a mock brapi response for studies """
+
+    return __read_mock_json_file(
+        "tests/data_reader/brapi_studies_mock_response.json")
+
+
 def get_ebs_unauthorized_error_response():
     error_response = """{
         "metadata": {
@@ -63,12 +77,24 @@ def get_ebs_unauthorized_error_response():
 
 def get_test_plots() -> pd.DataFrame:
     """ return a mock plots dataframe """
+
     columns = ["plot_id", "experiment_id", "location_id", "occurrence_id",
                "entry_id", "pa_x", "pa_y", "rep_factor",
                "blk", "plot_qc"]
     data = [
         [2909, 4, 6, 7, 180, 3, 5, 1, 1, "G"],
         [2910, 4, 6, 7, 103, 4, 5, 1, 1, "G"],
+    ]
+    return pd.DataFrame(data, columns=columns)
+
+
+def get_test_plot_measurements() -> pd.DataFrame:
+    """ return a mock plot measurement dataframe"""
+
+    columns = ["plot_id", "trait_id", "trait_qc", "trait_value"]
+    data = [
+        [2909, 1, "G", 6.155850575],
+        [2910, 1, "G", 6.751358238],
     ]
     return pd.DataFrame(data, columns=columns)
 
@@ -84,5 +110,17 @@ def get_test_occurrence() -> Occurrence:
         "rep_count": 1,
         "entry_count": 4,
         "plot_count": 2
+    }
+    return Occurrence(**test_occurrence)
+
+
+def get_test_occurrence_brapi() -> Occurrence:
+    test_occurrence = {
+        "occurrence_id": 7,
+        "occurrence_name": "test_occurrence",
+        "experiment_id": 4,
+        "experiment_name": "test_experiment",
+        "location_id": 6,
+        "location": "test_location",
     }
     return Occurrence(**test_occurrence)

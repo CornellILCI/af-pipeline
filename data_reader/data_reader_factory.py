@@ -3,6 +3,8 @@ from models.enums import DataSource
 from data_reader.phenotype_data_ebs import PhenotypeDataEbs
 from data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 
+from data_reader.phenotype_data import PhenotypeData
+
 
 class DataReaderFactory:
     """ Facoty to get phenotype data based on api data source
@@ -11,7 +13,7 @@ class DataReaderFactory:
     def __init__(self, data_source: DataSource):
         self.data_source = data_source
 
-    def get_pheotype_data(self, **kwargs):
+    def get_pheotype_data(self, **kwargs) -> PhenotypeData:
         if self.data_source == DataSource.EBS:
             return PhenotypeDataEbs(**kwargs)
         elif self.data_source == DataSource.BRAPI:
