@@ -24,4 +24,4 @@ aeo/output/
 aeo/input/
 aeo/scratch/
 venv
-
+docs/notebooks/.ipynb*
