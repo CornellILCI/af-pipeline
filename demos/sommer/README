@@ -1,0 +1,7 @@
+Test driver for R's sommer package.
+This script was based on Mahlet's code: [original/SommerCodes.txt]
+
+TL;DR
+Rscript SommerCodes.R
+
+

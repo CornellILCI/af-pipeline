@@ -1,0 +1,15 @@
+#singe trait model
+mix1 <- mmer(Yield~Rep,
+             random=~vs(ID, Gu=A),	#ID is the ID of the hybrids
+              rcov=~units,		#this is for the residuals and its always 'units'
+              data=DT)
+
+#for multitraits
+mix2 <- mmer(cbind(Yield,NDVI1)~Rep,
+             random=~vs(ID,Gu=A, Gtc = unsm(2)), #Gtdc = unsm(2)  is the 2X2 genetic (co)variance matrix
+             rcov=~vs(units,Gtc=unsm(2)), #and this is for the residuals. You can use Gtc = diag(2) for uncorrelated residuals
+             na.method.Y = "include2", # this is to include and estimate the NAs
+             data=DT)
+
+summary(mix2)$varcomp #this is how you access the (co)variances
+GEBV <- as.data.frame(mix1$U$`u:ID`$Yield) #and this is how you access the breeding values
