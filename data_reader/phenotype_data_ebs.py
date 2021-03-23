@@ -14,9 +14,10 @@ SEARCH_OCCRRENCES_ENDPOINT = "/occurrences-search"
 
 
 class PhenotypeDataEbs(PhenotypeData):
-    """ reads phenotype data from a ebs data source.
+    """ EBS concrete class for PhenotypeData interface.
     """
 
+    # maps ebs plot resource fields to local plot fields.
     plots_api_fields_to_local_fields = {
         "plotDbId": "plot_id",
         "entryDbId": "entry_id",
