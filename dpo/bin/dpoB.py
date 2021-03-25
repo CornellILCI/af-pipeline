@@ -28,16 +28,12 @@ phenomodels = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
 print("phe",phenomodels)
 req = simbaUtils.cfg['int'] + "/" + args.input + "/" + args.input + ".req"
 print("req",req)
-#req = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
-#          + sys.argv[1] + "/" + sys.argv[1] + ".req"
 
 class Dpo(object):
 
     array = req.replace("req", "arr")
     conf = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml/config/"
-    #conf = glob(os.environ["EBSAF_ROOT"] + tmp + "/config/")
-    print("HELLO ", conf)
-    # !!!! hard coded output:
+
     output = glob(os.environ["EBSAF_ROOT"] + "/aeo/input/")
 
     def __init__(self, request):
@@ -85,7 +81,7 @@ class Dpo(object):
             pass
         self.fields = self.cfg['Analysis_Module']["fields"]
 
-    # created single dataframe from the multiple arrays in the .array
+    #  single dataframe from the multiple arrays in the .array
     def mergeArrays(self):
         try:
             with open(self.array, "r") as arr:  self.arr = json.load(arr)
