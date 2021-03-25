@@ -1,10 +1,11 @@
-##!/usr/bin/python3
-# dpo.py
-# the DPO  takes a request and gathers instructions  from it’s parameters
-#  and  configures an output csv and an instruction file for statistical analysis.
-# uses json input to generate output .as and csv files
-# 2021.1.12, vince paris
-
+"""
+!/usr/bin/python3
+ dpo.py
+ the DPO  takes a request and gathers instructions  from it’s parameters
+ and  configures an output csv and an instruction file for statistical analysis.
+ uses json input to generate output .as and csv files
+ 2021.1.12, vince paris
+ """
 import sys, os, json
 import argparse
 import pandas as pd
@@ -15,20 +16,28 @@ aeoPython = os.environ["EBSAF_ROOT"] + "/aeo/python"
 sys.path.append(aeoPython)
 import simbaUtils
 
-simbaUtils.readConfig()
-tmp = "/models/analysis/cimmyt/phenotypic/asreml"
-phenomodels = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
 parser = argparse.ArgumentParser()
 parser.add_argument("input", type=str, help="Input folder")
 args = parser.parse_args()
-req = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
-          + sys.argv[1] + "/" + sys.argv[1] + ".req"
 
+# Initialize paths
+simbaUtils.readConfig()
+tmp = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
+print("tmp",tmp)
+phenomodels = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
+print("phe",phenomodels)
+req = simbaUtils.cfg['int'] + "/" + args.input + "/" + args.input + ".req"
+print("req",req)
+#req = os.environ["EBSAF_ROOT"] + tmp + "/templates/" \
+#          + sys.argv[1] + "/" + sys.argv[1] + ".req"
 
 class Dpo(object):
 
     array = req.replace("req", "arr")
-    conf = glob(os.environ["EBSAF_ROOT"] + tmp + "/config/")
+    conf = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml/config/"
+    #conf = glob(os.environ["EBSAF_ROOT"] + tmp + "/config/")
+    print("HELLO ", conf)
+    # !!!! hard coded output:
     output = glob(os.environ["EBSAF_ROOT"] + "/aeo/input/")
 
     def __init__(self, request):
@@ -64,7 +73,12 @@ class Dpo(object):
 
     #  gather the fields which will
     def loadConfig(self):
-        self.cfg = self.conf[0] + self.req['parameters']['configFile'] + ".cfg"
+        #print(self.conf[0])
+        #print(self.req['parameters']['configFile'])
+        self.cfg = self.conf + self.req['parameters']['configFile'] + ".cfg"
+
+        print(self.cfg)
+        #print("sel ", self.cfg)
         try:
             with open(self.cfg, "r") as cfg: self.cfg = json.load(cfg)
         except ValueError:
@@ -131,7 +145,6 @@ class Dpo(object):
                 idx += 1
             idx2 += 1
 
-
     def semlFilter(self):
         traits = pd.DataFrame(self.arr["data"]["traitList"][0])
         for idx, trait in enumerate(traits['trait_id']):
@@ -182,7 +195,6 @@ class Dpo(object):
         asr.writelines(fields)
         asr.writelines("\n" + self.name + "\n" + options + "\n" + tabulate +
                        "\n" + formula + "\n" + residual + predictedTrait)
-
 
 dpo = Dpo(req)
 

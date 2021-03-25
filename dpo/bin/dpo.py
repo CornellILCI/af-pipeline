@@ -18,7 +18,7 @@ sys.path.append(aeoPython)
 import simbaUtils
 
 simbaUtils.readConfig()
-tmp = "/models/analysis/cimmyt/phenotypic/asreml"
+tmp = "/statistical_models/analysis/cimmyt/phenotypic/asreml"
 # phenomodels = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
 # print(phenomodels)
 # redo request file as workpath simbautils.cfg['int']
@@ -259,4 +259,3 @@ if __name__ == "__main__":
     dpo.buildDFs()
     dpo.mergeDFs()
     dpo.filterDF()
-
