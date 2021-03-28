@@ -5,6 +5,8 @@ from data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 
 from data_reader.phenotype_data import PhenotypeData
 
+from exceptions import DataSourceNotAvailableError
+
 
 class DataReaderFactory:
     """ Factory to get phenotype data based on api data source
@@ -18,7 +20,7 @@ class DataReaderFactory:
         """
         self.data_source = data_source
 
-    def get_pheotype_data(self, **kwargs) -> PhenotypeData:
+    def get_phenotype_data(self, **kwargs) -> PhenotypeData:
         """ Returns an interface for reading phenotype data.
 
         Args:
@@ -36,7 +38,7 @@ class DataReaderFactory:
         elif self.data_source == DataSource.BRAPI:
             return PhenotypeDataBrapi(**kwargs)
         else:
-            raise NotImplementedError
+            raise DataSourceNotAvailableError
 
     def get_genotype_data(self, **kwargs):
         raise NotImplementedError

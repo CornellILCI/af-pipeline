@@ -6,6 +6,10 @@ from models import ApiResponse
 
 from exceptions import DataReaderException
 
+from requests.exceptions import (
+    HTTPError,
+    RequestException)
+
 
 class DataReader:
     """ Reads data from HTTP web service.
@@ -47,6 +51,9 @@ class DataReader:
 
             If failed, returns ApiResponse object with error response
             as value for error field.
+
+        Raises:
+            DataReaderException for any connection or timeout errors.
         """
 
         url = url_join(self.api_base_url, endpoint)
@@ -55,14 +62,21 @@ class DataReader:
             token_header = f"Bearer {self.api_bearer_token}"
             kwargs.setdefault("headers", {})["Authorization"] = token_header
 
-        response = request_method(url, **kwargs)
+        try:
+            response = request_method(url, **kwargs)
+        except RequestException as r_e:
+            raise DataReaderException(r_e)
 
-        if response.status_code == 200:
-            return ApiResponse(body=response.json(),
-                               is_success=True)
-        else:
-            return ApiResponse(is_success=False,
-                               error=response.json())
+        api_response = ApiResponse(http_status=response.status_code,
+                                   body=response.json())
+
+        try:
+            response.raise_for_status()
+            api_response.is_success = True
+        except HTTPError as h_e:
+            api_response.error = repr(h_e)
+
+        return api_response
 
     def get(self, endpoint: str = None, **kwargs) -> ApiResponse:
         """ Subimits http GET requsts from the given endpoint.
@@ -83,6 +97,9 @@ class DataReader:
 
             If failed, returns ApiResponse object with error response
             as value for error field.
+
+        Raises:
+            DataReaderException for any connection or timeout errors.
         """
         return self._request(requests.get, endpoint, **kwargs)
 
@@ -103,5 +120,8 @@ class DataReader:
 
             If failed, returns ApiResponse object with error response
             as value for error field.
+
+        Raises:
+            DataReaderException for any connection or timeout errors.
         """
         return self._request(requests.post, endpoint, **kwargs)

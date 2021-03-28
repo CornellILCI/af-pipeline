@@ -119,9 +119,12 @@ class TestPhenotypeDataEbs(TestCase):
     @patch('data_reader.data_reader.requests.post')
     def test_get_plots_raise_exception_for_401(self, mock_post):
 
+        from requests.exceptions import HTTPError
+
         mock_post.return_value.status_code = 401
-        mock_post.return_value.json.reset_mock(
+        mock_post.return_value.json = Mock(
             side_effect=get_ebs_unauthorized_error_response)
+        mock_post.return_value.raise_for_status = Mock(side_effect=HTTPError)
 
         with self.assertRaises(DataReaderException):
             PhenotypeDataEbs(

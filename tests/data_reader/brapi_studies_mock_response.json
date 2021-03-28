@@ -1,35 +1,38 @@
 {
     "result": {
-        "active": true,
-        "endDate": null,
-        "growthFacility": null,
-        "contacts": null,
-        "locationName": "test_location",
-        "seasons": [
-            "2017"
-        ],
-        "environmentParameters": null,
-        "externalReferences": null,
-        "dataLinks": [],
-        "studyDescription": "UGA2017 17S62 field trial",
-        "commonCropName": "Cassava",
-        "studyType": "",
-        "lastUpdate": null,
-        "additionalInfo": {},
-        "studyCode": "68",
-        "studyDbId": "7",
+	          "studyDescription": "Assessment of Cassava varieties by Interspecifics in a Advancded Yield Trial (11 clones) in Ibadan 2000/2001 Breeding Season \r\n",
         "studyPUI": null,
-        "culturalPractices": null,
-        "observationUnitsDescription": null,
-        "studyName": "test_occurrence",
+        "studyType": "Advanced Yield Trial",
         "observationLevels": null,
-        "trialName": "test_experiment",
         "documentationURL": "",
+        "commonCropName": "Cassava",
+        "environmentParameters": null,
+        "trialName": "test_experiment",
+        "externalReferences": null,
+        "locationName": "test_location",
+        "studyName": "test_occurrence",
+        "dataLinks": [],
+        "seasons": [
+            "2000"
+        ],
+        "growthFacility": null,
+        "startDate": "2000-04-11",
+        "lastUpdate": null,
+        "experimentalDesign": {
+            "description": "RCBD",
+            "PUI": null
+        },
+        "contacts": null,
         "trialDbId": "4",
-        "experimentalDesign": "CRD",
         "license": "",
-        "startDate": null,
-        "locationDbId": "6"
+        "locationDbId": "6",
+        "studyCode": "3637",
+        "endDate": "2001-06-13",
+        "culturalPractices": null,
+        "active": true,
+        "additionalInfo": {},
+        "studyDbId": "7",
+        "observationUnitsDescription": null
     },
     "metadata": {
         "pagination": {

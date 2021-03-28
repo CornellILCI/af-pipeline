@@ -33,6 +33,9 @@ class PhenotypeData(ABC, DataReader):
 
         Returns:
             Plot data as pandas dataframe.
+
+        Raises:
+            DataReaderException when failed to fetch data.
         """
         pass
 
@@ -47,6 +50,9 @@ class PhenotypeData(ABC, DataReader):
 
         Returns:
             Requested Occurrence object.
+
+        Raises:
+            DataReaderException when failed to fetch data.
         """
         pass
 
@@ -61,6 +67,9 @@ class PhenotypeData(ABC, DataReader):
 
         Returns:
             Requested Experiment object.
+
+        Raises:
+            DataReaderException when failed to fetch data.
         """
         pass
 

@@ -2,7 +2,13 @@ import pandas as pd
 
 from pydantic import ValidationError
 
-from models import ObservationUnitQueryParams, Study, Occurrence
+from models import Occurrence
+
+from models.brapi.phenotyping import ObservationUnitQueryParams
+
+from models.brapi.core import Study, BaseListResponse
+
+from common import df_keep_columns
 
 from data_reader.phenotype_data import PhenotypeData
 
@@ -16,7 +22,7 @@ GET_STUDIES_BY_ID_URL = ("/studies/{studyDbId}")
 
 
 class PhenotypeDataBrapi(PhenotypeData):
-    """ reads phenotype data from a brapi ebs data source .
+    """ Reads phenotype data from a brapi ebs data source.
     """
 
     plots_api_fields_to_local_fields = {
@@ -37,112 +43,143 @@ class PhenotypeDataBrapi(PhenotypeData):
         "value": "trait_value"
     }
 
+    brapi_list_page_size = 1000
+
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
+
+        plots_data = []
+
+        page_num = 0
 
         observation_units_filters = ObservationUnitQueryParams(
             studyDbId=occurrence_id,
             observationLevel="plot",
-            pageSize=1000
+            pageSize=self.brapi_list_page_size
         )
 
-        api_response = self.get(endpoint=GET_OBSERVATION_UNITS_URL,
-                                params=observation_units_filters.dict())
+        while len(plots_data) >= self.brapi_list_page_size or page_num == 0:
 
-        if not api_response.is_success:
-            raise DataReaderException(api_response.error)
+            observation_units_filters.page = page_num
 
-        plots_data = api_response.body["result"]["data"]
+            api_response = self.get(endpoint=GET_OBSERVATION_UNITS_URL,
+                                    params=observation_units_filters.dict())
 
-        # paths to normalize json data to flat columns
-        columns_path = [
-            "observationUnitDbId",
-            "locationDbId",
-            "studyDbId",
-            "trialDbId",
-            "germplasmDbId",
-            ["observationUnitPosition", "positionCoordinateX"],
-            ["observationUnitPosition", "positionCoordinateY"]
-        ]
+            if not api_response.is_success:
+                raise DataReaderException(api_response.error)
 
-        # list record path to normalze
-        list_record_path = ["observationUnitPosition",
-                            "observationLevelRelationships"]
+            brapi_response = BaseListResponse(**api_response.body)
 
-        # this dataframe will have observation level array as seperate rows
-        plots_df_unpivoted = pd.json_normalize(
-            plots_data,
-            record_path=list_record_path,
-            meta=columns_path,
-        )
+            plots_data = brapi_response.result.data
 
-        plots_df_observation_levels_pivoted = plots_df_unpivoted.pivot(
-            index="observationUnitDbId",
-            columns="levelName",
-            values="levelCode")
+            # paths to normalize json data to flat columns
+            columns_path = [
+                "observationUnitDbId",
+                "locationDbId",
+                "studyDbId",
+                "trialDbId",
+                "germplasmDbId",
+                ["observationUnitPosition", "positionCoordinateX"],
+                ["observationUnitPosition", "positionCoordinateY"]
+            ]
 
-        plots_df_observation_levels_droped = plots_df_unpivoted.drop(
-            columns=["levelOrder", "levelCode", "levelName"]
-        ).drop_duplicates().reset_index()
+            # list record path to normalze
+            list_record_path = ["observationUnitPosition",
+                                "observationLevelRelationships"]
 
-        plots_df = plots_df_observation_levels_droped.join(
-            plots_df_observation_levels_pivoted,
-            on="observationUnitDbId"
-        )
+            # this dataframe will have observation level array as seperate rows
+            plots_unpivoted = pd.json_normalize(
+                plots_data,
+                record_path=list_record_path,
+                meta=columns_path,
+            )
 
-        # keep only local field columns
-        plots_df_columns_to_drop = (
-            set(plots_df.columns) -
-            self.plots_api_fields_to_local_fields.keys())
-        plots_df_columns_to_keep = (
-            self.plots_api_fields_to_local_fields.keys() -
-            plots_df_columns_to_drop)
-        plots_df = plots_df[plots_df_columns_to_keep]
+            plots_observation_levels_pivoted = plots_unpivoted.pivot(
+                index="observationUnitDbId",
+                columns="levelName",
+                values="levelCode")
+
+            plots_observation_levels_droped = plots_unpivoted.drop(
+                columns=["levelOrder", "levelCode", "levelName"]
+            ).drop_duplicates().reset_index()
+
+            plots_page = plots_observation_levels_droped.join(
+                plots_observation_levels_pivoted,
+                on="observationUnitDbId"
+            )
+
+            # keep only local field columns
+            plots_page = df_keep_columns(
+                plots_page,
+                self.plots_api_fields_to_local_fields.keys())
+
+            # since plot_qc not defined in brapi spec, set default value "G"
+            plots_page["plot_qc"] = "G"
+
+            if page_num == 0:
+                plots = plots_page
+            else:
+                plots = plots.append(plots_page)
+
+            # to get next page
+            page_num += 1
 
         # rename dataframe column with local field names
-        plots_df.rename(
+        plots.rename(
             columns=self.plots_api_fields_to_local_fields,
             inplace=True
         )
 
-        # since plot_qc not defined in brapi spec, set default value "G"
-        plots_df["plot_qc"] = "G"
-
-        return plots_df.astype(str)
+        return plots.astype(str)
 
     def get_plot_measurements(
             self,
             occurrence_id: int = None) -> pd.DataFrame:
 
-        observation_units_filters = ObservationUnitQueryParams(
+        plot_measurements_data = []
+
+        page_num = 0
+
+        observations_filters = ObservationUnitQueryParams(
             studyDbId=occurrence_id,
             observationLevel="plot",
             pageSize=1000
         )
 
-        api_response = self.get(endpoint=GET_OBSERVATIONS_URL,
-                                params=observation_units_filters.dict())
+        while (len(plot_measurements_data) >= self.brapi_list_page_size
+               or page_num == 0):
 
-        if not api_response.is_success:
-            raise DataReaderException(api_response.error)
+            observations_filters.page = page_num
 
-        api_result = api_response.body["result"]
+            api_response = self.get(endpoint=GET_OBSERVATIONS_URL,
+                                    params=observations_filters.dict())
 
-        plot_measurements = pd.DataFrame(api_result["data"])
+            if not api_response.is_success:
+                raise DataReaderException(api_response.error)
+
+            brapi_response = BaseListResponse(**api_response.body)
+
+            print(brapi_response.metadata.pagination)
+
+            plot_measurements_data = brapi_response.result.data
+
+            plot_measurements_page = pd.DataFrame(plot_measurements_data)
+
+            if page_num == 0:
+                plot_measurements = plot_measurements_page
+            else:
+                plot_measurements = (
+                    plot_measurements.append(plot_measurements_page))
+
+            page_num += 1
 
         # keep only local field columns
-        plot_measurements_columns_to_drop = (
-            set(plot_measurements.columns) -
+        plot_measurements = df_keep_columns(
+            plot_measurements,
             self.plot_measurements_api_fields_to_local_fields.keys())
-        plot_measurements_columns_to_keep = (
-            self.plot_measurements_api_fields_to_local_fields.keys() -
-            plot_measurements_columns_to_drop)
-        plot_measurements = plot_measurements[
-            plot_measurements_columns_to_keep]
 
-        # rename dataframe column with local field names
-        plot_measurements.rename(
+        # rename columns to local field names
+        plot_measurements = plot_measurements.rename(
             columns=self.plot_measurements_api_fields_to_local_fields,
-            inplace=True
         )
 
         # trait_qc not part of brapi spec, so set to default value
@@ -159,6 +196,9 @@ class PhenotypeDataBrapi(PhenotypeData):
             raise DataReaderException(api_response.error)
 
         result = api_response.body["result"]
+
+        if result is None:
+            raise DataReaderException("Occurrence is not found")
 
         # load it to model to make sure required fields are found
         try:

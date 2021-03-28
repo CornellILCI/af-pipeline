@@ -1524,6 +1524,16 @@ class Metadata(MetadataBase):
     pagination: Optional[IndexPagination] = None
 
 
+class BaseListResult(BaseModel):
+    data: List[Dict]
+
+
+class BaseListResponse(BaseModel):
+    _context: Optional[Context] = Field(None, alias='@context')
+    metadata: Metadata
+    result: BaseListResult
+
+
 class CommonCropNamesResponse(BaseModel):
     _context: Optional[Context] = Field(None, alias='@context')
     metadata: Metadata
@@ -1541,12 +1551,10 @@ class ListsSingleResponse(BaseModel):
     metadata: Metadata
     result: ListDetails
 
-
 class ListResponse(BaseModel):
     _context: Optional[Context] = Field(None, alias='@context')
     metadata: Metadata
     result: ListDetails
-
 
 class PersonSingleResponse(BaseModel):
     _context: Optional[Context] = Field(None, alias='@context')

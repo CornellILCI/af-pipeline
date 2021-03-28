@@ -1,8 +1,8 @@
 
 
 class DataReaderException(Exception):
-    def __init__(self, message):
-        self.message = message
+    pass
 
-    def __str__(self):
-        return repr(self.message)
+
+class DataSourceNotAvailableError(NotImplementedError):
+    pass
