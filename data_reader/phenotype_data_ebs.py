@@ -8,7 +8,11 @@ from data_reader.phenotype_data import PhenotypeData
 
 from exceptions import DataReaderException
 
-SEARCH_PLOTS_ENDPOINT = "/occurrences/{occurrence_id}/plots-search"
+from common import df_keep_columns
+
+SEARCH_PLOTS_ENDPOINT = "/plots-search"
+
+SEARCH_PLOT_DATA_ENDPOINT = "/plot-data-search"
 
 SEARCH_OCCRRENCES_ENDPOINT = "/occurrences-search"
 
@@ -28,47 +32,143 @@ class PhenotypeDataEbs(PhenotypeData):
         "plotQcCode": "plot_qc"
     }
 
+    # maps ebs plot_data resource fields to local plot measurement fields
+    plot_data_api_fields_to_local_fields = {
+        "plotDbId": "plot_id",
+        "variableDbId": "trait_id",
+        "dataValue": "trait_value",
+        "dataQCCode": "trait_qc"
+    }
+
+    list_api_page_size = 100
+
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
-
-        plots_url = SEARCH_PLOTS_ENDPOINT.format(occurrence_id=occurrence_id)
-
-        api_response = self.post(endpoint=plots_url)
-
-        if not api_response.is_success:
-            raise DataReaderException(api_response.error)
-
-        plots_data = api_response.body["result"]["data"]
-
-        plots_df = pd.DataFrame(plots_data)
-
-        # keep only local field columns
-        plots_df_columns_to_drop = (
-            set(plots_df.columns) -
-            self.plots_api_fields_to_local_fields.keys())
-        plots_df_columns_to_keep = (
-            self.plots_api_fields_to_local_fields.keys() -
-            plots_df_columns_to_drop)
-        plots_df = plots_df[plots_df_columns_to_keep]
-
-        # rename dataframe column with local field names
-        plots_df.rename(
-            columns=self.plots_api_fields_to_local_fields,
-            inplace=True
-        )
-
-        occurrence = self.get_occurrence(occurrence_id)
 
         columns_from_occurrence = {"experiment_id",
                                    "occurrence_id",
                                    "location_id"}
 
-        for column in columns_from_occurrence:
-            plots_df[column] = occurrence.dict()[column]
+        page_num = 1
 
-        return plots_df.astype(str)
+        plots_data = []
+
+        plots_url = SEARCH_PLOTS_ENDPOINT.format(occurrence_id=occurrence_id)
+
+        search_query = {
+            "occurrenceDbId": occurrence_id
+        }
+
+        api_page_params = {
+            "limit": self.list_api_page_size,
+        }
+
+        while len(plots_data) >= self.list_api_page_size or page_num == 1:
+
+            api_page_params["page"] = page_num
+
+            api_response = self.post(
+                endpoint=plots_url,
+                data=search_query,
+                params=api_page_params
+            )
+
+            if not api_response.is_success:
+                raise DataReaderException(api_response.error)
+
+            plots_data = api_response.body["result"]["data"]
+
+            if len(plots_data) < 1 and page_num == 1:
+                columns = list(self.plots_api_fields_to_local_fields.values())
+                columns.extend(columns_from_occurrence)
+                return pd.DataFrame(columns=columns)
+
+            plots_page = pd.DataFrame(plots_data)
+
+            # keep only local field columns
+            plots_page = df_keep_columns(
+                plots_page,
+                self.plots_api_fields_to_local_fields.keys())
+
+            if page_num == 1:
+                plots = plots_page
+            else:
+                plots = plots.append(plots_page)
+
+            page_num += 1
+
+        # rename dataframe column with local field names
+        plots.rename(
+            columns=self.plots_api_fields_to_local_fields,
+            inplace=True
+        )
+
+        # Add columns from Occurrence entity
+        occurrence = self.get_occurrence(occurrence_id)
+        for column in columns_from_occurrence:
+            plots[column] = occurrence.dict()[column]
+
+        return plots.astype(str)
 
     def get_plot_measurements(self, occurrence_id: str = None) -> pd.DataFrame:
-        raise NotImplementedError
+
+        page_num = 1
+
+        plot_measurements_data = []
+
+        plots_url = SEARCH_PLOT_DATA_ENDPOINT.format(
+            occurrence_id=occurrence_id)
+
+        search_query = {
+            "occurrenceDbId": occurrence_id
+        }
+
+        api_page_params = {
+            "limit": self.list_api_page_size,
+        }
+
+        while (len(plot_measurements_data) >= self.list_api_page_size
+               or page_num == 1):
+
+            api_page_params["page"] = page_num
+
+            api_response = self.post(
+                endpoint=plots_url,
+                data=search_query,
+                params=api_page_params
+            )
+
+            if not api_response.is_success:
+                raise DataReaderException(api_response.error)
+
+            plot_measurements_data = api_response.body["result"]["data"]
+
+            if len(plot_measurements_data) < 1 and page_num == 1:
+                columns = list(
+                    self.plot_data_api_fields_to_local_fields.values())
+                return pd.DataFrame(columns=columns)
+
+            plot_measurements_page = pd.DataFrame(plot_measurements_data)
+
+            # keep only local field columns
+            plot_measurements_page = df_keep_columns(
+                plot_measurements_page,
+                self.plot_data_api_fields_to_local_fields.keys())
+
+            if page_num == 1:
+                plot_measurements = plot_measurements_page
+            else:
+                plot_measurements = plot_measurements.append(
+                    plot_measurements_page)
+
+            page_num += 1
+
+        # rename dataframe column with local field names
+        plot_measurements.rename(
+            columns=self.plot_data_api_fields_to_local_fields,
+            inplace=True
+        )
+
+        return plot_measurements.astype(str)
 
     def get_occurrence(self, occurrence_id: str = None) -> Occurrence:
 

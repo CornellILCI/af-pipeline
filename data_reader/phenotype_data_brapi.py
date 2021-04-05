@@ -71,6 +71,11 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             plots_data = brapi_response.result.data
 
+            if len(plots_data) == 0 and page_num == 0:
+                columns = list(self.plots_api_fields_to_local_fields.values())
+                columns.append("plot_qc")
+                return pd.DataFrame(columns=columns)
+
             # paths to normalize json data to flat columns
             columns_path = [
                 "observationUnitDbId",

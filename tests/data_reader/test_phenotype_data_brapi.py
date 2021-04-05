@@ -10,6 +10,8 @@ from conftest import (
 
 from models import Occurrence
 
+from exceptions import DataReaderException
+
 from data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 
 import json
@@ -149,6 +151,29 @@ class TestPhenotypeDataBrapi(TestCase):
                            plots_expected.astype(str))
 
     @patch('data_reader.data_reader.requests.get')
+    def test_get_plots_empty_result(self, mock_get):
+        mock_get.return_value.status_code = 200
+
+        brapi_response = get_brapi_observation_units_response()
+        brapi_response["result"]["data"] = []
+
+        mock_get.return_value.json = Mock(side_effect=[
+            brapi_response
+        ])
+
+        plots_test_df = get_test_plots()
+
+        plots_result_df = PhenotypeDataBrapi(
+            api_base_url="http://test").get_plots("testid")
+
+        # assert dataframe is returned
+        assert isinstance(plots_result_df, pd.DataFrame)
+
+        assert(len(plots_result_df) == 0)
+
+        assert set(plots_result_df.columns) == set(plots_test_df.columns)
+
+    @patch('data_reader.data_reader.requests.get')
     def test_get_plot_measurements(self, mock_get):
 
         mock_get.return_value.status_code = 200
@@ -235,3 +260,20 @@ class TestPhenotypeDataBrapi(TestCase):
 
         for field, value in test_occurrence:
             assert value == occurrence_result.dict()[field]
+
+    @patch('data_reader.data_reader.requests.get')
+    def test_get_occurrence_none_result(self, mock_get):
+        from data_reader.phenotype_data_brapi import PhenotypeDataBrapi
+
+        mock_get.return_value.status_code = 200
+
+        brapi_response = get_brapi_studies_response()
+
+        brapi_response["result"] = None
+
+        mock_get.return_value.json.return_value = (brapi_response)
+
+        with self.assertRaises(DataReaderException):
+            PhenotypeDataBrapi(
+                api_base_url="http://test"
+            ).get_occurrence(occurrence_id="test")
