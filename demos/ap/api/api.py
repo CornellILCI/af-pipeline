@@ -1,7 +1,7 @@
 import os
 import json
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from pika import BlockingConnection, ConnectionParameters
 from pika.credentials import PlainCredentials
 
@@ -37,6 +37,16 @@ def create_job():
     )
     conn.close()
     return jsonify({"status": "ok"}), 201
+
+
+@app.route('/test', methods=['GET'])
+def test():
+    return render_template('loginExample.html')
+
+@app.route('/test/redirect', methods=['GET'])
+def testredirect():
+    return render_template('loginExample.html')    
+
 
 
 if __name__ == '__main__':
