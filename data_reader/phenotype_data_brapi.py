@@ -203,9 +203,6 @@ class PhenotypeDataBrapi(PhenotypeData):
         result = api_response.body["result"]
 
         if result is None:
-            return None
-
-        if result is None:
             raise DataReaderException("Occurrence is not found")
 
         # load it to model to make sure required fields are found

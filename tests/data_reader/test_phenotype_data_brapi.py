@@ -10,6 +10,8 @@ from conftest import (
 
 from models import Occurrence
 
+from exceptions import DataReaderException
+
 from data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 
 import json
@@ -271,8 +273,7 @@ class TestPhenotypeDataBrapi(TestCase):
 
         mock_get.return_value.json.return_value = (brapi_response)
 
-        occurrence_result = (
-            PhenotypeDataBrapi(api_base_url="http://test")
-        ).get_occurrence(occurrence_id="test")
-
-        assert occurrence_result is None
+        with self.assertRaises(DataReaderException):
+            PhenotypeDataBrapi(
+                api_base_url="http://test"
+            ).get_occurrence(occurrence_id="test")
