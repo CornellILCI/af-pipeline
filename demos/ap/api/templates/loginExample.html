@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <title>TITLE</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.js"></script>
+        <script>
+            $( document ).ready(function() {
+                alert("test");
+                if(document.URL.includes('#')){
+                    var anchors = document.URL.split('#')[1].split('&');
+                    var params = {};
+                    for (var i=0; i<anchors.length; i++){
+                        params[anchors[i].split('=')[0]] = anchors[i].split('=')[1];
+                    }
+                    if(params['access_token']){
+                        $("#showtoken").html(JSON.stringify(jwt_decode(params['access_token']), null, 2));
+                    }
+                }
+                
+            });
+        </script>
+    </head>
+    <body>
+        <h1>TEST</h1>
+        <div>
+            <a href="https://auth.brapi.org/auth/realms/brapi/protocol/openid-connect/auth?client_id=analytics-framework-test&scope=profile&response_type=token&redirect_uri=http://0.0.0.0:5000/test/redirect?auth=brapi">LOGIN TO BRAPI TEST SERVER</a>
+        </div>
+        <div>
+            <a href="https://sg1.cimmyt.org:8243/authorize?client_id=fr8hmofILgBDzMp2EQ1acYicaGga&scope=profile&response_type=token&redirect_uri=http://localhost:5000/test/redirect">LOGIN TO SERVICE GATEWAY</a>
+        </div>
+
+
+        Client Key: fr8hmofILgBDzMp2EQ1acYicaGga Client Secret: fr8hmofILgBDzMp2EQ1acYicaGga 
+          url: https://sg1.cimmyt.org:8243/authorize (to authorize a web app) toke url: https://sg1.cimmyt.org:8243/token
+        <pre id="showtoken">
+
+        </pre>
+    </body>
+</html>
