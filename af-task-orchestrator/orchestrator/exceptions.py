@@ -2,5 +2,13 @@ class DataReaderException(Exception):
     pass
 
 
-class DataSourceNotAvailableError(NotImplementedError):
+class DataSourceNotAvailableError(Exception):
+    pass
+
+
+class MissingTaskParameter(Exception):
+    pass
+
+
+class DataTypeNotAvailableError(Exception):
     pass
