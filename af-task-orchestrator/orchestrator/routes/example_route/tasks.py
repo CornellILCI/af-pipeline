@@ -1,6 +1,3 @@
-from gevent import time
-from orchestrator.app import LOGGER, app
-from orchestrator.base import FailureReportingTask, ResultReportingTask
 from orchestrator.registry import register
 from orchestrator.tasks.calculation.tasks import sample_calculation_task
 from orchestrator.tasks.data_gathering.tasks import sample_data_gathering_task

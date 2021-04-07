@@ -14,7 +14,9 @@ from pydantic import AnyUrl, BaseModel, Extra, Field, constr
 class Context(BaseModel):
     __root__: List[AnyUrl] = Field(
         ...,
-        description="The JSON-LD Context is used to provide JSON-LD definitions to each field in a JSON object. By providing an array of context file urls, a BrAPI response object becomes JSON-LD compatible.  \n\nFor more information, see https://w3c.github.io/json-ld-syntax/#the-context",
+        description="The JSON-LD Context is used to provide JSON-LD definitions to each field in a JSON object. "
+        "By providing an array of context file urls, a BrAPI response object becomes JSON-LD compatible."
+        "\n\nFor more information, see https://w3c.github.io/json-ld-syntax/#the-context",
         example=["https://brapi.org/jsonld/context/metadata.jsonld"],
         title="context",
     )
@@ -72,12 +74,15 @@ class HeaderRowEnum(Enum):
 class ObservationTreatment(BaseModel):
     factor: Optional[str] = Field(
         None,
-        description="The type of treatment/factor. ex. 'fertilizer', 'inoculation', 'irrigation', etc\n\nMIAPPE V1.1 (DM-61) Experimental Factor type - Name/Acronym of the experimental factor.",
+        description="The type of treatment/factor. ex. 'fertilizer', 'inoculation', 'irrigation', etc\n\n"
+        "MIAPPE V1.1 (DM-61) Experimental Factor type - Name/Acronym of the experimental factor.",
         example="fertilizer",
     )
     modality: Optional[str] = Field(
         None,
-        description="The treatment/factor description. ex. 'low fertilizer', 'yellow rust inoculation', 'high water', etc\n\nMIAPPE V1.1 (DM-62) Experimental Factor description - Free text description of the experimental factor. This includes all relevant treatments planned and protocol planned for all the plants targeted by a given experimental factor. ",
+        description="The treatment/factor description. ex. 'low fertilizer', 'yellow rust inoculation', 'high water', etc\n\n"
+        "MIAPPE V1.1 (DM-62) Experimental Factor description - Free text description of the experimental factor. This includes "
+        "all relevant treatments planned and protocol planned for all the plants targeted by a given experimental factor. ",
         example="low fertilizer",
     )
 
@@ -100,7 +105,9 @@ class ObservationUnitHierarchyLevel(BaseModel):
     levelName: Optional[LevelName] = Field(None, description="A name for this level", example="plot")
     levelOrder: Optional[int] = Field(
         None,
-        description="`levelOrder` defines where that level exists in the hierarchy of levels. `levelOrder`'s lower numbers are at the top of the hierarchy (ie field -> 1) and higher numbers are at the bottom of the hierarchy (ie plant -> 9).",
+        description="`levelOrder` defines where that level exists in the hierarchy of levels. "
+        "`levelOrder`'s lower numbers are at the top of the hierarchy (ie field -> 1) and "
+        "higher numbers are at the bottom of the hierarchy (ie plant -> 9).",
         example=2,
     )
 
@@ -1367,13 +1374,17 @@ class MethodBaseClass(BaseModel):
     )
     description: Optional[str] = Field(
         None,
-        description="Method description\n\nMIAPPE V1.1 (DM-90) Method description - Textual description of the method, which may extend a method defined in an external reference with specific parameters, e.g. growth stage, inoculation precise organ (leaf number)",
+        description="Method description\n\n"
+        "MIAPPE V1.1 (DM-90) Method description - Textual description of the method, "
+        "which may extend a method defined in an external reference with specific parameters, "
+        "e.g. growth stage, inoculation precise organ (leaf number)",
         example="A measuring tape was used",
     )
     externalReferences: Optional[ExternalReferences] = None
     formula: Optional[str] = Field(
         None,
-        description="For computational methods i.e., when the method consists in assessing the trait by computing measurements, write the generic formula used for the calculation",
+        description="For computational methods i.e., when the method consists in assessing the trait by computing measurements, "
+        "write the generic formula used for the calculation",
         example="a^2 + b^2 = c^2",
     )
     methodClass: Optional[str] = Field(
@@ -1828,7 +1839,8 @@ class ObservationUnitNewRequest(BaseModel):
     )
     treatments: Optional[List[ObservationTreatment]] = Field(
         None,
-        description="List of treatments applied to an observation unit.\n\nMIAPPE V1.1 (DM-74) Observation Unit factor value - List of values for each factor applied to the observation unit.",
+        description="List of treatments applied to an observation unit.\n\n"
+        "MIAPPE V1.1 (DM-74) Observation Unit factor value - List of values for each factor applied to the observation unit.",
     )
     trialDbId: Optional[str] = Field(None, description="The ID which uniquely identifies a trial", example="776a609c")
     trialName: Optional[str] = Field(None, description="The human readable name of a trial", example="Purple Tomato")
@@ -1859,12 +1871,17 @@ class ImageListResponseResult(BaseModel):
 class ObservationUnit(ObservationUnitNewRequest):
     observationUnitDbId: Optional[str] = Field(
         None,
-        description="The ID which uniquely identifies an observation unit\n\nMIAPPE V1.1 (DM-70) Observation unit ID - Identifier used to identify the observation unit in data files containing the values observed or measured on that unit. Must be locally unique. ",
+        description="The ID which uniquely identifies an observation unit\n\n"
+        "MIAPPE V1.1 (DM-70) Observation unit ID - Identifier used to identify"
+        "the observation unit in data files containing the values observed or "
+        "measured on that unit. Must be locally unique. ",
         example="8c67503c",
     )
     observations: Optional[List[Observation]] = Field(
         None,
-        description="All observations attached to this observation unit. \n\nDefault for this field is null or omitted. Do NOT include data in this field unless the 'includeObservations' flag is explicitly set to True.",
+        description="All observations attached to this observation unit. \n\n"
+        "Default for this field is null or omitted. Do NOT include data in this "
+        "field unless the 'includeObservations' flag is explicitly set to True.",
     )
 
 

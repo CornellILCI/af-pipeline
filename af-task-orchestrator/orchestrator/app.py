@@ -38,12 +38,18 @@ def process_external_requests(body):
     func = WORKFLOW_REGISTRY.get(body["jobName"])
     job_id = body.get("jobId")
     if func and job_id:
-        LOGGER.info(f"Workflow: {func.__name__} with ID:{job_id} initiated.")
+        LOGGER.info(
+            "Workflow: {func.__name__} with ID:{job_id} initiated.",
+            extra=dict(fname=func.__name__, job_id=job_id)
+        )
         func(body)
         return
 
     # else no func registered for workflow requested
-    LOGGER.warning("No available workflow func for request " + json.dumps(body))
+    LOGGER.warning(
+        "No available workflow func for request {request}",
+        extra=dict(request=json.dumps(body))
+    )
     # we can maybe put this in a dead-letter queue
     # TODO for later
 

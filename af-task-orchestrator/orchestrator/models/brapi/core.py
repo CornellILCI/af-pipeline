@@ -648,7 +648,9 @@ class StudyNewRequestExperimentalDesign(BaseModel):
     )
     description: Optional[str] = Field(
         None,
-        description='MIAPPE V1.1 (DM-22) Description of the experimental design - Short description of the experimental design, possibly including statistical design. In specific cases, e.g. legacy datasets or data computed from several studies, the experimental design can be "unknown"/"NA", "aggregated/reduced data", or simply \'none\'.',
+        description="MIAPPE V1.1 (DM-22) Description of the experimental design - Short description of the experimental design, "
+        "possibly including statistical design. In specific cases, e.g. legacy datasets or data computed from several studies, "
+        "the experimental design can be \"unknown\"/\"NA\", \"aggregated/reduced data\", or simply \'none\'.",
         example="Lines were repeated twice at each location using a complete block design. In order to limit competition effects, each block was organized into four sub-blocks corresponding to earliest groups based on a prior information.",
     )
 
@@ -656,7 +658,8 @@ class StudyNewRequestExperimentalDesign(BaseModel):
 class StudyNewRequestGrowthFacility(BaseModel):
     PUI: Optional[str] = Field(
         None,
-        description="MIAPPE V1.1 (DM-27) Type of growth facility - Type of growth facility in which the study was carried out, in the form of an accession number from the Crop Ontology.",
+        description="MIAPPE V1.1 (DM-27) Type of growth facility - Type of growth facility in which the study was carried out, "
+        "in the form of an accession number from the Crop Ontology.",
         example="CO_715:0000162",
     )
     description: Optional[str] = Field(
@@ -1112,7 +1115,8 @@ class TraitBaseClass(BaseModel):
     )
     traitName: Optional[str] = Field(
         None,
-        description="The human readable name of a trait\n\nMIAPPE V1.1 (DM-86) Trait - Name of the (plant or environmental) trait under observation",
+        description="The human readable name of a trait\n\n"
+        "MIAPPE V1.1 (DM-86) Trait - Name of the (plant or environmental) trait under observation",
         example="Height",
     )
 
@@ -1193,7 +1197,10 @@ class LinearRing(BaseModel):
 class MetadataBase(BaseModel):
     datafiles: Optional[List[DataFile]] = Field(
         None,
-        description="The datafiles contains a list of file URLs and metadata. \nThese files contain additional information related to the returned object and can be retrieved by a subsequent call. \nThis could be a supplementary data file, an informational file, the uploaded file where the data originated from, a generated file representing the whole dataset in a particular format, or any other related file. ",
+        description="The datafiles contains a list of file URLs and metadata. \n"
+        "These files contain additional information related to the returned object and can be retrieved by a subsequent call. \n"
+        "This could be a supplementary data file, an informational file, the uploaded file where the data originated from, "
+        "a generated file representing the whole dataset in a particular format, or any other related file. ",
     )
     status: Optional[List[Status]] = Field(
         None,
@@ -1327,7 +1334,10 @@ class Study(StudyNewRequest):
 class Trial(TrialNewRequest):
     trialDbId: str = Field(
         ...,
-        description="The ID which uniquely identifies a trial\n\nMIAPPE V1.1 (DM-2) Investigation unique ID - Identifier comprising the unique name of the institution/database hosting the submission of the investigation data, and the accession number of the investigation in that institution.",
+        description="The ID which uniquely identifies a trial\n\n"
+        "MIAPPE V1.1 (DM-2) Investigation unique ID - Identifier comprising the unique name "
+        "of the institution/database hosting the submission of the investigation data, "
+        "and the accession number of the investigation in that institution.",
         example="1883b402",
     )
 
@@ -1525,7 +1535,8 @@ class LocationNewRequest(BaseModel):
     )
     coordinateDescription: Optional[str] = Field(
         None,
-        description="Describes the precision and landmarks of the coordinate values used for this location. (ex. the site, the nearest town, a 10 kilometers radius circle, +/- 20 meters, etc)",
+        description="Describes the precision and landmarks of the coordinate values used for this location. "
+        "(ex. the site, the nearest town, a 10 kilometers radius circle, +/- 20 meters, etc)",
         example="North East corner of greenhouse",
     )
     coordinateUncertainty: Optional[str] = Field(
@@ -1536,12 +1547,16 @@ class LocationNewRequest(BaseModel):
     coordinates: Optional[GeoJSON] = None
     countryCode: Optional[str] = Field(
         None,
-        description=" [ISO_3166-1_alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) spec\nMIAPPE V1.1 (DM-17) Geographic location (country) - The country where the experiment took place, either as a full name or preferably as a 2-letter code.",
+        description=" [ISO_3166-1_alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) spec\n"
+        "MIAPPE V1.1 (DM-17) Geographic location (country) - The country where the experiment took place, "
+        "either as a full name or preferably as a 2-letter code.",
         example="PER",
     )
     countryName: Optional[str] = Field(
         None,
-        description="The full name of the country where this location is\n\nMIAPPE V1.1 (DM-17) Geographic location (country) - The country where the experiment took place, either as a full name or preferably as a 2-letter code.",
+        description="The full name of the country where this location is\n\n"
+        "MIAPPE V1.1 (DM-17) Geographic location (country) - The country where the experiment took place, "
+        "either as a full name or preferably as a 2-letter code.",
         example="Peru",
     )
     documentationURL: Optional[AnyUrl] = Field(
@@ -1562,17 +1577,24 @@ class LocationNewRequest(BaseModel):
     externalReferences: Optional[ExternalReferences] = None
     instituteAddress: Optional[str] = Field(
         None,
-        description="The street address of the institute representing this location\n\nMIAPPE V1.1 (DM-16) Contact institution - Name and address of the institution responsible for the study.",
+        description="The street address of the institute representing this location\n\n"
+        "MIAPPE V1.1 (DM-16) Contact institution - Name and address of the institution "
+        "responsible for the study.",
         example="71 Pilgrim Avenue Chevy Chase MD 20815",
     )
     instituteName: Optional[str] = Field(
         None,
-        description="Each institute/laboratory can have several experimental field\n\nMIAPPE V1.1 (DM-16) Contact institution - Name and address of the institution responsible for the study.",
+        description="Each institute/laboratory can have several experimental field\n\n"
+        "MIAPPE V1.1 (DM-16) Contact institution - Name and address of the institution "
+        "responsible for the study.",
         example="Plant Science Institute",
     )
     locationName: Optional[str] = Field(
         None,
-        description="A human readable name for this location\n\nMIAPPE V1.1 (DM-18) Experimental site name - The name of the natural site, experimental field, greenhouse, phenotyping facility, etc. where the experiment took place.",
+        description="A human readable name for this location\n\n"
+        "MIAPPE V1.1 (DM-18) Experimental site name - "
+        "The name of the natural site, experimental field, greenhouse, phenotyping facility, etc. "
+        "where the experiment took place.",
         example="Location 1",
     )
     locationType: Optional[str] = Field(

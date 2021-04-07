@@ -17,7 +17,7 @@ services:
   
   api:
     build:
-      context: ./api
+      context: ./af-jobs-api
       dockerfile: Dockerfile
     working_dir: /app
     command: ["./gunicorn.sh"]
@@ -36,7 +36,7 @@ services:
   
   worker:
     build:
-      context: ./orchestrator
+      context: ./af-task-orchestrator
       dockerfile: Dockerfile
     working_dir: /app
     command: ["celery", "-A", "orchestrator.app", "worker", "--pool=gevent", "--concurrency=20", "-l", "debug" ]

@@ -1,7 +1,6 @@
 from gevent import time
-from orchestrator.app import LOGGER, app
-from orchestrator.base import FailureReportingTask, ResultReportingTask
-from orchestrator.registry import register
+from orchestrator.app import LOGGER, appls
+
 
 
 @app.task(base=FailureReportingTask)

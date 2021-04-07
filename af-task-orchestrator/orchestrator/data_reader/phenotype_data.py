@@ -39,7 +39,7 @@ class PhenotypeData(ABC, DataReader):
         pass
 
     @abstractmethod
-    def get_occurrence(seld, occurrence_id: str) -> Occurrence:
+    def get_occurrence(self, occurrence_id: str) -> Occurrence:
         """Gets Occurrence for given occurrence id.
 
         Plots belongs to occurrence.
