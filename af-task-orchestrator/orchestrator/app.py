@@ -21,18 +21,16 @@ INSTALLED_WORKFLOWS = [
     "orchestrator.tasks.data_gathering",
     "orchestrator.tasks.data_upload",
     "orchestrator.tasks.workflow",
-    "orchestrator.routes.example_route"
+    "orchestrator.routes.example_route",
 ]
 
 
 @message_handler(CONSUMER_QUEUE)
 def process_external_requests(body):
-    LOGGER.warning(
-        '=================================================================='
-    )
+    LOGGER.warning("==================================================================")
     LOGGER.warning(body)
     LOGGER.warning(str(type(body)))
-    if (isinstance(body, list)):
+    if isinstance(body, list):
         body = body[1]
     # do some logging here
     else:
@@ -45,9 +43,7 @@ def process_external_requests(body):
         return
 
     # else no func registered for workflow requested
-    LOGGER.warning(
-        "No available workflow func for request " + json.dumps(body)
-    )
+    LOGGER.warning("No available workflow func for request " + json.dumps(body))
     # we can maybe put this in a dead-letter queue
     # TODO for later
 

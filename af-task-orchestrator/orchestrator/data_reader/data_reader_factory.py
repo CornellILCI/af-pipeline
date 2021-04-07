@@ -1,19 +1,15 @@
-from models.enums import DataSource
-
-from data_reader.phenotype_data_ebs import PhenotypeDataEbs
-from data_reader.phenotype_data_brapi import PhenotypeDataBrapi
-
 from data_reader.phenotype_data import PhenotypeData
-
+from data_reader.phenotype_data_brapi import PhenotypeDataBrapi
+from data_reader.phenotype_data_ebs import PhenotypeDataEbs
 from exceptions import DataSourceNotAvailableError
+from models.enums import DataSource
 
 
 class DataReaderFactory:
-    """ Factory to get phenotype data based on api data source
-    """
+    """Factory to get phenotype data based on api data source"""
 
     def __init__(self, data_source: DataSource):
-        """ Constructs a data reader factory for given data source.
+        """Constructs a data reader factory for given data source.
 
         Args:
             DataSource enum. eg., Datasource.EBS or DataSource.BRAPI
@@ -21,7 +17,7 @@ class DataReaderFactory:
         self.data_source = data_source
 
     def get_phenotype_data(self, **kwargs) -> PhenotypeData:
-        """ Returns an interface for reading phenotype data.
+        """Returns an interface for reading phenotype data.
 
         Args:
             kwargs: Key word arguments for phenotype data.

@@ -1,5 +1,3 @@
-
-
 class DataReaderException(Exception):
     pass
 

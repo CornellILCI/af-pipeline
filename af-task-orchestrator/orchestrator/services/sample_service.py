@@ -1,8 +1,8 @@
 # just an sample
 # we will add  service classes, API calls here
 
-class SomeBackendAPIService:
 
+class SomeBackendAPIService:
     def __init__(self):
         """Constructor"""
 
@@ -11,4 +11,3 @@ class SomeBackendAPIService:
 
 
 api_service = SomeBackendAPIService()
-

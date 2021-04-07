@@ -1,5 +1,4 @@
 import common
-
 import pandas as pd
 from pandas._testing import assert_frame_equal
 
@@ -31,9 +30,7 @@ def test_url_join():
 
     assert common.url_join(base_url, relative_url) == expected_result
 
-    assert (
-        common.url_join(base_url_multiple_right_slashes,
-                        relative_url_multiple_left_slashes) == expected_result)
+    assert common.url_join(base_url_multiple_right_slashes, relative_url_multiple_left_slashes) == expected_result
 
 
 def test_df_keep_columns():

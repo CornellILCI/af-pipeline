@@ -1,24 +1,15 @@
 import requests
-
-from common import valid_url, url_join
-
-from models import ApiResponse
-
+from common import url_join, valid_url
 from exceptions import DataReaderException
-
-from requests.exceptions import (
-    HTTPError,
-    RequestException)
+from models import ApiResponse
+from requests.exceptions import HTTPError, RequestException
 
 
 class DataReader:
-    """ Reads data from HTTP web service.
-    """
+    """Reads data from HTTP web service."""
 
-    def __init__(self,
-                 api_base_url: str = None,
-                 api_bearer_token: str = None):
-        """ Constructs DataReader.
+    def __init__(self, api_base_url: str = None, api_bearer_token: str = None):
+        """Constructs DataReader.
 
         Args:
             api_base_url:
@@ -36,7 +27,7 @@ class DataReader:
         self.api_bearer_token = api_bearer_token
 
     def _request(self, request_method, endpoint, **kwargs):
-        """ Wrapper for methods in requests module.
+        """Wrapper for methods in requests module.
 
         Args:
             request_method:
@@ -67,8 +58,7 @@ class DataReader:
         except RequestException as r_e:
             raise DataReaderException(r_e)
 
-        api_response = ApiResponse(http_status=response.status_code,
-                                   body=response.json())
+        api_response = ApiResponse(http_status=response.status_code, body=response.json())
 
         try:
             response.raise_for_status()
@@ -79,7 +69,7 @@ class DataReader:
         return api_response
 
     def get(self, endpoint: str = None, **kwargs) -> ApiResponse:
-        """ Subimits http GET requsts from the given endpoint.
+        """Subimits http GET requsts from the given endpoint.
 
         Args:
             endpoint:
@@ -104,7 +94,7 @@ class DataReader:
         return self._request(requests.get, endpoint, **kwargs)
 
     def post(self, endpoint: str = None, **kwargs) -> ApiResponse:
-        """ Subimits http POST requsts from the given endpoint.
+        """Subimits http POST requsts from the given endpoint.
 
         Args:
             endpoint: relative endpoint to base url

@@ -3,10 +3,6 @@
 from urllib.parse import urljoin, urlparse
 
 
-
-from typing import Iterable
-
-
 def valid_url(url):
     """ retruns True if url is a valid http url"""
 
@@ -24,6 +20,3 @@ def url_join(base_url: str, relative_url: str) -> str:
     relative_url = relative_url.lstrip("/")
 
     return urljoin(base_url, relative_url)
-
-
-

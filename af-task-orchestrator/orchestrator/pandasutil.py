@@ -1,8 +1,10 @@
+from typing import Iterable
+
 import pandas as pd
 
-def df_keep_columns(df: pd.DataFrame,
-                    columns_to_keep: Iterable[str]) -> pd.DataFrame:
-    """ Keeps only columns in given set.
+
+def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.DataFrame:
+    """Keeps only columns in given set.
 
     Keeps only columns in input set and drops columns not in the given set.
     Unmapped column in input set is ignored.
