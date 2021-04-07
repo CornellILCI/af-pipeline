@@ -1,3 +1,5 @@
+# flake8: noqa
+# TODO: really ignore N815 warning?
 from datetime import datetime
 
 from pydantic import BaseModel

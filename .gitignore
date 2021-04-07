@@ -25,3 +25,4 @@ aeo/input/
 aeo/scratch/
 venv
 docs/notebooks/.ipynb*
+.vscode

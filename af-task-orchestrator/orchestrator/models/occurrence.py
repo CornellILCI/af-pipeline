@@ -1,3 +1,5 @@
+# flake8: noqa
+# TODO: discus N815 flake8 warning
 from datetime import datetime
 
 from pydantic import BaseModel

@@ -1,6 +1,7 @@
 from gevent import time
 from orchestrator.app import LOGGER, app
 
+
 @app.task(base=FailureReportingTask)
 def sample_aggregator_task(params):
     LOGGER.info("AGGREGATOR TASK")

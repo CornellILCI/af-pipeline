@@ -1,21 +1,22 @@
-import common
+import orchestrator.urlutil as urlutil
+import orchestrator.pandasutil as pandasutil
 import pandas as pd
 from pandas._testing import assert_frame_equal
 
 
 def test_valid_str():
 
-    assert common.valid_url(None) is False
+    assert urlutil.valid_url(None) is False
 
-    assert common.valid_url("test") is False
+    assert urlutil.valid_url("test") is False
 
-    assert common.valid_url("  ") is False
+    assert urlutil.valid_url("  ") is False
 
-    assert common.valid_url("http://url") is True
+    assert urlutil.valid_url("http://url") is True
 
-    assert common.valid_url("hTtps://url/d/d/d") is True
+    assert urlutil.valid_url("hTtps://url/d/d/d") is True
 
-    assert common.valid_url("sftp://test.test") is False
+    assert urlutil.valid_url("sftp://test.test") is False
 
 
 def test_url_join():
@@ -28,9 +29,9 @@ def test_url_join():
 
     expected_result = "http://test.com/v1/endpoint"
 
-    assert common.url_join(base_url, relative_url) == expected_result
+    assert urlutil.url_join(base_url, relative_url) == expected_result
 
-    assert common.url_join(base_url_multiple_right_slashes, relative_url_multiple_left_slashes) == expected_result
+    assert urlutil.url_join(base_url_multiple_right_slashes, relative_url_multiple_left_slashes) == expected_result
 
 
 def test_df_keep_columns():
@@ -41,7 +42,7 @@ def test_df_keep_columns():
 
     expected_df = pd.DataFrame([{"a": 4, "b": 5}])
 
-    result_df = common.df_keep_columns(_df, columns_to_keep)
+    result_df = pandasutil.df_keep_columns(_df, columns_to_keep)
 
     # assert dataframe is returned
     assert isinstance(result_df, pd.DataFrame)

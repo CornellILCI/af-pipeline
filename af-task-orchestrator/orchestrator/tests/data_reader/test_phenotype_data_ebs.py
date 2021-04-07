@@ -3,29 +3,29 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 import pandas as pd
-from conftest import read_mock_json_file
-from data_reader.phenotype_data_ebs import PhenotypeDataEbs
-from exceptions import DataReaderException
-from models import Occurrence
+from orchestrator.tests.conftest import read_mock_json_file
+from orchestrator.data_reader.phenotype_data_ebs import PhenotypeDataEbs
+from orchestrator.exceptions import DataReaderException
+from orchestrator.models import Occurrence
 from pandas._testing import assert_frame_equal
 
 
 def get_plots_response():
     """ returns a plots response json object to be used as mock """
 
-    return read_mock_json_file("tests/data_reader/plots_mock_response.json")
+    return read_mock_json_file("orchestrator/tests/data_reader/plots_mock_response.json")
 
 
 def get_plot_data_response():
     """ returns a plots response json object to be used as mock """
 
-    return read_mock_json_file("tests/data_reader/plot_data_mock_response.json")
+    return read_mock_json_file("orchestrator/tests/data_reader/plot_data_mock_response.json")
 
 
 def get_occurrence_response():
     """ returns a occurrence response json object to be used as mock """
 
-    return read_mock_json_file("tests/data_reader/occurrence_mock_response.json")
+    return read_mock_json_file("orchestrator/tests/data_reader/occurrence_mock_response.json")
 
 
 def get_ebs_unauthorized_error_response():
@@ -101,7 +101,7 @@ def get_test_occurrence() -> Occurrence:
 
 
 class TestPhenotypeDataEbs(TestCase):
-    @patch("data_reader.data_reader.requests.post")
+    @patch("orchestrator.data_reader.data_reader.requests.post")
     def test_get_plots(self, mock_post):
 
         mock_post.return_value.status_code = 200
@@ -121,7 +121,7 @@ class TestPhenotypeDataEbs(TestCase):
 
         assert_frame_equal(plots_result_df, plots_test_df)
 
-    @patch("data_reader.data_reader.requests.post")
+    @patch("orchestrator.data_reader.data_reader.requests.post")
     def test_get_plots_raise_exception_for_401(self, mock_post):
 
         from requests.exceptions import HTTPError
@@ -133,7 +133,7 @@ class TestPhenotypeDataEbs(TestCase):
         with self.assertRaises(DataReaderException):
             PhenotypeDataEbs(api_base_url="http://test").get_plots(occurrence_id="testid")
 
-    @patch("data_reader.data_reader.requests.post")
+    @patch("orchestrator.data_reader.data_reader.requests.post")
     def test_get_plots_paging(self, mock_post):
 
         PhenotypeDataEbs.list_api_page_size = 2
@@ -179,7 +179,7 @@ class TestPhenotypeDataEbs(TestCase):
         with self.assertRaises(DataReaderException):
             PhenotypeDataEbs(api_base_url="htp").get_plots("testid")
 
-    @patch("data_reader.data_reader.requests.post")
+    @patch("orchestrator.data_reader.data_reader.requests.post")
     def test_get_plot_measurements(self, mock_post):
 
         PhenotypeDataEbs.list_api_page_size = 2
@@ -221,9 +221,9 @@ class TestPhenotypeDataEbs(TestCase):
 
         assert_frame_equal(plot_measurements_result, plot_measurements_expected.astype(str))
 
-    @patch("data_reader.data_reader.requests.post")
+    @patch("orchestrator.data_reader.data_reader.requests.post")
     def test_get_occurrence(self, mock_post):
-        from data_reader.phenotype_data_ebs import PhenotypeDataEbs
+        from orchestrator.data_reader.phenotype_data_ebs import PhenotypeDataEbs
 
         mock_post.return_value.status_code = 200
         mock_post.return_value.json.return_value = get_occurrence_response()

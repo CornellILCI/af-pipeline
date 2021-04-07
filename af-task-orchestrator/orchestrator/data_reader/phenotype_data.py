@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 import pandas as pd
-from data_reader.data_reader import DataReader
-from models import Experiment, Occurrence, Trait
+from orchestrator.data_reader.data_reader import DataReader
+from orchestrator.models import Experiment, Occurrence, Trait
 
 
 class PhenotypeData(ABC, DataReader):
