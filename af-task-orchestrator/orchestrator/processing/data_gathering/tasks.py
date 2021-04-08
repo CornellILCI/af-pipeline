@@ -33,8 +33,6 @@ def gather_data(params: dict) -> dict:
     datasource = _get_datasource(source)
     datatype = _get_datatype(params.get("datatype", "PHENOTYPE"))  # putting phenotype as default
     occurrence_id = params.get("occurrenceId")
-    if not occurrence_id:
-        raise MissingTaskParameter("occurrenceId")
 
     experiment_id = params.get("experimentId")
     trait_id = params.get("traitId")
@@ -108,4 +106,4 @@ def _get_datatype(datatype: str) -> DataType:
 
 
 def _get_phenotypedata_reader(factory: DataReaderFactory, base_url: str, token: str) -> PhenotypeData:
-    return factory.get_phenotype_data(api_base_url=base_url, api_token=token)
+    return factory.get_phenotype_data(api_base_url=base_url, api_bearer_token=token)
