@@ -1,6 +1,6 @@
 # from gevent import time
 from orchestrator import config
-from orchestrator.app import app
+from orchestrator.app import app, LOGGER
 from orchestrator.base import FailureReportingTask
 from orchestrator.data_reader import DataReaderFactory, PhenotypeData
 from orchestrator.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError, MissingTaskParameter
@@ -10,15 +10,21 @@ from pandas import DataFrame
 
 
 @app.task(base=FailureReportingTask)
+def sample_data_gathering_task(params):
+    LOGGER.info("SAMPLE DATA GATHERING TASK")
+    return params
+
+
+@app.task(base=FailureReportingTask)
 def gather_data(params: dict) -> dict:
     """Gather data using data_reader
-    
-       For Phenotype data, this task will extract any related data depending on what
-       parameters are contained in params.
 
-       experimentId -- task will update params with Experiment info
-       occurenceId -- task will update params with Plots, PlotMeasurements and Occurence data
-       traitId -- task will update params with Trait data.
+    For Phenotype data, this task will extract any related data depending on what
+    parameters are contained in params.
+
+    experimentId -- task will update params with Experiment info
+    occurenceId -- task will update params with Plots, PlotMeasurements and Occurence data
+    traitId -- task will update params with Trait data.
     """
     source = params.get("datasource")  # this is either EBS or BRAPI
     if not source:
@@ -26,9 +32,9 @@ def gather_data(params: dict) -> dict:
 
     datasource = _get_datasource(source)
     datatype = _get_datatype(params.get("datatype", "PHENOTYPE"))  # putting phenotype as default
-    occurence_id = params.get("occurenceId")
-    if not occurence_id:
-        raise MissingTaskParameter("occurenceId")
+    occurrence_id = params.get("occurrenceId")
+    if not occurrence_id:
+        raise MissingTaskParameter("occurrenceId")
 
     experiment_id = params.get("experimentId")
     trait_id = params.get("traitId")
@@ -52,10 +58,10 @@ def gather_data(params: dict) -> dict:
         if experiment_id:
             experiment = reader.get_experiment(experiment_id)
 
-        if occurence_id:
-            occurence = reader.get_occurrence(occurence_id)
-            plots = reader.get_plots(occurence_id)
-            plot_measurements = reader.get_plot_measurements(occurence_id)
+        if occurrence_id:
+            occurence = reader.get_occurrence(occurrence_id)
+            plots = reader.get_plots(occurrence_id)
+            plot_measurements = reader.get_plot_measurements(occurrence_id)
 
         if trait_id:
             trait = reader.get_trait(trait_id)

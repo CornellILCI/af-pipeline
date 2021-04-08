@@ -3,10 +3,10 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 import pandas as pd
-from orchestrator.tests.conftest import read_mock_json_file
 from orchestrator.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 from orchestrator.exceptions import DataReaderException
 from orchestrator.models import Occurrence
+from orchestrator.tests.conftest import read_mock_json_file
 from pandas._testing import assert_frame_equal
 
 

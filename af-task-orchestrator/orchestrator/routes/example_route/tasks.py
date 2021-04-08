@@ -1,8 +1,8 @@
 from orchestrator.registry import register
-from orchestrator.tasks.calculation.tasks import sample_calculation_task
-from orchestrator.tasks.data_gathering.tasks import sample_data_gathering_task
-from orchestrator.tasks.data_upload.tasks import sample_data_upload_task
-from orchestrator.tasks.workflow.tasks import sample_aggregator_task
+from orchestrator.processing.calculation.tasks import sample_calculation_task
+from orchestrator.processing.data_gathering.tasks import sample_data_gathering_task
+from orchestrator.processing.data_upload.tasks import sample_data_upload_task
+from orchestrator.processing.workflow.tasks import sample_aggregator_task
 
 
 def sample_route(params):

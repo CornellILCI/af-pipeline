@@ -1,5 +1,5 @@
-import orchestrator.urlutil as urlutil
 import orchestrator.pandasutil as pandasutil
+import orchestrator.urlutil as urlutil
 import pandas as pd
 from pandas._testing import assert_frame_equal
 

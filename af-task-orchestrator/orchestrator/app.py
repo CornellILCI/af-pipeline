@@ -17,11 +17,12 @@ INSTALLED_WORKFLOWS = [
     "orchestrator.common",
     "orchestrator.workflows.sample_workflow",
     "orchestrator.workflows.sample_workflow_2",
-    "orchestrator.tasks.calculation",
-    "orchestrator.tasks.data_gathering",
-    "orchestrator.tasks.data_upload",
-    "orchestrator.tasks.workflow",
+    "orchestrator.processing.calculation",
+    "orchestrator.processing.data_gathering",
+    "orchestrator.processing.data_upload",
+    "orchestrator.processing.workflow",
     "orchestrator.routes.example_route",
+    "orchestrator.workflows.data_gathering_demo",
 ]
 
 
@@ -39,15 +40,14 @@ def process_external_requests(body):
     job_id = body.get("jobId")
     if func and job_id:
         LOGGER.info(
-            "Workflow: {func.__name__} with ID:{job_id} initiated.",  # noqa: FS003
-            extra=dict(fname=func.__name__, job_id=job_id),
+            f"Workflow: {func.__name__} with ID:{job_id} initiated."  # noqa: FS003
         )
         func(body)
         return
 
     # else no func registered for workflow requested
     LOGGER.warning(
-        "No available workflow func for request {request}", extra=dict(request=json.dumps(body))  # noqa: FS003
+        "No available workflow func for request %s", json.dumps(body)  # noqa: FS003
     )
 
     # we can maybe put this in a dead-letter queue
