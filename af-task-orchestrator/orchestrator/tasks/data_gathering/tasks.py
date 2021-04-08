@@ -11,7 +11,15 @@ from pandas import DataFrame
 
 @app.task(base=FailureReportingTask)
 def gather_data(params: dict) -> dict:
-    """Gather data using data_reader"""
+    """Gather data using data_reader
+    
+       For Phenotype data, this task will extract any related data depending on what
+       parameters are contained in params.
+
+       experimentId -- task will update params with Experiment info
+       occurenceId -- task will update params with Plots, PlotMeasurements and Occurence data
+       traitId -- task will update params with Trait data.
+    """
     source = params.get("datasource")  # this is either EBS or BRAPI
     if not source:
         raise MissingTaskParameter("datasource")

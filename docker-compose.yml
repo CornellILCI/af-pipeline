@@ -44,6 +44,10 @@ services:
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - BACKEND=rpc://
       - CONSUMER_QUEUE=jobs
+      - B4R_API_BASE_URL=
+      - B4R_API_TOKEN=
+      - EBS_API_BASE_URL=
+      - EBS_API_TOKEN=
     links:
       - rabbitmq
     depends_on:

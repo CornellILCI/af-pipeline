@@ -11,6 +11,8 @@ Docker-compose will run 4 services:
 
 ### How to RUN:
 
+From the repository root dir (since the docker-compose file is there):
+
 `
 %  docker-compose build
 ` 
@@ -19,10 +21,19 @@ Docker-compose will run 4 services:
 %  docker-compose up -d   
 `
 
+
 (or remove -d if you want the logs to display on your current console)
+
+This will run the af-jobs-api service, and the af-task-orchestrator service, along with a RabbitMQ service.
 
 
 TODO:  JobAPI demo
+
+### How To Submit A Job Using AF-Jobs-API Service (using Curl)
+
+`
+% curl -X POST --header 'Content-Type: application/json' --data '{"experimentId":"1", "occurenceId": "2", "traitId": "3", "datasource": "BRAPI", "datatype": "PHENOTYPE"}' http://localhost/jobs
+`
 
 ### How To Submit "Jobs" Via Rabbit MQ 
 
