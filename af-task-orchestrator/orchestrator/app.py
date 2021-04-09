@@ -36,7 +36,7 @@ def process_external_requests(body):
     # do some logging here
     else:
         body = json.loads(body)
-    func = WORKFLOW_REGISTRY.get(body["jobName"])
+    func = WORKFLOW_REGISTRY.get(body["processName"]) or WORKFLOW_REGISTRY.get(body["jobName"])
     job_id = body.get("jobId")
     if func and job_id:
         LOGGER.info(f"Workflow: {func.__name__} with ID:{job_id} initiated.")  # noqa: FS003
@@ -50,6 +50,6 @@ def process_external_requests(body):
     # TODO for later
 
 
-app = Celery("ap-worker", broker=BROKER, backend=BACKEND)
+app = Celery("af-worker", broker=BROKER, backend=BACKEND)
 app.autodiscover_tasks(INSTALLED_WORKFLOWS)
 app.steps["consumer"].add(AMQPRetryConsumerStep)
