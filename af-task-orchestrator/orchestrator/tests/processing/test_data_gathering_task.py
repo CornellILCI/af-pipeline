@@ -1,4 +1,3 @@
-import pytest
 from orchestrator.processing.data_gathering.tasks import gather_data
 
 

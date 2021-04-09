@@ -29,7 +29,7 @@ services:
       - MQ_USER=admin
       - MQ_PASS=mypass
     ports:
-      - "80:80"
+      - "5000:5000"
 
     depends_on:
       - rabbitmq
