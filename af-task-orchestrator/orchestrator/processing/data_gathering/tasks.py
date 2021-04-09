@@ -1,6 +1,6 @@
 # from gevent import time
 from orchestrator import config
-from orchestrator.app import app, LOGGER
+from orchestrator.app import LOGGER, app
 from orchestrator.base import FailureReportingTask
 from orchestrator.data_reader import DataReaderFactory, PhenotypeData
 from orchestrator.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError, MissingTaskParameter
@@ -26,12 +26,12 @@ def gather_data(params: dict) -> dict:
     occurenceId -- task will update params with Plots, PlotMeasurements and Occurence data
     traitId -- task will update params with Trait data.
     """
-    source = params.get("datasource")  # this is either EBS or BRAPI
+    source = params.get("dataSource")  # this is either EBS or BRAPI
     if not source:
-        raise MissingTaskParameter("datasource")
+        raise MissingTaskParameter("dataSource")
 
     datasource = _get_datasource(source)
-    datatype = _get_datatype(params.get("datatype", "PHENOTYPE"))  # putting phenotype as default
+    datatype = _get_datatype(params.get("dataType", "PHENOTYPE"))  # putting phenotype as default
     occurrence_id = params.get("occurrenceId")
 
     experiment_id = params.get("experimentId")
@@ -50,14 +50,14 @@ def gather_data(params: dict) -> dict:
         plots: DataFrame = None
         plot_measurements: DataFrame = None
         experiment: Experiment = None
-        occurence: Occurrence = None
+        occurrence: Occurrence = None
         trait: Trait = None
 
         if experiment_id:
             experiment = reader.get_experiment(experiment_id)
 
         if occurrence_id:
-            occurence = reader.get_occurrence(occurrence_id)
+            occurrence = reader.get_occurrence(occurrence_id)
             plots = reader.get_plots(occurrence_id)
             plot_measurements = reader.get_plot_measurements(occurrence_id)
 
@@ -69,7 +69,7 @@ def gather_data(params: dict) -> dict:
         results = {
             "experiment": experiment,
             "trait": trait,
-            "occurrence": occurence,
+            "occurrence": occurrence,
             "plots": plots,
             "plotMeasurements": plot_measurements,
         }

@@ -4,6 +4,7 @@ import json
 from flask import Flask, request, jsonify, render_template
 from pika import BlockingConnection, ConnectionParameters
 from pika.credentials import PlainCredentials
+import uuid
 
 app = Flask(__name__)
 
@@ -26,7 +27,10 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE")
 @app.route('/jobs', methods=['POST'])
 def create_job():
     content = request.json
-
+    # assign job Id
+    job_id = uuid.uuid4()
+    content["jobId"] = job_id
+    
     #
     conn = get_connection()
     channel = conn.channel()
@@ -36,7 +40,7 @@ def create_job():
         body=json.dumps(content)
     )
     conn.close()
-    return jsonify({"status": "ok"}), 201
+    return jsonify({"status": "ok", "jobId": job_id}), 201
 
 
 @app.route('/test', methods=['GET'])
