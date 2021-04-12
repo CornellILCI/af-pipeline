@@ -11,13 +11,35 @@
 
 4.  Testing and Code Coverage
 
-```
+```bash
 $ cd /path/to/component_or_app
 
 $ coverage run -m pytest
 
 $ coverage report -m
 ```
+
+5.  Linting (Using Flakehell)
+
+We recommend using flakehell (with flake8 plugins) to do code linting.
+
+```bash
+$ cd /path/to/component_or_app
+
+$ flakehell lint .
+
+```
+
+For code formatting run isort and black:
+
+```bash
+
+$ isort .
+
+$ black .
+
+```
+
 
 
 ## AF Task Orchestrator
