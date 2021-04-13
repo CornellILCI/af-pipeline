@@ -26,3 +26,4 @@ aeo/scratch/
 venv
 docs/notebooks/.ipynb*
 .vscode
+htmlcov/

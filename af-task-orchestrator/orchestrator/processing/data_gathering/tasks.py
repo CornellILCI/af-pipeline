@@ -33,7 +33,7 @@ def gather_data(params: dict) -> dict:
     source = params.get("dataSource")  # this is either EBS or BRAPI
     if not source:
         raise MissingTaskParameter("dataSource")
-    
+
     api_token = params.get("apiBearerToken")
     if not api_token:
         raise MissingTaskParameter("apiBearerToken")
@@ -45,8 +45,8 @@ def gather_data(params: dict) -> dict:
     experiment_id = params.get("experimentId")
     trait_id = params.get("traitId")
 
-    api_base_url  = _get_api_details(datasource)
-    
+    api_base_url = _get_api_details(datasource)
+
     factory = DataReaderFactory(datasource)
 
     if datatype == DataType.PHENOTYPE:
