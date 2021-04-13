@@ -22,6 +22,10 @@ def gather_data(params: dict) -> dict:
     For Phenotype data, this task will extract any related data depending on what
     parameters are contained in params.
 
+    Required Params:
+    dataSource -- EBS or BRAPI
+    apiBearerToken -- API Auth token for accessing APIs
+
     experimentId -- task will update params with Experiment info
     occurenceId -- task will update params with Plots, PlotMeasurements and Occurence data
     traitId -- task will update params with Trait data.
@@ -29,6 +33,10 @@ def gather_data(params: dict) -> dict:
     source = params.get("dataSource")  # this is either EBS or BRAPI
     if not source:
         raise MissingTaskParameter("dataSource")
+    
+    api_token = params.get("apiBearerToken")
+    if not api_token:
+        raise MissingTaskParameter("apiBearerToken")
 
     datasource = _get_datasource(source)
     datatype = _get_datatype(params.get("dataType", "PHENOTYPE"))  # putting phenotype as default
@@ -37,8 +45,8 @@ def gather_data(params: dict) -> dict:
     experiment_id = params.get("experimentId")
     trait_id = params.get("traitId")
 
-    api_base_url, api_token = _get_api_details(datasource)
-
+    api_base_url  = _get_api_details(datasource)
+    
     factory = DataReaderFactory(datasource)
 
     if datatype == DataType.PHENOTYPE:
@@ -80,14 +88,14 @@ def gather_data(params: dict) -> dict:
     raise DataTypeNotAvailableError(datatype.name)
 
 
-def _get_api_details(datasource: DataSource) -> tuple[str, str]:
+def _get_api_details(datasource: DataSource, *args, **kwargs):
     if datasource == DataSource.EBS:
-        return config.EBS_BASE_URL, config.EBS_TOKEN
+        return config.EBS_BASE_URL
     elif datasource == DataSource.BRAPI:
-        return config.BRAPI_BASE_URL, config.BRAPI_TOKEN
+        return config.BRAPI_BASE_URL
 
 
-def _get_datasource(datasource: str) -> DataSource:
+def _get_datasource(datasource: str, *args, **kwargs) -> DataSource:
     source: DataSource = None
     try:
         source = DataSource[datasource]
@@ -96,7 +104,7 @@ def _get_datasource(datasource: str) -> DataSource:
         raise DataSourceNotAvailableError(datasource)
 
 
-def _get_datatype(datatype: str) -> DataType:
+def _get_datatype(datatype: str, *args, **kwargs) -> DataType:
     dtype: DataType = None
     try:
         dtype = DataType[datatype]
