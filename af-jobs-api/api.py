@@ -58,14 +58,14 @@ def start_process():
         #     errorMessage += "experimentId does not exist in the request. "
         if "dataSource" not in content:
             errorMessage += "dataSource does not exist in the request. "
-        elif content["dataSource"] != "EBS" and content["dataSource"] != "BRAPI"
+        elif (content["dataSource"] != "EBS" and content["dataSource"] != "BRAPI"):
             errorMessage += "dataSource is not 'EBS' or 'BRAPI'. "
         if "dataSourceId" not in content:
             errorMessage += "dataSourceId does not exist in the request. "
 
         if "dataType" not in content:
             errorMessage += "dataType does not exist in the request. "
-        elif content["dataType"] != "GENOTYPE" and content["dataType"] != "PHENOTYPE"
+        elif (content["dataType"] != "GENOTYPE" and content["dataType"] != "PHENOTYPE"):
             errorMessage += "dataSource is not 'GENOTYPE' or 'PHENOTYPE'. "
 
         if "token" not in content:
