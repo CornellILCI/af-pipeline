@@ -88,11 +88,9 @@ def start_process():
         channel = conn.channel()
         channel.basic_publish(exchange="", routing_key=CONSUMER_QUEUE, body=json.dumps(content))
         conn.close()
-
-    if errorMessage != "":
-        return jsonify({"status": "error", "message": errorMessage}), 400
-    else:
         return jsonify({"status": "ok", "Process ID": processid}), 201
+        
+    return jsonify({"status": "error", "message": error_messages}), 400
 
 
 @app.route("/test", methods=["GET"])
