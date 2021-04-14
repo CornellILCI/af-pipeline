@@ -17,6 +17,17 @@ def phenotype_request():
         "apiBearerToken": "some_bearer_token",
     }
 
+@pytest.fixture
+def phenotype_request_missing_datasource():
+    return {
+        "experimentId": "123",
+        "occurrenceId": "456",
+        "traitId": "789",
+        "jobId": "sampleId",
+        "processName": "some_workflow",
+        "apiBearerToken": "some_bearer_token",
+    }
+
 
 @pytest.fixture
 def mock_trait():
