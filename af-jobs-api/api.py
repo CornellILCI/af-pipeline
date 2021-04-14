@@ -28,7 +28,7 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE")
 def create_job():
     content = request.json
     # assign job Id
-    job_id = uuid.uuid4()
+    job_id = str(uuid.uuid4())
     content["jobId"] = job_id
     
     #

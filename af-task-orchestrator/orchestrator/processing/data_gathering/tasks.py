@@ -16,7 +16,7 @@ def sample_data_gathering_task(params):
 
 
 @app.task(base=FailureReportingTask)
-def gather_data(params: dict) -> dict:
+def gather_data(params):
     """Gather data using data_reader
 
     For Phenotype data, this task will extract any related data depending on what
@@ -30,6 +30,7 @@ def gather_data(params: dict) -> dict:
     occurenceId -- task will update params with Plots, PlotMeasurements and Occurence data
     traitId -- task will update params with Trait data.
     """
+    LOGGER.info("Hello")
     source = params.get("dataSource")  # this is either EBS or BRAPI
     if not source:
         raise MissingTaskParameter("dataSource")

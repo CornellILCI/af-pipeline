@@ -1,12 +1,19 @@
 import json
 import os
 
+import jsonpickle
+import jsonpickle.ext.pandas as jsonpickle_pandas
 from celery import Celery
 from celery.utils.log import get_task_logger
 from event_consumer import message_handler
 from event_consumer.handlers import AMQPRetryConsumerStep
+from kombu.serialization import register
 
 from .registry import WORKFLOW_REGISTRY
+
+jsonpickle_pandas.register_handlers()
+
+# register('json', jsonpickle.dumps, jsonpickle.loads, content_type='application/json')
 
 BROKER = os.getenv("BROKER")
 BACKEND = os.getenv("BACKEND")
@@ -52,4 +59,5 @@ def process_external_requests(body):
 
 app = Celery("af-worker", broker=BROKER, backend=BACKEND)
 app.autodiscover_tasks(INSTALLED_WORKFLOWS)
+app.conf.update({"accept_content": ["pickle"], "task_serializer": "pickle", "result_serializer": "pickle"})
 app.steps["consumer"].add(AMQPRetryConsumerStep)
