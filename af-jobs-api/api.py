@@ -18,12 +18,6 @@ def get_connection():
                 username=os.getenv('MQ_USER','admin'),
                 password=os.getenv('MQ_PASS','mypass')
             )
-            # host='localhost',
-            # port='5672',
-            # credentials=PlainCredentials(
-            #     username='admin',
-            #     password='mypass'
-            # )
         ))
     )
 
@@ -45,6 +39,19 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE",'jobs')
 #     conn.close()
 #     return jsonify({"status": "ok"}), 201
 
+
+# Inputs
+# experimentId - optional
+# dataSource - required EBS or BRAPI
+# dataSourceId - example EBS1 EBS2 BRAPI1
+# dataType - PHENOTYPE or GENOTYPE
+# occurrenceId - optional
+# traitId - optional
+# token - 
+# processName - required
+
+# Returns
+# jobId
 @app.route('/StartProcess', methods=['POST'])
 def start_process():
     errorMessage = ''
@@ -54,8 +61,6 @@ def start_process():
     if content == None: 
         errorMessage = "Empty request. "
     else:
-        # if "experimentId" not in content:
-        #     errorMessage += "experimentId does not exist in the request. "
         if "dataSource" not in content:
             errorMessage += "dataSource does not exist in the request. "
         elif (content["dataSource"] != "EBS" and content["dataSource"] != "BRAPI"):
@@ -67,25 +72,12 @@ def start_process():
             errorMessage += "dataType does not exist in the request. "
         elif (content["dataType"] != "GENOTYPE" and content["dataType"] != "PHENOTYPE"):
             errorMessage += "dataSource is not 'GENOTYPE' or 'PHENOTYPE'. "
-
         if "token" not in content:
             errorMessage += "token does not exist in the request. "
         if "processName" not in content:
             errorMessage += "processName does not exist in the request. "    
 
-# experimentId - optional
-# dataSource - required EBS or BRAPI
-# dataSourceId - example EBS1 EBS2 BRAPI1
-# dataType - PHENOTYPE or GENOTYPE
-# occurrenceId - optional
-# traitId - optional
-# token - 
-# processName - required
 
-
-
-# returns
-# jobId
 
 
     # TODO we will need further validations on the request
