@@ -52,7 +52,7 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE",'jobs')
 
 # Returns
 # jobId
-@app.route('/StartProcess', methods=['POST'])
+@app.route('/process', methods=['POST'])
 def start_process():
     errorMessage = ''
     content = request.json
