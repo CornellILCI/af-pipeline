@@ -1,8 +1,8 @@
-import os
 import json
+import os
 import uuid
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from pika import BlockingConnection, ConnectionParameters
 from pika.credentials import PlainCredentials
 
@@ -89,7 +89,7 @@ def start_process():
         channel.basic_publish(exchange="", routing_key=CONSUMER_QUEUE, body=json.dumps(content))
         conn.close()
         return jsonify({"status": "ok", "Process ID": processid}), 201
-        
+
     return jsonify({"status": "error", "message": error_messages}), 400
 
 

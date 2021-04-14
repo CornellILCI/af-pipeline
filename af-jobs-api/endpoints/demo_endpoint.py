@@ -1,5 +1,5 @@
 from flask import Flask, request
-from flask_restful import Resource, Api
+from flask_restful import Api, Resource
 
 # from orchestrator.routes.example_route.tasks import sample_route as example_route
 
