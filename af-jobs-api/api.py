@@ -56,12 +56,11 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE", "jobs")
 # new jobs/processes -- take a look at Gobii APIs
 @app.route("/StartProcess", methods=["POST"])
 def start_process():
-    errorMessage = ""
     content = request.json
 
     processid = ""
     error_messages = []
-    if content == None:
+    if not content:
         error_messages.append("Empty request.")
     else:
         if "dataSource" not in content:
