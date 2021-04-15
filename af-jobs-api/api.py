@@ -51,10 +51,7 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE", "jobs")
 
 # Returns
 # jobId
-# @Sam:  Let's stick with nouns for the endpoint urls, strongly suggest
-# either /jobs or /processes   so we say POST /processes (or POST /jobs) for creating
-# new jobs/processes -- take a look at Gobii APIs
-@app.route("/StartProcess", methods=["POST"])
+@app.route('/process', methods=['POST'])
 def start_process():
     content = request.json
 
