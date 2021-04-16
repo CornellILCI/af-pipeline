@@ -3,9 +3,13 @@
 This demo requires Docker.
 
 Docker-compose will run 4 services:
+
 1.  JobAPI - A REST based API for submitting jobs AND getting the status of the jobs from (NOTE: NOT YET IMPLEMENTED)
+
 2.  RabbitMQ (with management interface so we can use that to submit jobs instead)
+
 3.  Example Celery Worker With Job Consumer
+
 4.  Redis (TODO: Not yet Included) for storing Job status / results
 
 
