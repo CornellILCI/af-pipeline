@@ -11,19 +11,19 @@
 
 4.  Testing and Code Coverage
 
-    ```bash
+```bash
     $ cd /path/to/component_or_app
 
     $ coverage run -m pytest
 
     $ coverage report -m
-    ```
+```
 
     We can generate an HTML formatted report of the code coverage:
 
-    ```bash
+```bash
     $ coverage html
-    ```
+```
 
     ...which will generate a `htmlcov` folder containing the coverage report in web page format.  Open `index.html` to view in a web browser.
 
