@@ -35,6 +35,7 @@ All `job`s have the following mandatory fields:
 | Parameter Name | Description | Type | Possible Values | Default | Required/Optional |
 | -------------- | ----------- | ---- | --------------- | ------- | ----------------- |
 | `dataSource` | API Data source | string | `EBS` or `BRAPI` | none | Required |
+| `dataSourceId` | API Data source ID | string | Specific datasource ID | none | Required |
 | `dataType`  | Data type | string | `PHENOTYPE` or `GENOTYPE` | `PHENOTYPE` | Optional |
 | `experimentId` | Experiment ID | string | This maybe the DB identifier of the experiment | | Optional |
 | `occurrenceId` | Occurrence ID | string | DB identifier of the occurrence | Optional |

@@ -35,8 +35,10 @@ TODO:  JobAPI demo
 
 ### How To Submit A Job Using AF-Jobs-API Service (using Curl)
 
+Get a token from [EBS UAT](https://b4rapi-uat.ebsproject.org/v3/auth/login) and then use the token in the request.
+
 `
-% curl -X POST --header 'Content-Type: application/json' --data '{"experimentId":"1", "occurenceId": "2", "traitId": "3", "datasource": "BRAPI", "datatype": "PHENOTYPE"}' http://localhost/jobs
+% curl -X POST --header 'Content-Type: application/json' --data '{"experimentId":"1", "occurenceId": "2", "traitId": "3", "dataSource": "EBS", "dataSourceId": "EBS1", "processName": "data_gathering_demo", "dataType": "PHENOTYPE", "apiBearerToken": "eyTokenHERE"}' http://localhost/process
 `
 
 ### How To Submit "Jobs" Via Rabbit MQ 
