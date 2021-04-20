@@ -9,13 +9,13 @@ from orchestrator.models.enums import DataSource, DataType
 from pandas import DataFrame
 
 
-@app.task(base=FailureReportingTask)
+@app.task(name="sample_data_gathering_task", base=FailureReportingTask)
 def sample_data_gathering_task(params):
     LOGGER.info("SAMPLE DATA GATHERING TASK")
     return params
 
 
-@app.task(base=FailureReportingTask)
+@app.task(name="gather_data", base=FailureReportingTask)
 def gather_data(params):
     """Gather data using data_reader
 

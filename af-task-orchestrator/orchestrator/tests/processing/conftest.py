@@ -17,6 +17,7 @@ def phenotype_request():
         "apiBearerToken": "some_bearer_token",
     }
 
+
 @pytest.fixture
 def phenotype_request_missing_datasource():
     return {

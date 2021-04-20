@@ -1,27 +1,16 @@
-import json
 import os
 import uuid
 
+from celery import Celery
 from flask import Flask, jsonify, render_template, request
-from pika import BlockingConnection, ConnectionParameters
-from pika.credentials import PlainCredentials
+
+BROKER = os.getenv("BROKER")
+
+celery_app = Celery("af-tasks", broker=BROKER)
+celery_app.conf.update({"task_serializer": "pickle"})
 
 app = Flask(__name__)
 
-
-def get_connection():
-    return BlockingConnection(
-        ConnectionParameters(
-            host=os.getenv("MQ_HOST", "localhost"),
-            port=os.getenv("MQ_PORT", "5672"),
-            credentials=PlainCredentials(
-                username=os.getenv("MQ_USER", "admin"), password=os.getenv("MQ_PASS", "mypass")
-            ),
-        )
-    )
-
-
-CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE", "jobs")
 
 # Example API endpoint
 # @app.route('/jobs', methods=['POST'])
@@ -51,7 +40,7 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE", "jobs")
 
 # Returns
 # jobId
-@app.route('/process', methods=['POST'])
+@app.route("/process", methods=["POST"])
 def start_process():
     content = request.json
 
@@ -81,10 +70,8 @@ def start_process():
         processid = str(uuid.uuid4())
         content["processId"] = processid
 
-        conn = get_connection()
-        channel = conn.channel()
-        channel.basic_publish(exchange="", routing_key=CONSUMER_QUEUE, body=json.dumps(content))
-        conn.close()
+        celery_app.send_task(content.get("processName"), args=(content,))
+
         return jsonify({"status": "ok", "Process ID": processid}), 201
 
     return jsonify({"status": "error", "message": error_messages}), 400
@@ -100,5 +87,5 @@ def testredirect():
     return render_template("loginExample.html")
 
 
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+# if __name__ == "__main__":
+#     app.run(debug=os.getenv("DEBUG", False), host="0.0.0.0")

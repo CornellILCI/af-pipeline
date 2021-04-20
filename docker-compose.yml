@@ -22,12 +22,8 @@ services:
     working_dir: /app
     command: ["./gunicorn.sh"]
     environment:
-      - CONSUMER_QUEUE=jobs
-      - MQ_EXCHANGE=
-      - MQ_HOST=rabbitmq
-      - MQ_PORT=5672
-      - MQ_USER=admin
-      - MQ_PASS=mypass
+      - C_FORCE_ROOT=true
+      - BROKER=amqp://admin:mypass@rabbitmq:5672
     ports:
       - "5000:5000"
 

@@ -1,9 +1,9 @@
 from gevent import time
 from orchestrator.app import LOGGER, app
 from orchestrator.base import FailureReportingTask, ResultReportingTask
-from orchestrator.registry import register
 
 
+@app.task(name="sample_workflow")
 def sample_workflow(params):
     """
     Sample workflow functions that call the tasks
@@ -16,7 +16,7 @@ def sample_workflow(params):
 # -- tasks section
 
 
-@app.task(base=FailureReportingTask)
+@app.task(name="sample_workflow_extract_task", base=FailureReportingTask)
 def sample_worfklow_extract_task(params):
     LOGGER.info("In Extract task")
     time.sleep(5)  # simulate a long task
@@ -24,7 +24,7 @@ def sample_worfklow_extract_task(params):
     return params  # return this for next task
 
 
-@app.task(base=FailureReportingTask)
+@app.task(name="sample_workflow_transform_task", base=FailureReportingTask)
 def sample_worflow_transform_task(params):
     LOGGER.info("In Transform task")
     time.sleep(4)  # simulate another long task
@@ -34,14 +34,10 @@ def sample_worflow_transform_task(params):
     return params  # return for next task
 
 
-@app.task(base=ResultReportingTask)
+@app.task(name="sample_workflow_load_task", base=ResultReportingTask)
 def sample_workflow_load_task(params):
     LOGGER.info("In Load task")
     time.sleep(3)  # simulate long task
     params["load_result"] = params["transform_result"] + " Load Result"
 
     return params
-
-
-# this should be called on import
-register("sample_workflow", sample_workflow)

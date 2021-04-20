@@ -3,10 +3,10 @@ from gevent import time
 from orchestrator.app import LOGGER, app
 from orchestrator.base import FailureReportingTask, ResultReportingTask
 from orchestrator.common.tasks import common_task
-from orchestrator.registry import register
 from orchestrator.services.sample_service import api_service
 
 
+@app.task(name="sample_workflow_2")
 def sample_workflow_2(params):
     """
     Sample workflow functions that call the tasks
@@ -17,7 +17,7 @@ def sample_workflow_2(params):
 # -- tasks section
 
 
-@app.task(base=FailureReportingTask)
+@app.task(name="sample_analyze_task", base=FailureReportingTask)
 def sample_analyze_task(params):
     LOGGER.info("In analyze task")
     result = api_service.some_api_call()
@@ -25,12 +25,8 @@ def sample_analyze_task(params):
     return params  # return this for next task
 
 
-@app.task(base=ResultReportingTask)
+@app.task(name="sample_post_analysis_task", base=ResultReportingTask)
 def sample_post_analysis_task(params):
     LOGGER.info("In post analysis task")
     time.sleep(1)  # simulate another long task
     return params  # return for next task
-
-
-# this should be called on import
-register("sample_workflow_2", sample_workflow_2)

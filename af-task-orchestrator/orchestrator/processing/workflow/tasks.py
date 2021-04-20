@@ -3,7 +3,7 @@ from orchestrator.app import LOGGER, app
 from orchestrator.base import FailureReportingTask
 
 
-@app.task(base=FailureReportingTask)
+@app.task(name="sample_aggregator_task", base=FailureReportingTask)
 def sample_aggregator_task(params):
     LOGGER.info("AGGREGATOR TASK")
     time.sleep(4)
