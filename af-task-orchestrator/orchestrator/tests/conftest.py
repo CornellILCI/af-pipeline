@@ -3,7 +3,6 @@ import os
 import sys
 
 os.environ["B4R_API_BASE_URL"] = ""
-os.environ["CONSUMER_QUEUE"] = "TEST-QUEUE"
 
 
 def read_mock_json_file(file_path):

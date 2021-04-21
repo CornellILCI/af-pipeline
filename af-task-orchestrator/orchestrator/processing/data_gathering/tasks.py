@@ -1,4 +1,3 @@
-# from gevent import time
 from orchestrator import config
 from orchestrator.app import LOGGER, app
 from orchestrator.base import FailureReportingTask
@@ -7,12 +6,6 @@ from orchestrator.exceptions import DataSourceNotAvailableError, DataTypeNotAvai
 from orchestrator.models import Experiment, Occurrence, Trait
 from orchestrator.models.enums import DataSource, DataType
 from pandas import DataFrame
-
-
-@app.task(name="sample_data_gathering_task", base=FailureReportingTask)
-def sample_data_gathering_task(params):
-    LOGGER.info("SAMPLE DATA GATHERING TASK")
-    return params
 
 
 @app.task(name="gather_data", base=FailureReportingTask)

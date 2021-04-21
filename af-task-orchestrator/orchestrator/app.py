@@ -17,19 +17,14 @@ BACKEND = os.getenv("BACKEND")
 CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE")
 LOGGER = get_task_logger(__name__)
 
-INSTALLED_WORKFLOWS = [
+INSTALLED_TASKS = [
     "orchestrator.common",
-    "orchestrator.workflows.sample_workflow",
-    "orchestrator.workflows.sample_workflow_2",
-    "orchestrator.processing.calculation",
     "orchestrator.processing.data_gathering",
-    "orchestrator.processing.data_upload",
-    "orchestrator.processing.workflow",
-    "orchestrator.routes.example_route",
-    "orchestrator.workflows.data_gathering_demo",
+    "orchestrator.processing.debug",
+    "orchestrator.workflows.data_gathering_demo",  # TODO: this is for demo purposes only
 ]
 
 
 app = Celery("af-worker", broker=BROKER, backend=BACKEND)
-app.autodiscover_tasks(INSTALLED_WORKFLOWS)
+app.autodiscover_tasks(INSTALLED_TASKS)
 app.conf.update({"accept_content": ["pickle"], "task_serializer": "pickle", "result_serializer": "pickle"})
