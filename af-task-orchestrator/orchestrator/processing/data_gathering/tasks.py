@@ -23,7 +23,6 @@ def gather_data(params):
     occurenceId -- task will update params with Plots, PlotMeasurements and Occurence data
     traitId -- task will update params with Trait data.
     """
-    LOGGER.info("Hello")
     source = params.get("dataSource")  # this is either EBS or BRAPI
     if not source:
         raise MissingTaskParameter("dataSource")
