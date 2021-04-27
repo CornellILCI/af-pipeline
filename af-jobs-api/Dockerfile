@@ -5,3 +5,4 @@ ENV LOG_LEVEL info
 ENV PYTHONPATH "${PYTHONPATH}:/app/"
 COPY . /app/
 RUN apt-get update & pip3 install  -r requirements.txt
+ENTRYPOINT [ "./gunicorn.sh" ]

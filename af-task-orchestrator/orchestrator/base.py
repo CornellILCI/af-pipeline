@@ -1,7 +1,14 @@
 from celery import Task
 
+from orchestrator.db import db_session
 
-class FailureReportingTask(Task):
+
+class DBLoggingTask(Task):
+    def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        db_session.remove()
+        
+
+class FailureReportingTask(DBLoggingTask):
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """Error handler.
         This is run by the worker when the task fails.
@@ -15,8 +22,10 @@ class FailureReportingTask(Task):
             None: The return value of this handler is ignored.
         """
         # report to jobAPI that the task failed
-        # params = args[0]
-        # job_id = params.get("jobId")
+        params = args[0]
+        job_id = params.get("processId") or params.get("jobId")
+
+
 
         # call job API store to update that the task failed
 

@@ -1,10 +1,25 @@
 #docker-compose.yaml
+#this docker-compose is intended for dev/local setup
 version: "3.4"
+volumes:
+  afdb_volume:
+
 services:
-  # redis:
-  #   image: redis:latest
-  #   hostname: redis
-  
+  database:
+    image: postgres:9.6-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - type: volume
+        source: afdb_volume
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./postgres
+        target: /docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
   rabbitmq:
     hostname: rabbitmq
     image: rabbitmq:management
@@ -20,13 +35,11 @@ services:
       context: ./af-jobs-api
       dockerfile: Dockerfile
     working_dir: /app
-    command: ["./gunicorn.sh"]
     environment:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672
     ports:
       - "5000:5000"
-
     depends_on:
       - rabbitmq
   
@@ -35,18 +48,32 @@ services:
       context: ./af-task-orchestrator
       dockerfile: Dockerfile
     working_dir: /app
-    command: ["celery", "-A", "orchestrator.app", "worker", "--pool=gevent", "--concurrency=20", "-l", "debug" ]
     environment:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - BACKEND=rpc://
-      - CONSUMER_QUEUE=jobs
+      - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
       - B4R_API_BASE_URL=https://b4rapi-uat.ebsproject.org/v3/
       - B4R_API_TOKEN=
     links:
       - rabbitmq
     depends_on:
       - rabbitmq
+      - database
+
+  liquibase:
+    image: liquibase/liquibase:3.10.3
+    restart: 'no'
+    depends_on: 
+      - database
+    volumes:
+      - type: bind
+        source: ./db
+        target: /db/
+    working_dir: /db/build/liquibase/
+    command: ./wait_for_postgres_then_init.sh
+      
+
 
   # beat:
   #   build:

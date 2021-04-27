@@ -5,5 +5,5 @@ ENV PYTHONPATH "${PYTHONPATH}:/app/"
 WORKDIR /app/
 COPY . /app/
 RUN apt-get update && pip3 install  -r requirements.txt
-
+ENTRYPOINT [ "./start-worker.sh" ]
 
