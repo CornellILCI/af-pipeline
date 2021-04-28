@@ -38,10 +38,12 @@ services:
     environment:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672
+      - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
     ports:
       - "5000:5000"
     depends_on:
       - rabbitmq
+      - database
   
   worker:
     build:
