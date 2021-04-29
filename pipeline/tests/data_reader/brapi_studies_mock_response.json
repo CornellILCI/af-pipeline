@@ -1,0 +1,60 @@
+{
+    "result": {
+	          "studyDescription": "Assessment of Cassava varieties by Interspecifics in a Advancded Yield Trial (11 clones) in Ibadan 2000/2001 Breeding Season \r\n",
+        "studyPUI": null,
+        "studyType": "Advanced Yield Trial",
+        "observationLevels": null,
+        "documentationURL": "",
+        "commonCropName": "Cassava",
+        "environmentParameters": null,
+        "trialName": "test_experiment",
+        "externalReferences": null,
+        "locationName": "test_location",
+        "studyName": "test_occurrence",
+        "dataLinks": [],
+        "seasons": [
+            "2000"
+        ],
+        "growthFacility": null,
+        "startDate": "2000-04-11",
+        "lastUpdate": null,
+        "experimentalDesign": {
+            "description": "RCBD",
+            "PUI": null
+        },
+        "contacts": null,
+        "trialDbId": "4",
+        "license": "",
+        "locationDbId": "6",
+        "studyCode": "3637",
+        "endDate": "2001-06-13",
+        "culturalPractices": null,
+        "active": true,
+        "additionalInfo": {},
+        "studyDbId": "7",
+        "observationUnitsDescription": null
+    },
+    "metadata": {
+        "pagination": {
+            "pageSize": 10,
+            "totalCount": 1,
+            "currentPage": 0,
+            "totalPages": 1
+        },
+        "status": [
+            {
+                "message": "BrAPI base call found with page=0, pageSize=10",
+                "messageType": "INFO"
+            },
+            {
+                "message": "Loading CXGN::BrAPI::v2::Studies",
+                "messageType": "INFO"
+            },
+            {
+                "message": "Studies detail result constructed",
+                "messageType": "INFO"
+            }
+        ],
+        "datafiles": []
+    }
+}
