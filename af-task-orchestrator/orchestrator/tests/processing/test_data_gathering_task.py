@@ -1,3 +1,7 @@
+import os
+
+os.environ["AFDB_URL"] = "sqlite://"
+
 import pytest
 from orchestrator.exceptions import MissingTaskParameter
 from orchestrator.processing.data_gathering.tasks import gather_data
