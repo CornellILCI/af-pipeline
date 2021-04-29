@@ -6,5 +6,9 @@
 
     <!-- DB-282 Create task table -->
     <include file="changesets/21.04/schema/add_request_uuid_reference_in_task_table.sql"/>
+
+    <!-- DB-282 Create task table -->
+    <include file="changesets/21.04/schema/remove_request_uuid_reference.sql"/>
+   
   
     </databaseChangeLog>

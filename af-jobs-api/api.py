@@ -61,7 +61,6 @@ class Task(db.Model):
     err_msg: str
     processor: str
     request_id: int
-    request_uuid: str
 
     __table__ = db.Model.metadata.tables["af.task"]
 
@@ -71,7 +70,6 @@ class Task(db.Model):
 def create_request():
     content = request.json
 
-    processid = ""
     error_messages = []
     if not content:
         error_messages.append("Empty request.")
