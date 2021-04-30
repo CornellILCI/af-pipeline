@@ -1,36 +1,22 @@
-import datetime
-
 import celery
-from orchestrator.db import db_session
-from orchestrator.db.models import Request, Task
+from orchestrator.services.afdbservice import AFDBService
 
 
 class StatusReportingTask(celery.Task):
     def apply_async(self, *args, **kwargs):
-        self.time_start = datetime.datetime.now()
-
+        self.afdb_service = AFDBService()
         params = args[0][0]  # args should be a tuple and the first element of that
         # tuple should be our standard 'params' dict
-        job_id = params.get("processId") or params.get("jobId")
+        request_id = params.get("processId") or params.get("jobId")
 
-        self.af_request = db_session.query(Request).filter_by(uuid=job_id).first()
+        self.af_request = self.afdb_service.get_af_request(request_id)
         self.af_task = None
         if self.af_request:
             # create task entry
-            self.af_task = Task(
-                name=self.name,
-                time_start=self.time_start,
-                status="STARTED",
-                processor="celery",
-                tenant_id=0,
-                creator_id=0,
-            )
-            self.af_request.tasks.append(self.af_task)
-            db_session.merge(self.af_request)
-            db_session.commit()
+            self.af_task = self.afdb_service.create_request_task_entry(self.af_request, self.name)
         else:
             # log warning about af_request does not exit
-            print(f"{job_id} does not exist!")
+            print(f"{request_id} does not exist!")
         self.af_task_updated = False
 
         super().apply_async(*args, **kwargs)
@@ -38,16 +24,10 @@ class StatusReportingTask(celery.Task):
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
 
         if self.af_task:
-            self.af_task.time_end = datetime.datetime.now()
-            self.af_task.status = status
-            db_session.merge(self.af_task)
-            self.af_task_updated = True
-
-        if self.af_task_updated:
-            db_session.commit()
+            self.afdb_service.update_task_status(self.af_task, status)
 
         # return/cleanup connection
-        db_session.remove()
+        self.afdb_service.remove_session()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """Error handler.
@@ -63,9 +43,7 @@ class StatusReportingTask(celery.Task):
         """
 
         if self.af_request:
-            self.af_request.status = "FAILURE"
-            db_session.merge(self.af_request)
-            self.af_task_updated = True
+            self.afdb_service.update_request_status(self.af_request, "FAILURE")
 
         if self.af_task:
             self.af_task.err_msg = str(exc)
@@ -77,6 +55,4 @@ class ResultReportingTask(StatusReportingTask):
         # TODO:  determine if this task is a terminal task
         # if yes, then set the af_request status to DONE
         if self.af_request:
-            self.af_request.status = "DONE"
-            db_session.merge(self.af_request)
-            self.af_task_updated = True
+            self.afdb_service.update_request_status(self.af_request, "DONE")
