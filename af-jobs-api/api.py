@@ -1,5 +1,6 @@
 import os
 import uuid
+import json
 
 from celery import Celery
 from flask import Flask, jsonify, render_template, request
@@ -10,6 +11,14 @@ celery_app = Celery("af-tasks", broker=BROKER)
 celery_app.conf.update({"task_serializer": "pickle"})
 
 app = Flask(__name__)
+
+#TODO: this will be replaced by the AFDB connector instead of being held in memory
+global analysis_type
+analysis_type = [
+    {"name": "Phenotypic Analysis", "id": str(uuid.uuid4())},
+    {"name": "Genetic Analysis", "id": str(uuid.uuid4())},
+    {"name": "Genomic analysis", "id": str(uuid.uuid4())}
+]
 
 
 # Example API endpoint
@@ -76,6 +85,28 @@ def start_process():
 
     return jsonify({"status": "error", "message": error_messages}), 400
 
+@app.route("/analysis-type", methods=["GET"])
+def get_analysis_type():
+    #todo read from AFDB
+    response = json.dumps(analysis_type)
+    return jsonify({"status": "ok", "response":response}), 201
+
+
+@app.route("/analysis-type", methods=["POST"])
+def post_analysis_type():
+    content = request.json
+    if "name" not in content:
+        return jsonify({"status": "error", "message": "missing 'name'"}), 400
+    if content["name"] is None:
+        return jsonify({"status": "error", "message": "'name' is empty"}), 400
+
+    id = str(uuid.uuid4())
+    #TODO add to AFDB instead
+    analysis_type.append({"name":content["name"], "id": id})
+    
+    print(json.dumps(analysis_type))
+
+    return jsonify({"status": "ok", "id": id}), 201
 
 @app.route("/test", methods=["GET"])
 def test():
