@@ -5,8 +5,8 @@
 # from orchestrator.processing.workflow.tasks import sample_aggregator_task
 
 
-# @app.task(name="sample_route")
-# def sample_route(params):
+# @app.task(name="sample_workflow")
+# def sample_workflow(params):
 #     """
 #     Sample workflow functions that call the tasks
 #     """
