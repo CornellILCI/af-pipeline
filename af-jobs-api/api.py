@@ -1,5 +1,7 @@
 import os
 import uuid
+import pathlib
+import json
 
 from celery import Celery
 from flask import Flask, jsonify, render_template, request
@@ -76,6 +78,15 @@ def start_process():
 
     return jsonify({"status": "error", "message": error_messages}), 400
 
+#
+
+@app.route("/datasource", methods=["GET"])
+def get_data_source():
+    path = pathlib.Path(__file__).parent.absolute()
+    with open(str(path)+'/datasourceconfig.json') as f:
+        data = json.load(f)
+
+    return data
 
 @app.route("/test", methods=["GET"])
 def test():
