@@ -1,9 +1,9 @@
 from typing import Iterable
 
-import pandas as pd
+from pandas import DataFrame
 
 
-def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.DataFrame:
+def df_keep_columns(df: DataFrame, columns_to_keep: Iterable[str]) -> DataFrame:
     """Keeps only columns in given set.
 
     Keeps only columns in input set and drops columns not in the given set.

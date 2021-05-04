@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-To manage module imports when run in slurm or imported into celery task,
-pipeline python scripts should append parent directory to sys path,
-so pipeline as a module can be imported by both celery task and slurm script.
-"""
 import os
 import sys
 import argparse
@@ -13,6 +8,11 @@ from os import path
 
 import json
 
+"""
+To manage module imports when run in slurm or imported into celery task,
+pipeline python scripts should append parent directory to sys path,
+so pipeline as a module can be imported by both celery task and slurm script.
+"""
 currentdir = path.dirname(os.path.realpath(__file__))
 parentdir = path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -99,7 +99,8 @@ class ProcessData:
                     plots_and_measurements_ = plots.merge(plot_measurements_, on="plot_id")
                     plots_and_measurements.append(plot_measurements_)
 
-            self._format_result_data(plots_and_measurements, trait, input_fields_to_config_fields)
+            plots_and_measurements = self._format_result_data(
+                plots_and_measurements, trait, input_fields_to_config_fields)
 
             yield f"{trait.trait_id}", plots_and_measurements, trait
 
@@ -126,7 +127,12 @@ class ProcessData:
         # map trait value column to trait name
         input_fields_to_config_fields["trait_value"] = trait.trait_name
 
-        plots_and_measurements.rename(columns=input_fields_to_config_fields, inplace=True)
+        # Key only the config field columns
+        plots_and_measurements = df_keep_columns(plots_and_measurements, input_fields_to_config_fields.keys())
+
+        plots_and_measurements = plots_and_measurements.rename(columns=input_fields_to_config_fields)
+
+        return plots_and_measurements
 
     def _get_asrml_job_file_lines(self, job_name, request_parameters, analysis_config, trait: Trait):
 
