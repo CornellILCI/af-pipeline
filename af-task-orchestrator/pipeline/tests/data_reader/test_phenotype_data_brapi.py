@@ -6,61 +6,24 @@ import pandas as pd
 from pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 from pipeline.data_reader.exceptions import DataReaderException
 from pipeline.data_reader.models import Occurrence
-from conftest import read_mock_json_file
+from conftest import get_json_resource
+from conftest import get_test_plots, get_test_plot_measurements
 from pandas._testing import assert_frame_equal
 
 
-def get_brapi_observation_units_response(
-    page_size=None,
-    total_pages=1,
-):
+def get_brapi_observation_units_response():
     """returns a mock brapi response for observation units."""
-    return read_mock_json_file("brapi_observationunits_mock_response.json")
+    return get_json_resource(__file__, "brapi_observationunits_mock_response.json")
 
 
 def get_brapi_observations_response():
     """ returns a mock brapi response for observation units """
-
-    return read_mock_json_file("brapi_observations_mock_response.json")
+    return get_json_resource(__file__, "brapi_observations_mock_response.json")
 
 
 def get_brapi_studies_response():
     """ returns a mock brapi response for studies """
-
-    return read_mock_json_file("brapi_studies_mock_response.json")
-
-
-def get_test_plots() -> pd.DataFrame:
-    """ return a mock plots dataframe """
-
-    columns = [
-        "plot_id",
-        "experiment_id",
-        "location_id",
-        "occurrence_id",
-        "entry_id",
-        "pa_x",
-        "pa_y",
-        "rep_factor",
-        "blk",
-        "plot_qc",
-    ]
-    data = [
-        [2909, 4, 6, 7, 180, 3, 5, 1, 1, "G"],
-        [2910, 4, 6, 7, 103, 4, 5, 1, 1, "G"],
-    ]
-    return pd.DataFrame(data, columns=columns)
-
-
-def get_test_plot_measurements() -> pd.DataFrame:
-    """ return a mock plot measurement dataframe"""
-
-    columns = ["plot_id", "trait_id", "trait_qc", "trait_value"]
-    data = [
-        [2909, 1, "G", 6.155850575],
-        [2910, 1, "G", 6.751358238],
-    ]
-    return pd.DataFrame(data, columns=columns)
+    return get_json_resource(__file__, "brapi_studies_mock_response.json")
 
 
 def get_test_occurrence_brapi() -> Occurrence:
@@ -134,8 +97,6 @@ class TestPhenotypeDataBrapi(TestCase):
 
         # assert dataframe is returned
         assert isinstance(plots_result, pd.DataFrame)
-
-        print(plots_result)
 
         # arrange columns
         plots_result = plots_result[plots_expected.columns]

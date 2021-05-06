@@ -80,6 +80,9 @@ class ProcessData:
         return analysis_fields
 
     def _sesl_filter(self, occurrence_ids, traits, input_fields_to_config_fields):
+        """ Data is split by traits, where each result have plots and plot_measurements from
+        multiple occurrences for the same trait.
+        """
 
         plots_by_occurrence_id = {}
         for occurrence_id in occurrence_ids:
@@ -97,7 +100,7 @@ class ProcessData:
                     plots_and_measurements = plots.merge(plot_measurements_, on="plot_id")
                 else:
                     plots_and_measurements_ = plots.merge(plot_measurements_, on="plot_id")
-                    plots_and_measurements.append(plot_measurements_)
+                    plots_and_measurements = plots_and_measurements.append(plot_measurements_)
 
             plots_and_measurements = self._format_result_data(
                 plots_and_measurements, trait, input_fields_to_config_fields)
@@ -105,6 +108,9 @@ class ProcessData:
             yield f"{trait.trait_id}", plots_and_measurements, trait
 
     def _seml_filter(self, occurrence_ids, traits, input_fields_to_config_fields):
+        """ Data is split by occurrence and trait, where each result have plots and plot_measurements from
+        same occurrences and same trait.
+        """
 
         for occurrence_id in occurrence_ids:
             plots = self.data_reader.get_plots(occurrence_id)
@@ -144,7 +150,7 @@ class ProcessData:
         analysis_fields = self._get_analysis_fields(analysis_config)
 
         for field in analysis_fields:
-            field_line = "\t {stat_factor} {data_type} {condition}".format(
+            field_line = "\t{stat_factor} {data_type} {condition}".format(
                 stat_factor=field["stat_factor"],
                 data_type=field["data_type"],
                 condition=field["condition"])
@@ -216,7 +222,7 @@ class ProcessData:
 
             processed_data_files.append({
                 "data_file": data_file_path,
-                "asrml_job_file": job_file_path
+                "asreml_job_file": job_file_path
             })
 
         return processed_data_files

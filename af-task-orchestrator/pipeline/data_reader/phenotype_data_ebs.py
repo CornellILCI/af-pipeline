@@ -208,5 +208,5 @@ class PhenotypeDataEbs(PhenotypeData):
         return Trait(
             trait_id=_variable_ebs.variableDbId,
             trait_name=_variable_ebs.name,
-            abbrevation=_variable_ebs.abbrev
+            abbreviation=_variable_ebs.abbrev
         )

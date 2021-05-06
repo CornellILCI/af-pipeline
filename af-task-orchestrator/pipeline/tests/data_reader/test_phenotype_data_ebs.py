@@ -6,26 +6,24 @@ import pandas as pd
 from pipeline.data_reader.phenotype_data_ebs import PhenotypeDataEbs
 from pipeline.data_reader.exceptions import DataReaderException
 from pipeline.data_reader.models import Occurrence
-from conftest import read_mock_json_file
+from conftest import get_json_resource
+from conftest import get_test_plots, get_test_plot_measurements
 from pandas._testing import assert_frame_equal
 
 
 def get_plots_response():
     """ returns a plots response json object to be used as mock """
-
-    return read_mock_json_file("plots_mock_response.json")
+    return get_json_resource(__file__, "plots_mock_response.json")
 
 
 def get_plot_data_response():
     """ returns a plots response json object to be used as mock """
-
-    return read_mock_json_file("plot_data_mock_response.json")
+    return get_json_resource(__file__, "plot_data_mock_response.json")
 
 
 def get_occurrence_response():
     """ returns a occurrence response json object to be used as mock """
-
-    return read_mock_json_file("occurrence_mock_response.json")
+    return get_json_resource(__file__, "occurrence_mock_response.json")
 
 
 def get_ebs_unauthorized_error_response():
@@ -50,39 +48,6 @@ def get_ebs_unauthorized_error_response():
         }
     }"""
     return json.loads(error_response)
-
-
-def get_test_plots() -> pd.DataFrame:
-    """ return a mock plots dataframe """
-
-    columns = [
-        "plot_id",
-        "experiment_id",
-        "location_id",
-        "occurrence_id",
-        "entry_id",
-        "pa_x",
-        "pa_y",
-        "rep_factor",
-        "blk",
-        "plot_qc",
-    ]
-    data = [
-        [2909, 4, 6, 7, 180, 3, 5, 1, 1, "G"],
-        [2910, 4, 6, 7, 103, 4, 5, 1, 1, "G"],
-    ]
-    return pd.DataFrame(data, columns=columns)
-
-
-def get_test_plot_measurements() -> pd.DataFrame:
-    """ return a mock plot measurement dataframe"""
-
-    columns = ["plot_id", "trait_id", "trait_qc", "trait_value"]
-    data = [
-        [2909, 1, "G", 6.155850575],
-        [2910, 1, "G", 6.751358238],
-    ]
-    return pd.DataFrame(data, columns=columns)
 
 
 def get_test_occurrence() -> Occurrence:

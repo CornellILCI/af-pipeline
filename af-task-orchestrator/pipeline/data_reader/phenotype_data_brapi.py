@@ -138,8 +138,6 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             brapi_response = BaseListResponse(**api_response.body)
 
-            print(brapi_response.metadata.pagination)
-
             plot_measurements_data = brapi_response.result.data
 
             plot_measurements_page = pd.DataFrame(plot_measurements_data)

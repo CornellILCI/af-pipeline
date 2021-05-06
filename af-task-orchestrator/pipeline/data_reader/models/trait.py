@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class Trait(BaseModel):
     trait_id: int
     trait_name: str
-    abbrevation: str
+    abbreviation: str
 
 
 class VariableEbs(BaseModel):
