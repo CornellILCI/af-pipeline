@@ -104,8 +104,9 @@ class ProcessData:
 
             plots_and_measurements = self._format_result_data(
                 plots_and_measurements, trait, input_fields_to_config_fields)
-            print(trait)
-            yield f"{trait.trait_id}", plots_and_measurements, trait
+
+            if not plots_and_measurements.empty:
+                yield f"{trait.trait_id}", plots_and_measurements, trait
 
     def _seml_filter(self, occurrence_ids, traits, input_fields_to_config_fields):
         """ Data is split by occurrence and trait, where each result have plots and plot_measurements from
@@ -116,12 +117,15 @@ class ProcessData:
             plots = self.data_reader.get_plots(occurrence_id)
             for trait in traits:
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
+
                 # default is inner join
                 plots_and_measurements = plots.merge(plot_measurements_, on="plot_id")
 
-                self._format_result_data(plots_and_measurements, trait, input_fields_to_config_fields)
+                plots_and_measurements = self._format_result_data(
+                    plots_and_measurements, trait, input_fields_to_config_fields)
 
-                yield f"{occurrence_id}_{trait.trait_id}", plots_and_measurements, trait
+                if not plots_and_measurements.empty:
+                    yield f"{occurrence_id}_{trait.trait_id}", plots_and_measurements, trait
 
     def _format_result_data(self, plots_and_measurements, trait, input_fields_to_config_fields):
         # drop trait id
@@ -283,7 +287,7 @@ class ProcessData:
         if exptloc_analysis_pattern == 1:
             results = self._sesl_filter(occurrence_ids, traits, input_fields_to_config_fields)
         elif exptloc_analysis_pattern == 2:
-            results = self._sesl_filter(occurrence_ids, traits, input_fields_to_config_fields)
+            results = self._seml_filter(occurrence_ids, traits, input_fields_to_config_fields)
         else:
             raise InvalidAnalysisExptLocAnalysisPattern(f"Value: {exptloc_analysis_pattern} is invalid")
 
