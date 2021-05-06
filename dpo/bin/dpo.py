@@ -16,11 +16,8 @@ args = parser.parse_args()
 # Initialize paths
 simbaUtils.readConfig()
 tmp = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
-print("tmp",tmp)
 phenomodels = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
-print("phe",phenomodels)
 req = simbaUtils.cfg['int'] + "/" + args.input + "/" + args.input + ".req"
-print("req",req)
 
 class Dpo(object):
 
@@ -62,8 +59,7 @@ class Dpo(object):
 
     #  gather the fields which will
     def loadConfig(self):
-        #print(self.conf[0])
-        #print(self.req['parameters']['configFile'])
+
         self.cfg = self.conf + self.req['parameters']['configFile'] + ".cfg"
 
         print(self.cfg)
