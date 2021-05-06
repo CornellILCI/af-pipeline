@@ -9,11 +9,10 @@ from conftest import get_json_resource
 
 from pipeline.data_reader.models import Trait
 
+import pandas as pd
 from pandas import DataFrame
 
-
-def get_job_file_contents_template():
-    return asreml_job_file_contents_template
+from pandas._testing import assert_frame_equal
 
 
 mock_occurrence_ids = [1, 2, 3]
@@ -102,7 +101,7 @@ def get_mock_plot_measurements():
     return mock_plot_measurements
 
 
-def get_mock_traits() -> Trait:
+def get_mock_traits():
 
     mock_traits = []
 
@@ -119,6 +118,7 @@ def get_mock_traits() -> Trait:
         "abbreviation": "abbreviation2"
     }
     mock_traits.append(Trait(**test_trait))
+    return mock_traits
 
 
 class TestProcessData(TestCase):
@@ -147,8 +147,8 @@ class TestProcessData(TestCase):
             columns=["plot", "trait_name_1", "row", "col", "rep", "entry", "expt", "loc"],
             data=[
                 [2909, 6.155850575, 1, 1, 1, 1, 1, 1],
-                [2910, 6.751358238, 1, 2, 1, 1, 1, 1],
-                [2911, 6.155850575, 2, 1, 1, 1, 1, 1],
+                [2910, 6.751358238, 2, 1, 1, 1, 1, 1],
+                [2911, 6.155850575, 1, 2, 1, 1, 1, 1],
                 [2912, 6.751358238, 2, 2, 1, 1, 1, 1],
             ]
         )
@@ -157,12 +157,12 @@ class TestProcessData(TestCase):
             columns=["plot", "trait_name_2", "row", "col", "rep", "entry", "expt", "loc"],
             data=[
                 [2909, 6.155850575, 1, 1, 1, 1, 1, 1],
-                [2910, 6.751358238, 1, 2, 1, 1, 1, 1],
+                [2910, 6.751358238, 2, 1, 1, 1, 1, 1],
             ]
         )
 
         expected_job_file_1 = (
-            "test_id_trait_name_1\n"
+            "test_id_1\n"
             "\tloc !A !SORTALL !PRUNEALL\n"
             "\texpt !A !LL 32\n"
             "\tentry !A \n"
@@ -171,7 +171,7 @@ class TestProcessData(TestCase):
             "\trow !I \n"
             "\trep !A \n"
             "trait_name_1\n"
-            "test_id_trait_name_1.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
+            "test_id_1.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
             "!MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER\n"
             "tabulate trait_name_1 ~ entry\n"
             "trait_name_1 ~ mu rep !r entry !f mv\n"
@@ -180,7 +180,7 @@ class TestProcessData(TestCase):
         )
 
         expected_job_file_2 = (
-            "test_id_trait_name_2\n"
+            "test_id_2\n"
             "\tloc !A !SORTALL !PRUNEALL\n"
             "\texpt !A !LL 32\n"
             "\tentry !A \n"
@@ -188,8 +188,8 @@ class TestProcessData(TestCase):
             "\tcol !I \n"
             "\trow !I \n"
             "\trep !A \n"
-            "trait_name_1\n"
-            "test_id_trait_name_2.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
+            "trait_name_2\n"
+            "test_id_2.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
             "!MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER\n"
             "tabulate trait_name_2 ~ entry\n"
             "trait_name_2 ~ mu rep !r entry !f mv\n"
@@ -202,3 +202,25 @@ class TestProcessData(TestCase):
         results = ProcessData("EBS", "http://test.org", "test").run(test_request, test_config, output_folder.name)
 
         self.assertEqual(len(results), 2)
+
+        self.assertTrue("asreml_job_file" in results[0])
+        with open(results[0]["asreml_job_file"]) as job_f_:
+            job_file_contents = job_f_.read()
+            self.assertEqual(job_file_contents, expected_job_file_1)
+
+        self.assertTrue("asreml_job_file" in results[1])
+        with open(results[1]["asreml_job_file"]) as job_f_:
+            job_file_contents = job_f_.read()
+            self.assertEqual(job_file_contents, expected_job_file_2)
+
+        self.assertTrue("data_file" in results[0])
+        result_data_1 = pd.read_csv(results[0]["data_file"])
+        result_data_1 = result_data_1[expected_file_1_data.columns]
+        print(result_data_1)
+        print(expected_file_1_data)
+        assert_frame_equal(result_data_1, expected_file_1_data)
+
+        self.assertTrue("data_file" in results[1])
+        result_data_2 = pd.read_csv(results[1]["data_file"])
+        result_data_2 = result_data_2[expected_file_2_data.columns]
+        assert_frame_equal(result_data_2, expected_file_2_data)

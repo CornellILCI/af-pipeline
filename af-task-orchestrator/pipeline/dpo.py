@@ -100,11 +100,11 @@ class ProcessData:
                     plots_and_measurements = plots.merge(plot_measurements_, on="plot_id")
                 else:
                     plots_and_measurements_ = plots.merge(plot_measurements_, on="plot_id")
-                    plots_and_measurements = plots_and_measurements.append(plot_measurements_)
+                    plots_and_measurements = plots_and_measurements.append(plots_and_measurements_)
 
             plots_and_measurements = self._format_result_data(
                 plots_and_measurements, trait, input_fields_to_config_fields)
-
+            print(trait)
             yield f"{trait.trait_id}", plots_and_measurements, trait
 
     def _seml_filter(self, occurrence_ids, traits, input_fields_to_config_fields):
