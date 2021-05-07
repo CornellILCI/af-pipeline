@@ -152,17 +152,37 @@ def get_mock_traits():
     test_trait = {
         "trait_id": 1,
         "trait_name": "trait_name_1",
-        "abbreviation": "abbreviation1"
+        "abbreviation": "trait_abbrev_1"
     }
     mock_traits.append(Trait(**test_trait))
 
     test_trait = {
         "trait_id": 2,
         "trait_name": "trait_name_2",
-        "abbreviation": "abbreviation2"
+        "abbreviation": "trait_abbrev_2"
     }
     mock_traits.append(Trait(**test_trait))
     return mock_traits
+
+
+def get_job_file_template():
+    return (
+        "{job_file_id}\n"
+        "\tloc !A !SORTALL !PRUNEALL\n"
+        "\texpt !A !LL 32\n"
+        "\tentry !A \n"
+        "\tplot !A \n"
+        "\tcol !I \n"
+        "\trow !I \n"
+        "\trep !A \n"
+        "{trait_abbreviation}\n"
+        "{job_file_id}.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
+        "!MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER\n"
+        "tabulate {trait_abbreviation} ~ entry\n"
+        "{trait_abbreviation} ~ mu rep !r entry !f mv\n"
+        "residual ar1(row).ar1(col)\n"
+        "prediction entry !PRESENT entry !SED !TDIFF\n"
+    )
 
 
 class TestProcessData(TestCase):
@@ -188,57 +208,35 @@ class TestProcessData(TestCase):
         mock_get_trait.side_effect = get_mock_traits()
 
         expected_file_1_data = DataFrame(
-            columns=["plot", "trait_name_1", "row", "col", "rep", "entry", "expt", "loc"],
+            columns=["plot", "trait_abbrev_1", "row", "col", "rep", "entry", "expt", "loc"],
             data=[
                 [2909, 6.155850575, 1, 1, 1, 1, 1, 1],
                 [2910, 6.751358238, 2, 1, 1, 1, 1, 1],
                 [2911, 6.155850575, 1, 2, 1, 1, 1, 1],
                 [2912, 6.751358238, 2, 2, 1, 1, 1, 1],
+                [2913, "NA", 1, 3, 1, 1, 1, 1],
+                [2914, "NA", 2, 4, 1, 1, 1, 1],
             ]
         )
 
         expected_file_2_data = DataFrame(
-            columns=["plot", "trait_name_2", "row", "col", "rep", "entry", "expt", "loc"],
+            columns=["plot", "trait_abbrev_2", "row", "col", "rep", "entry", "expt", "loc"],
             data=[
                 [2909, 6.155850575, 1, 1, 1, 1, 1, 1],
                 [2910, 6.751358238, 2, 1, 1, 1, 1, 1],
+                [2911, "NA", 1, 2, 1, 1, 1, 1],
+                [2912, "NA", 2, 2, 1, 1, 1, 1],
+                [2913, "NA", 1, 3, 1, 1, 1, 1],
+                [2914, "NA", 2, 4, 1, 1, 1, 1],
             ]
         )
 
-        expected_job_file_1 = (
-            "test_id_1\n"
-            "\tloc !A !SORTALL !PRUNEALL\n"
-            "\texpt !A !LL 32\n"
-            "\tentry !A \n"
-            "\tplot !A \n"
-            "\tcol !I \n"
-            "\trow !I \n"
-            "\trep !A \n"
-            "trait_name_1\n"
-            "test_id_1.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
-            "!MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER\n"
-            "tabulate trait_name_1 ~ entry\n"
-            "trait_name_1 ~ mu rep !r entry !f mv\n"
-            "residual ar1(row).ar1(col)\n"
-            "prediction entry !PRESENT entry !SED !TDIFF\n"
+        expected_job_file_1 = get_job_file_template().format(
+            job_file_id="test_id_1", trait_abbreviation="trait_abbrev_1",
         )
 
-        expected_job_file_2 = (
-            "test_id_2\n"
-            "\tloc !A !SORTALL !PRUNEALL\n"
-            "\texpt !A !LL 32\n"
-            "\tentry !A \n"
-            "\tplot !A \n"
-            "\tcol !I \n"
-            "\trow !I \n"
-            "\trep !A \n"
-            "trait_name_2\n"
-            "test_id_2.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
-            "!MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER\n"
-            "tabulate trait_name_2 ~ entry\n"
-            "trait_name_2 ~ mu rep !r entry !f mv\n"
-            "residual ar1(row).ar1(col)\n"
-            "prediction entry !PRESENT entry !SED !TDIFF\n"
+        expected_job_file_1 = get_job_file_template().format(
+            job_file_id="test_id_2", trait_abbreviation="trait_abbrev_2",
         )
 
         output_folder = TemporaryDirectory()
@@ -288,7 +286,7 @@ class TestProcessData(TestCase):
         mock_get_trait.side_effect = get_mock_traits()
 
         expected_file_1_data = DataFrame(
-            columns=["plot", "trait_name_1", "row", "col", "rep", "entry", "expt", "loc"],
+            columns=["plot", "trait_abbrev_1", "row", "col", "rep", "entry", "expt", "loc"],
             data=[
                 [2909, 6.155850575, 1, 1, 1, 1, 1, 1],
                 [2910, 6.751358238, 2, 1, 1, 1, 1, 1],
@@ -296,7 +294,7 @@ class TestProcessData(TestCase):
         )
 
         expected_file_2_data = DataFrame(
-            columns=["plot", "trait_name_2", "row", "col", "rep", "entry", "expt", "loc"],
+            columns=["plot", "trait_abbrev_2", "row", "col", "rep", "entry", "expt", "loc"],
             data=[
                 [2909, 6.155850575, 1, 1, 1, 1, 1, 1],
                 [2910, 6.751358238, 2, 1, 1, 1, 1, 1],
@@ -304,72 +302,66 @@ class TestProcessData(TestCase):
         )
 
         expected_file_3_data = DataFrame(
-            columns=["plot", "trait_name_1", "row", "col", "rep", "entry", "expt", "loc"],
+            columns=["plot", "trait_abbrev_1", "row", "col", "rep", "entry", "expt", "loc"],
             data=[
                 [2911, 6.155850575, 1, 2, 1, 1, 1, 1],
                 [2912, 6.751358238, 2, 2, 1, 1, 1, 1],
             ]
         )
 
-        expected_job_file_1 = (
-            "test_id_1_1\n"
-            "\tloc !A !SORTALL !PRUNEALL\n"
-            "\texpt !A !LL 32\n"
-            "\tentry !A \n"
-            "\tplot !A \n"
-            "\tcol !I \n"
-            "\trow !I \n"
-            "\trep !A \n"
-            "trait_name_1\n"
-            "test_id_1_1.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
-            "!MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER\n"
-            "tabulate trait_name_1 ~ entry\n"
-            "trait_name_1 ~ mu rep !r entry !f mv\n"
-            "residual ar1(row).ar1(col)\n"
-            "prediction entry !PRESENT entry !SED !TDIFF\n"
+        expected_file_4_data = DataFrame(
+            columns=["plot", "trait_abbrev_2", "row", "col", "rep", "entry", "expt", "loc"],
+            data=[
+                [2911, "NA", 1, 2, 1, 1, 1, 1],
+                [2912, "NA", 2, 2, 1, 1, 1, 1],
+            ]
         )
 
-        expected_job_file_2 = (
-            "test_id_1_2\n"
-            "\tloc !A !SORTALL !PRUNEALL\n"
-            "\texpt !A !LL 32\n"
-            "\tentry !A \n"
-            "\tplot !A \n"
-            "\tcol !I \n"
-            "\trow !I \n"
-            "\trep !A \n"
-            "trait_name_2\n"
-            "test_id_1_2.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
-            "!MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER\n"
-            "tabulate trait_name_2 ~ entry\n"
-            "trait_name_2 ~ mu rep !r entry !f mv\n"
-            "residual ar1(row).ar1(col)\n"
-            "prediction entry !PRESENT entry !SED !TDIFF\n"
+        expected_file_5_data = DataFrame(
+            columns=["plot", "trait_abbrev_1", "row", "col", "rep", "entry", "expt", "loc"],
+            data=[
+                [2911, "NA", 1, 2, 1, 1, 1, 1],
+                [2912, "NA", 2, 2, 1, 1, 1, 1],
+            ]
         )
 
-        expected_job_file_3 = (
-            "test_id_2_1\n"
-            "\tloc !A !SORTALL !PRUNEALL\n"
-            "\texpt !A !LL 32\n"
-            "\tentry !A \n"
-            "\tplot !A \n"
-            "\tcol !I \n"
-            "\trow !I \n"
-            "\trep !A \n"
-            "trait_name_1\n"
-            "test_id_2_1.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
-            "!MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER\n"
-            "tabulate trait_name_1 ~ entry\n"
-            "trait_name_1 ~ mu rep !r entry !f mv\n"
-            "residual ar1(row).ar1(col)\n"
-            "prediction entry !PRESENT entry !SED !TDIFF\n"
+        expected_file_5_data = DataFrame(
+            columns=["plot", "trait_abbrev_1", "row", "col", "rep", "entry", "expt", "loc"],
+            data=[
+                [2911, "NA", 1, 2, 1, 1, 1, 1],
+                [2912, "NA", 2, 2, 1, 1, 1, 1],
+            ]
+        )
+
+        expected_job_file_1 = get_job_file_template().format(
+            job_file_id="test_id_1_1", trait_abbreviation="trait_abbrev_1",
+        )
+
+        expected_job_file_2 = get_job_file_template().format(
+            job_file_id="test_id_1_2", trait_abbreviation="trait_abbrev_2",
+        )
+
+        expected_job_file_3 = get_job_file_template().format(
+            job_file_id="test_id_2_1", trait_abbreviation="trait_abbrev_1",
+        )
+
+        expected_job_file_4 = get_job_file_template().format(
+            job_file_id="test_id_2_2", trait_abbreviation="trait_abbrev_2",
+        )
+
+        expected_job_file_5 = get_job_file_template().format(
+            job_file_id="test_id_3_1", trait_abbreviation="trait_abbrev_1",
+        )
+
+        expected_job_file_6 = get_job_file_template().format(
+            job_file_id="test_id_3_2", trait_abbreviation="trait_abbrev_2",
         )
 
         output_folder = TemporaryDirectory()
 
         results = ProcessData("EBS", "http://test.org", "test").run(test_request, test_config, output_folder.name)
 
-        self.assertEqual(len(results), 3)
+        self.assertEqual(len(results), 6)
 
         self.assertTrue("asreml_job_file" in results[0])
         with open(results[0]["asreml_job_file"]) as job_f_:
