@@ -1,7 +1,7 @@
 import requests
-from .exceptions import DataReaderException
-from .models import ApiResponse
-from .urlutil import url_join, valid_url
+from pipeline.data_reader.exceptions import DataReaderException
+from pipeline.data_reader.models import ApiResponse
+from pipeline.data_reader.urlutil import url_join, valid_url
 from requests.exceptions import HTTPError, RequestException
 
 

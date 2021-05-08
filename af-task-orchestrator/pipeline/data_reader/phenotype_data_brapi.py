@@ -1,9 +1,9 @@
 import pandas as pd
-from .phenotype_data import PhenotypeData
-from .exceptions import DataReaderException
-from .models import Occurrence
-from .models.brapi.core import BaseListResponse, Study
-from .models.brapi.phenotyping import ObservationUnitQueryParams
+from pipeline.data_reader.phenotype_data import PhenotypeData
+from pipeline.data_reader.exceptions import DataReaderException
+from pipeline.data_reader.models import Occurrence
+from pipeline.data_reader.models.brapi.core import BaseListResponse, Study
+from pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
 from pipeline.pandasutil import df_keep_columns
 from pydantic import ValidationError
 

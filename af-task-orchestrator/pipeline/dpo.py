@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 
+import argparse
+import json
 import os
 import sys
-import argparse
-
 from os import path
 
-import json
+import pipeline.config  # noqa: E402
+from pandas import DataFrame  # noqa: E402
+from pipeline.data_reader import DataReaderFactory, PhenotypeData  # noqa: E402
+from pipeline.data_reader.exceptions import MissingTaskParameter  # noqa: E402
+from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError
+from pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+from pipeline.data_reader.models import Experiment, Occurrence
+from pipeline.data_reader.models.enums import DataSource, DataType  # noqa: E402
+from pipeline.exceptions import (
+    InvalidAnalysisConfig,  # noqa: E402
+    InvalidAnalysisRequest,
+    InvalidExptLocAnalysisPattern,
+)
+from pipeline.pandasutil import df_keep_columns  # noqa: E402
 
 """
 To manage module imports when run in slurm or imported into celery task,
@@ -17,29 +30,10 @@ currentdir = path.dirname(os.path.realpath(__file__))
 parentdir = path.dirname(currentdir)
 sys.path.append(parentdir)
 
-from pipeline.data_reader import DataReaderFactory, PhenotypeData  # noqa: E402
-from pipeline.data_reader.exceptions import (
-    DataSourceNotAvailableError,
-    DataTypeNotAvailableError,
-    MissingTaskParameter)  # noqa: E402
-from pipeline.data_reader.models import Experiment, Occurrence, Trait  # noqa: E402
-from pipeline.data_reader.models.enums import DataSource, DataType  # noqa: E402
-
-import pipeline.config  # noqa: E402
-from pipeline.pandasutil import df_keep_columns  # noqa: E402
-
-from pipeline.data_reader.models import Trait  # noqa: E402
-
-from pipeline.exceptions import (
-    InvalidAnalysisRequest, InvalidAnalysisConfig, InvalidExptLocAnalysisPattern)  # noqa: E402
-
-from pandas import DataFrame  # noqa: E402
-
 
 class ProcessData:
-
     def __init__(self, data_source: str, api_base_url: str, api_token: str):
-        """ Constructor.
+        """Constructor.
 
         Args:
             data_source: type of API data source EBS/BRAPI.
@@ -52,7 +46,8 @@ class ProcessData:
             raise DataSourceNotAvailableError(data_source)
         factory = DataReaderFactory(self.data_source)
         self.data_reader: PhenotypeData = factory.get_phenotype_data(
-            api_base_url=api_base_url, api_bearer_token=api_token)
+            api_base_url=api_base_url, api_bearer_token=api_token
+        )
 
     def _get_traits(self, trait_ids: list[str]) -> list[Trait]:
         traits = []
@@ -73,14 +68,14 @@ class ProcessData:
 
     def _get_analysis_fields(self, analysis_config):
         try:
-            analysis_fields = analysis_config['Analysis_Module']["fields"]
+            analysis_fields = analysis_config["Analysis_Module"]["fields"]
         except KeyError as _key_e:
             raise InvalidAnalysisConfig(f"'fields' not found")
 
         return analysis_fields
 
     def _sesl_filter(self, occurrence_ids, traits, input_fields_to_config_fields):
-        """ Data is split by traits, where each result have plots and plot_measurements from
+        """Data is split by traits, where each result have plots and plot_measurements from
         multiple occurrences for the same trait.
         """
 
@@ -103,13 +98,14 @@ class ProcessData:
                     plots_and_measurements = plots_and_measurements.append(plots_and_measurements_)
 
             plots_and_measurements = self._format_result_data(
-                plots_and_measurements, trait, input_fields_to_config_fields)
+                plots_and_measurements, trait, input_fields_to_config_fields
+            )
 
             if not plots_and_measurements.empty:
                 yield f"{trait.trait_id}", plots_and_measurements, trait
 
     def _seml_filter(self, occurrence_ids, traits, input_fields_to_config_fields):
-        """ Data is split by occurrence and trait, where each result have plots and plot_measurements from
+        """Data is split by occurrence and trait, where each result have plots and plot_measurements from
         same occurrences and same trait.
         """
 
@@ -122,7 +118,8 @@ class ProcessData:
                 plots_and_measurements = plots.merge(plot_measurements_, on="plot_id")
 
                 plots_and_measurements = self._format_result_data(
-                    plots_and_measurements, trait, input_fields_to_config_fields)
+                    plots_and_measurements, trait, input_fields_to_config_fields
+                )
 
                 if not plots_and_measurements.empty:
                     yield f"{occurrence_id}_{trait.trait_id}", plots_and_measurements, trait
@@ -148,16 +145,15 @@ class ProcessData:
 
         job_file_lines = [job_name]
 
-        analysis_module = analysis_config['Analysis_Module']
+        analysis_module = analysis_config["Analysis_Module"]
 
         # 1: adding the analysis field statements
         analysis_fields = self._get_analysis_fields(analysis_config)
 
         for field in analysis_fields:
             field_line = "\t{stat_factor} {data_type} {condition}".format(
-                stat_factor=field["stat_factor"],
-                data_type=field["data_type"],
-                condition=field["condition"])
+                stat_factor=field["stat_factor"], data_type=field["data_type"], condition=field["condition"]
+            )
             job_file_lines.append(field_line)
 
         # 2: adding trait name
@@ -165,12 +161,13 @@ class ProcessData:
 
         # 3: adding otpions
         data_file_name = f"{job_name}.csv"
-        options_line = "{} {}".format(data_file_name, analysis_module['asrmel_options'][0]['options'])
+        options_line = "{} {}".format(data_file_name, analysis_module["asrmel_options"][0]["options"])
         job_file_lines.append(options_line)
 
         # 4: adding tabulate
         tabulate_line = "tabulate {}".format(
-            analysis_module['tabulate'][0]['statement'].format(trait_name=trait.trait_name))
+            analysis_module["tabulate"][0]["statement"].format(trait_name=trait.trait_name)
+        )
         job_file_lines.append(tabulate_line)
 
         # 5: adding formula
@@ -224,15 +221,12 @@ class ProcessData:
                 for line in job_file_lines:
                     j_f.write("{}\n".format(line))
 
-            processed_data_files.append({
-                "data_file": data_file_path,
-                "asreml_job_file": job_file_path
-            })
+            processed_data_files.append({"data_file": data_file_path, "asreml_job_file": job_file_path})
 
         return processed_data_files
 
     def run(self, analysis_request, analysis_config, output_folder: str):
-        """ Pre process input data before inputing into analytical engine.
+        """Pre process input data before inputing into analytical engine.
 
         Extracts plots and plot measurements from api source.
         Prepares the extracted data to feed into analytical engine.
@@ -264,9 +258,7 @@ class ProcessData:
         analysis_fields = self._get_analysis_fields(analysis_config)
 
         # a map to rename column names to names defined in analysis config
-        input_fields_to_config_fields = {
-            "occurr_id": "occid"
-        }
+        input_fields_to_config_fields = {"occurr_id": "occid"}
         for field in analysis_fields:
             try:
                 input_field_name = field["definition"]
@@ -294,17 +286,17 @@ class ProcessData:
         return self._write_results(results, output_folder, analysis_request, analysis_config)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Process input data to feed into analytical engine')
+    parser = argparse.ArgumentParser(description="Process input data to feed into analytical engine")
 
-    parser.add_argument('--request_file', help='File path for analysis request')
-    parser.add_argument('--config_file', help='File path for analysis config')
-    parser.add_argument('--output_folder', help='Directory to write output files')
+    parser.add_argument("--request_file", help="File path for analysis request")
+    parser.add_argument("--config_file", help="File path for analysis config")
+    parser.add_argument("--output_folder", help="Directory to write output files")
 
-    parser.add_argument('--datasource_type', help='Datasource to use EBS or BRAPI')
-    parser.add_argument('--api_url', help='Api base url for data source to download input data from')
-    parser.add_argument('--api_token', help='Api token to access datasource api')
+    parser.add_argument("--datasource_type", help="Datasource to use EBS or BRAPI")
+    parser.add_argument("--api_url", help="Api base url for data source to download input data from")
+    parser.add_argument("--api_token", help="Api token to access datasource api")
 
     args = parser.parse_args()
 
@@ -323,8 +315,6 @@ if __name__ == '__main__':
     if not path.exists(args.output_folder):
         raise ProcessDataException(f"Output folder {args.output_folder} not found")
 
-    ProcessData(
-        args.datasource_type,
-        args.api_url,
-        args.api_token
-    ).run(analysis_request, analysis_config, args.output_folder)
+    ProcessData(args.datasource_type, args.api_url, args.api_token).run(
+        analysis_request, analysis_config, args.output_folder
+    )

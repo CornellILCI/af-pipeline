@@ -1,9 +1,9 @@
-from .api_response import ApiResponse
-from .experiment import Experiment
-from .observation_unit import ObservationUnitQueryParams
-from .occurrence import Occurrence, OccurrenceEbs
-from .study import Study
-from .trait import Trait, VariableEbs
+from pipeline.data_reader.models.api_response import ApiResponse
+from pipeline.data_reader.models.experiment import Experiment
+from pipeline.data_reader.models.observation_unit import ObservationUnitQueryParams
+from pipeline.data_reader.models.occurrence import Occurrence, OccurrenceEbs
+from pipeline.data_reader.models.study import Study
+from pipeline.data_reader.models.trait import Trait, VariableEbs
 
 __all__ = [
     "Experiment",
@@ -13,5 +13,5 @@ __all__ = [
     "Trait",
     "VariableEbs",
     "ObservationUnitQueryParams",
-    "Study"
+    "Study",
 ]

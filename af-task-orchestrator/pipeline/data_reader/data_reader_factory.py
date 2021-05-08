@@ -1,8 +1,8 @@
-from .phenotype_data import PhenotypeData
-from .phenotype_data_brapi import PhenotypeDataBrapi
-from .phenotype_data_ebs import PhenotypeDataEbs
-from .exceptions import DataSourceNotAvailableError
-from .models.enums import DataSource
+from pipeline.data_reader.exceptions import DataSourceNotAvailableError
+from pipeline.data_reader.models.enums import DataSource
+from pipeline.data_reader.phenotype_data import PhenotypeData
+from pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
+from pipeline.data_reader.phenotype_data_ebs import PhenotypeDataEbs
 
 
 class DataReaderFactory:

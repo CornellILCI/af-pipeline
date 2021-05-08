@@ -1,7 +1,7 @@
 import pandas as pd
-from .phenotype_data import PhenotypeData
-from .exceptions import DataReaderException
-from .models import Experiment, Occurrence, OccurrenceEbs, Trait, VariableEbs
+from pipeline.data_reader.exceptions import DataReaderException
+from pipeline.data_reader.models import Experiment, Occurrence, OccurrenceEbs, Trait, VariableEbs
+from pipeline.data_reader.phenotype_data import PhenotypeData
 from pipeline.pandasutil import df_keep_columns
 from pydantic import ValidationError
 
@@ -28,7 +28,7 @@ class PhenotypeDataEbs(PhenotypeData):
         "plotQcCode": "plot_qc",
         "occurrence_id": "occurr_id",
         "location_id": "loc_id",
-        "experiment_id": "expt_id"
+        "experiment_id": "expt_id",
     }
 
     # maps ebs plot_data resource fields to local plot measurement fields
@@ -103,10 +103,7 @@ class PhenotypeDataEbs(PhenotypeData):
 
         plots_url = SEARCH_PLOT_DATA_ENDPOINT.format(occurrence_id=occurrence_id)
 
-        search_query = {
-            "occurrenceDbId": occurrence_id,
-            "variableDbId": trait_id
-        }
+        search_query = {"occurrenceDbId": occurrence_id, "variableDbId": trait_id}
 
         api_page_params = {
             "limit": self.list_api_page_size,
@@ -206,7 +203,5 @@ class PhenotypeDataEbs(PhenotypeData):
             raise DataReaderException(str(e))
 
         return Trait(
-            trait_id=_variable_ebs.variableDbId,
-            trait_name=_variable_ebs.name,
-            abbreviation=_variable_ebs.abbrev
+            trait_id=_variable_ebs.variableDbId, trait_name=_variable_ebs.name, abbreviation=_variable_ebs.abbrev
         )
