@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 import pandas as pd
-from orchestrator.data_reader.data_reader import DataReader
-from orchestrator.models import Experiment, Occurrence, Trait
+from pipeline.data_reader.data_reader import DataReader
+from pipeline.data_reader.models import Experiment, Occurrence, Trait
 
 
 class PhenotypeData(ABC, DataReader):
@@ -23,7 +23,7 @@ class PhenotypeData(ABC, DataReader):
         pass
 
     @abstractmethod
-    def get_plot_measurements(self, occurrence_id: str) -> pd.DataFrame:
+    def get_plot_measurements(self, occurrence_id: str, trait_id: str) -> pd.DataFrame:
         """Gets plot measurements as pandas dataframe.
 
         Args:

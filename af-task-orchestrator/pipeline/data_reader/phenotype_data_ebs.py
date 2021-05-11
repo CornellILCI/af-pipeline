@@ -1,8 +1,8 @@
 import pandas as pd
-from orchestrator.data_reader.phenotype_data import PhenotypeData
-from orchestrator.exceptions import DataReaderException
-from orchestrator.models import Experiment, Occurrence, OccurrenceEbs, Trait
-from orchestrator.pandasutil import df_keep_columns
+from pipeline.data_reader.exceptions import DataReaderException
+from pipeline.data_reader.models import Experiment, Occurrence, OccurrenceEbs, Trait, VariableEbs
+from pipeline.data_reader.phenotype_data import PhenotypeData
+from pipeline.pandasutil import df_keep_columns
 from pydantic import ValidationError
 
 SEARCH_PLOTS_ENDPOINT = "/plots-search"
@@ -10,6 +10,8 @@ SEARCH_PLOTS_ENDPOINT = "/plots-search"
 SEARCH_PLOT_DATA_ENDPOINT = "/plot-data-search"
 
 SEARCH_OCCRRENCES_ENDPOINT = "/occurrences-search"
+
+SEARCH_VARIABLES_ENDPOINT = "/variables-search"
 
 
 class PhenotypeDataEbs(PhenotypeData):
@@ -24,6 +26,9 @@ class PhenotypeDataEbs(PhenotypeData):
         "rep": "rep_factor",
         "blockNumber": "blk",
         "plotQcCode": "plot_qc",
+        "occurrence_id": "occurr_id",
+        "location_id": "loc_id",
+        "experiment_id": "expt_id",
     }
 
     # maps ebs plot_data resource fields to local plot measurement fields
@@ -80,17 +85,17 @@ class PhenotypeDataEbs(PhenotypeData):
 
             page_num += 1
 
-        # rename dataframe column with local field names
-        plots.rename(columns=self.plots_api_fields_to_local_fields, inplace=True)
-
         # Add columns from Occurrence entity
         occurrence = self.get_occurrence(occurrence_id)
         for column in columns_from_occurrence:
             plots[column] = occurrence.dict()[column]
 
+        # rename dataframe column with local field names
+        plots.rename(columns=self.plots_api_fields_to_local_fields, inplace=True)
+
         return plots.astype(str)
 
-    def get_plot_measurements(self, occurrence_id: str = None) -> pd.DataFrame:
+    def get_plot_measurements(self, occurrence_id: str = None, trait_id: str = None) -> pd.DataFrame:
 
         page_num = 1
 
@@ -98,7 +103,7 @@ class PhenotypeDataEbs(PhenotypeData):
 
         plots_url = SEARCH_PLOT_DATA_ENDPOINT.format(occurrence_id=occurrence_id)
 
-        search_query = {"occurrenceDbId": occurrence_id}
+        search_query = {"occurrenceDbId": occurrence_id, "variableDbId": trait_id}
 
         api_page_params = {
             "limit": self.list_api_page_size,
@@ -176,4 +181,27 @@ class PhenotypeDataEbs(PhenotypeData):
         raise NotImplementedError
 
     def get_trait(self, trait_id: str = None) -> Trait:
-        raise NotImplementedError
+
+        search_query = {"variableDbId": trait_id}
+
+        api_response = self.post(endpoint=SEARCH_VARIABLES_ENDPOINT, data=search_query)
+
+        if not api_response.is_success:
+            raise DataReaderException(api_response.error)
+
+        result_list = api_response.body["result"]["data"]
+
+        if len(result_list) > 1:
+            raise DataReaderException("More than one resource found for id")
+        elif len(result_list) == 0:
+            raise DataReaderException(f"Trait(id:{trait_id}) not found")
+
+        # load it to model to make sure required fields are found
+        try:
+            _variable_ebs = VariableEbs(**result_list[0])
+        except ValidationError as e:
+            raise DataReaderException(str(e))
+
+        return Trait(
+            trait_id=_variable_ebs.variableDbId, trait_name=_variable_ebs.name, abbreviation=_variable_ebs.abbrev
+        )

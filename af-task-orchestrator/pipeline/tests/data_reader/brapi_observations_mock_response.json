@@ -1,0 +1,75 @@
+{
+    "result": {
+        "data": [
+            {
+                "germplasmName": "17S62_F2_001",
+                "observationTimeStamp": null,
+                "season": [
+                    {
+                        "seasonDbId": "2017",
+                        "season": "2017",
+                        "year": "2017"
+                    }
+                ],
+                "germplasmDbId": "30826",
+                "collector": "alexisara12",
+                "observationUnitName": "17S62_f2_001_1",
+                "observationVariableDbId": "1",
+                "externalReferences": null,
+                "uploadedBy": null,
+                "value": "6.155850575",
+                "observationVariableName": "fruit mass, weight in grams|SP:0000080",
+                "additionalInfo": null,
+                "observationUnitDbId": "2909",
+                "studyDbId": "68",
+                "observationDbId": "1838627"
+            },
+            {
+                "observationVariableName": "fruit mass, weight in grams|SP:0000080",
+                "uploadedBy": null,
+                "value": "6.751358238",
+                "externalReferences": null,
+                "observationDbId": "291045",
+                "observationUnitDbId": "2910",
+                "studyDbId": "68",
+                "additionalInfo": null,
+                "collector": "alexisara12",
+                "germplasmDbId": "30827",
+                "season": [
+                    {
+                        "seasonDbId": "2017",
+                        "year": "2017",
+                        "season": "2017"
+                    }
+                ],
+                "observationTimeStamp": null,
+                "germplasmName": "17S62_F2_002",
+                "observationVariableDbId": "1",
+                "observationUnitName": "17S62_f2_002_1"
+            }
+        ]
+    },
+    "metadata": {
+        "datafiles": [],
+        "pagination": {
+            "totalCount": 2,
+            "pageSize": 3,
+            "totalPages": 1,
+            "currentPage": 0
+        },
+        "status": [
+            {
+                "message": "BrAPI base call found with page=0, pageSize=3",
+                "messageType": "INFO"
+            },
+            {
+                "messageType": "INFO",
+                "message": "Loading CXGN::BrAPI::v2::Observations"
+            },
+            {
+                "message": "Observations result constructed",
+                "messageType": "INFO"
+            }
+        ]
+    }
+}
