@@ -1,5 +1,5 @@
-import orchestrator.pandasutil as pandasutil
-import orchestrator.urlutil as urlutil
+import pipeline.pandasutil as pandasutil
+import pipeline.data_reader.urlutil as urlutil
 import pandas as pd
 from pandas._testing import assert_frame_equal
 

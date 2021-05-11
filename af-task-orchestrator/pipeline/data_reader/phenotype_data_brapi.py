@@ -1,10 +1,10 @@
 import pandas as pd
-from orchestrator.data_reader.phenotype_data import PhenotypeData
-from orchestrator.exceptions import DataReaderException
-from orchestrator.models import Occurrence
-from orchestrator.models.brapi.core import BaseListResponse, Study
-from orchestrator.models.brapi.phenotyping import ObservationUnitQueryParams
-from orchestrator.pandasutil import df_keep_columns
+from pipeline.data_reader.phenotype_data import PhenotypeData
+from pipeline.data_reader.exceptions import DataReaderException
+from pipeline.data_reader.models import Occurrence
+from pipeline.data_reader.models.brapi.core import BaseListResponse, Study
+from pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
+from pipeline.pandasutil import df_keep_columns
 from pydantic import ValidationError
 
 GET_OBSERVATION_UNITS_URL = "/observationunits"
@@ -20,9 +20,9 @@ class PhenotypeDataBrapi(PhenotypeData):
     plots_api_fields_to_local_fields = {
         "observationUnitDbId": "plot_id",
         "germplasmDbId": "entry_id",
-        "studyDbId": "occurrence_id",
-        "trialDbId": "experiment_id",
-        "locationDbId": "location_id",
+        "studyDbId": "occurr_id",
+        "trialDbId": "expt_id",
+        "locationDbId": "loc_id",
         "observationUnitPosition.positionCoordinateX": "pa_x",
         "observationUnitPosition.positionCoordinateY": "pa_y",
         "replicate": "rep_factor",
@@ -117,14 +117,14 @@ class PhenotypeDataBrapi(PhenotypeData):
 
         return plots.astype(str)
 
-    def get_plot_measurements(self, occurrence_id: int = None) -> pd.DataFrame:
+    def get_plot_measurements(self, occurrence_id: str = None, trait_id: str = None) -> pd.DataFrame:
 
         plot_measurements_data = []
 
         page_num = 0
 
         observations_filters = ObservationUnitQueryParams(
-            studyDbId=occurrence_id, observationLevel="plot", pageSize=1000
+            studyDbId=occurrence_id, observationVariableDbId=trait_id, observationLevel="plot", pageSize=1000
         )
 
         while len(plot_measurements_data) >= self.brapi_list_page_size or page_num == 0:
@@ -137,8 +137,6 @@ class PhenotypeDataBrapi(PhenotypeData):
                 raise DataReaderException(api_response.error)
 
             brapi_response = BaseListResponse(**api_response.body)
-
-            print(brapi_response.metadata.pagination)
 
             plot_measurements_data = brapi_response.result.data
 

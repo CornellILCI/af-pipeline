@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
+    <!-- DB-244 Load Design data -->
+    <include file="changesets/21.04/data/template/add_randprepirri_model.sql"/>
+
+    <!-- DB-244 Load Design data -->
+    <include file="changesets/21.04/data/template/add_randAugUnrep_model.sql"/>
+
+    <!-- DB-244 Load Design data -->
+    <include file="changesets/21.04/data/template/add_values_in_serpentine_and_pcheck.sql"/>
+
     <!-- DB-282 Create task table -->
     <include file="changesets/21.04/schema/Create_task_table.sql"/>
 
@@ -10,5 +19,5 @@
     <!-- DB-282 Create task table -->
     <include file="changesets/21.04/schema/remove_request_uuid_reference.sql"/>
    
-  
-    </databaseChangeLog>
+
+</databaseChangeLog>

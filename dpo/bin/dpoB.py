@@ -16,7 +16,7 @@ sys.path.append(aeoPython)
 import simbaUtils
 
 simbaUtils.readConfig()
-tmp = "/models/analysis/cimmyt/phenotypic/asreml"
+tmp = "/statistical_models/analysis/cimmyt/phenotypic/asreml"
 phenomodels = simbaUtils.cfg['mdl'] + "/analysis/cimmyt/phenotypic/asreml"
 parser = argparse.ArgumentParser()
 parser.add_argument("input", type=str, help="Input folder")
