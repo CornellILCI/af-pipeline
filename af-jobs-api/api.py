@@ -1,31 +1,118 @@
+import datetime
 import os
-import uuid
+import uuid as uuidlib
+from dataclasses import dataclass
 
 from celery import Celery
 from flask import Flask, jsonify, render_template, request
+from flask.json import JSONEncoder
+from flask_sqlalchemy import SQLAlchemy
 
 BROKER = os.getenv("BROKER")
 
 celery_app = Celery("af-tasks", broker=BROKER)
 celery_app.conf.update({"task_serializer": "pickle"})
 
+
+# encoder
+class CustomJSONEncoder(JSONEncoder):
+    "Add support for serializing timedeltas"
+
+    def default(self, o):
+        if type(o) == datetime.timedelta:
+            return str(o)
+        elif type(o) == datetime.datetime:
+            return o.isoformat()
+        else:
+            return super().default(o)
+
+
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("AFDB_URL")
+app.json_encoder = CustomJSONEncoder
+db = SQLAlchemy(app)
+
+# bind db to the engine
+db.Model.metadata.schema = "af"
+db.Model.metadata.reflect(db.engine)
 
 
-# Example API endpoint
-# @app.route('/jobs', methods=['POST'])
-# def create_job():
-#     content = request.json
+# models
+@dataclass
+class Request(db.Model):
+    id: int
+    uuid: str
+    status: str
+    tasks: list
 
-#     #
-#     conn = get_connection()
-#     channel = conn.channel()
-#     channel.basic_publish(
-#         exchange='',
-#         body=json.dumps(content)
-#     )
-#     conn.close()
-#     return jsonify({"status": "ok"}), 201
+    __table__ = db.Model.metadata.tables["af.request"]
+
+    # TODO add the other columns here
+    tasks = db.relationship("Task", backref="request", foreign_keys="Task.request_id")
+
+
+@dataclass
+class Task(db.Model):
+    id: int
+    name: str
+    time_start: datetime.datetime
+    time_end: datetime.datetime
+    status: str
+    err_msg: str
+    processor: str
+    request_id: int
+
+    __table__ = db.Model.metadata.tables["af.task"]
+
+
+# TODO:  this does the same as /process but uses db
+@app.route("/requests", methods=["POST"])
+def create_request():
+    content = request.json
+
+    error_messages = []
+    if not content:
+        error_messages.append("Empty request.")
+    else:
+        if "dataSource" not in content:
+            error_messages.append("dataSource does not exist in the request.")
+        elif content["dataSource"] not in ("EBS", "BRAPI"):
+            error_messages.append("dataSource is not 'EBS' or 'BRAPI'.")
+        if "dataSourceId" not in content:
+            error_messages.append("dataSourceId does not exist in the request.")
+
+        if "dataType" not in content:
+            error_messages.append("dataType does not exist in the request.")
+        elif content["dataType"] not in ("GENOTYPE", "PHENOTYPE"):
+            error_messages.apeend("dataSource is not 'GENOTYPE' or 'PHENOTYPE'.")
+        if "apiBearerToken" not in content:
+            error_messages.append("token does not exist in the request.")
+        if "processName" not in content:
+            error_messages.append("processName does not exist in the request.")
+
+    # TODO we will need further validations on the request
+
+    if not error_messages:
+        req = Request(uuid=str(uuidlib.uuid4()))
+        db.session.add(req)
+        db.session.commit()
+
+        content["processId"] = req.uuid
+
+        celery_app.send_task(content.get("processName"), args=(content,))
+
+        return jsonify({"status": "ok", "Process ID": req.uuid}), 201
+
+    return jsonify({"status": "error", "message": error_messages}), 400
+
+
+@app.route("/requests/<request_uuid>")
+def get_request(request_uuid):
+    req = Request.query.filter_by(uuid=request_uuid).first()
+    if req is None:
+        return jsonify({"status": "error", "message": "Request not found"}), 404
+
+    return jsonify(req), 200
 
 
 # Inputs
@@ -67,7 +154,7 @@ def start_process():
 
     # TODO we will need further validations on the request
     if not error_messages:
-        processid = str(uuid.uuid4())
+        processid = str(uuidlib.uuid4())
         content["processId"] = processid
 
         celery_app.send_task(content.get("processName"), args=(content,))
