@@ -3,7 +3,7 @@
         "id": "AUGUNREP_cimmyt_SD_0000",
         "category": "Design",
         "type": "Trial Design",
-	    "engine": "R 3.4.4",
+	    "engine": "R 4.0.2",
         "method": "randAUGUNREP",
         "design": "Augmented Design diagonal checks",
         "timeStamp": "",
