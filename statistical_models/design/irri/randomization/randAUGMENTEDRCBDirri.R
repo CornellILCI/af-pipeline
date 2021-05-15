@@ -8,10 +8,10 @@
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2019.03.12
-# Date Modified    : 2020.06.30
+# Date Modified    : 2021.05.14
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 2
+# Script Version   : 3
 # Command          : Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" 
 #                    --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 
 #                    --serpentine F -o "Output" -p "D:/Results" 
@@ -72,7 +72,7 @@ if (!dir.exists(opt$outputPath)) {
 # read the file containing the entry list
 entryData <- read.csv(file = opt$entryList)
 checkData <- entryData[entryData["entry_type"] == "check",]
-testData <- entryData[entryData["entry_type"] == "entry",]
+testData <- entryData[entryData["entry_type"] == "test",]
 nCheckEntry <- nrow(checkData)
 nTestEntry <- nrow(testData)
 checkEntryList <- checkData[,"entry_id"]
