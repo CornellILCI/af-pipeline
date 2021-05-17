@@ -12,19 +12,20 @@ import hashlib
 
 from datetime import datetime
 
-file_dir = path.dirname(os.path.realpath(__file__))
-pipeline_dir = path.dirname(file_dir)
-sys.path.append(pipeline_dir)
+if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
+    file_dir = path.dirname(os.path.realpath(__file__))
+    pipeline_dir = path.dirname(file_dir)
+    sys.path.append(pipeline_dir)
 
-from pipeline import dpo  # noqa: E402
-from pipeline.db.core import SessionLocal  # noqa: E402
-from pipeline.db.models import Analysis, Job  # noqa: E402
-from pipeline.db import services as db_services  # noqa: E402
-from pipeline.data_reader.exceptions import DataReaderException  # noqa: E402
-from pipeline.exceptions import DpoException  # noqa: E402
-from pipeline.exceptions import InvalidAnalysisConfig  # noqa: E402
-from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern  # noqa: E402
-from pipeline import utils  # noqa: E402
+from pipeline import dpo
+from pipeline.db.core import SessionLocal
+from pipeline.db.models import Analysis, Job
+from pipeline.db import services as db_services
+from pipeline.data_reader.exceptions import DataReaderException
+from pipeline.exceptions import DpoException
+from pipeline.exceptions import InvalidAnalysisConfig
+from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
+from pipeline import utils
 
 
 def run(data_source: str, api_url: str, api_token: str, analysis_request, analysis_config, output_folder):

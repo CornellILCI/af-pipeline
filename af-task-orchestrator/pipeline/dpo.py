@@ -7,25 +7,21 @@ import sys
 from collections import OrderedDict
 from os import path
 
-"""
-To manage module imports when run in slurm or imported into celery task,
-pipeline python scripts should append parent directory to sys path,
-so pipeline as a module can be imported by both celery task and slurm script.
-"""
-file_dir = path.dirname(os.path.realpath(__file__))
-pipeline_dir = path.dirname(file_dir)
-sys.path.append(pipeline_dir)
+if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
+    file_dir = path.dirname(os.path.realpath(__file__))
+    pipeline_dir = path.dirname(file_dir)
+    sys.path.append(pipeline_dir)
 
-import pipeline.config  # noqa: E402
-from pandas import DataFrame  # noqa: E402
-from pipeline.data_reader import DataReaderFactory, PhenotypeData  # noqa: E402
-from pipeline.data_reader.exceptions import MissingTaskParameter  # noqa: E402
-from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError  # noqa: E402 
-from pipeline.data_reader.models import Experiment, Occurrence  # noqa: E402 
-from pipeline.data_reader.models.enums import DataSource, DataType  # noqa: E402
-from pipeline.exceptions import InvalidAnalysisConfig  # noqa: E402
-from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern  # noqa: E402
-from pipeline.pandasutil import df_keep_columns  # noqa: E402
+import pipeline.config
+from pandas import DataFrame
+from pipeline.data_reader import DataReaderFactory, PhenotypeData
+from pipeline.data_reader.exceptions import MissingTaskParameter
+from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError
+from pipeline.data_reader.models import Experiment, Occurrence
+from pipeline.data_reader.models.enums import DataSource, DataType
+from pipeline.exceptions import InvalidAnalysisConfig
+from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
+from pipeline.pandasutil import df_keep_columns
 
 from pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 
