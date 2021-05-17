@@ -24,6 +24,7 @@ from pipeline.data_reader.exceptions import DataReaderException  # noqa: E402
 from pipeline.exceptions import DpoException  # noqa: E402
 from pipeline.exceptions import InvalidAnalysisConfig  # noqa: E402
 from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern  # noqa: E402
+from pipeline import utils  # noqa: E402
 
 
 def run(data_source: str, api_url: str, api_token: str, analysis_request, analysis_config, output_folder):
@@ -51,9 +52,9 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
     # Add new analysis
     analysis = Analysis(
         request_id=request_id,
-        request_type=_get_request_type(analysis_request),
+        request_type=utils.get_request_type(analysis_request),
         time_submitted=datetime.utcnow(),
-        sha=_get_request_sha(analysis_request),
+        sha=utils.get_request_sha(analysis_request),
         status="queued"
     )
 
@@ -75,7 +76,7 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
         asreml_job_file = job_input_file["asreml_job_file"]
         data_file = job_input_file["data_file"]
 
-        analysis_engine = _get_analysis_engine(analysis_request)
+        analysis_engine = utils.get_analysis_engine(analysis_request)
 
         job = Job(
             analysis_id=analysis.id,
@@ -90,7 +91,7 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
 
         run_result = subprocess.run(cmd, capture_output=True)
 
-        job.status = _get_job_status(run_result.stdout, run_result.stderr)
+        job.status = utils.get_job_status(run_result.stdout, run_result.stderr)
 
         if job.status > 100:
             job.err_msg = run_result.stderr.decode('utf-8')
@@ -103,40 +104,6 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
     analysis.status = "completed"
     db_session.commit()
     return 0
-
-
-def _get_analysis_engine(analysis_request):
-    engine = analysis_request["metadata"]["engine"]
-    engine = re.sub("-.*", "", engine)
-    engine = engine.lower()
-    return engine
-
-
-def _get_request_type(analysis_request):
-    request_id = analysis_request["metadata"]["id"]
-    req_type = re.sub("_0000", "", request_id)
-    req_type = re.sub(r'.+?\_', "", req_type)
-    return req_type
-
-
-def _get_request_sha(analysis_request):
-    request_id = analysis_request["metadata"]["id"]
-    hash_ = hashlib.sha1(request_id.encode("utf-8"))
-    return hash_.hexdigest()
-
-
-def _get_job_status(stdout, stderr):
-    # TODO: Check for better way to represent job status
-    err_found = len(stderr) > 0
-    out_found = len(stdout) > 0
-    if err_found and out_found:
-        return 111
-    elif err_found and not out_found:
-        return 101
-    elif not err_found and out_found:
-        return 110
-    elif not(err_found and out_found):
-        return 100
 
 
 if __name__ == "__main__":
