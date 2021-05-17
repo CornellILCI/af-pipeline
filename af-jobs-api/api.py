@@ -7,6 +7,7 @@ from celery import Celery
 from flask import Flask, jsonify, render_template, request
 from flask.json import JSONEncoder
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 
 BROKER = os.getenv("BROKER")
 
@@ -163,6 +164,39 @@ def start_process():
 
     return jsonify({"status": "error", "message": error_messages}), 400
 
+@app.route("/model", methods=["GET"])
+def getModel():
+    #request.args.get('param')
+    params = {
+        "engine" : request.args.get('engine'),
+        "design" : request.args.get('design'),
+        "trait_level" : request.args.get('trait_level'),
+        "analysis_objective" : request.args.get('analysis_objective'),
+        "exp_analysis_pattern" : request.args.get('exp_analysis_pattern'),
+        "loc_analysis_pattern" : request.args.get('loc_analysis_pattern'),
+        "trait_pattern" : request.args.get('trait_pattern')
+    }
+
+
+    sql = text("Select id, name, label, description  from af.Property WHERE property.id IN (SELECT Property_Config.config_property_id FROM af.Property JOIN af.Property_Config on Property_Config.property_id = Property.id WHERE Property.code = 'analysis_config' AND Property_Config.property_id != Property_Config.config_property_id)")
+    result = db.engine.execute(sql)
+
+    models = []
+    for row in result:
+        temp = row.values()
+        tempMap = {"id":temp[0], "name": temp[1], "label": temp[2], "description":temp[3]}
+
+        #query
+        property_meta = db.engine.execute(text("select code, value from af.property_meta where property_id = 143"))
+        doAppend = True
+        for property_row in property_meta:
+            if property_row[0] in params and params[property_row[0]] != property_row[1]:
+                doAppend = False
+
+        if(doAppend):
+            models.append(tempMap)
+    
+    return jsonify({"status": "ok", "model": models}), 201
 
 @app.route("/test", methods=["GET"])
 def test():
