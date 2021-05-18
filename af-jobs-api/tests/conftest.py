@@ -13,6 +13,9 @@ TEST_DATABASE_URI = 'sqlite:///' + TEST_DB_PATH  # in memory db
 settings_override = {
     'TESTING': True,
     'SQLALCHEMY_DATABASE_URI': TEST_DATABASE_URI,
+    'SQLALCHEMY_BINDS': {
+        'af': TEST_DATABASE_URI
+    }
 }
 
 @pytest.fixture(scope='session')
@@ -39,9 +42,8 @@ def db(app, request):
         _db.drop_all()
         os.unlink(TEST_DB_PATH)
 
-    
     _db.init_app(app)
-    _db.create_all()
+    _db.create_all(bind=['af'])
 
     request.addfinalizer(teardown)
     return _db
