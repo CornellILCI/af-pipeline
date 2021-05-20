@@ -1,19 +1,18 @@
-
 import datetime
 import os
 import uuid as uuidlib
+
+from celery import Celery
+from database import Request, db
 from flask import jsonify, render_template, request
 from flask.blueprints import Blueprint
-from celery import Celery
-from database import db, Request
-
 
 BROKER = os.getenv("BROKER")
 
 celery_app = Celery("af-tasks", broker=BROKER)
 celery_app.conf.update({"task_serializer": "pickle"})
 
-af_requests_bp = Blueprint('af_requests', __name__)
+af_requests_bp = Blueprint("af_requests", __name__)
 
 # TODO:  this does the same as /process but uses db
 @af_requests_bp.route("/requests", methods=["POST"])
