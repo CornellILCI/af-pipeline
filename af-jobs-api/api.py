@@ -187,14 +187,14 @@ def getModel():
         tempMap = {"id":temp[0], "name": temp[1], "label": temp[2], "description":temp[3]}
 
         #query
-        property_meta = db.engine.execute(text("select code, value from af.property_meta where property_id = 143"))
-        doAppend = True
-        for property_row in property_meta:
-            if property_row[0] in params and params[property_row[0]] != property_row[1]:
-                doAppend = False
+        # property_meta = db.engine.execute(text("select code, value from af.property_meta where property_id = 143"))
+        # doAppend = True
+        # for property_row in property_meta:
+        #     if property_row[0] in params and params[property_row[0]] != property_row[1]:
+        #         doAppend = False
 
-        if(doAppend):
-            models.append(tempMap)
+        # if(doAppend):
+        models.append(tempMap)
     
     return jsonify({"status": "ok", "model": models}), 201
 
