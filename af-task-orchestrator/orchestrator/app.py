@@ -21,7 +21,11 @@ INSTALLED_TASKS = [
     "orchestrator.common",
     "orchestrator.processing.data_gathering",
     "orchestrator.processing.debug",
-    "orchestrator.workflows.data_gathering_demo",  # TODO: this is for demo purposes only
+    "orchestrator.workflows.data_gathering_demo",
+    "orchestrator.processing.transformation",
+    "orchestrator.workflows.run_dpo"
+
+     # TODO: this is for demo purposes only
 ]
 
 
