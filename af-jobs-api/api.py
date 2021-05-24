@@ -2,7 +2,12 @@ import os
 
 from factory import create_app
 
-app = create_app({"SQLALCHEMY_DATABASE_URI": os.getenv("AFDB_URL")})
+app = create_app(
+    {
+        "SQLALCHEMY_DATABASE_URI": os.getenv("AFDB_URL"),
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+    }
+)
 
 
 # if __name__ == "__main__":
