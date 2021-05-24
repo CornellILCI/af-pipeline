@@ -9,6 +9,15 @@ Base = declarative_base()
 # Base.metadata.schema = "af"
 # Base.metadata.reflect(db_engine)
 
+
+# from the message , we should have all lthe info i need to pull model and data
+# the is absolutely a way to bring in multiple classes
+# the result of dg is that the info exists inside af afdb,
+# and there is enough info to pull a model eg uuid
+# in the case that params dont have the uuid, just hard code
+# look for model id in table, but if its not
+
+# the re
 class Request(Base):
     __tablename__ = "request"  # Base.metadata.tables["af.request"]
     __table_args__ = {"schema": "af"}
@@ -57,11 +66,12 @@ class Task(Base):
     request_id = Column(Integer, ForeignKey("af.request.id"))
     parent_id = Column(Integer)
 
-
+# create 3 separate objects
+#
 class Config(Base):
-    __tablename1__ = "property"  # Base.metadata.tables["af.property"]
-    __tablename2__ = "property_meta"  # Base.metadata.tables["af.property_meta"]
-    __tablename3__ = "property_config"  # Base.metadata.tables["af.request"]
+    __tablename__ = "property"  # Base.metadata.tables["af.property"]
+    __tablename__ = "property_meta"  # Base.metadata.tables["af.property_meta"]
+    __tablename__ = "property_config"  # Base.metadata.tables["af.request"]
 
     __table_args__ = {"schema": "af"}
 
