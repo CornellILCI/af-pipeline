@@ -1,18 +1,15 @@
-from pipeline.data_reader import DataReaderFactory, PhenotypeData
-from pipeline.dpo import ProcessData
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from tempfile import TemporaryDirectory
-
-from conftest import get_json_resource
-
-from pipeline.data_reader.models import Trait
-
 import pandas as pd
 from pandas import DataFrame
-
 from pandas._testing import assert_frame_equal
+from pipeline.data_reader import DataReaderFactory, PhenotypeData
+from pipeline.data_reader.models import Trait
+from pipeline.dpo import ProcessData
+
+from conftest import get_json_resource
 
 
 def get_job_file_template():

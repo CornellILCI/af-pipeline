@@ -1,4 +1,5 @@
 import os
+
 os.environ["AFDB_URL"] = "sqlite://"
 
 import pytest

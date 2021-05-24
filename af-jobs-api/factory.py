@@ -8,7 +8,7 @@ from flask.json import JSONEncoder
 
 
 # encoder
-class CustomJSONEncoder(JSONEncoder):
+class CustomJSONEncoder(JSONEncoder):  # pragma: no cover
     "Add support for serializing timedeltas"
 
     def default(self, o):

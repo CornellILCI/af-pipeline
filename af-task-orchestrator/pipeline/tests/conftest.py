@@ -1,10 +1,9 @@
+import io
 import json
 import os
-import sys
-import io
-
 import random
 import string
+import sys
 
 from pandas import DataFrame
 
