@@ -166,7 +166,10 @@ def start_process():
 
 @app.route("/model", methods=["GET"])
 def getModel():
-    #request.args.get('param')
+    
+    page = request.args.get('page')
+    pageSize = request.args.get('pageSize') 
+
     params = {
         "engine" : request.args.get('engine'),
         "design" : request.args.get('design'),
@@ -178,7 +181,10 @@ def getModel():
     }
 
 
-    sql = text("Select id, name, label, description  from af.Property WHERE property.id IN (SELECT Property_Config.config_property_id FROM af.Property JOIN af.Property_Config on Property_Config.property_id = Property.id WHERE Property.code = 'analysis_config' AND Property_Config.property_id != Property_Config.config_property_id)")
+    sql = text("Select id, name, label, description  from af.Property WHERE property.id IN "+
+        "(SELECT Property_Config.config_property_id FROM af.Property "+
+        "JOIN af.Property_Config on Property_Config.property_id = Property.id "+
+        "WHERE Property.code = 'analysis_config' AND Property_Config.property_id != Property_Config.config_property_id)")
     result = db.engine.execute(sql)
 
     models = []
@@ -187,16 +193,33 @@ def getModel():
         tempMap = {"id":temp[0], "name": temp[1], "label": temp[2], "description":temp[3]}
 
         #query
-        # property_meta = db.engine.execute(text("select code, value from af.property_meta where property_id = 143"))
-        # doAppend = True
-        # for property_row in property_meta:
-        #     if property_row[0] in params and params[property_row[0]] != property_row[1]:
-        #         doAppend = False
+        property_meta = db.engine.execute(text("select code, value from af.property_meta where property_id = "+str(temp[0])))
+        doAppend = True
+        for property_row in property_meta:
+            if property_row[0] in params and params[property_row[0]] is not None and params[property_row[0]] != property_row[1]:
+                doAppend = False
+        if(doAppend):
+            models.append(tempMap)
 
-        # if(doAppend):
-        models.append(tempMap)
+    result = {"status": "ok"}
+    if(page is not None and pageSize is not None):
+        page = int(page)
+        pageSize = int(pageSize)
+        pagination = {
+            "totalCount" : len(models),
+            "pageSize" : pageSize,
+            "totalPages" : len(models) / pageSize,
+            "currentPage" : page
+        }
+        result['pagination'] = pagination
+        models2 = []
+        for i in range(0, pageSize):
+            models2.append(models[i+(pageSize*page)])
+        models = models2
     
-    return jsonify({"status": "ok", "model": models}), 201
+    result["model"] = models
+    
+    return jsonify(result), 200
 
 @app.route("/test", methods=["GET"])
 def test():
