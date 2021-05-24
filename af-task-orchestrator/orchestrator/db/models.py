@@ -56,5 +56,3 @@ class Task(Base):
     id = Column(Integer, primary_key=True)
     request_id = Column(Integer, ForeignKey("af.request.id"))
     parent_id = Column(Integer)
-
-

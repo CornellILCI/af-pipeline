@@ -42,7 +42,7 @@ def create_request():
             error_messages.append("processName does not exist in the request.")
 
     # TODO we will need further validations on the request
-    
+
     if not error_messages:
         print("No errors")
         req = Request(uuid=str(uuidlib.uuid4()))
@@ -65,10 +65,6 @@ def get_request(request_uuid):
         return jsonify({"status": "error", "message": "Request not found"}), 404
 
     return jsonify(req), 200
-
-
-
-
 
 
 @af_requests_bp.route("/test", methods=["GET"])

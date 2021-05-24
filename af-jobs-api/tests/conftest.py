@@ -14,15 +14,12 @@ settings_override = {
     "SQLALCHEMY_DATABASE_URI": TEST_DATABASE_URI,
 }
 
-    
-
 
 @pytest.fixture(scope="session")
 def app(request):
     """Test flask app"""
-    
-    # mock the celery_app
 
+    # mock the celery_app
 
     app = create_app(settings_override)
     ctx = app.app_context()
@@ -74,4 +71,3 @@ def session(db, request):
 def client(session, app, db):
     with app.test_client() as client:
         yield client
-

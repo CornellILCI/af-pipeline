@@ -4,6 +4,7 @@ from celery import Celery
 
 CELERY_APP = None
 
+
 def get_celery_app():  # pragma: no cover
     BROKER = os.getenv("BROKER")
 
@@ -16,5 +17,5 @@ def send_task(process_name, args):  # pragma: no cover
     global CELERY_APP
     if not CELERY_APP:
         CELERY_APP = get_celery_app()
-    
+
     CELERY_APP.send_task(process_name, args=args)

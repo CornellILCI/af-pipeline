@@ -11,15 +11,13 @@ os.environ["B4R_API_BASE_URL"] = ""
 
 
 def get_test_resource_path(testfile, resource_name):
-    """ Get resource files in the same directory as test file
-    """
+    """Get resource files in the same directory as test file"""
     currentdir = os.path.dirname(os.path.realpath(testfile))
     return os.path.join(currentdir, resource_name)
 
 
 def get_json_resource(testfile, json_file_name):
-    """ Reads json file from given file path.
-    """
+    """Reads json file from given file path."""
     file_path = get_test_resource_path(testfile, json_file_name)
     with open(file_path) as file_:
         json_ = json.load(file_)
