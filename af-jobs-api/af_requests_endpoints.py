@@ -75,7 +75,7 @@ def get_request(request_uuid):
 
     return jsonify(req), 200
 
-@af_requests_bp.route("/model", methods=["GET"])
+@af_requests_bp.route("/models", methods=["GET"])
 def getModel():
     
     page = request.args.get('page')
@@ -112,7 +112,7 @@ def getModel():
         if(doAppend):
             models.append(tempMap)
 
-    result = {"status": "ok"}
+    result = {}
     if(page is not None and pageSize is not None):
         page = int(page)
         pageSize = int(pageSize)
