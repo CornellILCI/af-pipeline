@@ -1,4 +1,3 @@
-import datetime
 import uuid as uuidlib
 
 import celery_util
@@ -8,17 +7,25 @@ from flask.blueprints import Blueprint
 
 af_requests_bp = Blueprint("af_requests", __name__)
 
-# Inputs
-# experimentId - optional
-# dataSource - required EBS or BRAPI
-# dataSourceId - example EBS1 EBS2 BRAPI1
-# dataType - PHENOTYPE or GENOTYPE
-# occurrenceId - optional
-# traitId - optional
-# token -
-# processName - required
+
 @af_requests_bp.route("/requests", methods=["POST"])
 def create_request():
+    """Create request object based on body params
+
+    NOTE:  the parameter currently described here are used in gather_data task
+
+    Required JSON Body parameters:  
+    dataSource - either EBS or BRAPI
+    dataSourceId - specific data source identifier, ex. EBS1, EBS2, BRAPI1 etc
+    dataType - either PHENOTYPE or GENOTYPE
+    apiBearerToken - user token for use in API calls
+    processName - the name of the analysis workflow job to be executed
+
+    Optional/Context Specific Body Parameters:
+    experimentId - Id of the experiment
+    occurrenceId - Id of occurence
+    traitId - Id of Trait
+    """
     content = request.json
 
     error_messages = []
@@ -60,6 +67,7 @@ def create_request():
 
 @af_requests_bp.route("/requests/<request_uuid>")
 def get_request(request_uuid):
+    """Get the request object identified by the request_uuid url param."""
     req = Request.query.filter_by(uuid=request_uuid).first()
     if req is None:
         return jsonify({"status": "error", "message": "Request not found"}), 404
