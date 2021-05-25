@@ -4,9 +4,18 @@ import celery_util
 from database import Request, db
 from flask import jsonify, render_template, request
 from flask.blueprints import Blueprint
+import pathlib
+import json
 
 af_requests_bp = Blueprint("af_requests", __name__)
 
+@af_requests_bp.route("/datasource", methods=["GET"])
+def get_data_source():
+    path = pathlib.Path(__file__).parent.absolute()
+    with open(str(path)+'/datasourceconfig.json') as f:
+        data = json.load(f)
+
+    return data
 
 @af_requests_bp.route("/requests", methods=["POST"])
 def create_request():
