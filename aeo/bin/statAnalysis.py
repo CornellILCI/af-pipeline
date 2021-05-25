@@ -7,11 +7,11 @@
 # Victor Jun Ulat (v.ulat@cgiar.org)
 # 2019.11.25
 
-import os
-import sys
-import re
-import json
 import argparse
+import json
+import os
+import re
+import sys
 
 # get the value to the EBSAF_ROOT environment variable
 # and append to the environment path
@@ -19,8 +19,8 @@ import argparse
 pyPath=os.environ['EBSAF_ROOT'] + "/aeo/python"
 sys.path.append(pyPath)
 
-import simbaUtils
 import dbUtils
+import simbaUtils
 
 # read configuration file.
 simbaUtils.readConfig()

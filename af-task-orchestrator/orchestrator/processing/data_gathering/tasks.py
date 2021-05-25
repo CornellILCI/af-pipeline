@@ -1,14 +1,15 @@
 from orchestrator import config
-from orchestrator.app import LOGGER, app
-from orchestrator.base import FailureReportingTask
-from orchestrator.data_reader import DataReaderFactory, PhenotypeData
-from orchestrator.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError, MissingTaskParameter
-from orchestrator.models import Experiment, Occurrence, Trait
-from orchestrator.models.enums import DataSource, DataType
+from orchestrator.app import app
+from orchestrator.base import StatusReportingTask
+from orchestrator.exceptions import MissingTaskParameter
 from pandas import DataFrame
+from pipeline.data_reader import DataReaderFactory, PhenotypeData
+from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError
+from pipeline.data_reader.models import Experiment, Occurrence, Trait
+from pipeline.data_reader.models.enums import DataSource, DataType
 
 
-@app.task(name="gather_data", base=FailureReportingTask)
+@app.task(name="gather_data", base=StatusReportingTask)
 def gather_data(params):
     """Gather data using data_reader
 
