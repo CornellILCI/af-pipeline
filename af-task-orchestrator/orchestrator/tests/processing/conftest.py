@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
-from orchestrator.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
-from orchestrator.models import Experiment, Occurrence, Trait
+from pipeline.data_reader.models import Experiment, Occurrence, Trait
+from pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 
 
 @pytest.fixture
@@ -32,7 +32,7 @@ def phenotype_request_missing_datasource():
 
 @pytest.fixture
 def mock_trait():
-    trait = Trait(id=789, trait_name="TestTrait")
+    trait = Trait(trait_id=789, trait_name="TestTrait", abbreviation="TRAIT_ABBREV")
     return trait
 
 

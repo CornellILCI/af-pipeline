@@ -6,3 +6,5 @@ import os
 EBS_BASE_URL = os.getenv("B4R_API_BASE_URL")
 
 BRAPI_BASE_URL = os.getenv("BRAPI_BASE_URL")
+
+AFDB_URL = os.getenv("AFDB_URL")
