@@ -7,6 +7,36 @@ from flask.blueprints import Blueprint
 
 af_requests_bp = Blueprint("af_requests", __name__)
 
+#TODO: this will be replaced by the AFDB connector instead of being held in memory
+global analysis_type
+analysis_type = [
+    {"name": "Phenotypic Analysis", "id": str(uuidlib.uuid4())},
+    {"name": "Genetic Analysis", "id": str(uuidlib.uuid4())},
+    {"name": "Genomic analysis", "id": str(uuidlib.uuid4())}
+]
+
+@af_requests_bp.route("/analysis-type", methods=["GET"])
+def get_analysis_type():
+    #todo read from AFDB
+    response = json.dumps(analysis_type)
+    return jsonify({"status": "ok", "response":response}), 200
+
+
+@af_requests_bp.route("/analysis-type", methods=["POST"])
+def post_analysis_type():
+    content = request.json
+    if "name" not in content:
+        return jsonify({"status": "error", "message": "missing 'name'"}), 400
+    if content["name"] is None:
+        return jsonify({"status": "error", "message": "'name' is empty"}), 400
+
+    id = str(uuidlib.uuid4())
+    #TODO add to AFDB instead
+    analysis_type.append({"name":content["name"], "id": id})
+    
+    print(json.dumps(analysis_type))
+
+    return jsonify({"status": "ok", "id": id}), 201
 
 @af_requests_bp.route("/requests", methods=["POST"])
 def create_request():
