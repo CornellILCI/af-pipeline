@@ -1,4 +1,3 @@
-
 class ProcessDataException(Exception):
     pass
 
