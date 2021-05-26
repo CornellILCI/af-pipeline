@@ -51,7 +51,6 @@ def create_request():
     # TODO we will need further validations on the request
 
     if not error_messages:
-        print("No errors")
         req = Request(uuid=str(uuidlib.uuid4()))
         db.session.add(req)
         db.session.commit()
