@@ -76,7 +76,7 @@ def get_request(request_uuid):
     return jsonify(req), 200
 
 @af_requests_bp.route("/models", methods=["GET"])
-def getModel():
+def get_model():
     
     page = request.args.get('page')
     pageSize = request.args.get('pageSize') 
@@ -104,12 +104,13 @@ def getModel():
         tempMap = {"id":temp[0], "name": temp[1], "label": temp[2], "description":temp[3]}
 
         #query
-        property_meta = db.engine.execute(text("select code, value from af.property_meta where property_id = "+str(temp[0])))
+        property_meta = db.engine.execute(text("select code, value from af.property_meta where property_id = {}".format(str(temp[0]))))
         doAppend = True
         for property_row in property_meta:
             if property_row[0] in params and params[property_row[0]] is not None and params[property_row[0]] != property_row[1]:
                 doAppend = False
-        if(doAppend):
+                break
+        if doAppend:
             models.append(tempMap)
 
     result = {}
