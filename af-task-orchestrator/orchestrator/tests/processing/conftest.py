@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
-from pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 from pipeline.data_reader.models import Experiment, Occurrence, Trait
+from pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 
 
 @pytest.fixture

@@ -1,5 +1,4 @@
 """models.py"""
-from orchestrator.db import db_engine
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql import func
@@ -36,7 +35,7 @@ class Request(Base):
     creator_id = Column(String(50))
     modifier_id = Column(String(50))
     is_void = Column(Boolean, default=False)
-    tenant_id = (Column(Integer),)
+    tenant_id = Column(Integer)
     id = Column(Integer, primary_key=True)
     method_id = Column(Integer)
     engine = Column(String(20))

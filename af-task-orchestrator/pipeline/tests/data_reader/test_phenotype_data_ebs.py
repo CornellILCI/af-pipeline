@@ -3,12 +3,12 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 import pandas as pd
-from pipeline.data_reader.phenotype_data_ebs import PhenotypeDataEbs
+from pandas._testing import assert_frame_equal
 from pipeline.data_reader.exceptions import DataReaderException
 from pipeline.data_reader.models import Occurrence
-from conftest import get_json_resource
-from conftest import get_test_plots, get_test_plot_measurements
-from pandas._testing import assert_frame_equal
+from pipeline.data_reader.phenotype_data_ebs import PhenotypeDataEbs
+
+from conftest import get_json_resource, get_test_plot_measurements, get_test_plots
 
 
 def get_plots_response():
