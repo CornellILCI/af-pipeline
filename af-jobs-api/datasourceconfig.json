@@ -1,0 +1,15 @@
+{
+    "datasources":[
+        {
+            "name":"Example EBS Source 1",
+            "description":"This is an example source for EBS",
+            "baseUrl":"www.example.com"
+        },
+        {
+            "name":"Example BRAPI Source 1",
+            "description":"This is an example source for BRAPI",
+            "baseUrl":"www.example.com"
+            
+        }
+    ]
+}
