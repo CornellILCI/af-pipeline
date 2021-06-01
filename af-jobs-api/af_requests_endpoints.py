@@ -18,8 +18,8 @@ analysis_type = [
 @af_requests_bp.route("/analysis-type", methods=["GET"])
 def get_analysis_type():
     #todo read from AFDB
-    response = json.dumps(analysis_type)
-    return jsonify({"status": "ok", "response":response}), 200
+    
+    return jsonify({"status": "ok", "response":analysis_type}), 200
 
 
 @af_requests_bp.route("/analysis-type", methods=["POST"])
@@ -27,7 +27,7 @@ def post_analysis_type():
     content = request.json
     if "name" not in content:
         return jsonify({"status": "error", "message": "missing 'name'"}), 400
-    if content["name"] is None:
+    if not content["name"]:
         return jsonify({"status": "error", "message": "'name' is empty"}), 400
 
     id = str(uuidlib.uuid4())
