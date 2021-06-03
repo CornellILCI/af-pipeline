@@ -94,6 +94,14 @@ def test_get_request_not_found(client, session):
     resp = client.get("/requests/foo")
     assert resp.status_code == 404
 
+def test_get_analysis_type(client, session):
+    resp = client.get("/analysis-type")
+    
+    assert resp.status_code == 200
+    respBody=json.loads(resp.get_data(as_text=True))
+    assert len(respBody['response']) > 0
+
+
 
 def test_get_request_found(client, db, session):
     test_id = str(uuid.uuid4())
