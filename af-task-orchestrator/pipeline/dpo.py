@@ -7,26 +7,22 @@ import sys
 from collections import OrderedDict
 from os import path
 
-import pipeline.config  # noqa: E402
-from pandas import DataFrame  # noqa: E402
-from pipeline.data_reader import DataReaderFactory, PhenotypeData  # noqa: E402
-from pipeline.data_reader.exceptions import MissingTaskParameter  # noqa: E402
+if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
+    file_dir = path.dirname(os.path.realpath(__file__))
+    pipeline_dir = path.dirname(file_dir)
+    sys.path.append(pipeline_dir)
+
+import pipeline.config
+from pandas import DataFrame
+from pipeline.data_reader import DataReaderFactory, PhenotypeData
+from pipeline.data_reader.exceptions import MissingTaskParameter
 from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError
 from pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from pipeline.data_reader.models import Experiment, Occurrence
-from pipeline.data_reader.models.enums import DataSource, DataType  # noqa: E402
-from pipeline.exceptions import InvalidAnalysisConfig  # noqa: E402
+from pipeline.data_reader.models.enums import DataSource, DataType
+from pipeline.exceptions import InvalidAnalysisConfig
 from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
-from pipeline.pandasutil import df_keep_columns  # noqa: E402
-
-"""
-To manage module imports when run in slurm or imported into celery task,
-pipeline python scripts should append parent directory to sys path,
-so pipeline as a module can be imported by both celery task and slurm script.
-"""
-currentdir = path.dirname(os.path.realpath(__file__))
-parentdir = path.dirname(currentdir)
-sys.path.append(parentdir)
+from pipeline.pandasutil import df_keep_columns
 
 
 class ProcessData:
@@ -221,7 +217,11 @@ class ProcessData:
                 for line in job_file_lines:
                     j_f.write("{}\n".format(line))
 
-            processed_data_files.append({"data_file": data_file_path, "asreml_job_file": job_file_path})
+            processed_data_files.append({
+                "data_file": data_file_path,
+                "asreml_job_file": job_file_path,
+                "job_name": job_name
+            })
 
         return processed_data_files
 
@@ -244,12 +244,12 @@ class ProcessData:
                 [
                     {
                         "data_file": "/test/test.csv",
-                        "asrml_job_file": "/test/test.as"
+                        "asreml_job_file": "/test/test.as"
                     }
                 ]
 
         Raises:
-            InvalidAnalysisConfig, InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
+            InvalidAnalysisConfig, InvalidAnalysisRequest, InvalidExptLocAnalysisPattern, DataReaderException
         """
 
         # get id for which data needs to be downloaded
@@ -281,7 +281,7 @@ class ProcessData:
         elif exptloc_analysis_pattern == 2:
             results = self._seml_filter(occurrence_ids, traits, input_fields_to_config_fields)
         else:
-            raise InvalidAnalysisExptLocAnalysisPattern(f"Value: {exptloc_analysis_pattern} is invalid")
+            raise InvalidExptLocAnalysisPattern(f"Analysis pattern value: {exptloc_analysis_pattern} is invalid")
 
         return self._write_results(results, output_folder, analysis_request, analysis_config)
 

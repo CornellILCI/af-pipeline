@@ -1,20 +1,25 @@
-class ProcessDataException(Exception):
+
+class DpoException(Exception):
     pass
 
 
-class RequiredAnalysisRequest(ProcessDataException):
+class AnalysisError(Exception):
     pass
 
 
-class RequiredAnalysisConfig(ProcessDataException):
+class RequiredAnalysisRequest(DpoException):
     pass
 
 
-class InvalidAnalysisRequest(ProcessDataException):
+class RequiredAnalysisConfig(DpoException):
     pass
 
 
-class InvalidAnalysisConfig(ProcessDataException):
+class InvalidAnalysisRequest(DpoException):
+    pass
+
+
+class InvalidAnalysisConfig(DpoException):
     pass
 
 
