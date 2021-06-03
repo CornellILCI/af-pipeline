@@ -66,23 +66,16 @@ class Task(Base):
     parent_id = Column(Integer)
 
 # create 3 separate objects
-#
-class Config(Base):
+
+class Property(Base):
     __tablename__ = "property"  # Base.metadata.tables["af.property"]
-    __tablename__ = "property_meta"  # Base.metadata.tables["af.property_meta"]
-    __tablename__ = "property_config"  # Base.metadata.tables["af.request"]
-
     __table_args__ = {"schema": "af"}
-
-    uuid = Column(String(50))
-    category = Column(String(50))
+    code = Column(String(50))
+    name = Column(String(70))
+    label = Column(String(70))
+    description = Column(String(50))
     type = Column(String(50))
-    design = Column(String(50))
-    requestor_id = Column(String(50))
-    institute = Column(String(50))
-    crop = Column(String(50))
-    program = Column(String(50))
-    status = Column(String(50))
+    data_type = Column(String(50))
     creation_timestamp = Column(DateTime, server_default=func.now())
     modification_timestamp = Column(DateTime)
     creator_id = Column(String(50))
@@ -90,9 +83,50 @@ class Config(Base):
     is_void = Column(Boolean, default=False)
     tenant_id = (Column(Integer),)
     id = Column(Integer, primary_key=True)
-    method_id = Column(Integer)
-    engine = Column(String(20))
-    msg = Column(String(500))
 
     # TODO add the other columns here
     tasks = relationship("Task", backref="request")
+
+class PropertyMeta(Base):
+    __tablename__ = "property_meta"  # Base.metadata.tables["af.property_meta"]
+    __table_args__ = {"schema": "af"}
+
+    id = Column(Integer, primary_key=True)
+    code = Column(String(50))
+    creation_timestamp = Column(String(50))
+    tenant_id = (Column(Integer),)
+    creation_timestamp = Column(DateTime, server_default=func.now())
+    modification_timestamp = Column(DateTime)
+    creator_id = Column(String(50))
+    modifier_id = Column(String(50))
+    is_void = Column(Boolean, default=False)
+    property_id = Column(Integer, primary_key=True)
+    # TODO add the other columns here
+    tasks = relationship("Task", backref="property_meta")
+
+
+
+class PropertyConfig(Base):
+    __tablename__ = "property_config"  # Base.metadata.tables["af.request"]
+    __table_args__ = {"schema": "af"}
+
+    is_required = Column(Boolean, default=False)
+    order_number = (Column(Integer),)
+
+    creation_timestamp = Column(DateTime, server_default=func.now())
+    modification_timestamp = Column(DateTime)
+    creator_id = Column(String(50))
+    modifier_id = Column(String(50))
+
+    is_void = Column(Boolean, default=False)
+    tenant_id = (Column(Integer),)
+
+    id = Column(Integer, primary_key=True)
+    property_id = Column(Integer, primary_key=False)
+    property_ui_id = Column(Integer,)
+
+    config_property_id = Column(Integer, primary_key=True)
+    is_layout_variable =  Column(Boolean, default=False)
+
+    # TODO add the other columns here
+    tasks = relationship("Task", backref="property_config")
