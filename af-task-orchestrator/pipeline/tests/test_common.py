@@ -1,6 +1,6 @@
-import pipeline.pandasutil as pandasutil
-import pipeline.data_reader.urlutil as urlutil
 import pandas as pd
+import pipeline.data_reader.urlutil as urlutil
+import pipeline.pandasutil as pandasutil
 from pandas._testing import assert_frame_equal
 
 

@@ -17,13 +17,12 @@ from pandas import DataFrame
 from pipeline.data_reader import DataReaderFactory, PhenotypeData
 from pipeline.data_reader.exceptions import MissingTaskParameter
 from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError
+from pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from pipeline.data_reader.models import Experiment, Occurrence
 from pipeline.data_reader.models.enums import DataSource, DataType
 from pipeline.exceptions import InvalidAnalysisConfig
 from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
 from pipeline.pandasutil import df_keep_columns
-
-from pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 
 
 class ProcessData:
