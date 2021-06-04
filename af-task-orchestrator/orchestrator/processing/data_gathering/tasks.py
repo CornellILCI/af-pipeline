@@ -8,7 +8,6 @@ from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTyp
 from pipeline.data_reader.models import Experiment, Occurrence, Trait
 from pipeline.data_reader.models.enums import DataSource, DataType
 
-
 @app.task(name="gather_data", base=StatusReportingTask)
 def gather_data(params):
     """Gather data using data_reader
