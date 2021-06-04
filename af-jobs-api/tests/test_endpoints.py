@@ -34,7 +34,7 @@ def incorrect_request_2():
         "analysisConfigPropertyId": None,
         "expLocAnalysisPatternPropertyId": None,
         "configFormulaPropertyId": None,
-        "configResidualPropertyId": None
+        "configResidualPropertyId": None,
     }
 
 
@@ -54,7 +54,7 @@ def correct_request():
         "analysisConfigPropertyId": "234",
         "expLocAnalysisPatternPropertyId": "456",
         "configFormulaPropertyId": "789",
-        "configResidualPropertyId": "111"
+        "configResidualPropertyId": "111",
     }
 
 
@@ -63,7 +63,7 @@ def test_empty_request(client, session, empty_request):
     assert resp.status_code == 400
 
     json_response = json.loads(resp.get_data(as_text=True))
-    assert str(json_response["errorMsg"]).startswith('11 validation errors')
+    assert str(json_response["errorMsg"]).startswith("11 validation errors")
 
 
 def test_incorrect_json_request(client, session, incorrect_request):
@@ -71,7 +71,7 @@ def test_incorrect_json_request(client, session, incorrect_request):
 
     assert resp.status_code == 400
     json_response = json.loads(resp.get_data(as_text=True))
-    assert str(json_response["errorMsg"]).startswith('11 validation errors')
+    assert str(json_response["errorMsg"]).startswith("11 validation errors")
 
 
 def test_incorrect_datasource_datatype(client, session, incorrect_request_2):
@@ -79,7 +79,7 @@ def test_incorrect_datasource_datatype(client, session, incorrect_request_2):
 
     assert resp.status_code == 400
     json_response = json.loads(resp.get_data(as_text=True))
-    assert json_response.get('errorMsg')
+    assert json_response.get("errorMsg")
     assert "value is not a valid enumeration member; permitted: 'EBS', 'BRAPI'" in json_response["errorMsg"]
 
 
@@ -102,17 +102,17 @@ def test_supposedly_correct_request(client, session, app, correct_request, mocke
     assert content.get("dataSource") == "EBS"
     assert content.get("crop") == "rice"
 
-    #check the response
+    # check the response
     resp_json = json.loads(resp.get_data(as_text=True))
     print(resp_json)
     assert resp_json.get("requestId")
-    assert resp_json.get("analysisType") == 'ANALYZE'
-    assert resp_json.get("status") == 'PENDING'
+    assert resp_json.get("analysisType") == "ANALYZE"
+    assert resp_json.get("status") == "PENDING"
     assert resp_json.get("crop") == "rice"
     assert resp_json.get("institute") == "IRRI"
     assert resp_json.get("createdOn")
-    assert "modifiedOn" in resp_json # modifiedOn would be None so this is just a key check
-    
+    assert "modifiedOn" in resp_json  # modifiedOn would be None so this is just a key check
+
 
 def test_get_request_not_found(client, session):
     resp = client.get("/requests/foo")

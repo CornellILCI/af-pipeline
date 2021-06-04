@@ -33,7 +33,13 @@ def create_request():
     db.session.add(req)
     db.session.commit()
 
-    celery_util.send_task(process_name='analyze', args=(req.uuid, content,))
+    celery_util.send_task(
+        process_name="analyze",
+        args=(
+            req.uuid,
+            content,
+        ),
+    )
 
     return (
         jsonify(

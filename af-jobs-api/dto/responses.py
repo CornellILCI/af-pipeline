@@ -1,8 +1,8 @@
 from datetime import datetime
+from typing import Optional
 
 from dto.enums import AnalysisTypeEnum
 from pydantic import BaseModel
-from typing import Optional
 
 
 class AnalysisRequest(BaseModel):
