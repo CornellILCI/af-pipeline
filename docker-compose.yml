@@ -3,6 +3,9 @@
 version: "3.4"
 volumes:
   afdb_volume:
+  asreml_license_dir:
+  asreml_inputs:
+  asreml_outputs:
 
 services:
   database:
@@ -51,6 +54,8 @@ services:
       context: ./af-task-orchestrator
       dockerfile: Dockerfile
     working_dir: /app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672
