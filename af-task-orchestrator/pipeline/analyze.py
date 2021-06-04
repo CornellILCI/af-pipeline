@@ -41,7 +41,6 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
         analysis_request: Analysis request with data ids and paramters to perform analysis.
         analysis_config: Anaisis model configurations.
         output_folder: Folder to which the output needs to be saved.
-
     Returns:
         exit code 0 if sucessful. -1 if fialed
     """

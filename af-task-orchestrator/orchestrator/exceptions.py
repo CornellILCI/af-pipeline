@@ -9,6 +9,7 @@ class DataSourceNotAvailableError(Exception):
 class MissingTaskParameter(Exception):
     pass
 
+class MissingTaskParameter
 
 class DataTypeNotAvailableError(Exception):
     pass

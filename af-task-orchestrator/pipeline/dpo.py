@@ -24,6 +24,7 @@ from pipeline.exceptions import InvalidAnalysisConfig
 from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
 from pipeline.pandasutil import df_keep_columns
 
+from pipeline.db.models import Property
 
 class ProcessData:
     def __init__(self, data_source: str, api_base_url: str, api_token: str):
@@ -42,6 +43,7 @@ class ProcessData:
         self.data_reader: PhenotypeData = factory.get_phenotype_data(
             api_base_url=api_base_url, api_bearer_token=api_token
         )
+        self.db_session = SessionLocal()
 
     def _get_traits(self, trait_ids: list[str]) -> list[Trait]:
         traits = []
@@ -52,9 +54,9 @@ class ProcessData:
 
     def _get_analysis_request_data_ids(self, analysis_request):
         try:
-            occurrence_ids = analysis_request["data"]["occurrence_id"]
-            trait_ids = analysis_request["data"]["trait_id"]
-            experiment_ids = analysis_request["data"]["experiment_id"]
+            occurrence_ids = analysis_request.get("occurrenceIds")
+            trait_ids = analysis_request.get("traitIds")
+            experiment_ids = analysis_request.get("experimentIds")
         except KeyError as _key_e:
             raise InvalidAnalysisRequest(f"expected data field {_key_e} not found")
 
@@ -137,7 +139,7 @@ class ProcessData:
 
         return plots_and_measurements
 
-    def _get_asrml_job_file_lines(self, job_name, request_parameters, analysis_config, trait: Trait):
+    def _get_asrml_job_file_lines(self, job_name, request_parameters, trait: Trait):
 
         job_file_lines = [job_name]
 
@@ -167,12 +169,10 @@ class ProcessData:
         job_file_lines.append(tabulate_line)
 
         # 5: adding formula
-        formula_id = request_parameters["formula"]
-        for formula in analysis_module["formula"]:
-            if formula["id"] == str(formula_id):
-                formula_statement = formula["statement"].format(trait_name=trait.abbreviation)
-                job_file_lines.append(formula_statement)
-                break
+        formula = self.db_session.query(Property).get(analysis_request.get("configFormulaPropertyId"))
+        formula_statement = formula.statement.format(trait_name=trait.abbreviation)
+        job_file_lines.append(formula_statement)
+
 
         # 6: adding residual
         residual_id = request_parameters["residual"]
@@ -225,7 +225,7 @@ class ProcessData:
 
         return processed_data_files
 
-    def run(self, analysis_request, analysis_config, output_folder: str):
+    def run(self, analysis_request, output_folder: str):
         """Pre process input data before inputing into analytical engine.
 
         Extracts plots and plot measurements from api source.
@@ -233,7 +233,6 @@ class ProcessData:
 
         Args:
             analysis_request: key value object. user submitted analysis request.
-            analysis_config: analysis engine configuration to use for given request
             output_folder: directory where processed output files to be saved.
 
         Returns:
@@ -255,24 +254,24 @@ class ProcessData:
         # get id for which data needs to be downloaded
         occurrence_ids, trait_ids, experiment_ids = self._get_analysis_request_data_ids(analysis_request)
 
-        analysis_fields = self._get_analysis_fields(analysis_config)
+        #analysis_fields = self._get_analysis_fields(analysis_request)
 
-        # a map to rename column names to names defined in analysis config
-        input_fields_to_config_fields = OrderedDict()
-        for field in analysis_fields:
-            try:
-                input_field_name = field["definition"]
-                config_field_name = field["stat_factor"]
-            except KeyError as _key_e:
-                raise InvalidAnalysisConfig(f"field {_key_e} not found")
+        ## a map to rename column names to names defined in analysis config
+        #input_fields_to_config_fields = OrderedDict()
+        #for field in analysis_fields:
+        #    try:
+        #        input_field_name = field["definition"]
+        #        config_field_name = field["stat_factor"]
+        #    except KeyError as _key_e:
+        #        raise InvalidAnalysisConfig(f"field {_key_e} not found")
 
-            input_fields_to_config_fields[input_field_name] = config_field_name
+        #    input_fields_to_config_fields[input_field_name] = config_field_name
 
-        try:
-            analysis_parameters = analysis_request["parameters"]
-            exptloc_analysis_pattern = analysis_parameters["exptloc_analysis_pattern"]
-        except KeyError as _key_e:
-            raise InvalidAnalysisRequest(f"field {_key_e} not found")
+        #try:
+        #    analysis_parameters = analysis_request["parameters"]
+        #    exptloc_analysis_pattern = analysis_parameters["exptloc_analysis_pattern"]
+        #except KeyError as _key_e:
+        #    raise InvalidAnalysisRequest(f"field {_key_e} not found")
 
         traits: list[Trait] = self._get_traits(trait_ids)
 

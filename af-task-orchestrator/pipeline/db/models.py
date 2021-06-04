@@ -27,3 +27,65 @@ class Job(Base):
     parent_id = Column(Integer)
     status = Column(Integer)
     err_msg = Column(String)
+
+
+class Property(Base):
+
+    __tablename__ = "property"  # Base.metadata.tables["af.property"]
+    __table_args__ = {"schema": "af"}
+
+    id = Column(Integer, primary_key=True)
+    code = Column(String(50))
+    name = Column(String(70))
+    label = Column(String(70))
+    description = Column(String(50))
+    type = Column(String(50))
+    data_type = Column(String(50))
+    creation_timestamp = Column(DateTime, server_default=func.now())
+    modification_timestamp = Column(DateTime)
+    creator_id = Column(String(50))
+    modifier_id = Column(String(50))
+    is_void = Column(Boolean, default=False)
+    tenant_id = (Column(Integer),)
+
+
+
+class PropertyMeta(Base):
+    __tablename__ = "property_meta"  # Base.metadata.tables["af.property_meta"]
+    __table_args__ = {"schema": "af"}
+
+    id = Column(Integer, primary_key=True)
+    code = Column(String(50))
+    creation_timestamp = Column(String(50))
+    tenant_id = (Column(Integer),)
+    creation_timestamp = Column(DateTime, server_default=func.now())
+    modification_timestamp = Column(DateTime)
+    creator_id = Column(String(50))
+    modifier_id = Column(String(50))
+    is_void = Column(Boolean, default=False)
+    property_id = Column(Integer, primary_key=True)
+
+
+
+class PropertyConfig(Base):
+    __tablename__ = "property_config"  # Base.metadata.tables["af.request"]
+    __table_args__ = {"schema": "af"}
+    
+    id = Column(Integer, primary_key=True)
+
+    is_required = Column(Boolean, default=False)
+    order_number = (Column(Integer),)
+
+    creation_timestamp = Column(DateTime, server_default=func.now())
+    modification_timestamp = Column(DateTime)
+    creator_id = Column(String(50))
+    modifier_id = Column(String(50))
+
+    is_void = Column(Boolean, default=False)
+    tenant_id = (Column(Integer),)
+
+    property_id = Column(Integer, primary_key=False)
+    property_ui_id = Column(Integer,)
+
+    config_property_id = Column(Integer, primary_key=True)
+    is_layout_variable =  Column(Boolean, default=False)
