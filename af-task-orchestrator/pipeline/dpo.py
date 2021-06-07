@@ -20,8 +20,7 @@ from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTyp
 from pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from pipeline.data_reader.models import Experiment, Occurrence
 from pipeline.data_reader.models.enums import DataSource, DataType
-from pipeline.exceptions import InvalidAnalysisConfig
-from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
+from pipeline.exceptions import InvalidAnalysisRequest
 from pipeline.pandasutil import df_keep_columns
 
 from pipeline.db.models import Property
@@ -53,14 +52,15 @@ class ProcessData:
         return traits
 
     def _get_analysis_request_data_ids(self, analysis_request):
-        try:
-            occurrence_ids = analysis_request.get("occurrenceIds")
-            trait_ids = analysis_request.get("traitIds")
-            experiment_ids = analysis_request.get("experimentIds")
-        except KeyError as _key_e:
-            raise InvalidAnalysisRequest(f"expected data field {_key_e} not found")
 
-        return occurrence_ids, trait_ids, experiment_ids
+        trait_ids = request_parameters.get("traitIds", [])
+        occurrence_ids = request_parameters.get("occurrenceIds", [])
+        experiment_ids = analysis_request.get("experimentIds", [])
+        
+        if len(trait_ids) == 0 or len(occurrence_ids) == 0 or len(experimentIds) == 0:
+            raise InvalidAnalysisRequest("Required Trait, Occurrence and Experiment Ids")
+
+        return experiment_ids, occurrence_ids, trait_ids
 
     def _get_analysis_fields(self, analysis_config):
         try:
@@ -70,12 +70,24 @@ class ProcessData:
 
         return analysis_fields
 
-    def _sesl_filter(self, occurrence_ids, traits, input_fields_to_config_fields):
-        """Data is split by traits, where each result have plots and plot_measurements from
-        multiple occurrences for the same trait.
+    def sesl(self, analysis_request, output_folder):
+        """For Single Experiment Single Location
+        
+        Creates ASReml Job files and Input data files for each trait.
+
+        Args:
+            request_parameters: Request submitted by the user.
+        Raises:
+            DpoException when invalid request paramters is passed.
+            DataReaderException when unable to extract data from datasource.
         """
 
         plots_by_occurrence_id = {}
+        
+        trait_ids, occurrence_ids, experiment_ids = _get_analysis_request_data_ids(analysis_request)
+
+        traits: list[Trait] = self._get_traits(trait_ids)
+
         for occurrence_id in occurrence_ids:
             plots_by_occurrence_id[occurrence_id] = self.data_reader.get_plots(occurrence_id)
 
@@ -100,8 +112,10 @@ class ProcessData:
             if not plots_and_measurements.empty:
                 yield f"{trait.trait_id}", plots_and_measurements, trait
 
-    def _seml_filter(self, occurrence_ids, traits, input_fields_to_config_fields):
-        """Data is split by occurrence and trait, where each result have plots and plot_measurements from
+    def seml(self, request_parameters):
+        """For Single Experiment Multi Location
+
+        Data is split by occurrence and trait, where each result have plots and plot_measurements from
         same occurrences and same trait.
         """
 
@@ -193,37 +207,31 @@ class ProcessData:
 
         return job_file_lines
 
-    def _write_results(self, results, output_folder, analysis_request, analysis_config):
+    def _write_results(self, analysis_request, job_id, job_data, output_folder):
 
-        processed_data_files = []
-        request_id = analysis_request["metadata"]["id"]
-        request_parameters = analysis_request["parameters"]
+        request_id = analysis_request.get("requestId")
 
-        for (result_id, result, trait) in results:
+        job_name = "{}_{}".format(request_id, job_id)
 
-            job_name = "{}_{}".format(request_id, result_id)
+        job_file_name = f"{job_name}.as"
+        data_file_name = f"{job_name}.csv"
 
-            job_file_name = f"{job_name}.as"
-            data_file_name = f"{job_name}.csv"
+        job_file_path = os.path.join(output_folder, job_file_name)
+        data_file_path = os.path.join(output_folder, data_file_name)
 
-            job_file_path = os.path.join(output_folder, job_file_name)
-            data_file_path = os.path.join(output_folder, data_file_name)
+        result.to_csv(data_file_path, index=False)
 
-            result.to_csv(data_file_path, index=False)
+        job_file_lines = self._get_asrml_job_file_lines(job_name, analysis_request, trait)
 
-            job_file_lines = self._get_asrml_job_file_lines(job_name, request_parameters, analysis_config, trait)
+        with open(job_file_path, "w") as j_f:
+            for line in job_file_lines:
+                j_f.write("{}\n".format(line))
 
-            with open(job_file_path, "w") as j_f:
-                for line in job_file_lines:
-                    j_f.write("{}\n".format(line))
-
-            processed_data_files.append({
-                "data_file": data_file_path,
-                "asreml_job_file": job_file_path,
-                "job_name": job_name
-            })
-
-        return processed_data_files
+        return {
+            "data_file": data_file_path,
+            "asreml_job_file": job_file_path,
+            "job_name": job_name
+        }
 
     def run(self, analysis_request, output_folder: str):
         """Pre process input data before inputing into analytical engine.
@@ -273,7 +281,7 @@ class ProcessData:
         #except KeyError as _key_e:
         #    raise InvalidAnalysisRequest(f"field {_key_e} not found")
 
-        traits: list[Trait] = self._get_traits(trait_ids)
+        exptloc
 
         if exptloc_analysis_pattern == 1:
             results = self._sesl_filter(occurrence_ids, traits, input_fields_to_config_fields)
