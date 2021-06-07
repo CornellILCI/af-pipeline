@@ -1,4 +1,3 @@
-
 class DpoException(Exception):
     pass
 

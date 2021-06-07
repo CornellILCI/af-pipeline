@@ -15,13 +15,11 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 import pipeline.config
 from pandas import DataFrame
 from pipeline.data_reader import DataReaderFactory, PhenotypeData
-from pipeline.data_reader.exceptions import MissingTaskParameter
-from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError
+from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError, MissingTaskParameter
 from pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from pipeline.data_reader.models import Experiment, Occurrence
 from pipeline.data_reader.models.enums import DataSource, DataType
-from pipeline.exceptions import InvalidAnalysisConfig
-from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
+from pipeline.exceptions import InvalidAnalysisConfig, InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
 from pipeline.pandasutil import df_keep_columns
 
 
@@ -217,11 +215,9 @@ class ProcessData:
                 for line in job_file_lines:
                     j_f.write("{}\n".format(line))
 
-            processed_data_files.append({
-                "data_file": data_file_path,
-                "asreml_job_file": job_file_path,
-                "job_name": job_name
-            })
+            processed_data_files.append(
+                {"data_file": data_file_path, "asreml_job_file": job_file_path, "job_name": job_name}
+            )
 
         return processed_data_files
 

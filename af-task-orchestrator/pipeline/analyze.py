@@ -1,31 +1,32 @@
 #!/usr/bin/env python3
 
 import argparse
+import hashlib
 import json
 import os
-import sys
-from collections import OrderedDict
-from os import path
 import re
 import subprocess
-import hashlib
-
+import sys
+from collections import OrderedDict
 from datetime import datetime
+from os import path
 
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
     file_dir = path.dirname(os.path.realpath(__file__))
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from pipeline import dpo
+from pipeline import dpo, utils
+from pipeline.data_reader.exceptions import DataReaderException
+from pipeline.db import services as db_services
 from pipeline.db.core import SessionLocal
 from pipeline.db.models import Analysis, Job
-from pipeline.db import services as db_services
-from pipeline.data_reader.exceptions import DataReaderException
-from pipeline.exceptions import DpoException
-from pipeline.exceptions import InvalidAnalysisConfig
-from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
-from pipeline import utils
+from pipeline.exceptions import (
+    DpoException,
+    InvalidAnalysisConfig,
+    InvalidAnalysisRequest,
+    InvalidExptLocAnalysisPattern,
+)
 
 
 def run(data_source: str, api_url: str, api_token: str, analysis_request, analysis_config, output_folder):
@@ -56,7 +57,7 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
         request_type=utils.get_request_type(analysis_request),
         time_submitted=datetime.utcnow(),
         sha=utils.get_request_sha(analysis_request),
-        status="queued"
+        status="queued",
     )
 
     analysis = db_services.add(db_session, analysis)
@@ -79,12 +80,7 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
 
         analysis_engine = utils.get_analysis_engine(analysis_request)
 
-        job = Job(
-            analysis_id=analysis.id,
-            name=job_name,
-            time_start=datetime.utcnow(),
-            parent_id=0
-        )
+        job = Job(analysis_id=analysis.id, name=job_name, time_start=datetime.utcnow(), parent_id=0)
 
         job = db_services.add(db_session, job)
 
@@ -95,10 +91,10 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
         job.status = utils.get_job_status(run_result.stdout, run_result.stderr)
 
         if job.status > 100:
-            job.err_msg = run_result.stderr.decode('utf-8')
+            job.err_msg = run_result.stderr.decode("utf-8")
         job.time_end = datetime.utcnow()
 
-        print(run_result.stdout.decode('utf-8'))
+        print(run_result.stdout.decode("utf-8"))
 
         db_session.commit()
 

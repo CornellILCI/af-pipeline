@@ -1,0 +1,149 @@
+{
+    "metadata": {
+        "datafiles": [],
+        "pagination": {
+            "pageSize": 2,
+            "totalPages": 1,
+            "currentPage": 0,
+            "totalCount": 2
+        },
+        "status": [
+            {
+                "messageType": "INFO",
+                "message": "BrAPI base call found with page=0, pageSize=2"
+            },
+            {
+                "message": "Loading CXGN::BrAPI::v2::ObservationUnits",
+                "messageType": "INFO"
+            },
+            {
+                "message": "Observation Units search result constructed",
+                "messageType": "INFO"
+            }
+        ]
+    },
+    "result": {
+        "data": [
+            {
+                "observationUnitPosition": {
+                    "observationLevel": {
+                        "levelOrder": 2,
+                        "levelName": "plot",
+                        "levelCode": "10"
+                    },
+                    "positionCoordinateX": 3,
+                    "positionCoordinateXType": "GRID_COL",
+                    "positionCoordinateY": 5,
+                    "entryType": "check",
+                    "geoCoordinates": null,
+                    "observationLevelRelationships": [
+                        {
+                            "levelCode": "1",
+                            "levelOrder": 0,
+                            "levelName": "replicate"
+                        },
+                        {
+                            "levelName": "block",
+                            "levelOrder": 1,
+                            "levelCode": "1"
+                        },
+                        {
+                            "levelOrder": 2,
+                            "levelName": "plot",
+                            "levelCode": "10"
+                        },
+                        {
+                            "levelCode": null,
+                            "levelName": "plant",
+                            "levelOrder": 4
+                        }
+                    ],
+                    "positionCoordinateYType": "GRID_ROW"
+                },
+                "trialName": "2008_season",
+                "locationName": "Cunningham Research Station",
+                "programName": "NCSU",
+                "studyDbId": "7",
+                "observationUnitPUI": "10",
+                "programDbId": "132",
+                "observationUnitDbId": "2909",
+                "germplasmDbId": "180",
+                "treatments": [
+                    {
+                        "factor": "No ManagementFactor",
+                        "modality": null
+                    }
+                ],
+                "externalReferences": [],
+                "trialDbId": "4",
+                "additionalInfo": {},
+                "studyName": "08ADYT0006CUN",
+                "observations": [],
+                "seedLotDbId": null,
+                "observationUnitName": "08ADYT0006CUN_10_2_Covington_G2",
+                "germplasmName": "Covington_G2",
+                "locationDbId": "6"
+            },
+            {
+                "observationUnitPosition": {
+                    "observationLevel": {
+                        "levelOrder": 2,
+                        "levelName": "plot",
+                        "levelCode": "10"
+                    },
+                    "positionCoordinateX": 4,
+                    "positionCoordinateXType": "GRID_COL",
+                    "positionCoordinateY": 5,
+                    "entryType": "check",
+                    "geoCoordinates": null,
+                    "observationLevelRelationships": [
+                        {
+                            "levelCode": "1",
+                            "levelOrder": 0,
+                            "levelName": "replicate"
+                        },
+                        {
+                            "levelName": "block",
+                            "levelOrder": 1,
+                            "levelCode": "1"
+                        },
+                        {
+                            "levelOrder": 2,
+                            "levelName": "plot",
+                            "levelCode": "10"
+                        },
+                        {
+                            "levelCode": null,
+                            "levelName": "plant",
+                            "levelOrder": 4
+                        }
+                    ],
+                    "positionCoordinateYType": "GRID_ROW"
+                },
+                "trialName": "2008_season",
+                "locationName": "Cunningham Research Station",
+                "programName": "NCSU",
+                "studyDbId": "7",
+                "observationUnitPUI": "10",
+                "programDbId": "132",
+                "observationUnitDbId": "2910",
+                "germplasmDbId": "103",
+                "treatments": [
+                    {
+                        "factor": "No ManagementFactor",
+                        "modality": null
+                    }
+                ],
+                "externalReferences": [],
+                "trialDbId": "4",
+                "additionalInfo": {},
+                "studyName": "08ADYT0006CUN",
+                "observations": [],
+                "seedLotDbId": null,
+                "observationUnitName": "08ADYT0006CUN_10_2_Covington_G1",
+                "germplasmName": "Covington_G3",
+                "locationDbId": "6"
+            }
+        ]
+    }
+}

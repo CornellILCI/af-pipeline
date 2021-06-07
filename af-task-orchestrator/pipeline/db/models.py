@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, String, DateTime
 from pipeline.db.core import Base
+from sqlalchemy import Column, DateTime, Integer, String
 
 
 class Analysis(Base):
 
-    __tablename__ = 'analysis'
+    __tablename__ = "analysis"
 
     id = Column(Integer, primary_key=True)
     request_id = Column(String)
@@ -17,7 +17,7 @@ class Analysis(Base):
 
 class Job(Base):
 
-    __tablename__ = 'job'
+    __tablename__ = "job"
 
     id = Column(Integer, primary_key=True)
     analysis_id = Column(Integer)

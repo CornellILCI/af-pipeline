@@ -56,13 +56,17 @@ services:
     working_dir: /app
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - asreml_license_dir:/home/asreml/license
+      - asreml_inputs:/home/asreml/inputs
+      - asreml_outputs:/home/asreml/outputs
     environment:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - BACKEND=rpc://
       - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
-      - B4R_API_BASE_URL=https://b4rapi-uat.ebsproject.org/v3/
-      - B4R_API_TOKEN=
+      - ASREML_LICENSE_DIR=asreml_license_dir
+      - ASREML_INPUTS_DIR=asreml_inputs
+      - ASREML_OUTPUTS_DIR=asreml_outputs
     links:
       - rabbitmq
     depends_on:
