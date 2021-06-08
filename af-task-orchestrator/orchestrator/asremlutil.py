@@ -27,7 +27,7 @@ def get_host_outputs_dir():
 
 
 def get_container_license_dir():
-    return "/home/asreml/license"
+    return "/home/asreml/licenses"
 
 
 def get_container_inputs_dir():
@@ -35,7 +35,7 @@ def get_container_inputs_dir():
 
 
 def get_container_outputs_dir():
-    return "home/asreml/outputs"
+    return "/home/asreml/outputs"
 
 
 def get_asreml_command(input_job_file_name, input_data_file_name):
@@ -61,6 +61,3 @@ def write_input_file(filename: str, content):
     output_file = f"{input_dir}/{filename}"
     with open(output_file, "w") as f:
         f.write(content)
-
-    
-

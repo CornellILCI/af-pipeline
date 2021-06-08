@@ -56,7 +56,7 @@ services:
     working_dir: /app
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - asreml_license_dir:/home/asreml/license
+      - asreml_license_dir:/home/asreml/licenses
       - asreml_inputs:/home/asreml/inputs
       - asreml_outputs:/home/asreml/outputs
     environment:
