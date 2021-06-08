@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 from pipeline.db.core import Base
 
 
@@ -41,13 +42,13 @@ class Property(Base):
     description = Column(String(50))
     type = Column(String(50))
     data_type = Column(String(50))
-    creation_timestamp = Column(DateTime, server_default=func.now())
+    creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)
     creator_id = Column(String(50))
     modifier_id = Column(String(50))
     is_void = Column(Boolean, default=False)
-    tenant_id = (Column(Integer),)
-
+    tenant_id = Column(Integer)
+    
 
 
 class PropertyMeta(Base):
@@ -57,8 +58,8 @@ class PropertyMeta(Base):
     id = Column(Integer, primary_key=True)
     code = Column(String(50))
     creation_timestamp = Column(String(50))
-    tenant_id = (Column(Integer),)
-    creation_timestamp = Column(DateTime, server_default=func.now())
+    tenant_id = Column(Integer)
+    creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)
     creator_id = Column(String(50))
     modifier_id = Column(String(50))
@@ -74,18 +75,20 @@ class PropertyConfig(Base):
     id = Column(Integer, primary_key=True)
 
     is_required = Column(Boolean, default=False)
-    order_number = (Column(Integer),)
+    order_number = Column(Integer)
 
-    creation_timestamp = Column(DateTime, server_default=func.now())
+    creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)
     creator_id = Column(String(50))
     modifier_id = Column(String(50))
 
     is_void = Column(Boolean, default=False)
-    tenant_id = (Column(Integer),)
+    tenant_id = Column(Integer)
 
-    property_id = Column(Integer, primary_key=False)
+    property_id = Column(Integer, ForeignKey('af.property.id'))
     property_ui_id = Column(Integer,)
 
-    config_property_id = Column(Integer, primary_key=True)
+    config_property_id = Column(Integer)
     is_layout_variable =  Column(Boolean, default=False)
+
+
