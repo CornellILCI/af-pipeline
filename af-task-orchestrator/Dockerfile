@@ -6,7 +6,7 @@ WORKDIR /app/
 COPY . /app/
 
 # Copy asreml license file 
-COPY ./licenses/EiB.lic /home/asreml/licenses/EiB.lic
+COPY ./licenses/EiB.lic /home/asreml/licenses/asreml.lic
 # RUN apt-get update && pip3 install  -r requirements.txt
 RUN pip3 install  -r requirements.txt
 ENTRYPOINT [ "./start-worker.sh" ]

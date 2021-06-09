@@ -45,6 +45,8 @@ def get_asreml_command(input_job_file_name, input_data_file_name):
 
 def run_asreml(input_job_file_name, input_data_file_name):
     client = docker.DockerClient(base_url=get_docker_url())
+    license_file = f"{get_container_license_dir()}/asreml.lic"
+    print(license_file)
     return client.containers.run(
         "ebsproject/ba-asreml:21.05",
         command=get_asreml_command(input_job_file_name, input_data_file_name),
@@ -53,6 +55,9 @@ def run_asreml(input_job_file_name, input_data_file_name):
             get_host_inputs_dir(): {"bind": get_container_inputs_dir(), "mode": "rw"},
             get_host_outputs_dir(): {"bind": get_container_outputs_dir(), "mode": "rw"},
         },
+        environment={
+            'vsni_LICENSE': license_file
+        }
     )
 
 
