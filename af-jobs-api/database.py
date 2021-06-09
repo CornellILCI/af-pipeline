@@ -105,3 +105,13 @@ class Property(db.Model):
     tenant_id = db.Column(db.Integer)
     id = db.Column(db.Integer, primary_key=True)
     statement = db.Column(db.String(250))
+
+
+@dataclass
+class PropertyConfig(db.model):
+
+    __tablename__ = "property_config"
+    __table_args__ = {"schema": "af"}
+
+    # TODO:  define columns and Foreign key here
+    
