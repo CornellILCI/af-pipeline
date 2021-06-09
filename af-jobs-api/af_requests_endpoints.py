@@ -1,10 +1,11 @@
 import uuid as uuidlib
 
 import celery_util
-from database import Request, db
+from database import Request, db, Property
 from flask import jsonify, render_template, request
 from flask.blueprints import Blueprint
 from sqlalchemy import text
+from services.afdb_service import select_property_by_code
 
 af_requests_bp = Blueprint("af_requests", __name__)
 
@@ -92,11 +93,12 @@ def get_model():
     }
 
 
-    sql = text("Select id, name, label, description  from af.Property WHERE property.id IN "+
-        "(SELECT Property_Config.config_property_id FROM af.Property "+
-        "JOIN af.Property_Config on Property_Config.property_id = Property.id "+
-        "WHERE Property.code = 'analysis_config' AND Property_Config.property_id != Property_Config.config_property_id)")
-    result = db.engine.execute(sql)
+    # sql = text("Select id, name, label, description  from af.Property WHERE property.id IN "+
+    #     "(SELECT Property_Config.config_property_id FROM af.Property "+
+    #     "JOIN af.Property_Config on Property_Config.property_id = Property.id "+
+    #     "WHERE Property.code = 'analysis_config' AND Property_Config.property_id != Property_Config.config_property_id)")
+    result = select_property_by_code("analysis_config")
+    #result = db.engine.execute(sql)
 
     models = []
     for row in result:
@@ -142,3 +144,40 @@ def test():
 @af_requests_bp.route("/test/redirect", methods=["GET"])
 def testredirect():
     return render_template("loginExample.html")
+
+@af_requests_bp.route("/property")
+def get_property():
+    page = request.args.get('page')
+    if not page : page = 0
+    pageSize = request.args.get('pageSize')
+    if not pageSize : pageSize = 1000
+
+    propertyRoot = request.args.get('propertyRoot')
+    
+    # do a quick check for the property root
+    validPropertyRoots = ['objective', 'trait_pattern', 'exptloc_analysis_pattern']
+
+    if propertyRoot not in validPropertyRoots:
+        return jsonify({"errorMsg": "invalid propertyRoot"}), 400
+
+    result = select_property_by_code(propertyRoot, pageSize, pageSize*page)
+    props = []
+    for row in result:
+        temp = row.values()
+        print ("TEST")
+        props.append(
+            {'code':temp[0], 
+            'propertyName':temp[1], 
+            'label':temp[2], 
+            'desription':temp[3], 
+            'type':temp[4], 
+            'createdOn':("" if not temp[5] else temp[5].strftime("%Y-%m-%dT%H:%M:%SZ")), 
+            'modifiedOn':("" if not temp[6] else temp[6].strftime("%Y-%m-%dT%H:%M:%SZ")), 
+            'createdBy':("" if not temp[7] else temp[7]), 
+            'modifiedBy':("" if not temp[8] else temp[8]), 
+            'id':temp[9], 
+            'statement':("" if not temp[10] else temp[10]),
+            'isActive':str( not temp[11])
+            })
+
+    return jsonify({'result': {'data': props}}), 200

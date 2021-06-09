@@ -104,3 +104,11 @@ def test_get_request_found(client, db, session):
     resp = client.get(f"/requests/{test_id}")
 
     assert resp.status_code == 200
+
+def test_get_property(client, db, session):
+    resp = client.get("/property")
+    assert resp.status_code == 400
+
+    resp2 = client.get("/property?propertyRoot=trait_pattern")
+    assert resp2.status_code == 200
+

@@ -71,3 +71,37 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     request_id = db.Column(db.Integer, db.ForeignKey("af.request.id"))
     parent_id = db.Column(db.Integer)
+
+@dataclass
+class Property(db.Model):
+
+    code:str
+    name:str
+    label:str
+    description:str
+    type:str
+    data_type:str
+    creation_timestamp:datetime.datetime
+    modification_timestamp:datetime.datetime
+    creator_id:str
+    modifier_id:str
+    id:int
+    statement:str
+
+    __tablename__ = "property"
+    __table_args__ = {"schema": "af"}
+
+    code = db.Column(db.String(50))
+    name = db.Column(db.String(70))
+    label = db.Column(db.String(70))
+    description = db.Column(db.String(150))
+    type = db.Column(db.String(50))
+    data_type = db.Column(db.String(50))
+    creation_timestamp = db.Column(db.DateTime)
+    modification_timestamp = db.Column(db.DateTime)
+    creator_id = db.Column(db.String(50))
+    modifier_id = db.Column(db.String(50))
+    is_void = db.Column(db.Boolean, nullable=False, default=False)
+    tenant_id = db.Column(db.Integer)
+    id = db.Column(db.Integer, primary_key=True)
+    statement = db.Column(db.String(250))
