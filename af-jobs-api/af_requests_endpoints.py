@@ -16,7 +16,7 @@ def create_request():
 
     NOTE:  the parameter currently described here are used in gather_data task
 
-    Required JSON Body parameters:  
+    Required JSON Body parameters:
     dataSource - either EBS or BRAPI
     dataSourceId - specific data source identifier, ex. EBS1, EBS2, BRAPI1 etc
     dataType - either PHENOTYPE or GENOTYPE
@@ -76,63 +76,69 @@ def get_request(request_uuid):
 
     return jsonify(req), 200
 
+
 @af_requests_bp.route("/models", methods=["GET"])
 def get_model():
-    
-    page = request.args.get('page')
-    pageSize = request.args.get('pageSize') 
+
+    page = request.args.get("page")
+    pageSize = request.args.get("pageSize")
 
     params = {
-        "engine" : request.args.get('engine'),
-        "design" : request.args.get('design'),
-        "trait_level" : request.args.get('trait_level'),
-        "analysis_objective" : request.args.get('analysis_objective'),
-        "exp_analysis_pattern" : request.args.get('exp_analysis_pattern'),
-        "loc_analysis_pattern" : request.args.get('loc_analysis_pattern'),
-        "trait_pattern" : request.args.get('trait_pattern')
+        "engine": request.args.get("engine"),
+        "design": request.args.get("design"),
+        "trait_level": request.args.get("trait_level"),
+        "analysis_objective": request.args.get("analysis_objective"),
+        "exp_analysis_pattern": request.args.get("exp_analysis_pattern"),
+        "loc_analysis_pattern": request.args.get("loc_analysis_pattern"),
+        "trait_pattern": request.args.get("trait_pattern"),
     }
-
 
     # sql = text("Select id, name, label, description  from af.Property WHERE property.id IN "+
     #     "(SELECT Property_Config.config_property_id FROM af.Property "+
     #     "JOIN af.Property_Config on Property_Config.property_id = Property.id "+
     #     "WHERE Property.code = 'analysis_config' AND Property_Config.property_id != Property_Config.config_property_id)")
     result = select_property_by_code("analysis_config")
-    #result = db.engine.execute(sql)
+    # result = db.engine.execute(sql)
 
     models = []
     for row in result:
         temp = row.values()
-        tempMap = {"id":temp[0], "name": temp[1], "label": temp[2], "description":temp[3]}
+        tempMap = {"id": temp[0], "name": temp[1], "label": temp[2], "description": temp[3]}
 
-        #query
-        property_meta = db.engine.execute(text("select code, value from af.property_meta where property_id = {}".format(str(temp[0]))))
+        # query
+        property_meta = db.engine.execute(
+            text("select code, value from af.property_meta where property_id = {}".format(str(temp[0])))
+        )
         doAppend = True
         for property_row in property_meta:
-            if property_row[0] in params and params[property_row[0]] is not None and params[property_row[0]] != property_row[1]:
+            if (
+                property_row[0] in params
+                and params[property_row[0]] is not None
+                and params[property_row[0]] != property_row[1]
+            ):
                 doAppend = False
                 break
         if doAppend:
             models.append(tempMap)
 
     result = {}
-    if(page is not None and pageSize is not None):
+    if page is not None and pageSize is not None:
         page = int(page)
         pageSize = int(pageSize)
         pagination = {
-            "totalCount" : len(models),
-            "pageSize" : pageSize,
-            "totalPages" : len(models) / pageSize,
-            "currentPage" : page
+            "totalCount": len(models),
+            "pageSize": pageSize,
+            "totalPages": len(models) / pageSize,
+            "currentPage": page,
         }
-        result['pagination'] = pagination
+        result["pagination"] = pagination
         models2 = []
         for i in range(0, pageSize):
-            models2.append(models[i+(pageSize*page)])
+            models2.append(models[i + (pageSize * page)])
         models = models2
-    
+
     result["model"] = models
-    
+
     return jsonify(result), 200
 
 
@@ -145,39 +151,44 @@ def test():
 def testredirect():
     return render_template("loginExample.html")
 
+
 @af_requests_bp.route("/property")
 def get_property():
-    page = request.args.get('page')
-    if not page : page = 0
-    pageSize = request.args.get('pageSize')
-    if not pageSize : pageSize = 1000
+    page = request.args.get("page")
+    if not page:
+        page = 0
+    pageSize = request.args.get("pageSize")
+    if not pageSize:
+        pageSize = 1000
 
-    propertyRoot = request.args.get('propertyRoot')
-    
+    propertyRoot = request.args.get("propertyRoot")
+
     # do a quick check for the property root
-    validPropertyRoots = ['objective', 'trait_pattern', 'exptloc_analysis_pattern']
+    validPropertyRoots = ["objective", "trait_pattern", "exptloc_analysis_pattern"]
 
     if propertyRoot not in validPropertyRoots:
         return jsonify({"errorMsg": "invalid propertyRoot"}), 400
 
-    result = select_property_by_code(propertyRoot, pageSize, pageSize*page)
+    result = select_property_by_code(propertyRoot, pageSize, pageSize * page)
     props = []
     for row in result:
         temp = row.values()
-        print ("TEST")
+        print("TEST")
         props.append(
-            {'code':temp[0], 
-            'propertyName':temp[1], 
-            'label':temp[2], 
-            'desription':temp[3], 
-            'type':temp[4], 
-            'createdOn':("" if not temp[5] else temp[5].strftime("%Y-%m-%dT%H:%M:%SZ")), 
-            'modifiedOn':("" if not temp[6] else temp[6].strftime("%Y-%m-%dT%H:%M:%SZ")), 
-            'createdBy':("" if not temp[7] else temp[7]), 
-            'modifiedBy':("" if not temp[8] else temp[8]), 
-            'id':temp[9], 
-            'statement':("" if not temp[10] else temp[10]),
-            'isActive':str( not temp[11])
-            })
+            {
+                "code": temp[0],
+                "propertyName": temp[1],
+                "label": temp[2],
+                "desription": temp[3],
+                "type": temp[4],
+                "createdOn": ("" if not temp[5] else temp[5].strftime("%Y-%m-%dT%H:%M:%SZ")),
+                "modifiedOn": ("" if not temp[6] else temp[6].strftime("%Y-%m-%dT%H:%M:%SZ")),
+                "createdBy": ("" if not temp[7] else temp[7]),
+                "modifiedBy": ("" if not temp[8] else temp[8]),
+                "id": temp[9],
+                "statement": ("" if not temp[10] else temp[10]),
+                "isActive": str(not temp[11]),
+            }
+        )
 
-    return jsonify({'result': {'data': props}}), 200
+    return jsonify({"result": {"data": props}}), 200
