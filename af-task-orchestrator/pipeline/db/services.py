@@ -1,10 +1,15 @@
-from pipeline.db.models import Property, PropertyConfig, PropertyMeta
+from pipeline.db.models import Property, PropertyConfig, PropertyMeta, Request
 from sqlalchemy.orm import aliased
 from sqlalchemy import and_, func
+
+
+#TODO: Catch database exceptions, mainly NoResultFounException
 
 def get_property(db_session, property_id: str) -> Property:
     return db_session.query(Property).get(property_id)
 
+def get_request(db_session, request_id) -> Request:
+    return db_session.query(Request).filter(Request.uuid==request_id).one()
 
 def get_analysis_config_properties(db_session, analysis_config_id: str, property_code: str) -> list[Property]:
     
@@ -23,6 +28,17 @@ def get_analysis_config_properties(db_session, analysis_config_id: str, property
         .all())
 
     return properties
+
+def get_analysis_config_meta_data(db_session, analysis_config_id:str, meta_code: str) -> PropertyMeta:
+
+    _property = (db_session
+        .query(PropertyMeta)
+        .join(Property, and_(
+            Property.id == PropertyMeta.property_id,
+            Property.id == analysis_config_id,
+            PropertyMeta.code == meta_code))
+        .one())
+    return _property
 
 def get_analysis_config_module_fields(db_session, analysis_config_id: str):
     """ Gets Analysis module fields for give analysis config id.
