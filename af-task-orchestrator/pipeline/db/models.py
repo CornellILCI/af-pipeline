@@ -48,6 +48,7 @@ class Property(Base):
     modifier_id = Column(String(50))
     is_void = Column(Boolean, default=False)
     tenant_id = Column(Integer)
+    statement = Column(String(250))
     
 
 
@@ -56,8 +57,8 @@ class PropertyMeta(Base):
     __table_args__ = {"schema": "af"}
 
     id = Column(Integer, primary_key=True)
-    code = Column(String(50))
-    creation_timestamp = Column(String(50))
+    code = Column(String(30))
+    value = Column(String(255))
     tenant_id = Column(Integer)
     creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)

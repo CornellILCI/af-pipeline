@@ -24,6 +24,7 @@ aeo/input/
 aeo/scratch/
 venv
 ipython-venv
+venv-dev
 docs/notebooks/.ipynb*
 .vscode
 htmlcov/
