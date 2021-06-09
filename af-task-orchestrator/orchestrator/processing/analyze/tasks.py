@@ -2,10 +2,12 @@ from orchestrator import config
 from orchestrator.app import app
 from orchestrator.base import StatusReportingTask
 from orchestrator.exceptions import MissingTaskParameter
-from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError
+from pipeline.data_reader.exceptions import AnalysisError
 from pipeline.data_reader.models.enums import DataSource, DataType
 
 from pipeline import analyze
+
+from pipeline.analysis_request import AnalysisRequest
 
 from orchestrator import config
 
@@ -19,26 +21,19 @@ def analyze(request_id: str, request_params):
     Args:
         request_id: Id of the request to process.
         request_params: Dict object with request parameters passed to analysis module.
-    Throws:
-        DpoException: Except when failed to read data from the datasource or process it. 
-        MissingTaskParameter: Errors when teh required task parameters are not found.
     """
 
 
-    data_source = request_params.get("dataSource")  # this is either EBS or BRAPI
-    if not data_source:
-        raise MissingTaskParameter("dataSource")
-
-    api_token = params.get("dataSourceAccessToken")
-    if not api_token:
-        raise MissingTaskParameter("apiBearerToken")
-
-    datasource = _get_datasource(source)
-    api_base_url = _get_api_details(datasource)
-
     output_folder = config.get_analysis_request_folder(request_id)
-
-    analyze.run(datasource, api_base_url, api_token, request_params, output_folder)
+    
+    analysis_request = analysis_request(
+        requestId=request_id,
+        outputFolder=output_folder,
+        **request_params
+    )
+    
+    # TODO: Condition to check executor is celery, If executor is slurm, submit analyze script as sbatch
+    result = analyze.run(analysis_request)
     
 
 

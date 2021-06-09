@@ -79,7 +79,7 @@ def run(analysis_request: AnalysisRequest):
         job.time_end = datetime.utcnow()
         job.modification_timestamp = datetime.utcnow()
         db_session.commit()
-        return str(e)
+        raise AnalysisError(str(e))
 
     analysis_engine_meta = db_services.get_analysis_config_meta_data(
         db_session, analysis_request.analysisConfigPropertyId, "engine")
@@ -114,7 +114,7 @@ def run(analysis_request: AnalysisRequest):
             job.time_end = datetime.utcnow()
             job.modification_timestamp = datetime.utcnow()
             db_session.commit()
-            return str(e)
+            raise AnalysisError(str(e))
         
         job.status = utils.get_job_status(run_result.stdout, run_result.stderr)
 
