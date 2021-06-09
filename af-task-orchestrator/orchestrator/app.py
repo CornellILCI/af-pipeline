@@ -18,7 +18,7 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE")
 LOGGER = get_task_logger(__name__)
 
 INSTALLED_TASKS = [
-
+    "orchestrator.processing.analyze"
 ]
 
 

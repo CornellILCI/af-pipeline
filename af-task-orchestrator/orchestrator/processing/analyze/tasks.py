@@ -2,16 +2,15 @@ from orchestrator import config
 from orchestrator.app import app
 from orchestrator.base import StatusReportingTask
 from orchestrator.exceptions import MissingTaskParameter
-from pipeline.data_reader.exceptions import AnalysisError
 from pipeline.data_reader.models.enums import DataSource, DataType
 
-from pipeline import analyze
+from pipeline import analyze as pipeline_analyze
 
 from pipeline.analysis_request import AnalysisRequest
 
 from orchestrator import config
 
-@app.task(name="analyze", base=StatusReportingTask)
+@app.task(name="analyze", base=ResultReportingTask)
 def analyze(request_id: str, request_params):
     """ Analyze taks run the analysis engine for given task request parameters.
 
@@ -26,29 +25,12 @@ def analyze(request_id: str, request_params):
 
     output_folder = config.get_analysis_request_folder(request_id)
     
-    analysis_request = analysis_request(
+    analysis_request = AnalysisRequest(
         requestId=request_id,
         outputFolder=output_folder,
         **request_params
     )
     
     # TODO: Condition to check executor is celery, If executor is slurm, submit analyze script as sbatch
-    result = analyze.run(analysis_request)
+    result = pipeline_analyze.run(analysis_request)
     
-
-
-def _get_api_details(datasource: DataSource, *args, **kwargs):
-    if datasource == DataSource.EBS:
-        return config.EBS_BASE_URL
-    elif datasource == DataSource.BRAPI:
-        return config.BRAPI_BASE_URL
-
-
-def _get_datasource(datasource: str, *args, **kwargs) -> DataSource:
-    source: DataSource = None
-    try:
-        source = DataSource[datasource]
-        return source
-    except KeyError:
-        raise DataSourceNotAvailableError(datasource)
-

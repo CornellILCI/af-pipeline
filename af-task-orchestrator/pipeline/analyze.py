@@ -23,8 +23,7 @@ from pipeline.db.models import Analysis, Job
 from pipeline.db import services as db_services
 from pipeline.data_reader.exceptions import DataReaderException
 from pipeline.exceptions import DpoException
-from pipeline.exceptions import InvalidAnalysisConfig
-from pipeline.exceptions import InvalidAnalysisRequest, InvalidExptLocAnalysisPattern
+from pipeline.exceptions import AnalysisError, InvalidAnalysisRequest
 from pipeline import utils
 
 from pipeline.analysis_request import AnalysisRequest
@@ -138,12 +137,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process input data to feed into analytical engine")
 
     parser.add_argument("--request_file", help="File path for analysis request")
-    parser.add_argument("--config_file", help="File path for analysis config")
-    parser.add_argument("--output_folder", help="Directory to write output files")
-
-    parser.add_argument("--datasource_type", help="Datasource to use EBS or BRAPI")
-    parser.add_argument("--api_url", help="Api base url for data source to download input data from")
-    parser.add_argument("--api_token", help="Api token to access datasource api")
 
     args = parser.parse_args()
 
