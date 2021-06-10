@@ -9,6 +9,12 @@ from pandas import DataFrame
 
 os.environ["B4R_API_BASE_URL"] = ""
 
+os.environ["EBS_AFDB_URL"] = "sqlite://"
+
+
+@pytest.fixture
+def 
+
 
 def get_test_resource_path(testfile, resource_name):
     """Get resource files in the same directory as test file"""
