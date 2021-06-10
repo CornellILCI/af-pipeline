@@ -38,15 +38,15 @@ class ProcessData:
         Args:
             analysis_request: Object with all required inputs to run analysis.
         """
-        
+
         self.analysis_request = analysis_request
-        
+
         factory = DataReaderFactory(analysis_request.dataSource.name)
         self.data_reader: PhenotypeData = factory.get_phenotype_data(
             api_base_url=analysis_request.dataSourceUrl,
             api_bearer_token=analysis_request.dataSourceAccessToken
         )
-        
+
         self.occurrence_ids = analysis_request.occurrenceIds
         self.trait_ids = analysis_request.traitIds
         self.db_session = SessionLocal()
@@ -62,19 +62,19 @@ class ProcessData:
             trait: Trait = self.data_reader.get_trait(trait_id)
             traits.append(trait)
         return traits
-    
+
     def sesl(self):
         """For Single Experiment Single Location
-        
+
         Generator for ASReml job definition file and input data files for each trait.
-        
+
         Raises:
             DpoException when invalid request paramters is passed.
             DataReaderException when unable to extract data from datasource.
         """
 
         plots_by_occurrence_id = {}
-        
+
         traits: list[Trait] = self.get_traits()
 
         for occurrence_id in self.occurrence_ids:
@@ -88,7 +88,7 @@ class ProcessData:
 
                 plots = plots_by_occurrence_id[occurrence_id]
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
-                
+
                 _plots_and_measurements = plots.merge(plot_measurements_, on="plot_id", how="left")
                 if plots_and_measurements is None:
                     plots_and_measurements = _plots_and_measurements
@@ -106,7 +106,7 @@ class ProcessData:
 
         Generator for ASReml job definition file and input data files for each valid combination of trait
         and occurrence.
-        
+
         Raises:
             DpoException when invalid request paramters is passed.
             DataReaderException when unable to extract data from datasource.
@@ -165,7 +165,7 @@ class ProcessData:
 
         job_file_path = os.path.join(self.output_folder, job_file_name)
         data_file_path = os.path.join(self.output_folder, data_file_name)
-        
+
         job_data.to_csv(data_file_path, index=False)
 
         job_file_lines = self._get_asrml_job_file_lines(job_name, trait)
@@ -256,7 +256,7 @@ class ProcessData:
             return asreml_options[0]
         else:
             raise DpoException("No ASREML engine options found.")
-    
+
     def _get_tabulate(self, analysis_config_id: str):
         tabulate = services.get_analysis_config_properties(
             self.db_session, analysis_config_id, "tabulate")
@@ -264,7 +264,24 @@ class ProcessData:
             return tabulate[0]
         else:
             raise DpoException("No analysis config tabulate found.")
-    
+
+#########
+    def _get_formula(self, analysis_config_id: str):
+        tabulate = services.get_analysis_config_properties(
+            self.db_session, analysis_config_id, "formula")
+        if len(tabulate) > 0:
+            return tabulate[0]
+        else:
+            raise DpoException("No analysis config formula found.")
+
+    def _get_residual(self, analysis_config_id: str):
+        tabulate = services.get_analysis_config_properties(
+            self.db_session, analysis_config_id, "residual")
+        if len(tabulate) > 0:
+            return tabulate[0]
+        else:
+            raise DpoException("No analysis config residual found.")
+
     def _get_analysis_field_lines(self, analysis_config_id: str):
         analysis_fields = services.get_analysis_config_module_fields(self.db_session, analysis_config_id)
         if len(analysis_fields) == 0:
@@ -272,7 +289,7 @@ class ProcessData:
         for field in analysis_fields:
             field_line = "\t{stat_factor} {data_type} {condition}".format(
                 stat_factor=field.Property.code,
-                data_type=field.Property.data_type, 
+                data_type=field.Property.data_type,
                 condition=field.property_meta.get("condition", "")
             )
             yield field_line
@@ -304,7 +321,7 @@ class ProcessData:
 
         exptloc_analysis_pattern = services.get_property(
             self.db_session, self.analysis_request.expLocAnalysisPatternPropertyId)
-        
+
         job_inputs = []
 
         if exptloc_analysis_pattern.code == "SESL":
