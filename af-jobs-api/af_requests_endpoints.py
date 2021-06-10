@@ -5,6 +5,7 @@ from database import Request, db
 from flask import jsonify, render_template, request
 from flask.blueprints import Blueprint
 from sqlalchemy import text
+from services.afdb_service import select_analysis_configs
 
 af_requests_bp = Blueprint("af_requests", __name__)
 
@@ -142,3 +143,76 @@ def test():
 @af_requests_bp.route("/test/redirect", methods=["GET"])
 def testredirect():
     return render_template("loginExample.html")
+
+@af_requests_bp.route("/analysis-configs/<analysisConfigId>/formulas")
+def get_analysis_config_formulas(analysisConfigId):
+    page = request.args.get('page')
+    if not page or not isinstance(page, (int, long)) or page < 0 : page = 0
+    pageSize = request.args.get('pageSize') 
+    if not pageSize or not isinstance(pageSize, (int, long)) or pageSize <= 0 : pageSize = 1000
+
+    result = select_analysis_configs(analysisConfigId, pageSize, pageSize*page, "formula");
+    ret = []
+    for row in result:
+        temp = row.values()
+        ret.append({
+        "propertyId": temp[11],
+        "propertyName": temp[12],
+        "propertyCode": temp[0],
+        "label": temp[1],
+        "type": temp[3],
+        "createdOn": temp[5],#"2021-06-09T15:06:31.825Z",
+        "modifiedOn": temp[6],
+        "createdBy": temp[7],
+        "modifiedBy": temp[8],
+        "isActive": not temp[9],
+        "statement": temp[10],
+        "description": temp[2]
+        })
+        
+        
+
+    return jsonify({"metadata": {
+        "pagination": {
+            "pageSize": pageSize,
+            "currentPage": page
+            }
+        },
+        "result":{"data":ret}}), 200
+
+
+@af_requests_bp.route("/analysis-configs/<analysisConfigId>/residuals")
+def get_analysis_config_residuals(analysisConfigId):
+    page = request.args.get('page')
+    if not page or not isinstance(page, (int, long)) or page < 0 : page = 0
+    pageSize = request.args.get('pageSize') 
+    if not pageSize or not isinstance(pageSize, (int, long)) or pageSize <= 0 : pageSize = 1000
+
+    result = select_analysis_configs(analysisConfigId, pageSize, pageSize*page, "residual");
+    ret = []
+    for row in result:
+        temp = row.values()
+        ret.append({
+        "propertyId": temp[11],
+        "propertyName": temp[12],
+        "propertyCode": temp[0],
+        "label": temp[1],
+        "type": temp[3],
+        "createdOn": temp[5],#"2021-06-09T15:06:31.825Z",
+        "modifiedOn": temp[6],
+        "createdBy": temp[7],
+        "modifiedBy": temp[8],
+        "isActive": not temp[9],
+        "statement": temp[10],
+        "description": temp[2]
+        })
+        
+        
+
+    return jsonify({"metadata": {
+        "pagination": {
+            "pageSize": pageSize,
+            "currentPage": page
+            }
+        },
+        "result":{"data":ret}}), 200
