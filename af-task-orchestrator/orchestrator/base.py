@@ -3,11 +3,13 @@ from orchestrator.services.afdbservice import AFDBService
 
 
 class StatusReportingTask(celery.Task):
+    afdb_service = AFDBService()
+
     def apply_async(self, *args, **kwargs):
-        self.afdb_service = AFDBService()
+
         params = args[0][0]  # args should be a tuple and the first element of that
         # tuple should be our standard 'params' dict
-        request_id = params.get("processId") or params.get("jobId")
+        request_id = params.get("requestId") or params.get("processId") or params.get("jobId") 
 
         self.af_request = self.afdb_service.get_af_request(request_id)
         self.af_task = None
