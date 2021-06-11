@@ -76,7 +76,7 @@ class Job(Base):
 
 class Property(Base):
 
-    __tablename__ = "property"  # Base.metadata.tables["af.property"]
+    __tablename__ = "property"
     __table_args__ = {"schema": "af"}
 
     id = Column(Integer, primary_key=True)
@@ -96,7 +96,7 @@ class Property(Base):
     
 
 class PropertyMeta(Base):
-    __tablename__ = "property_meta"  # Base.metadata.tables["af.property_meta"]
+    __tablename__ = "property_meta"
     __table_args__ = {"schema": "af"}
 
     id = Column(Integer, primary_key=True)
@@ -111,7 +111,7 @@ class PropertyMeta(Base):
     property_id = Column(Integer)
 
 class PropertyConfig(Base):
-    __tablename__ = "property_config"  # Base.metadata.tables["af.request"]
+    __tablename__ = "property_config"
     __table_args__ = {"schema": "af"}
     
     id = Column(Integer, primary_key=True)

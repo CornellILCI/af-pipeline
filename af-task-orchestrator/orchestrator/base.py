@@ -19,7 +19,7 @@ class StatusReportingTask(celery.Task):
             print(f"{request_id} does not exist!")
         self.af_task_updated = False
 
-        self.run(*args, **kwargs)
+        super().__call__(*args, **kwargs)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
 
