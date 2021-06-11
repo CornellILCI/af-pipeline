@@ -9,7 +9,7 @@ BRAPI_BASE_URL = os.getenv("BRAPI_BASE_URL")
 
 AFDB_URL = os.getenv("AFDB_URL")
 
-ROOT_DATA_FOLDER = os.getenv("ROOT_DATA_FOLDER")
+ROOT_DATA_FOLDER = os.getenv("ASREML_INPUTS_DIR")
 
 def get_analysis_request_folder(request_id: str) -> str:
     """ Returns the shared data folder path for given request id.
