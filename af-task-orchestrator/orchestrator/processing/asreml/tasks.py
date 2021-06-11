@@ -4,7 +4,7 @@ from orchestrator import asremlutil
 
 
 
-@app.task(name="run_asreml", base=StatusReportingTask)
+@app.task(name="run_asreml") #, base=StatusReportingTask)
 def run_asreml(params: dict):
     """params is a dict that should contain the following:
     
