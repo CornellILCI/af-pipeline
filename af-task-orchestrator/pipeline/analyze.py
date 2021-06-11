@@ -106,7 +106,7 @@ def run(analysis_request: AnalysisRequest):
         job = db_services.add(db_session, job)
         try:
             cmd = [analysis_engine, asreml_job_file, data_file]
-            run_result = subprocess.run(cmd, capture_output=True)
+            run_result = subprocess.run(cmd, capture_output=True, shell=True)
         except Exception as e:
             analysis.status = "FAILED"
             job.status = "FAILED"
