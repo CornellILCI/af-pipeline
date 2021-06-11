@@ -5,9 +5,16 @@ import random
 import string
 import sys
 
+import pytest
+
 from pandas import DataFrame
 
+
+import tempfile
+
 os.environ["B4R_API_BASE_URL"] = ""
+
+os.environ["AFDB_URL"] = "sqlite://"
 
 
 def get_test_resource_path(testfile, resource_name):
@@ -22,6 +29,27 @@ def get_json_resource(testfile, json_file_name):
     with open(file_path) as file_:
         json_ = json.load(file_)
     return json_
+
+
+def get_test_analysis_request():
+    from pipeline.analysis_request import AnalysisRequest
+    output_folder = tempfile.TemporaryDirectory() 
+    analysis_request = AnalysisRequest(
+        requestId="test_id",
+        dataSource="EBS",
+        dataSourceUrl="http://test.org",
+        dataSourceAccessToken="",
+        experimentIds=[""],
+        occurrenceIds=["1", "2"],
+        traitIds=["1"],
+        analysisObjectivePropertyId="1",
+        analysisConfigPropertyId="1",
+        expLocAnalysisPatternPropertyId="1",
+        configFormulaPropertyId="1",
+        configResidualPropertyId="1",
+        outputFolder="test"
+    )
+    return analysis_request
 
 
 def get_test_plots() -> DataFrame:

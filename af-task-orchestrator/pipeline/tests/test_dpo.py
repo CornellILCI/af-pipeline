@@ -1,15 +1,15 @@
 from tempfile import TemporaryDirectory
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, patch
 
-import pandas as pd
 from pandas import DataFrame
-from pandas._testing import assert_frame_equal
-from pipeline.data_reader import DataReaderFactory, PhenotypeData
 from pipeline.data_reader.models import Trait
 from pipeline.dpo import ProcessData
 
+from pipeline.db.models import Property
+
 from conftest import get_json_resource
+from conftest import get_test_analysis_request
 
 
 def get_job_file_template():
@@ -32,23 +32,87 @@ def get_job_file_template():
     )
 
 
+def get_exploc_analysis_pattern():
+    return Property(
+        code="SESL"
+    )
+
+
+def get_analysis_fields():
+    return [
+        type("PropertyResult", (object,), {
+            "Property": Property(code="loc", data_type="!A"),
+            "property_meta": {"definition": "loc_id", "condition": "!SORTALL !PRUNEALL"}
+        }),
+        type("PropertyResult", (object,), {
+            "Property": Property(code="expt", data_type="!A"),
+            "property_meta": {"definition": "expt_id", "condition": "!LL 32"}
+        }),
+        type("PropertyResult", (object,), {
+            "Property": Property(code="entry", data_type="!A"),
+            "property_meta": {"definition": "entry_id"}
+        }),
+        type("PropertyResult", (object,), {
+            "Property": Property(code="plot", data_type="!A"),
+            "property_meta": {"definition": "plot_id"}
+        }),
+        type("PropertyResult", (object,), {
+            "Property": Property(code="col", data_type="!I"),
+            "property_meta": {"definition": "pa_x"}
+        }),
+        type("PropertyResult", (object,), {
+            "Property": Property(code="row", data_type="!I"),
+            "property_meta": {"definition": "pa_y"}
+        }),
+        type("PropertyResult", (object,), {
+            "Property": Property(code="rep", data_type="!A"),
+            "property_meta": {"definition": "rep_factor"}
+        }),
+    ]
+
+def get_asreml_option():
+    return [Property(
+        statement="!CSV !SKIP 1 !AKAIKE !NODISPLAY 1 !MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER"
+    )]
+
+def get_tabulate():
+    return [Property(
+        statement="{trait_name} ~ entry"
+    )]
+
+def get_formula():
+    return Property(
+        statement="{trait_name} ~ mu rep !r entry !f mv"
+    )
+
+def get_residual():
+    return Property(
+        statement="ar1(row).ar1(col)"
+    )
+
+def get_prediction():
+    return Property(
+        statement="entry !PRESENT entry !SED !TDIFF"
+    )
+
 class TestProcessData(TestCase):
-    @patch("pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_trait")
-    @patch("pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plot_measurements")
-    @patch("pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plots")
-    def test_dpo_sesl_filter(self, mock_get_plots, mock_get_plot_measurements, mock_get_trait):
+    
+    @patch("pipeline.db.services.get_analysis_config_properties")
+    @patch("pipeline.db.services.get_analysis_config_module_fields")
+    @patch("pipeline.db.services.get_property")
+    @patch("pipeline.data_reader.DataReaderFactory.get_phenotype_data")
+    def test_dpo_sesl_filter(self,
+        mock_phenotype_ebs,
+        mock_get_property,
+        mock_get_analysis_fields,
+        mock_get_analysis_config_properties):
 
-        test_request = get_json_resource(__file__, "test_analysis_request.req")
-        test_config = get_json_resource(__file__, "test_analysis_config.cfg")
 
-        test_request["metadata"]["id"] = "test_id"
+        test_request = get_test_analysis_request()
+        output_folder = TemporaryDirectory()
+        test_request.outputFolder=output_folder.name
 
-        # set analysis pattern to 1 so sesl filter will be called.
-        test_request["parameters"]["exptloc_analysis_pattern"] = 1
-
-        test_request["data"]["occurrence_id"] = [1, 2]
-        test_request["data"]["trait_id"] = [1]
-
+        phenotype_data_ebs_instance = MagicMock()
         mock_plots = []
         plots_columns = [
             "plot_id",
@@ -85,7 +149,7 @@ class TestProcessData(TestCase):
             )
         )
 
-        mock_get_plots.side_effect = mock_plots
+        phenotype_data_ebs_instance.get_plots.side_effect = mock_plots
 
         mock_plot_measurements = []
         plot_measurements_columns = ["plot_id", "trait_id", "trait_qc", "trait_value"]
@@ -103,17 +167,19 @@ class TestProcessData(TestCase):
 
         # for occurrence id 2 and trait id 1
         mock_plot_measurements.append(DataFrame(columns=plot_measurements_columns, data=[]))
-        mock_get_plot_measurements.side_effect = mock_plot_measurements
+        phenotype_data_ebs_instance.get_plot_measurements.side_effect = mock_plot_measurements
 
         mock_traits = []
         test_trait = {"trait_id": 1, "trait_name": "trait_name_1", "abbreviation": "trait_abbrev_1"}
         mock_traits.append(Trait(**test_trait))
-        mock_get_trait.side_effect = mock_traits
+        phenotype_data_ebs_instance.get_trait.side_effect = mock_traits
+        
+        mock_phenotype_ebs.return_value = phenotype_data_ebs_instance
 
-        expected_columns = ""
-        for field in test_config["Analysis_Module"]["fields"]:
-            expected_columns += field["stat_factor"] + ","
-        expected_columns += "trait_abbrev_1"
+        mock_get_property.side_effect = [
+                get_exploc_analysis_pattern(), get_formula(), get_residual(), get_prediction()]
+        mock_get_analysis_fields.return_value = get_analysis_fields()
+        mock_get_analysis_config_properties.side_effect = [get_asreml_option(), get_tabulate()]
 
         expected_data_file_contents = (
             "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
@@ -128,9 +194,7 @@ class TestProcessData(TestCase):
             trait_abbreviation="trait_abbrev_1",
         )
 
-        output_folder = TemporaryDirectory()
-
-        results = ProcessData("EBS", "http://test.org", "test").run(test_request, test_config, output_folder.name)
+        results = ProcessData(test_request).run()
 
         self.assertEqual(len(results), 1)
 
@@ -144,20 +208,21 @@ class TestProcessData(TestCase):
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_contents)
 
-    @patch("pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_trait")
-    @patch("pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plot_measurements")
-    @patch("pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plots")
-    def test_dpo_seml_filter(self, mock_get_plots, mock_get_plot_measurements, mock_get_trait):
-        test_request = get_json_resource(__file__, "test_analysis_request.req")
-        test_config = get_json_resource(__file__, "test_analysis_config.cfg")
+    @patch("pipeline.db.services.get_analysis_config_properties")
+    @patch("pipeline.db.services.get_analysis_config_module_fields")
+    @patch("pipeline.db.services.get_property")
+    @patch("pipeline.data_reader.DataReaderFactory.get_phenotype_data")
+    def test_dpo_seml_filter(self,
+        mock_phenotype_ebs,
+        mock_get_property,
+        mock_get_analysis_fields,
+        mock_get_analysis_config_properties):
+        
+        test_request = get_test_analysis_request()
+        output_folder = TemporaryDirectory()
+        test_request.outputFolder=output_folder.name
 
-        test_request["metadata"]["id"] = "test_id"
-
-        # set analysis pattern to 1 so sesl filter will be called.
-        test_request["parameters"]["exptloc_analysis_pattern"] = 2
-
-        test_request["data"]["occurrence_id"] = [1, 2]
-        test_request["data"]["trait_id"] = [1]
+        phenotype_data_ebs_instance = MagicMock()
 
         mock_plots = []
         plots_columns = [
@@ -195,7 +260,7 @@ class TestProcessData(TestCase):
             )
         )
 
-        mock_get_plots.side_effect = mock_plots
+        phenotype_data_ebs_instance.get_plots.side_effect = mock_plots
 
         mock_plot_measurements = []
         plot_measurements_columns = ["plot_id", "trait_id", "trait_qc", "trait_value"]
@@ -213,17 +278,12 @@ class TestProcessData(TestCase):
 
         # for occurrence id 2 and trait id 1
         mock_plot_measurements.append(DataFrame(columns=plot_measurements_columns, data=[]))
-        mock_get_plot_measurements.side_effect = mock_plot_measurements
+        phenotype_data_ebs_instance.get_plot_measurements.side_effect = mock_plot_measurements
 
         mock_traits = []
         test_trait = {"trait_id": 1, "trait_name": "trait_name_1", "abbreviation": "trait_abbrev_1"}
         mock_traits.append(Trait(**test_trait))
-        mock_get_trait.side_effect = mock_traits
-
-        expected_columns = ""
-        for field in test_config["Analysis_Module"]["fields"]:
-            expected_columns += field["stat_factor"] + ","
-        expected_columns += "trait_abbrev_1"
+        phenotype_data_ebs_instance.get_trait.side_effect = mock_traits
 
         expected_data_file_1_contents = (
             "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
@@ -232,7 +292,9 @@ class TestProcessData(TestCase):
         )
 
         expected_data_file_2_contents = (
-            "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n" "1,1,1,2911,2,1,1,NA\n" "1,1,1,2912,2,2,1,NA\n"
+            "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
+            "1,1,1,2911,2,1,1,NA\n"
+            "1,1,1,2912,2,2,1,NA\n"
         )
 
         expected_job_file_1 = get_job_file_template().format(
@@ -250,9 +312,18 @@ class TestProcessData(TestCase):
             trait_abbreviation="trait_abbrev_1",
         )
 
-        output_folder = TemporaryDirectory()
-
-        results = ProcessData("EBS", "http://test.org", "test").run(test_request, test_config, output_folder.name)
+        mock_phenotype_ebs.return_value = phenotype_data_ebs_instance
+        
+        exploc_analysis_pattern = get_exploc_analysis_pattern()
+        exploc_analysis_pattern.code = "SEML"
+        mock_get_property.side_effect = [
+            exploc_analysis_pattern, get_formula(), get_residual(), get_prediction(),
+            get_formula(), get_residual(), get_prediction()]
+        mock_get_analysis_fields.return_value = get_analysis_fields()
+        mock_get_analysis_config_properties.side_effect = [
+            get_asreml_option(), get_tabulate(),
+            get_asreml_option(), get_tabulate()]
+        results = ProcessData(test_request).run()
 
         self.assertEqual(len(results), 2)
 

@@ -18,10 +18,7 @@ CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE")
 LOGGER = get_task_logger(__name__)
 
 INSTALLED_TASKS = [
-    "orchestrator.common",
-    "orchestrator.processing.data_gathering",
-    "orchestrator.processing.debug",
-    "orchestrator.workflows.data_gathering_demo",  # TODO: this is for demo purposes only
+    "orchestrator.processing.analyze"
 ]
 
 
