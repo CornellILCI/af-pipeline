@@ -36,7 +36,7 @@ def run(analysis_request: AnalysisRequest):
     Save the status of the analysis to the database.
 
     Args:
-        analysis_request: Object with all required paramters to run analysis. 
+        analysis_request: Object with all required paramters to run analysis.
     Returns:
         exit code 0 if sucessful. -1 if fialed
     """
@@ -44,7 +44,7 @@ def run(analysis_request: AnalysisRequest):
     request_id = analysis_request.requestId
 
     db_session = SessionLocal()
-    
+
     # Request source
     _request = db_services.get_request(db_session, analysis_request.requestId)
 
@@ -53,7 +53,7 @@ def run(analysis_request: AnalysisRequest):
         request_id=_request.id,
         name=analysis_request.requestId,
         creation_timestamp=datetime.utcnow(),
-        status="IN-PROGRESS", # TODO: Find, What this status and how they are defined
+        status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
     )
 
     analysis = db_services.add(db_session, analysis)
@@ -66,8 +66,8 @@ def run(analysis_request: AnalysisRequest):
         name=job_name,
         time_start=job_start_time,
         creation_timestamp=job_start_time,
-        status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined 
-        status_message="Running DPO"
+        status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
+        status_message="Running DPO",
     )
     try:
         job_input_files = dpo.ProcessData(analysis_request).run()
@@ -81,8 +81,9 @@ def run(analysis_request: AnalysisRequest):
         raise AnalysisError(str(e))
 
     analysis_engine_meta = db_services.get_analysis_config_meta_data(
-        db_session, analysis_request.analysisConfigPropertyId, "engine")
-        
+        db_session, analysis_request.analysisConfigPropertyId, "engine"
+    )
+
     analysis_engine = analysis_engine_meta.value.lower()
 
     for job_input_file in job_input_files:
@@ -98,8 +99,8 @@ def run(analysis_request: AnalysisRequest):
             name=job_name,
             time_start=job_start_time,
             creation_timestamp=job_start_time,
-            status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined 
-            status_message="Processing the input request"
+            status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
+            status_message="Processing the input request",
         )
 
         job = db_services.add(db_session, job)
@@ -114,15 +115,15 @@ def run(analysis_request: AnalysisRequest):
             job.modification_timestamp = datetime.utcnow()
             db_session.commit()
             raise AnalysisError(str(e))
-        
+
         job.status = utils.get_job_status(run_result.stdout, run_result.stderr)
 
         if job.status > 100:
-            job.status_message = run_result.stderr.decode('utf-8')
+            job.status_message = run_result.stderr.decode("utf-8")
         job.modification_timestamp = datetime.utcnow()
         job.time_end = datetime.utcnow()
 
-        print(run_result.stdout.decode('utf-8'))
+        print(run_result.stdout.decode("utf-8"))
 
         db_session.commit()
 
