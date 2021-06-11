@@ -7,7 +7,7 @@ EBS_BASE_URL = os.getenv("B4R_API_BASE_URL")
 
 BRAPI_BASE_URL = os.getenv("BRAPI_BASE_URL")
 
-AFDB_URL = os.getenv("EBS_AFDB_URL")
+AFDB_URL = os.getenv("AFDB_URL")
 
 ROOT_DATA_FOLDER = os.getenv("ROOT_DATA_FOLDER")
 

@@ -14,7 +14,7 @@ import tempfile
 
 os.environ["B4R_API_BASE_URL"] = ""
 
-os.environ["EBS_AFDB_URL"] = "sqlite://"
+os.environ["AFDB_URL"] = "sqlite://"
 
 
 def get_test_resource_path(testfile, resource_name):
