@@ -1,6 +1,6 @@
 from orchestrator import config
 from orchestrator.app import app
-from orchestrator.base import StatusReportingTask
+from orchestrator.base import ResultReportingTask
 from orchestrator.exceptions import MissingTaskParameter
 from pipeline.data_reader.models.enums import DataSource, DataType
 
