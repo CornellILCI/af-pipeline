@@ -193,7 +193,7 @@ def get_analysis_config_residuals(analysisConfigId):
     for row in result:
         temp = row.values()
         ret.append({
-        "propertyId": temp[11],
+        "propertyId": str(temp[11]),
         "propertyName": temp[12],
         "propertyCode": temp[0],
         "label": temp[1],

@@ -30,7 +30,8 @@ def select_analysis_configs(analysisConfigID, limit, offset, configType):
         "AND formula_configs.config_property_id = property_config.config_property_id "+
         "AND property_config.property_id = {} "+
         "INNER JOIN af.property AS formula_property "+
-        "ON formula_property.id = formula_configs.config_property_id"
-    ).format(configType, analysisConfigID))
+        "ON formula_property.id = formula_configs.config_property_id "+
+        "LIMIT {} OFFSET {} "
+    ).format(configType, analysisConfigID, limit, offset))
     result = db.engine.execute(sql)
     return result
