@@ -88,6 +88,7 @@ class Property(db.Model):
     modifier_id: str
     id: int
     statement: str
+    is_void: bool
 
     __tablename__ = "property"
     __table_args__ = {"schema": "af"}
