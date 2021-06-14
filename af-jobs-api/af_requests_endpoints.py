@@ -156,8 +156,8 @@ def get_analysis_config_formulas(analysisConfigId):
     for row in result:
         temp = row.values()
         ret.append({
-        "propertyId": temp[11],
-        "propertyName": temp[12],
+        "propertyId": str(temp[12]),
+        "propertyName": temp[13],
         "propertyCode": temp[0],
         "label": temp[1],
         "type": temp[3],
@@ -166,7 +166,7 @@ def get_analysis_config_formulas(analysisConfigId):
         "createdBy": temp[7],
         "modifiedBy": temp[8],
         "isActive": not temp[9],
-        "statement": temp[10],
+        "statement": temp[11],
         "description": temp[2]
         })
         
@@ -193,8 +193,8 @@ def get_analysis_config_residuals(analysisConfigId):
     for row in result:
         temp = row.values()
         ret.append({
-        "propertyId": str(temp[11]),
-        "propertyName": temp[12],
+        "propertyId": str(temp[12]),
+        "propertyName": temp[13],
         "propertyCode": temp[0],
         "label": temp[1],
         "type": temp[3],
@@ -203,7 +203,7 @@ def get_analysis_config_residuals(analysisConfigId):
         "createdBy": temp[7],
         "modifiedBy": temp[8],
         "isActive": not temp[9],
-        "statement": temp[10],
+        "statement": temp[11],
         "description": temp[2]
         })
         
