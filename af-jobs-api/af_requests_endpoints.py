@@ -179,7 +179,7 @@ def get_analysis_configs():
             "totalPages": len(models) / pageSize,
             "currentPage": page,
         }
-        result["pagination"] = pagination
+        result["metadata"] = {"pagination" : pagination}
         models2 = []
         for i in range(0, pageSize):
             models2.append(models[i + (pageSize * page)])
@@ -239,9 +239,9 @@ def get_properties():
         )
         
     return jsonify({"metadata": {
-        "pagination": {
-            "pageSize": pageSize,
-            "currentPage": page
+            "pagination": {
+                "pageSize": pageSize,
+                "currentPage": page
             }
         },
         "result":{"data":props}}), 200
