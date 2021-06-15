@@ -21,56 +21,71 @@ from pipeline.data_reader.exceptions import DataReaderException
 from pipeline.db import services as db_services
 from pipeline.db.core import SessionLocal
 from pipeline.db.models import Analysis, Job
-from pipeline.exceptions import (
-    DpoException,
-    InvalidAnalysisConfig,
-    InvalidAnalysisRequest,
-    InvalidExptLocAnalysisPattern,
-)
+from pipeline.db import services as db_services
+from pipeline.data_reader.exceptions import DataReaderException
+from pipeline.exceptions import DpoException
+from pipeline.exceptions import AnalysisError, InvalidAnalysisRequest
+from pipeline import utils
+
+from pipeline.analysis_request import AnalysisRequest
 
 
-def run(data_source: str, api_url: str, api_token: str, analysis_request, analysis_config, output_folder):
+def run(analysis_request: AnalysisRequest):
     """Runs the phenotypic analysis for given request.
 
     Pre process requested data using dpo module and run analysis engine with the job file and data file.
     Save the status of the analysis to the database.
 
     Args:
-        data_source: Type of API data source. EBS/Brapi.
-        api_url: Base url for EBS or BRAPI APIs.
-        api_token: Access token to extract data.
-        analysis_request: Analysis request with data ids and paramters to perform analysis.
-        analysis_config: Anaisis model configurations.
-        output_folder: Folder to which the output needs to be saved.
-
+        analysis_request: Object with all required paramters to run analysis.
     Returns:
         exit code 0 if sucessful. -1 if fialed
     """
 
-    request_id = analysis_request["metadata"]["id"]
+    request_id = analysis_request.requestId
 
     db_session = SessionLocal()
 
+    # Request source
+    _request = db_services.get_request(db_session, analysis_request.requestId)
+
     # Add new analysis
     analysis = Analysis(
-        request_id=request_id,
-        request_type=utils.get_request_type(analysis_request),
-        time_submitted=datetime.utcnow(),
-        sha=utils.get_request_sha(analysis_request),
-        status="queued",
+        request_id=_request.id,
+        name=analysis_request.requestId,
+        creation_timestamp=datetime.utcnow(),
+        status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
     )
 
     analysis = db_services.add(db_session, analysis)
 
-    _dpo = dpo.ProcessData(data_source, api_url, api_token)
-
     # Run data pre-processing to get asreml job file and processed data files.
+    job_name = f"{analysis_request.requestId}-dpo"
+    job_start_time = datetime.utcnow()
+    job = Job(
+        analysis_id=analysis.id,
+        name=job_name,
+        time_start=job_start_time,
+        creation_timestamp=job_start_time,
+        status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
+        status_message="Running DPO",
+    )
     try:
-        job_input_files = _dpo.run(analysis_request, analysis_config, output_folder)
+        job_input_files = dpo.ProcessData(analysis_request).run()
     except (DataReaderException, DpoException) as e:
-        analysis.status = "failed"
+        analysis.status = "FAILED"
+        job.status = "FAILED"
+        job.status_message = str(e)
+        job.time_end = datetime.utcnow()
+        job.modification_timestamp = datetime.utcnow()
         db_session.commit()
-        return str(e)
+        raise AnalysisError(str(e))
+
+    analysis_engine_meta = db_services.get_analysis_config_meta_data(
+        db_session, analysis_request.analysisConfigPropertyId, "engine"
+    )
+
+    analysis_engine = analysis_engine_meta.value.lower()
 
     for job_input_file in job_input_files:
 
@@ -78,20 +93,43 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
         asreml_job_file = job_input_file["asreml_job_file"]
         data_file = job_input_file["data_file"]
 
-        analysis_engine = utils.get_analysis_engine(analysis_request)
+        job_start_time = datetime.utcnow()
 
+<<<<<<< HEAD
         job = Job(analysis_id=analysis.id, name=job_name, time_start=datetime.utcnow(), parent_id=0)
+=======
+        job = Job(
+            analysis_id=analysis.id,
+            name=job_name,
+            time_start=job_start_time,
+            creation_timestamp=job_start_time,
+            status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
+            status_message="Processing the input request",
+        )
+>>>>>>> develop
 
         job = db_services.add(db_session, job)
-
-        cmd = [analysis_engine, asreml_job_file, data_file]
-
-        run_result = subprocess.run(cmd, capture_output=True)
+        try:
+            cmd = [analysis_engine, asreml_job_file, data_file]
+            run_result = subprocess.run(cmd, capture_output=True, shell=True)
+        except Exception as e:
+            analysis.status = "FAILED"
+            job.status = "FAILED"
+            job.status_message = str(e)
+            job.time_end = datetime.utcnow()
+            job.modification_timestamp = datetime.utcnow()
+            db_session.commit()
+            raise AnalysisError(str(e))
 
         job.status = utils.get_job_status(run_result.stdout, run_result.stderr)
 
         if job.status > 100:
+<<<<<<< HEAD
             job.err_msg = run_result.stderr.decode("utf-8")
+=======
+            job.status_message = run_result.stderr.decode("utf-8")
+        job.modification_timestamp = datetime.utcnow()
+>>>>>>> develop
         job.time_end = datetime.utcnow()
 
         print(run_result.stdout.decode("utf-8"))
@@ -99,6 +137,7 @@ def run(data_source: str, api_url: str, api_token: str, analysis_request, analys
         db_session.commit()
 
     analysis.status = "completed"
+    analysis.modification_timestamp = datetime.utcnow()
     db_session.commit()
     return 0
 
@@ -108,30 +147,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process input data to feed into analytical engine")
 
     parser.add_argument("--request_file", help="File path for analysis request")
-    parser.add_argument("--config_file", help="File path for analysis config")
-    parser.add_argument("--output_folder", help="Directory to write output files")
-
-    parser.add_argument("--datasource_type", help="Datasource to use EBS or BRAPI")
-    parser.add_argument("--api_url", help="Api base url for data source to download input data from")
-    parser.add_argument("--api_token", help="Api token to access datasource api")
 
     args = parser.parse_args()
 
     if path.exists(args.request_file):
         with open(args.request_file) as f:
-            analysis_request = json.load(f)
+            try:
+                analysis_request: AnalysisRequest = AnalysisRequest(**json.load(f))
+            except ValidationError as e:
+                raise InvalidAnalysisRequest(str(e))
     else:
         raise InvalidAnalysisRequest(f"Request file {args.request_file} not found")
 
-    if path.exists(args.config_file):
-        with open(args.config_file) as f:
-            analysis_config = json.load(f)
-    else:
-        raise InvalidAnalysisConfig(f"Request file {args.config_file} not found")
-
-    if not path.exists(args.output_folder):
-        raise ProcessDataException(f"Output folder {args.output_folder} not found")
-
-    sys.exit(
-        run(args.datasource_type, args.api_url, args.api_token, analysis_request, analysis_config, args.output_folder)
-    )
+    sys.exit(run(analysis_request))

@@ -6,5 +6,9 @@ WORKDIR /app/
 COPY . /app/
 # RUN apt-get update && pip3 install  -r requirements.txt
 RUN pip3 install  -r requirements.txt
+
+# Set ASREML alias for celery execution
+RUN echo 'alias asreml="/app/scripts/asreml"' >> ~/.bashrc
+
 ENTRYPOINT [ "./start-worker.sh" ]
 

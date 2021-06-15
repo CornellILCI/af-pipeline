@@ -5,6 +5,8 @@ from pipeline.data_reader.phenotype_data import PhenotypeData
 from pipeline.pandasutil import df_keep_columns
 from pydantic import ValidationError
 
+from pipeline import config
+
 SEARCH_PLOTS_ENDPOINT = "/plots-search"
 
 SEARCH_PLOT_DATA_ENDPOINT = "/plot-data-search"
@@ -73,7 +75,7 @@ class PhenotypeDataEbs(PhenotypeData):
                 columns.extend(columns_from_occurrence)
                 return pd.DataFrame(columns=columns)
 
-            plots_page = pd.DataFrame(plots_data)
+            plots_page = pd.DataFrame(plots_data).fillna(config.UNIVERSAL_UNKNOWN)
 
             # keep only local field columns
             plots_page = df_keep_columns(plots_page, self.plots_api_fields_to_local_fields.keys())
@@ -88,7 +90,10 @@ class PhenotypeDataEbs(PhenotypeData):
         # Add columns from Occurrence entity
         occurrence = self.get_occurrence(occurrence_id)
         for column in columns_from_occurrence:
-            plots[column] = occurrence.dict()[column]
+            if occurrence.dict()[column]:
+                plots[column] = occurrence.dict()[column]
+            else:
+                plots[column] = confif.UNIVERSAL_UNKNOWN
 
         # rename dataframe column with local field names
         plots.rename(columns=self.plots_api_fields_to_local_fields, inplace=True)
