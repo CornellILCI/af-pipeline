@@ -4,11 +4,11 @@ version: "3.4"
 volumes:
   afdb_volume:
   asreml_license_dir:
-    external: true     # create these via: docker volume so docker-compose does not add prefix
+    external: ${EXTERNAL_DIR}     # create these via: docker volume so docker-compose does not add prefix
   asreml_inputs:
-    external: true
+    external: ${EXTERNAL_DIR}
   asreml_outputs:
-    external: true
+    external: ${EXTERNAL_DIR}
 
 services:
   database:
