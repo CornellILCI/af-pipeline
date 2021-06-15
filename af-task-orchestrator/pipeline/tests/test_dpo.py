@@ -33,85 +33,91 @@ def get_job_file_template():
 
 
 def get_exploc_analysis_pattern():
-    return Property(
-        code="SESL"
-    )
+    return Property(code="SESL")
 
 
 def get_analysis_fields():
     return [
-        type("PropertyResult", (object,), {
-            "Property": Property(code="loc", data_type="!A"),
-            "property_meta": {"definition": "loc_id", "condition": "!SORTALL !PRUNEALL"}
-        }),
-        type("PropertyResult", (object,), {
-            "Property": Property(code="expt", data_type="!A"),
-            "property_meta": {"definition": "expt_id", "condition": "!LL 32"}
-        }),
-        type("PropertyResult", (object,), {
-            "Property": Property(code="entry", data_type="!A"),
-            "property_meta": {"definition": "entry_id"}
-        }),
-        type("PropertyResult", (object,), {
-            "Property": Property(code="plot", data_type="!A"),
-            "property_meta": {"definition": "plot_id"}
-        }),
-        type("PropertyResult", (object,), {
-            "Property": Property(code="col", data_type="!I"),
-            "property_meta": {"definition": "pa_x"}
-        }),
-        type("PropertyResult", (object,), {
-            "Property": Property(code="row", data_type="!I"),
-            "property_meta": {"definition": "pa_y"}
-        }),
-        type("PropertyResult", (object,), {
-            "Property": Property(code="rep", data_type="!A"),
-            "property_meta": {"definition": "rep_factor"}
-        }),
+        type(
+            "PropertyResult",
+            (object,),
+            {
+                "Property": Property(code="loc", data_type="!A"),
+                "property_meta": {"definition": "loc_id", "condition": "!SORTALL !PRUNEALL"},
+            },
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {
+                "Property": Property(code="expt", data_type="!A"),
+                "property_meta": {"definition": "expt_id", "condition": "!LL 32"},
+            },
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="entry", data_type="!A"), "property_meta": {"definition": "entry_id"}},
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="plot", data_type="!A"), "property_meta": {"definition": "plot_id"}},
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="col", data_type="!I"), "property_meta": {"definition": "pa_x"}},
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="row", data_type="!I"), "property_meta": {"definition": "pa_y"}},
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="rep", data_type="!A"), "property_meta": {"definition": "rep_factor"}},
+        ),
     ]
 
+
 def get_asreml_option():
-    return [Property(
-        statement="!CSV !SKIP 1 !AKAIKE !NODISPLAY 1 !MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER"
-    )]
+    return [
+        Property(
+            statement="!CSV !SKIP 1 !AKAIKE !NODISPLAY 1 !MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER"
+        )
+    ]
+
 
 def get_tabulate():
-    return [Property(
-        statement="{trait_name} ~ entry"
-    )]
+    return [Property(statement="{trait_name} ~ entry")]
+
 
 def get_formula():
-    return Property(
-        statement="{trait_name} ~ mu rep !r entry !f mv"
-    )
+    return Property(statement="{trait_name} ~ mu rep !r entry !f mv")
+
 
 def get_residual():
-    return Property(
-        statement="ar1(row).ar1(col)"
-    )
+    return Property(statement="ar1(row).ar1(col)")
+
 
 def get_prediction():
-    return Property(
-        statement="entry !PRESENT entry !SED !TDIFF"
-    )
+    return Property(statement="entry !PRESENT entry !SED !TDIFF")
+
 
 class TestProcessData(TestCase):
-        
-   
     @patch("pipeline.db.services.get_analysis_config_properties")
     @patch("pipeline.db.services.get_analysis_config_module_fields")
     @patch("pipeline.db.services.get_property")
     @patch("pipeline.data_reader.DataReaderFactory.get_phenotype_data")
-    def test_dpo_sesl_filter(self,
-        mock_phenotype_ebs,
-        mock_get_property,
-        mock_get_analysis_fields,
-        mock_get_analysis_config_properties):
-
+    def test_dpo_sesl_filter(
+        self, mock_phenotype_ebs, mock_get_property, mock_get_analysis_fields, mock_get_analysis_config_properties
+    ):
 
         test_request = get_test_analysis_request()
         output_folder = TemporaryDirectory()
-        test_request.outputFolder=output_folder.name
+        test_request.outputFolder = output_folder.name
 
         phenotype_data_ebs_instance = MagicMock()
         mock_plots = []
@@ -174,11 +180,10 @@ class TestProcessData(TestCase):
         test_trait = {"trait_id": 1, "trait_name": "trait_name_1", "abbreviation": "trait_abbrev_1"}
         mock_traits.append(Trait(**test_trait))
         phenotype_data_ebs_instance.get_trait.side_effect = mock_traits
-        
+
         mock_phenotype_ebs.return_value = phenotype_data_ebs_instance
 
-        mock_get_property.side_effect = [
-                get_exploc_analysis_pattern(), get_formula(), get_residual(), get_prediction()]
+        mock_get_property.side_effect = [get_exploc_analysis_pattern(), get_formula(), get_residual(), get_prediction()]
         mock_get_analysis_fields.return_value = get_analysis_fields()
         mock_get_analysis_config_properties.side_effect = [get_asreml_option(), get_tabulate()]
 
@@ -213,15 +218,13 @@ class TestProcessData(TestCase):
     @patch("pipeline.db.services.get_analysis_config_module_fields")
     @patch("pipeline.db.services.get_property")
     @patch("pipeline.data_reader.DataReaderFactory.get_phenotype_data")
-    def test_dpo_seml_filter(self,
-        mock_phenotype_ebs,
-        mock_get_property,
-        mock_get_analysis_fields,
-        mock_get_analysis_config_properties):
-        
+    def test_dpo_seml_filter(
+        self, mock_phenotype_ebs, mock_get_property, mock_get_analysis_fields, mock_get_analysis_config_properties
+    ):
+
         test_request = get_test_analysis_request()
         output_folder = TemporaryDirectory()
-        test_request.outputFolder=output_folder.name
+        test_request.outputFolder = output_folder.name
 
         phenotype_data_ebs_instance = MagicMock()
 
@@ -293,9 +296,7 @@ class TestProcessData(TestCase):
         )
 
         expected_data_file_2_contents = (
-            "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
-            "1,1,1,2911,2,1,1,NA\n"
-            "1,1,1,2912,2,2,1,NA\n"
+            "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n" "1,1,1,2911,2,1,1,NA\n" "1,1,1,2912,2,2,1,NA\n"
         )
 
         expected_job_file_1 = get_job_file_template().format(
@@ -314,16 +315,25 @@ class TestProcessData(TestCase):
         )
 
         mock_phenotype_ebs.return_value = phenotype_data_ebs_instance
-        
+
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         exploc_analysis_pattern.code = "SEML"
         mock_get_property.side_effect = [
-            exploc_analysis_pattern, get_formula(), get_residual(), get_prediction(),
-            get_formula(), get_residual(), get_prediction()]
+            exploc_analysis_pattern,
+            get_formula(),
+            get_residual(),
+            get_prediction(),
+            get_formula(),
+            get_residual(),
+            get_prediction(),
+        ]
         mock_get_analysis_fields.return_value = get_analysis_fields()
         mock_get_analysis_config_properties.side_effect = [
-            get_asreml_option(), get_tabulate(),
-            get_asreml_option(), get_tabulate()]
+            get_asreml_option(),
+            get_tabulate(),
+            get_asreml_option(),
+            get_tabulate(),
+        ]
         results = ProcessData(test_request).run()
 
         self.assertEqual(len(results), 2)

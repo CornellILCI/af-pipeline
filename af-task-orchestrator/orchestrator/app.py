@@ -17,9 +17,7 @@ BACKEND = os.getenv("BACKEND")
 CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE")
 LOGGER = get_task_logger(__name__)
 
-INSTALLED_TASKS = [
-    "orchestrator.processing.analyze"
-]
+INSTALLED_TASKS = ["orchestrator.processing.analyze"]
 
 
 app = Celery("af-worker", broker=BROKER, backend=BACKEND)

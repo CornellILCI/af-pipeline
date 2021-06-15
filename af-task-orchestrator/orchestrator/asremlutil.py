@@ -46,14 +46,14 @@ def get_asreml_command(input_job_file_name, input_data_file_name):
 def run_asreml(input_job_file_name, input_data_file_name):
     """
     run_asreml:
-    
+
     Returns:
         raw_ouput:str
 
     Raises:
 
     """
-    
+
     client = docker.DockerClient(base_url=get_docker_url())
     return client.containers.run(
         "ebsproject/ba-asreml:21.05",
@@ -63,7 +63,7 @@ def run_asreml(input_job_file_name, input_data_file_name):
             get_host_inputs_dir(): {"bind": get_container_inputs_dir(), "mode": "rw"},
             get_host_outputs_dir(): {"bind": get_container_outputs_dir(), "mode": "rw"},
         },
-        stderr=True, 
+        stderr=True,
     )
 
 

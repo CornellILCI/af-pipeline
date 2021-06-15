@@ -5,11 +5,10 @@ from orchestrator.services.afdbservice import AFDBService
 class StatusReportingTask(celery.Task):
     def __call__(self, *args, **kwargs):
         self.afdb_service = AFDBService()
-        request_id = args[0] # request_id is going to be the first element of the positional arguments.
-        
+        request_id = args[0]  # request_id is going to be the first element of the positional arguments.
+
         self.af_request = self.afdb_service.get_af_request(request_id)
 
-        
         self.af_task = None
         if self.af_request:
             # create task entry

@@ -33,7 +33,8 @@ def get_json_resource(testfile, json_file_name):
 
 def get_test_analysis_request():
     from pipeline.analysis_request import AnalysisRequest
-    output_folder = tempfile.TemporaryDirectory() 
+
+    output_folder = tempfile.TemporaryDirectory()
     analysis_request = AnalysisRequest(
         requestId="test_id",
         dataSource="EBS",
@@ -47,7 +48,7 @@ def get_test_analysis_request():
         expLocAnalysisPatternPropertyId="1",
         configFormulaPropertyId="1",
         configResidualPropertyId="1",
-        outputFolder="test"
+        outputFolder="test",
     )
     return analysis_request
 

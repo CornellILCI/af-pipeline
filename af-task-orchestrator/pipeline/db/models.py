@@ -36,7 +36,7 @@ class Request(Base):
 
 class Analysis(Base):
 
-    __tablename__ = 'analysis'
+    __tablename__ = "analysis"
     __table_args__ = {"schema": "af"}
 
     id = Column(Integer, primary_key=True)
@@ -56,7 +56,7 @@ class Analysis(Base):
 
 class Job(Base):
 
-    __tablename__ = 'job'
+    __tablename__ = "job"
     __table_args__ = {"schema": "af"}
 
     id = Column(Integer, primary_key=True)
@@ -94,7 +94,7 @@ class Property(Base):
     is_void = Column(Boolean, default=False)
     tenant_id = Column(Integer)
     statement = Column(String(250))
-    
+
 
 class PropertyMeta(Base):
     __tablename__ = "property_meta"
@@ -111,10 +111,11 @@ class PropertyMeta(Base):
     is_void = Column(Boolean, default=False)
     property_id = Column(Integer)
 
+
 class PropertyConfig(Base):
     __tablename__ = "property_config"
     __table_args__ = {"schema": "af"}
-    
+
     id = Column(Integer, primary_key=True)
 
     is_required = Column(Boolean, default=False)
@@ -128,10 +129,10 @@ class PropertyConfig(Base):
     is_void = Column(Boolean, default=False)
     tenant_id = Column(Integer)
 
-    property_id = Column(Integer, ForeignKey('af.property.id'))
-    property_ui_id = Column(Integer,)
+    property_id = Column(Integer, ForeignKey("af.property.id"))
+    property_ui_id = Column(
+        Integer,
+    )
 
     config_property_id = Column(Integer)
-    is_layout_variable =  Column(Boolean, default=False)
-
-
+    is_layout_variable = Column(Boolean, default=False)

@@ -65,5 +65,5 @@ class Task(Base):
     request_id = Column(Integer, ForeignKey("af.request.id"))
     parent_id = Column(Integer)
 
-# create 3 separate objects
 
+# create 3 separate objects

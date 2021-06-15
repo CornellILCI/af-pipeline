@@ -11,9 +11,9 @@ AFDB_URL = os.getenv("AFDB_URL")
 
 ROOT_DATA_FOLDER = os.getenv("ASREML_INPUTS_DIR")
 
+
 def get_analysis_request_folder(request_id: str) -> str:
-    """ Returns the shared data folder path for given request id.
-    """
+    """Returns the shared data folder path for given request id."""
     analysis_request_folder = os.path.join(ROOT_DATA_FOLDER, request_id)
 
     if os.path.exists(analysis_request_folder):

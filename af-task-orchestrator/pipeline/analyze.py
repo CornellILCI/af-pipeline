@@ -95,9 +95,6 @@ def run(analysis_request: AnalysisRequest):
 
         job_start_time = datetime.utcnow()
 
-<<<<<<< HEAD
-        job = Job(analysis_id=analysis.id, name=job_name, time_start=datetime.utcnow(), parent_id=0)
-=======
         job = Job(
             analysis_id=analysis.id,
             name=job_name,
@@ -106,7 +103,6 @@ def run(analysis_request: AnalysisRequest):
             status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
             status_message="Processing the input request",
         )
->>>>>>> develop
 
         job = db_services.add(db_session, job)
         try:
@@ -124,12 +120,8 @@ def run(analysis_request: AnalysisRequest):
         job.status = utils.get_job_status(run_result.stdout, run_result.stderr)
 
         if job.status > 100:
-<<<<<<< HEAD
-            job.err_msg = run_result.stderr.decode("utf-8")
-=======
             job.status_message = run_result.stderr.decode("utf-8")
         job.modification_timestamp = datetime.utcnow()
->>>>>>> develop
         job.time_end = datetime.utcnow()
 
         print(run_result.stdout.decode("utf-8"))
