@@ -144,3 +144,8 @@ def test_get_property(client, db, session):
 
     resp2 = client.get("/property?propertyRoot=trait_pattern")
     assert resp2.status_code == 200
+
+    
+def test_get_datasources(client, session):
+    resp = client.get("/datasources")
+    assert resp.status_code == 200

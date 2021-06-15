@@ -1,3 +1,5 @@
+import json
+import pathlib
 import uuid as uuidlib
 
 import celery_util
@@ -42,6 +44,15 @@ def post_analysis_type():
     print(json.dumps(analysis_type))
 
     return jsonify({"status": "ok", "id": id}), 201
+
+@af_requests_bp.route("/datasources", methods=["GET"])
+def get_data_source():
+    path = pathlib.Path(__file__).parent.absolute()
+    with open(str(path) + "/datasourceconfig.json") as f:
+        data = json.load(f)
+
+    return data
+
 
 @af_requests_bp.route("/requests", methods=["POST"])
 def create_request():
