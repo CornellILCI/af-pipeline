@@ -145,7 +145,7 @@ def get_analysis_configs():
             models2.append(models[i + (pageSize * page)])
         models = models2
 
-    result["model"] = models
+    result["data"] = models
 
     return jsonify(result), 200
 
@@ -183,10 +183,10 @@ def get_properties():
         
         props.append(
             {
-                "code": row.code,
+                "propertyCode": row.code,
                 "propertyName": row.name,
                 "label": row.label,
-                "desription": row.description,
+                #"desription": row.description,
                 "type": row.type,
                 "createdOn": ("" if not row.creation_timestamp else row.creation_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")),
                 "modifiedOn": ("" if not row.modification_timestamp  else row.modification_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")),
