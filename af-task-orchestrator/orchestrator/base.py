@@ -3,13 +3,12 @@ from orchestrator.services.afdbservice import AFDBService
 
 
 class StatusReportingTask(celery.Task):
-    def apply_async(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         self.afdb_service = AFDBService()
-        params = args[0][0]  # args should be a tuple and the first element of that
-        # tuple should be our standard 'params' dict
-        request_id = params.get("processId") or params.get("jobId")
+        request_id = args[0]  # request_id is going to be the first element of the positional arguments.
 
         self.af_request = self.afdb_service.get_af_request(request_id)
+
         self.af_task = None
         if self.af_request:
             # create task entry
@@ -19,7 +18,7 @@ class StatusReportingTask(celery.Task):
             print(f"{request_id} does not exist!")
         self.af_task_updated = False
 
-        super().apply_async(*args, **kwargs)
+        super().__call__(*args, **kwargs)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
 
