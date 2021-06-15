@@ -139,10 +139,18 @@ def get_analysis_configs():
     models = []
     for row in result:
         tempMap = {
-            "id": row.id, 
-            "name": row.name, 
-            "label": row.label, 
-            "description": row.description
+            "propertyCode": row.code,
+            "propertyName": row.name,
+            "label": row.label,
+            #"desription": row.description,
+            "type": row.type,
+            "createdOn": ("" if not row.creation_timestamp else row.creation_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")),
+            "modifiedOn": ("" if not row.modification_timestamp  else row.modification_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")),
+            "createdBy": ("" if not row.creator_id else row.creator_id),
+            "modifiedBy": ("" if not row.modifier_id else row.modifier_id),
+            "propertyId": row.id,
+            "statement": ("" if not row.statement else row.statement),
+            "isActive": str(not row.is_void),
         }
 
         # query
@@ -229,8 +237,14 @@ def get_properties():
                 "isActive": str(not row.is_void),
             }
         )
-
-    return jsonify({"result": {"data": props}}), 200
+        
+    return jsonify({"metadata": {
+        "pagination": {
+            "pageSize": pageSize,
+            "currentPage": page
+            }
+        },
+        "result":{"data":props}}), 200
 
 
 @af_requests_bp.route("/analysis-configs/<analysisConfigId>/formulas")
