@@ -112,10 +112,10 @@ def get_request(request_uuid):
 @af_requests_bp.route("/analysis-configs", methods=["GET"])
 def get_analysis_configs():
 
-    page = int(request.args.get("page"))
+    page = None if not request.args.get("page") else int(request.args.get("page"))
     if not page or page < 0:
         page = 0
-    pageSize = int(request.args.get("pageSize"))
+    pageSize = None if not request.args.get("pageSize") else int(request.args.get("pageSize"))
     if not pageSize or pageSize < 1:
         pageSize = 1000
 
@@ -182,6 +182,8 @@ def get_analysis_configs():
         result["metadata"] = {"pagination" : pagination}
         models2 = []
         for i in range(0, pageSize):
+            if len(models) <= i + (pageSize * page):
+                break
             models2.append(models[i + (pageSize * page)])
         models = models2
 
