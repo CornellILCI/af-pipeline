@@ -9,7 +9,7 @@ class AnalysisRequest(BaseModel):
     dataSourceAccessToken: str
     experimentIds: conlist(str, min_items=1)
     occurrenceIds: conlist(str, min_items=1)
-    traitIds: conlist(str, min_items=1) 
+    traitIds: conlist(str, min_items=1)
     analysisObjectivePropertyId: str
     analysisConfigPropertyId: str
     expLocAnalysisPatternPropertyId: str

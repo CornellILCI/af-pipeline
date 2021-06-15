@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 
 import argparse
+import hashlib
 import json
 import os
-import sys
-from collections import OrderedDict
-from os import path
 import re
 import subprocess
-import hashlib
-
+import sys
+from collections import OrderedDict
 from datetime import datetime
+from os import path
 
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
     file_dir = path.dirname(os.path.realpath(__file__))
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from pipeline import dpo
+from pipeline import dpo, utils
+from pipeline.data_reader.exceptions import DataReaderException
+from pipeline.db import services as db_services
 from pipeline.db.core import SessionLocal
 from pipeline.db.models import Analysis, Job
 from pipeline.db import services as db_services

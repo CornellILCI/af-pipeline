@@ -141,3 +141,15 @@ def test():
 @af_requests_bp.route("/test/redirect", methods=["GET"])
 def testredirect():
     return render_template("loginExample.html")
+
+
+@af_requests_bp.route("/test/asreml", methods=["POST"])
+def testasreml():
+    content = request.json
+    # req = Request(uuid=str(uuidlib.uuid4()))
+    #db.session.add(req)
+    #db.session.commit()
+    #content["requestId"] = req.uuid
+    celery_util.send_task(process_name="run_asreml", args=(content,))
+    return "", 200
+

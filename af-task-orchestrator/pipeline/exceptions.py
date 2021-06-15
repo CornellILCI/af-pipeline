@@ -1,4 +1,3 @@
-
 class DpoException(Exception):
     pass
 
@@ -13,4 +12,3 @@ class RequiredAnalysisRequest(DpoException):
 
 class InvalidAnalysisRequest(DpoException):
     pass
-
