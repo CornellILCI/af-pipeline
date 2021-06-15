@@ -6,6 +6,6 @@ class DataType(Enum):
     GENOTYPE = 2
 
 
-class DataSource(Enum):
-    EBS = 1
-    BRAPI = 2
+class DataSource(str, Enum):
+    EBS = "EBS"
+    BRAPI = "BRAPI"

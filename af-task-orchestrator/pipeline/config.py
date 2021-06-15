@@ -1,5 +1,5 @@
 import os
 
+AFDB_URI = os.getenv("AFDB_URL")
 
-def get_database_url():
-    return os.getenv("EBS_AFDB_DB_URL")
+UNIVERSAL_UNKNOWN = "NA"
