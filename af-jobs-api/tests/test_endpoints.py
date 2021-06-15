@@ -136,3 +136,8 @@ def test_get_request_found(client, db, session):
     resp = client.get(f"/requests/{test_id}")
 
     assert resp.status_code == 200
+
+
+def test_get_datasources(client, session):
+    resp = client.get("/datasources")
+    assert resp.status_code == 200
