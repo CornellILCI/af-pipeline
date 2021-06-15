@@ -27,18 +27,18 @@ def gather_data(params):
     if not source:
         raise MissingTaskParameter("dataSource")
 
-    api_token = params.get("apiBearerToken")
+    api_token = params.get("dataSourceAccessToken")
     if not api_token:
-        raise MissingTaskParameter("apiBearerToken")
+        raise MissingTaskParameter("dataSourceAccessToken")
 
     datasource = _get_datasource(source)
     datatype = _get_datatype(params.get("dataType", "PHENOTYPE"))  # putting phenotype as default
-    occurrence_id = params.get("occurrenceId")
+    occurrence_ids = params.get("occurrenceIds") or []
 
-    experiment_id = params.get("experimentId")
-    trait_id = params.get("traitId")
+    experiment_ids = params.get("experimentIds") or []
+    trait_ids = params.get("traitIds") or []
 
-    api_base_url = _get_api_details(datasource)
+    api_base_url = params.get("dataSourceUrl")
 
     factory = DataReaderFactory(datasource)
 
@@ -54,23 +54,32 @@ def gather_data(params):
         occurrence: Occurrence = None
         trait: Trait = None
 
-        if experiment_id:
+        experiments = []
+        for experiment_id in experiment_ids:
             experiment = reader.get_experiment(experiment_id)
+            experiments.append(experiment)
 
-        if occurrence_id:
+        occurrences = []
+        plots = {}
+        plot_measurements = {}
+        for occurrence_id in occurrence_ids:
             occurrence = reader.get_occurrence(occurrence_id)
-            plots = reader.get_plots(occurrence_id)
-            plot_measurements = reader.get_plot_measurements(occurrence_id)
+            occurrences.append(occurrence)
 
-        if trait_id:
+            plots[occurrence_id] = reader.get_plots(occurrence_id)
+            plot_measurements[occurrence_id] = reader.get_plot_measurements(occurrence_id)
+
+        traits = []
+        for trait_id in trait_ids:
             trait = reader.get_trait(trait_id)
+            traits.append(trait)
 
         # TODO:  determine how large these data are, they might not fit into
         # the parameter size limit for celery tasks
         results = {
-            "experiment": experiment,
-            "trait": trait,
-            "occurrence": occurrence,
+            "experiment": experiments,
+            "trait": traits,
+            "occurrence": occurrences,
             "plots": plots,
             "plotMeasurements": plot_measurements,
         }
