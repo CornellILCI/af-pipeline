@@ -1,5 +1,5 @@
-import re
 import hashlib
+import re
 
 
 def get_analysis_engine(analysis_request):
@@ -12,7 +12,7 @@ def get_analysis_engine(analysis_request):
 def get_request_type(analysis_request):
     request_id = analysis_request["metadata"]["id"]
     req_type = re.sub("_0000", "", request_id)
-    req_type = re.sub(r'.+?\_', "", req_type)
+    req_type = re.sub(r".+?\_", "", req_type)
     return req_type
 
 
@@ -32,5 +32,5 @@ def get_job_status(stdout, stderr):
         return 101
     elif not err_found and out_found:
         return 110
-    elif not(err_found and out_found):
+    elif not (err_found and out_found):
         return 100

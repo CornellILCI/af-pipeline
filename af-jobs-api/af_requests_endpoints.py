@@ -2,69 +2,90 @@ import uuid as uuidlib
 
 import celery_util
 from database import Request, db, Property
+from dto.requests import AnalysisRequestParameters
+from dto.responses import AnalysisRequest
 from flask import jsonify, render_template, request
 from flask.blueprints import Blueprint
+from pydantic import ValidationError
 from sqlalchemy import text
-from services.afdb_service import select_property_by_code
+from services.afdb_service import select_property_by_code, select_analysis_configs
 
 af_requests_bp = Blueprint("af_requests", __name__)
 
+#TODO: this will be replaced by the AFDB connector instead of being held in memory
+global analysis_type
+analysis_type = [
+    {"name": "Phenotypic Analysis", "id": str(uuidlib.uuid4())},
+    {"name": "Genetic Analysis", "id": str(uuidlib.uuid4())},
+    {"name": "Genomic analysis", "id": str(uuidlib.uuid4())}
+]
+
+@af_requests_bp.route("/analysis-type", methods=["GET"])
+def get_analysis_type():
+    #todo read from AFDB
+    
+    return jsonify({"status": "ok", "response":analysis_type}), 200
+
+
+@af_requests_bp.route("/analysis-type", methods=["POST"])
+def post_analysis_type():
+    content = request.json
+    if "name" not in content:
+        return jsonify({"status": "error", "message": "missing 'name'"}), 400
+    if not content["name"]:
+        return jsonify({"status": "error", "message": "'name' is empty"}), 400
+
+    id = str(uuidlib.uuid4())
+    #TODO add to AFDB instead
+    analysis_type.append({"name":content["name"], "id": id})
+    
+    print(json.dumps(analysis_type))
+
+    return jsonify({"status": "ok", "id": id}), 201
 
 @af_requests_bp.route("/requests", methods=["POST"])
 def create_request():
-    """Create request object based on body params
-
-    NOTE:  the parameter currently described here are used in gather_data task
-
-    Required JSON Body parameters:
-    dataSource - either EBS or BRAPI
-    dataSourceId - specific data source identifier, ex. EBS1, EBS2, BRAPI1 etc
-    dataType - either PHENOTYPE or GENOTYPE
-    apiBearerToken - user token for use in API calls
-    processName - the name of the analysis workflow job to be executed
-
-    Optional/Context Specific Body Parameters:
-    experimentId - Id of the experiment
-    occurrenceId - Id of occurence
-    traitId - Id of Trait
-    """
+    """Create request object based on body params"""
     content = request.json
+    request_data: AnalysisRequestParameters = None
+    try:
+        request_data = AnalysisRequestParameters(**content)
+    except ValidationError as e:
+        return jsonify({"errorMsg": str(e)}), 400
 
-    error_messages = []
-    if not content:
-        error_messages.append("Empty request.")
-    else:
-        if "dataSource" not in content:
-            error_messages.append("dataSource does not exist in the request.")
-        elif content["dataSource"] not in ("EBS", "BRAPI"):
-            error_messages.append("dataSource is not 'EBS' or 'BRAPI'.")
-        if "dataSourceId" not in content:
-            error_messages.append("dataSourceId does not exist in the request.")
+    req = Request(
+        uuid=str(uuidlib.uuid4()),
+        institute=request_data.institute,
+        crop=request_data.crop,
+        type=request_data.analysisType,
+        status="PENDING",
+    )
 
-        if "dataType" not in content:
-            error_messages.append("dataType does not exist in the request.")
-        elif content["dataType"] not in ("GENOTYPE", "PHENOTYPE"):
-            error_messages.append("dataType is not 'GENOTYPE' or 'PHENOTYPE'.")
-        if "apiBearerToken" not in content:
-            error_messages.append("token does not exist in the request.")
-        if "processName" not in content:
-            error_messages.append("processName does not exist in the request.")
+    db.session.add(req)
+    db.session.commit()
 
-    # TODO we will need further validations on the request
+    celery_util.send_task(
+        process_name="analyze",
+        args=(
+            req.uuid,
+            content,
+        ),
+    )
 
-    if not error_messages:
-        print("No errors")
-        req = Request(uuid=str(uuidlib.uuid4()))
-        db.session.add(req)
-        db.session.commit()
-
-        content["processId"] = req.uuid
-
-        celery_util.send_task(process_name=content.get("processName"), args=(content,))
-
-        return jsonify({"status": "ok", "Process ID": req.uuid}), 201
-
-    return jsonify({"status": "error", "message": error_messages}), 400
+    return (
+        jsonify(
+            AnalysisRequest(
+                requestId=req.uuid,
+                crop=req.crop,
+                institute=req.institute,
+                analysisType=req.type,
+                status=req.status,
+                createdOn=req.creation_timestamp,
+                modifiedOn=req.modification_timestamp,
+            ).dict()
+        ),
+        201,
+    )
 
 
 @af_requests_bp.route("/requests/<request_uuid>")
@@ -199,3 +220,86 @@ def get_properties():
         )
 
     return jsonify({"result": {"data": props}}), 200
+
+
+@af_requests_bp.route("/analysis-configs/<analysisConfigId>/formulas")
+def get_analysis_config_formulas(analysisConfigId):
+    page = request.args.get('page')
+    if not page or not isinstance(page, (int, long)) or page < 0 : page = 0
+    pageSize = request.args.get('pageSize') 
+    if not pageSize or not isinstance(pageSize, (int, long)) or pageSize <= 0 : pageSize = 1000
+
+    result = select_analysis_configs(analysisConfigId, pageSize, pageSize*page, "formula");
+    ret = []
+    for row in result:
+        temp = row.values()
+        ret.append({
+        "propertyId": str(temp[12]),
+        "propertyName": temp[13],
+        "propertyCode": temp[0],
+        "label": temp[1],
+        "type": temp[3],
+        "createdOn": temp[5],#"2021-06-09T15:06:31.825Z",
+        "modifiedOn": temp[6],
+        "createdBy": temp[7],
+        "modifiedBy": temp[8],
+        "isActive": not temp[9],
+        "statement": temp[11],
+        "description": temp[2]
+        })
+        
+    return jsonify({"metadata": {
+        "pagination": {
+            "pageSize": pageSize,
+            "currentPage": page
+            }
+        },
+        "result":{"data":ret}}), 200
+
+
+@af_requests_bp.route("/analysis-configs/<analysisConfigId>/residuals")
+def get_analysis_config_residuals(analysisConfigId):
+    page = request.args.get('page')
+    if not page or not isinstance(page, (int, long)) or page < 0 : page = 0
+    pageSize = request.args.get('pageSize') 
+    if not pageSize or not isinstance(pageSize, (int, long)) or pageSize <= 0 : pageSize = 1000
+
+    result = select_analysis_configs(analysisConfigId, pageSize, pageSize*page, "residual");
+    ret = []
+    for row in result:
+        temp = row.values()
+        ret.append({
+        "propertyId": str(temp[12]),
+        "propertyName": temp[13],
+        "propertyCode": temp[0],
+        "label": temp[1],
+        "type": temp[3],
+        "createdOn": temp[5],#"2021-06-09T15:06:31.825Z",
+        "modifiedOn": temp[6],
+        "createdBy": temp[7],
+        "modifiedBy": temp[8],
+        "isActive": not temp[9],
+        "statement": temp[11],
+        "description": temp[2]
+        })
+        
+        
+
+    return jsonify({"metadata": {
+        "pagination": {
+            "pageSize": pageSize,
+            "currentPage": page
+            }
+        },
+        "result":{"data":ret}}), 200
+
+@af_requests_bp.route("/test/asreml", methods=["POST"])
+def testasreml():
+    content = request.json
+    # req = Request(uuid=str(uuidlib.uuid4()))
+    #db.session.add(req)
+    #db.session.commit()
+    #content["requestId"] = req.uuid
+    celery_util.send_task(process_name="run_asreml", args=(content,))
+    return "", 200
+
