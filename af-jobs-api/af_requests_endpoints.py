@@ -185,7 +185,7 @@ def get_analysis_configs():
             models2.append(models[i + (pageSize * page)])
         models = models2
 
-    result["data"] = models
+    result["result"] = {"data": models}
 
     return jsonify(result), 200
 

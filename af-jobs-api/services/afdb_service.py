@@ -18,9 +18,9 @@ def select_property_by_code(propertyCode, limit, offset):
     subquery = join_query.with_entities(PropertyConfig.config_property_id).subquery()
 
     properties = Property.query.filter(Property.id.in_(subquery))
-    print(str(properties))
+
     return properties
-    
+
 def select_analysis_configs(analysisConfigID, limit, offset, configType):
     
     sql = text((
