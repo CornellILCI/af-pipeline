@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from sqlalchemy import text
 from services.afdb_service import select_property_by_code, select_analysis_configs
 
-af_requests_bp = Blueprint("af_requests", __name__)
+af_requests_bp = Blueprint("af_requests", __name__, url_prefix='/v1')
 
 #TODO: this will be replaced by the AFDB connector instead of being held in memory
 global analysis_type
