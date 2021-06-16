@@ -37,7 +37,7 @@ def select_analysis_configs(analysisConfigID, limit, offset, configType):
         "formula_property.is_void, "+
         "formula_property.tenant_id, "+
         "formula_property.statement, "+
-        "property_config.property_id, "+
+        "formula_property.id, "+
         "formula_property.name "+
         "FROM af.property_config "+
         "INNER JOIN af.property_config AS formula_configs "+
