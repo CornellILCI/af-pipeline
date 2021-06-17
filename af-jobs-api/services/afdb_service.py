@@ -21,6 +21,19 @@ def select_property_by_code(propertyCode, limit, offset):
 
     return properties
 
+def count_property_by_code(propertyCode):
+    join_query = (
+        Property.query.select_from(Property)
+        .join(PropertyConfig, Property.id == PropertyConfig.property_id)
+        .filter(Property.code == propertyCode, PropertyConfig.property_id != PropertyConfig.config_property_id)
+    )
+
+    subquery = join_query.with_entities(PropertyConfig.config_property_id).subquery()
+
+    count = Property.query.filter(Property.id.in_(subquery)).count()
+
+    return count
+
 def select_analysis_configs(analysisConfigID, limit, offset, configType):
     
     sql = text((
@@ -50,3 +63,21 @@ def select_analysis_configs(analysisConfigID, limit, offset, configType):
     ).format(configType, analysisConfigID, limit, offset))
     result = db.engine.execute(sql)
     return result
+
+def count_analysis_configs(analysisConfigID, configType):
+    
+    sql = text((
+        "SELECT "+
+        "COUNT(*) "+
+        "FROM af.property_config "+
+        "INNER JOIN af.property_config AS formula_configs "+
+        "ON formula_configs.property_id = (SELECT property.id FROM af.property WHERE code = '{}') "+
+        "AND formula_configs.config_property_id = property_config.config_property_id "+
+        "AND property_config.property_id = {} "+
+        "INNER JOIN af.property AS formula_property "+
+        "ON formula_property.id = formula_configs.config_property_id "
+    ).format(configType, analysisConfigID))
+    result = db.engine.execute(sql)
+    for row in result:
+        count = row.values()[0]
+    return count
