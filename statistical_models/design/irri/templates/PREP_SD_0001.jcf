@@ -1,0 +1,25 @@
+{
+	"metadata": {
+	    "id": "PREP_SD_0000",
+	    "category": "Design",
+	    "type": "Trial Design",
+	    "engine": "R 4.0.3",
+	    "method": "randPREPirri",
+	    "design": "P-Rep",
+	    "timestamp": "",
+	    "requestorId": "",
+	    "organization_code": "IRRI",
+	    "crop": "RICE",
+	    "program": "AGGRI",
+	    "experiment_id": 10272007209,
+	    "occurrence_id": [20071116,1412222,21680209]
+	},
+	"parameters": {
+	    "entryList": "PREP_SD_0001.lst",
+	    "nTrial": 3,
+	    "genLayout": "T",
+	    "nFieldRow": 20,
+	    "serpentine": "T",
+		"topToBottom": "F"
+	}
+}
