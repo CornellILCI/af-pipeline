@@ -59,7 +59,7 @@ def correct_request():
 
 
 def test_empty_request(client, session, empty_request):
-    resp = client.post("/requests", json=empty_request)
+    resp = client.post("/v1/requests", json=empty_request)
     assert resp.status_code == 400
 
     json_response = json.loads(resp.get_data(as_text=True))
@@ -67,7 +67,7 @@ def test_empty_request(client, session, empty_request):
 
 
 def test_incorrect_json_request(client, session, incorrect_request):
-    resp = client.post("/requests", json=incorrect_request)
+    resp = client.post("/v1/requests", json=incorrect_request)
 
     assert resp.status_code == 400
     json_response = json.loads(resp.get_data(as_text=True))
@@ -75,7 +75,7 @@ def test_incorrect_json_request(client, session, incorrect_request):
 
 
 def test_incorrect_datasource_datatype(client, session, incorrect_request_2):
-    resp = client.post("/requests", json=incorrect_request_2)
+    resp = client.post("/v1/requests", json=incorrect_request_2)
 
     assert resp.status_code == 400
     json_response = json.loads(resp.get_data(as_text=True))
@@ -87,7 +87,7 @@ def test_supposedly_correct_request(client, session, app, correct_request, mocke
     mock = mocker.MagicMock()
     mocker.patch("celery_util.send_task", mock)
 
-    resp = client.post("/requests", json=correct_request)
+    resp = client.post("/v1/requests", json=correct_request)
 
     assert resp.status_code == 201
 
@@ -115,11 +115,11 @@ def test_supposedly_correct_request(client, session, app, correct_request, mocke
 
 
 def test_get_request_not_found(client, session):
-    resp = client.get("/requests/foo")
+    resp = client.get("/v1/requests/foo")
     assert resp.status_code == 404
 
 def test_get_analysis_type(client, session):
-    resp = client.get("/analysis-type")
+    resp = client.get("/v1/analysis-type")
     
     assert resp.status_code == 200
     respBody=json.loads(resp.get_data(as_text=True))
@@ -133,19 +133,19 @@ def test_get_request_found(client, db, session):
     db.session.add(request)
     db.session.commit()
 
-    resp = client.get(f"/requests/{test_id}")
+    resp = client.get(f"/v1/requests/{test_id}")
 
     assert resp.status_code == 200
 
 
 def test_get_property(client, db, session):
-    resp = client.get("/property")
+    resp = client.get("/v1/properties")
     assert resp.status_code == 400
 
-    resp2 = client.get("/property?propertyRoot=trait_pattern")
+    resp2 = client.get("/v1/properties?propertyRoot=trait_pattern")
     assert resp2.status_code == 200
 
     
 def test_get_datasources(client, session):
-    resp = client.get("/datasources")
+    resp = client.get("/v1/datasources")
     assert resp.status_code == 200
