@@ -10,7 +10,15 @@ TAG_ZRATIO = "ZRatio"
 TAG_PCCHANGE = "PCchange"
 TAG_CONSTRAINTCODE = "ConstraintCode"
 
-TRANSFORM_TAG = {
+TAG_REML_LOGL = "REML_LogL"
+TAG_INFO_CRITERIA = "InformationCriteria"
+TAG_AKAIKE = "Akaike"
+TAG_CONCLUSION = "Conclusion"
+TAG_BAYESIAN = "Bayesian"
+TAG_PCOUNT = "ParameterCount"
+
+
+TRANSFORM_VARIANCE_TAG = {
     TAG_SOURCE: "source",
     TAG_VCSTRUCTURE: "model",
     TAG_GAMMA: "gamma",
@@ -20,17 +28,30 @@ TRANSFORM_TAG = {
     TAG_CONSTRAINTCODE: "code",
 }
 
+TRANSFORM_MSTAT_TAG = {
+    TAG_AKAIKE: "aic",
+    TAG_BAYESIAN: "bic",
+    TAG_PCOUNT: "components",
+    TAG_CONCLUSION: "conclusion",
+    TAG_REML_LOGL: "log_lik"
+}
+
 
 class ASRemlContentHandler(xml.sax.ContentHandler):
     def __init__(self):
         self.variances = []
-        # self.model_stat = {}
+        self.REML_LogL = None  # for storing the last REML_LogL
+        self.model_stat = {}
         self.current_variance = None
         self.current_key = None
         self.current_content = ""
 
         self.in_variance_components = False
         self.in_vparameter = False
+
+        self.in_info_criteria = False
+        self.in_a_reml_logl = False
+        self.in_conclusion = False
 
     def startElement(self, tag, attributes):
         self.current_data = tag
@@ -39,9 +60,17 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         elif tag == TAG_VPARAMETER and self.in_variance_components:
             self.in_vparameter = True
             self.current_variance = {}  # start a new variance object
-        elif tag in TRANSFORM_TAG:
-            self.current_key = TRANSFORM_TAG.get(tag)
-
+        elif tag in TRANSFORM_VARIANCE_TAG:
+            self.current_key = TRANSFORM_VARIANCE_TAG.get(tag)
+        elif tag == TAG_INFO_CRITERIA:
+            self.in_info_criteria = True
+        elif tag in TRANSFORM_MSTAT_TAG:
+            self.current_key = TRANSFORM_MSTAT_TAG.get(tag)
+            if tag == TAG_REML_LOGL:
+                self.in_a_reml_logl = True
+            elif tag == TAG_CONCLUSION:
+                self.in_conclusion = True
+        
     def endElement(self, tag):
         if tag == TAG_VARIANCE_COMPONENTS:
             self.in_variance_components = False
@@ -51,20 +80,20 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             # reset
             self.in_vparameter = False
             self.current_variance = None
-        elif tag in (
-            TAG_SOURCE,
-            TAG_VCSTRUCTURE,
-            TAG_GAMMA,
-            TAG_VCOMPONENT,
-            TAG_ZRATIO,
-            TAG_PCCHANGE,
-            TAG_CONSTRAINTCODE,
-        ):
+        elif tag in TRANSFORM_VARIANCE_TAG:
             self.current_variance[self.current_key] = str(self.current_content).strip()
-            self.current_content = ""
-        else:
-            self.current_content = ""
+        elif tag == TAG_INFO_CRITERIA:
+            self.in_info_criteria = False    
+        elif tag in TRANSFORM_MSTAT_TAG:
+            self.model_stat[self.current_key] = str(self.current_content).strip()
+            if tag == TAG_REML_LOGL:
+                self.in_a_reml_logl = False
+            elif tag == TAG_CONCLUSION:
+                self.model_stat["converged"] = str(self.model_stat[self.current_key]).lower() == "logl converged"
+                self.in_conclusion = False
+
+        self.current_content = ""
 
     def characters(self, content):
-        if self.in_vparameter:
+        if self.in_vparameter or self.in_info_criteria or self.in_a_reml_logl or self.in_conclusion:
             self.current_content += content
