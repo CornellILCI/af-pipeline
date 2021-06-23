@@ -38,6 +38,18 @@ TRANSFORM_MSTAT_TAG = {
 
 
 class ASRemlContentHandler(xml.sax.ContentHandler):
+    """ASRreml Result XML file content handler
+
+    >>> import xml.sax
+    >>> parser = xml.sax.make_parser()
+    >>> parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+    >>> handler = ASRemlContentHandler()
+    >>> parser.setContentHandler(handler)
+    >>> parser.parse("/path/to/result.xml")
+    >>> print(handler.variances)   # list of dicts of variance data
+    >>> print(handler.model_stat)  # contains dict of model_stat data
+
+    """
     def __init__(self):
         self.variances = []
         self.REML_LogL = None  # for storing the last REML_LogL
