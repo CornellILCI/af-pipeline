@@ -10,9 +10,18 @@ TAG_ZRATIO = "ZRatio"
 TAG_PCCHANGE = "PCchange"
 TAG_CONSTRAINTCODE = "ConstraintCode"
 
+TRANSFORM_TAG = {
+    TAG_SOURCE: "source",
+    TAG_VCSTRUCTURE: "model",
+    TAG_GAMMA: "gamma",
+    TAG_VCOMPONENT: "component",
+    TAG_ZRATIO: "component_ratio",
+    TAG_PCCHANGE: "last_change_percentage",
+    TAG_CONSTRAINTCODE: "code",
+}
+
 
 class ASRemlContentHandler(xml.sax.ContentHandler):
-     
     def __init__(self):
         self.variances = []
         # self.model_stat = {}
@@ -30,21 +39,9 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         elif tag == TAG_VPARAMETER and self.in_variance_components:
             self.in_vparameter = True
             self.current_variance = {}  # start a new variance object
-        elif tag == TAG_SOURCE:
-            self.current_key = "source"
-        elif tag == TAG_VCSTRUCTURE:
-            self.current_key = "model"
-        elif tag == TAG_GAMMA:
-            self.current_key = "gamma"
-        elif tag == TAG_VCOMPONENT:
-            self.current_key = "component"
-        elif tag == TAG_ZRATIO:
-            self.current_key = "component_ratio"
-        elif tag == TAG_PCCHANGE:
-            self.current_key = "last_change_percentage"
-        elif tag == TAG_CONSTRAINTCODE:
-            self.current_key = "code"
-    
+        elif tag in TRANSFORM_TAG:
+            self.current_key = TRANSFORM_TAG.get(tag)
+
     def endElement(self, tag):
         if tag == TAG_VARIANCE_COMPONENTS:
             self.in_variance_components = False
@@ -54,15 +51,20 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             # reset
             self.in_vparameter = False
             self.current_variance = None
-        elif tag in (TAG_SOURCE, TAG_VCSTRUCTURE, TAG_GAMMA, TAG_VCOMPONENT, TAG_ZRATIO, TAG_PCCHANGE, TAG_CONSTRAINTCODE):
+        elif tag in (
+            TAG_SOURCE,
+            TAG_VCSTRUCTURE,
+            TAG_GAMMA,
+            TAG_VCOMPONENT,
+            TAG_ZRATIO,
+            TAG_PCCHANGE,
+            TAG_CONSTRAINTCODE,
+        ):
             self.current_variance[self.current_key] = str(self.current_content).strip()
             self.current_content = ""
         else:
             self.current_content = ""
-    
+
     def characters(self, content):
         if self.in_vparameter:
             self.current_content += content
-        
-
-

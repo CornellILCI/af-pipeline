@@ -2,6 +2,7 @@ import pytest
 import pipeline.asreml.resultparser as parser
 import xml.sax
 
+
 @pytest.fixture
 def sample_asreml_result_string_1():
     return """<?xml version="1.0" encoding="utf-8" ?>
@@ -2606,9 +2607,8 @@ def sample_asreml_result_string_1():
 """
 
 
-
 def test_simple_test_1(sample_asreml_result_string_1):
-  
+
     handler = parser.ASRemlContentHandler()
     xml.sax.parseString(sample_asreml_result_string_1, handler)  # NOTE: this is no how we parse files
 
@@ -2623,7 +2623,3 @@ def test_simple_test_1(sample_asreml_result_string_1):
     assert handler.variances[0]["component_ratio"] == "0.0000000"
     assert handler.variances[0]["last_change_percentage"] == "0"
     assert handler.variances[0]["code"] == "B"
-
-    
-
-

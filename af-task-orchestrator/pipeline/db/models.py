@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from pipeline.db.core import Base
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String, Float
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
 
 class Request(Base):
@@ -136,3 +137,44 @@ class PropertyConfig(Base):
 
     config_property_id = Column(Integer)
     is_layout_variable = Column(Boolean, default=False)
+
+
+class Variance(Base):
+    __tablename__ = "variance"
+    __table_args__ = {"schema": "af"}
+
+    id = Column(Integer, primary_key=True)
+
+    source = Column(String(50))  # character varying(50) COLLATE pg_catalog."default",
+    model = Column(String(50))  # character varying(50) COLLATE pg_catalog."default",
+    gamma = Column(DOUBLE_PRECISION)  # double precision,
+    component = Column(DOUBLE_PRECISION)  # double precision,
+    component_ratio = Column(DOUBLE_PRECISION)  # double precision,
+    last_change_percentage = Column(DOUBLE_PRECISION)  # double precision,
+    code = Column(String(50))  # character varying(50) COLLATE pg_catalog."default",
+    tenant_id = Column(Integer, nullable=False)  # integer NOT NULL,
+    creation_timestamp = Column(DateTime)  #  timestamp without time zone NOT NULL DEFAULT now(),
+    modification_timestamp = Column(DateTime)  # timestamp without time zone,
+    creator_id = Column(Integer, nullable=False)  # integer NOT NULL,
+    modifier_id = (Column(Integer),)
+    is_void = Column(Boolean, nullable=False, default=False)
+    job_id = Column(Integer)
+
+
+class ModelStat(Base):
+    __tablename__ = "model_stat"
+    __table_args__ = {"schema": "af"}
+
+    id = Column(Integer, primary_key=True)
+
+    log_lik = Column(DOUBLE_PRECISION)  # double precision,
+    aic = Column(DOUBLE_PRECISION)  # double precision,
+    bic = Column(DOUBLE_PRECISION)  # double precision,
+    components = Column(Integer)  # integer,
+    tenant_id = Column(Integer, nullable=False)
+    creation_timestamp = Column(DateTime)  # timestamp without time zone NOT NULL DEFAULT now(),
+    modification_timestamp = Column(DateTime)  # timestamp without time zone,
+    creator_id = Column(Integer, nullable=False)
+    modifier_id = Column(Integer)
+    is_void = Column(Boolean, nullable=False, default=False)
+    job_id = Column(Integer)
