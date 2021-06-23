@@ -33,7 +33,7 @@ TRANSFORM_MSTAT_TAG = {
     TAG_BAYESIAN: "bic",
     TAG_PCOUNT: "components",
     TAG_CONCLUSION: "conclusion",
-    TAG_REML_LOGL: "log_lik"
+    TAG_REML_LOGL: "log_lik",
 }
 
 
@@ -70,7 +70,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
                 self.in_a_reml_logl = True
             elif tag == TAG_CONCLUSION:
                 self.in_conclusion = True
-        
+
     def endElement(self, tag):
         if tag == TAG_VARIANCE_COMPONENTS:
             self.in_variance_components = False
@@ -83,7 +83,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         elif tag in TRANSFORM_VARIANCE_TAG:
             self.current_variance[self.current_key] = str(self.current_content).strip()
         elif tag == TAG_INFO_CRITERIA:
-            self.in_info_criteria = False    
+            self.in_info_criteria = False
         elif tag in TRANSFORM_MSTAT_TAG:
             self.model_stat[self.current_key] = str(self.current_content).strip()
             if tag == TAG_REML_LOGL:
