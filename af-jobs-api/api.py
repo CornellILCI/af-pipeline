@@ -1,5 +1,8 @@
 import os
 
+from flask_cors import CORS
+
+import config
 from factory import create_app
 
 app = create_app(
@@ -9,6 +12,8 @@ app = create_app(
     }
 )
 
+allowable_origins = config.get_allowable_origins()
+CORS(app, resources={r"/v1/*": {"origins": allowable_origins}})
 
 # if __name__ == "__main__":
 #     app.run(debug=os.getenv("DEBUG", False), host="0.0.0.0")
