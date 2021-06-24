@@ -49,6 +49,19 @@ paths:
         explode: true
         schema:
           type: string
+      - name: status
+        in: query
+        description: Status of the analysis request.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - PENDING
+          - IN-PROGRESS
+          - DONE
+          - FAILURE
       - name: page
         in: query
         description: Used to request a specific page of data to be returned. The page indexing starts at 0 (the first page is 'page'= 0). Default is `0`.
@@ -90,6 +103,42 @@ paths:
                 $ref: '#/components/schemas/AnalysisRequest'
         "400":
           description: Bad Request.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /requests/{requestId}:
+    get:
+      tags:
+      - Requests
+      summary: Get the Analysis request with given Id.
+      description: |
+        Gets the list of formulas in analysis config. Formula is a property resource.
+      operationId: getRequestById
+      parameters:
+      - name: requestId
+        in: path
+        description: Request Id.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisRequestResponse'
+        "400":
+          description: Bad Request.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server Error.
           content:
             applications/json:
               schema:
@@ -422,8 +471,8 @@ components:
           enum:
           - PENDING
           - IN-PROGRESS
-          - PROCESSED
-          - EXPIRED
+          - DONE
+          - FAILURE
         createdOn:
           type: string
           format: date-time
@@ -504,6 +553,11 @@ components:
           $ref: '#/components/schemas/Metadata'
         result:
           $ref: '#/components/schemas/AnalysisRequestListResponse_result'
+    AnalysisRequestResponse:
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/AnalysisRequest'
     PropertyListResponse:
       type: object
       properties:
