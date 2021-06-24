@@ -71,6 +71,13 @@ def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParam
     )
 
 
+def get_analysis_request_by_id(request_id: str):
+    
+    analysis_request = db_models.Request.query.filter(db_models.Request.uuid == request_id).one()
+    
+    return api_models.AnalysisRequestResponse(result=_map_analsysis_request(analysis_request))
+
+
 def _map_analsysis_request(req):
     return api_models.AnalysisRequest(
         requestId=req.uuid,

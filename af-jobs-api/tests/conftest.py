@@ -2,7 +2,7 @@ import tempfile
 
 import pytest
 from af_requests.views import af_requests_bp
-from af_requests_endpoints import af_apis
+from af_endpoints import af_apis
 from af_requests.models import Request
 from database import db as _db
 

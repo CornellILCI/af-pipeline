@@ -9,7 +9,9 @@ from common.api_models import (
     Status,
     Metadata,
     PaginationQueryParameters,
-    create_metadata)
+    ErrorResponse,
+    create_metadata,
+)
 
 
 class AnalysisRequest(BaseModel):
@@ -50,6 +52,10 @@ class AnalysisRequestListQueryParameters(PaginationQueryParameters):
     status: Optional[Status] = None
 
 
+class AnalysisRequestResponse(BaseModel):
+    result: AnalysisRequest = None
+
+
 class AnalysisRequestListResponseResult(BaseModel):
     data: Optional[List[AnalysisRequest]] = None
 
@@ -57,5 +63,3 @@ class AnalysisRequestListResponseResult(BaseModel):
 class AnalysisRequestListResponse(BaseModel):
     metadata: Optional[Metadata] = None
     result: Optional[AnalysisRequestListResponseResult] = None
-
-

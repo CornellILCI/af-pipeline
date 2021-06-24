@@ -54,16 +54,6 @@ def get_data_source():
     return data
 
 
-@af_apis.route("/requests/<request_uuid>")
-def get_request(request_uuid):
-    """Get the request object identified by the request_uuid url param."""
-    req = Request.query.filter_by(uuid=request_uuid).first()
-    if req is None:
-        return jsonify({"status": "error", "message": "Request not found"}), 404
-
-    return jsonify(req), 200
-
-
 @af_apis.route("/analysis-configs", methods=["GET"])
 def get_analysis_configs():
 
