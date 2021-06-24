@@ -4,12 +4,10 @@ from unittest.mock import MagicMock, patch
 
 from pandas import DataFrame
 from pipeline.data_reader.models import Trait
+from pipeline.db.models import Property
 from pipeline.dpo import ProcessData
 
-from pipeline.db.models import Property
-
-from conftest import get_json_resource
-from conftest import get_test_analysis_request
+from conftest import get_json_resource, get_test_analysis_request
 
 
 def get_job_file_template():

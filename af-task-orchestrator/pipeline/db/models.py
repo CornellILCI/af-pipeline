@@ -2,7 +2,13 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from pipeline.db.core import Base
 from sqlalchemy import Column, DateTime, Integer, String, Float
-from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
+import os
+
+# workaround to get pytest to work with sqlite
+if os.getenv("env") == "testing":
+    from sqlalchemy import Float as DOUBLE_PRECISION
+else:
+    from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
 
 class Request(Base):

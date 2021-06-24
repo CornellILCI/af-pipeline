@@ -1,20 +1,47 @@
-import io
 import json
-import os
-import random
-import string
-import sys
 
-import pytest
-
-from pandas import DataFrame
-
+# hacky importing since we need to declare these before we import Base
+# since core.py directly declares the vars
+import os; os.environ["env"] = "testing"; os.environ["AFDB_URL"] = "sqlite://"
 
 import tempfile
 
-os.environ["B4R_API_BASE_URL"] = ""
+import pytest
+from pandas import DataFrame
+from pipeline import config
+from pipeline.db.core import Base
 
-os.environ["AFDB_URL"] = "sqlite://"
+# fixtures import area
+from pipeline.tests.fixtures.sample_asremlr_1 import sample_asreml_result_string_1
+from sqlalchemy.engine.create import create_engine
+from sqlalchemy.orm.session import Session
+
+
+
+
+@pytest.fixture(scope="session")
+def engine():
+    engine = create_engine(config.get_afdb_uri())
+    engine.execute("ATTACH DATABASE ':memory:' AS af")
+    return engine
+
+
+@pytest.fixture(scope="session")
+def tables(engine):
+    Base.metadata.create_all(engine)
+    yield
+    Base.metadata.drop_all(engine)
+
+
+@pytest.fixture
+def dbsession(engine, tables):
+    connection = engine.connect()
+    transaction = connection.begin()
+    session = Session(bind=connection)
+
+    yield session
+    transaction.rollback()
+    connection.close()
 
 
 def get_test_resource_path(testfile, resource_name):
