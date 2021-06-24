@@ -85,7 +85,7 @@ def run(analysis_request: AnalysisRequest):
         db_session, analysis_request.analysisConfigPropertyId, "engine"
     )
 
-    analysis_engine = analysis_engine_meta.value.lower()
+    analysis_engine = "/app/scripts/asreml"
 
     for job_input_file in job_input_files:
 

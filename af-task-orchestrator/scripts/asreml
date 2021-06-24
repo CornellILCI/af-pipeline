@@ -3,12 +3,14 @@
 import docker
 import sys
 
+import os
+
 file1 = sys.argv[1]
 file2 = sys.argv[2]
 cmd = f'/bin/bash -c "asreml /home/asreml/inputs/{file1} /home/asreml/inputs/file2"'
 client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 output = client.containers.run(
-    "ebsproject/ba-asreml:21.05",
+    "ebsproject/ba-asreml:21.06",
     command=cmd,
     volumes={
         'asreml_license_dir': {"bind": '/home/asreml/licenses', "mode": "rw"},
