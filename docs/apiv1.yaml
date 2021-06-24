@@ -1,0 +1,591 @@
+---
+openapi: 3.0.0
+info:
+  title: EBS Analyitcs
+  description: |
+    API definitions for EBA Analytics Pipeline.
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/ebs_analytics/ebs-analytics/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: Requests
+  description: Analysis requests made to the af pipeline
+- name: Properties
+  description: |
+    Analysis property is a general resource for values of different types required by AF pipeline to submit an analaysis request.
+- name: Analysis Config
+  description: |
+    Model configuration to run the analysis. It is a type of property resource.
+paths:
+  /requests:
+    get:
+      tags:
+      - Requests
+      summary: Lists submitted analysis requests in descending order by submitted date.
+      operationId: listRequests
+      parameters:
+      - name: requestorId
+        in: query
+        description: Id of the requestor.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: crop
+        in: query
+        description: Id of the requestor.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: organization
+        in: query
+        description: Id of the requestor.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Used to request a specific page of data to be returned. The page indexing starts at 0 (the first page is 'page'= 0). Default is `0`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: "0"
+      - name: pageSize
+        in: query
+        description: The size of the pages to be returned. Default is `1000`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: 1000
+      responses:
+        "200":
+          description: List of analysis requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisRequestListResponse'
+    post:
+      tags:
+      - Requests
+      summary: Submit new analysis requests.
+      operationId: submitRequest
+      requestBody:
+        $ref: '#/components/requestBodies/AnalysisRequestParameters'
+      responses:
+        "201":
+          description: Submitted
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisRequest'
+        "400":
+          description: Bad Request.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /properties:
+    get:
+      tags:
+      - Properties
+      summary: List analysis properties.
+      description: "Lists properties belonging to given property root. Property root value is an enum with following options,\n  \n  objective --> Analysis Objective\n  \n  trait_pattern --> Trait Pattern\n  \n  exptloc_analysis_pattern --> Experiment Location Analysis Pattern\n  \n"
+      operationId: listProperties
+      parameters:
+      - name: propertyRoot
+        in: query
+        description: Parent property for which child properties needs to be fetched.
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - objective
+          - trait_pattern
+          - exptloc_analysis_pattern
+      - name: isActive
+        in: query
+        description: Whether the property is active in the system.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: true
+      - name: page
+        in: query
+        description: Used to request a specific page of data to be returned. The page indexing starts at 0 (the first page is 'page'= 0). Default is `0`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: "0"
+      - name: pageSize
+        in: query
+        description: The size of the pages to be returned. Default is `1000`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: 1000
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyListResponse'
+        "400":
+          description: Bad request.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server Error.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /analysis-configs:
+    get:
+      tags:
+      - Analysis Config
+      summary: List analysis configurations.
+      description: |
+        Gets the list of analysis model configurations for given query paramters. Analysis config is a property resource.
+      operationId: listAnalysisConfigs
+      parameters:
+      - name: engine
+        in: query
+        description: Filter configs by analysis engine.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: design
+        in: query
+        description: Filter by design type.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: traitLevel
+        in: query
+        description: Filter by trait level
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: analysisObjective
+        in: query
+        description: Filter by analysis objective.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: experimentAnalysisPattern
+        in: query
+        description: Filter by experiment analysis pattern
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: locationAnalysisPattern
+        in: query
+        description: Filter by location analysis pattern.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: traitPattern
+        in: query
+        description: Filter by trait pattern.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Used to request a specific page of data to be returned. The page indexing starts at 0 (the first page is 'page'= 0). Default is `0`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: "0"
+      - name: pageSize
+        in: query
+        description: The size of the pages to be returned. Default is `1000`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: 1000
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyListResponse'
+        "400":
+          description: Bad Request.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server Error.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /analysis-configs/{analysisConfigId}/formulas:
+    get:
+      tags:
+      - Analysis Config
+      summary: List of formulas in given analysis configuration.
+      description: |
+        Gets the list of formulas in analysis config. Formula is a property resource.
+      operationId: listAnalysisConfigFormulas
+      parameters:
+      - name: analysisConfigId
+        in: path
+        description: Property Id of the analysis config.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Used to request a specific page of data to be returned. The page indexing starts at 0 (the first page is 'page'= 0). Default is `0`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: "0"
+      - name: pageSize
+        in: query
+        description: The size of the pages to be returned. Default is `1000`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: 1000
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyListResponse'
+        "400":
+          description: Bad Request.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server Error.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /analysis-configs/{analysisConfigId}/residuals:
+    get:
+      tags:
+      - Analysis Config
+      summary: List of residuals in given analysis configuration.
+      description: |
+        Gets the list of residuals in analysis config. Formula is a property resource.
+      operationId: listAnalysisConfigResiduals
+      parameters:
+      - name: analysisConfigId
+        in: path
+        description: Property Id of the analysis config.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Used to request a specific page of data to be returned. The page indexing starts at 0 (the first page is 'page'= 0). Default is `0`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: "0"
+      - name: pageSize
+        in: query
+        description: The size of the pages to be returned. Default is `1000`.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+        example: 1000
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyListResponse'
+        "400":
+          description: Bad Request.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server Error.
+          content:
+            applications/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    Metadata:
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    Pagination:
+      required:
+      - currentPage
+      - pageSize
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          description: The number of data elements returned, aka the size of the current page. If the requested page does not have enough elements to fill a page at the requested page size, this field should indicate the actual number of elements returned.
+          example: 1000
+          default: 1000
+        currentPage:
+          type: integer
+          description: The index number for the returned page of data. This should always match the requested page number or the default page (0).
+          example: 0
+          default: 0
+    ErrorResponse:
+      type: object
+      properties:
+        errorMsg:
+          type: string
+          description: Reason or cause of errors.
+    AnalysisRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        requestorId:
+          type: string
+        crop:
+          type: string
+          description: Name of the crop
+        institute:
+          type: string
+          description: Name of the institute for which the analysis is submitted.
+        analysisType:
+          type: string
+          enum:
+          - ANALYZE
+          - RANDOMIZE
+        status:
+          type: string
+          enum:
+          - PENDING
+          - IN-PROGRESS
+          - PROCESSED
+          - EXPIRED
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+    AnalysisRequestParameters:
+      required:
+      - analysisConfigPropertyId
+      - analysisObjectivePropertyId
+      - configFormulaPropertyId
+      - configResidualPropertyId
+      - dataSource
+      - dataSourceAccessToken
+      - dataSourceUrl
+      - expLocAnalysisPatternPropertyId
+      - experimentIds
+      - occurrenceIds
+      - traitIds
+      type: object
+      properties:
+        dataSource:
+          type: string
+          enum:
+          - EBS
+          - BRAPI
+        dataSourceUrl:
+          type: string
+          description: Base API url of datasource instance.
+        dataSourceAccessToken:
+          type: string
+          description: Bearer token to access datasource.
+        crop:
+          type: string
+          description: Name of the crop
+        requestorId:
+          type: string
+          description: Id of the user who submits analysis request.
+        institute:
+          type: string
+          description: Name of the institute for which the analysis is submitted.
+        analysisType:
+          type: string
+          enum:
+          - ANALYZE
+          - RANDOMIZE
+        experimentIds:
+          type: array
+          items:
+            type: string
+        occurrenceIds:
+          type: array
+          items:
+            type: string
+        traitIds:
+          type: array
+          items:
+            type: string
+        analysisObjectivePropertyId:
+          type: string
+          description: Property Id of selected analysis objective.
+        analysisConfigPropertyId:
+          type: string
+          description: Property Id of selected analysis configuration.
+        expLocAnalysisPatternPropertyId:
+          type: string
+          description: Property Id of selected experiment location analysis pattern.
+        configFormulaPropertyId:
+          type: string
+          description: Property Id of the formula to run the analysis.
+        configResidualPropertyId:
+          type: string
+          description: Property Id of the residual for the analysis model.
+    AnalysisRequestListResponse:
+      type: object
+      properties:
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        result:
+          $ref: '#/components/schemas/AnalysisRequestListResponse_result'
+    PropertyListResponse:
+      type: object
+      properties:
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        result:
+          $ref: '#/components/schemas/PropertyListResponse_result'
+    Property:
+      type: object
+      properties:
+        propertyId:
+          type: string
+          description: Id of the property
+        propertyName:
+          type: string
+          description: Name of the property
+        propertyCode:
+          type: string
+          description: Property code.
+        label:
+          type: string
+          description: Label for user view.
+        type:
+          type: string
+          description: Classifier of properties within its context (e.g. catalog_item, catalog_root)
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          description: Id of the user who created the property.
+        modifiedBy:
+          type: string
+          description: Id of the user who modified the property.
+        isActive:
+          type: boolean
+          description: Whether the property is active in the system.
+          default: true
+        statement:
+          type: string
+          description: A command, instruction, piece of code, etc., associated to the property
+    AnalysisRequestListResponse_result:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisRequest'
+    PropertyListResponse_result:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Used to request a specific page of data to be returned. The page indexing starts at 0 (the first page is 'page'= 0). Default is `0`.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: integer
+      example: "0"
+    pageSize:
+      name: pageSize
+      in: query
+      description: The size of the pages to be returned. Default is `1000`.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: integer
+      example: 1000
+  requestBodies:
+    AnalysisRequestParameters:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AnalysisRequestParameters'

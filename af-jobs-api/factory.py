@@ -1,7 +1,5 @@
 import datetime
-import os
 
-from af_requests_endpoints import af_requests_bp
 from database import db
 from flask.app import Flask
 from flask.json import JSONEncoder
@@ -26,6 +24,13 @@ def create_app(settings: dict = None):
         app.config.update(settings)
     app.json_encoder = CustomJSONEncoder
 
+    from af_endpoints import af_apis
+
+    app.register_blueprint(af_apis)
+
+    from af_requests.views import af_requests_bp
+
     app.register_blueprint(af_requests_bp)
+
     db.init_app(app)
     return app

@@ -1,9 +1,9 @@
 import json
 import pathlib
-import uuid as uuidlib
 
 import celery_util
-from database import Request, db, Property
+import uuid as uuidlib
+from database import db, Property
 from dto.requests import AnalysisRequestParameters
 from dto.responses import AnalysisRequest
 from flask import jsonify, render_template, request
@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from sqlalchemy import text
 from services.afdb_service import select_property_by_code, select_analysis_configs
 
-af_requests_bp = Blueprint("af_requests", __name__, url_prefix='/v1')
+af_apis = Blueprint("af", __name__, url_prefix='/v1')
 
 #TODO: this will be replaced by the AFDB connector instead of being held in memory
 global analysis_type
@@ -22,14 +22,14 @@ analysis_type = [
     {"name": "Genomic analysis", "id": str(uuidlib.uuid4())}
 ]
 
-@af_requests_bp.route("/analysis-type", methods=["GET"])
+@af_apis.route("/analysis-type", methods=["GET"])
 def get_analysis_type():
     #todo read from AFDB
     
     return jsonify({"status": "ok", "response":analysis_type}), 200
 
 
-@af_requests_bp.route("/analysis-type", methods=["POST"])
+@af_apis.route("/analysis-type", methods=["POST"])
 def post_analysis_type():
     content = request.json
     if "name" not in content:
@@ -45,7 +45,7 @@ def post_analysis_type():
 
     return jsonify({"status": "ok", "id": id}), 201
 
-@af_requests_bp.route("/datasources", methods=["GET"])
+@af_apis.route("/datasources", methods=["GET"])
 def get_data_source():
     path = pathlib.Path(__file__).parent.absolute()
     with open(str(path) + "/datasourceconfig.json") as f:
@@ -54,52 +54,7 @@ def get_data_source():
     return data
 
 
-@af_requests_bp.route("/requests", methods=["POST"])
-def create_request():
-    """Create request object based on body params"""
-    content = request.json
-    request_data: AnalysisRequestParameters = None
-    try:
-        request_data = AnalysisRequestParameters(**content)
-    except ValidationError as e:
-        return jsonify({"errorMsg": str(e)}), 400
-
-    req = Request(
-        uuid=str(uuidlib.uuid4()),
-        institute=request_data.institute,
-        crop=request_data.crop,
-        type=request_data.analysisType,
-        status="PENDING",
-    )
-
-    db.session.add(req)
-    db.session.commit()
-
-    celery_util.send_task(
-        process_name="analyze",
-        args=(
-            req.uuid,
-            content,
-        ),
-    )
-
-    return (
-        jsonify(
-            AnalysisRequest(
-                requestId=req.uuid,
-                crop=req.crop,
-                institute=req.institute,
-                analysisType=req.type,
-                status=req.status,
-                createdOn=req.creation_timestamp,
-                modifiedOn=req.modification_timestamp,
-            ).dict()
-        ),
-        201,
-    )
-
-
-@af_requests_bp.route("/requests/<request_uuid>")
+@af_apis.route("/requests/<request_uuid>")
 def get_request(request_uuid):
     """Get the request object identified by the request_uuid url param."""
     req = Request.query.filter_by(uuid=request_uuid).first()
@@ -109,7 +64,7 @@ def get_request(request_uuid):
     return jsonify(req), 200
 
 
-@af_requests_bp.route("/analysis-configs", methods=["GET"])
+@af_apis.route("/analysis-configs", methods=["GET"])
 def get_analysis_configs():
 
     page = None if not request.args.get("page") else int(request.args.get("page"))
@@ -192,17 +147,17 @@ def get_analysis_configs():
     return jsonify(result), 200
 
 
-@af_requests_bp.route("/test", methods=["GET"])
+@af_apis.route("/test", methods=["GET"])
 def test():
     return render_template("loginExample.html")
 
 
-@af_requests_bp.route("/test/redirect", methods=["GET"])
+@af_apis.route("/test/redirect", methods=["GET"])
 def testredirect():
     return render_template("loginExample.html")
 
 
-@af_requests_bp.route("/properties")
+@af_apis.route("/properties")
 def get_properties():
     page = request.args.get("page")
     if not page:
@@ -249,7 +204,7 @@ def get_properties():
         "result":{"data":props}}), 200
 
 
-@af_requests_bp.route("/analysis-configs/<analysisConfigId>/formulas")
+@af_apis.route("/analysis-configs/<analysisConfigId>/formulas")
 def get_analysis_config_formulas(analysisConfigId):
     page = request.args.get('page')
     if not page or not isinstance(page, (int, long)) or page < 0 : page = 0
@@ -284,7 +239,7 @@ def get_analysis_config_formulas(analysisConfigId):
         "result":{"data":ret}}), 200
 
 
-@af_requests_bp.route("/analysis-configs/<analysisConfigId>/residuals")
+@af_apis.route("/analysis-configs/<analysisConfigId>/residuals")
 def get_analysis_config_residuals(analysisConfigId):
     page = request.args.get('page')
     if not page or not isinstance(page, (int, long)) or page < 0 : page = 0
@@ -320,7 +275,7 @@ def get_analysis_config_residuals(analysisConfigId):
         },
         "result":{"data":ret}}), 200
 
-@af_requests_bp.route("/test/asreml", methods=["POST"])
+@af_apis.route("/test/asreml", methods=["POST"])
 def testasreml():
     content = request.json
     # req = Request(uuid=str(uuidlib.uuid4()))

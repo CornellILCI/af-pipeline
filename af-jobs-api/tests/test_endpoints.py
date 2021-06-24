@@ -2,7 +2,7 @@ import json
 import uuid
 
 import pytest
-from database import Request
+from af_requests.models import Request
 
 ## fixture area
 # sample request data

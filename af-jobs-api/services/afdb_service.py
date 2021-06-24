@@ -1,7 +1,7 @@
 import uuid as uuidlib
 
 import celery_util
-from database import Property, PropertyConfig, Request, db
+from database import Property, PropertyConfig, db
 from flask import jsonify, render_template, request
 from flask.blueprints import Blueprint
 from sqlalchemy import text
