@@ -41,6 +41,8 @@ class PhenotypeDataEbs(PhenotypeData):
         "dataQCCode": "trait_qc",
     }
 
+    plots_unknown_values = {"paX": "", "paY": ""}
+
     list_api_page_size = 100
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
@@ -75,7 +77,13 @@ class PhenotypeDataEbs(PhenotypeData):
                 columns.extend(columns_from_occurrence)
                 return pd.DataFrame(columns=columns)
 
-            plots_page = pd.DataFrame(plots_data).fillna(config.UNIVERSAL_UNKNOWN)
+            plots_page = pd.DataFrame(plots_data)
+
+            # Fill the unknown values
+            for field in self.plots_unknown_values:
+                plots_page[field] = plots_page[field].fillna(self.plots_unknown_values[field])
+
+            plots_page = plots_page.fillna(config.UNIVERSAL_UNKNOWN)
 
             # keep only local field columns
             plots_page = df_keep_columns(plots_page, self.plots_api_fields_to_local_fields.keys())

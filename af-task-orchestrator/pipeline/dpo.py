@@ -205,6 +205,7 @@ class ProcessData:
 
         analysis_config_id = self.analysis_request.analysisConfigPropertyId
         data_file_name = f"{job_name}.csv"
+        data_file_path = os.path.join(self.output_folder, data_file_name)
 
         # 1: adding the analysis field statements
         for field_line in self._get_analysis_field_lines(analysis_config_id):
@@ -215,7 +216,7 @@ class ProcessData:
 
         # 3: adding otpions
         asreml_option = self._get_asreml_option(analysis_config_id)
-        options_line = "{} {}".format(data_file_name, asreml_option.statement)
+        options_line = "{} {}".format(data_file_path, asreml_option.statement)
         job_file_lines.append(options_line)
 
         # 4: adding tabulate
