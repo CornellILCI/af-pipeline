@@ -1,0 +1,23 @@
+{
+    "metadata":{
+        "id": "AUGUNREP_cimmyt_SD_0000",
+        "category": "Design",
+        "type": "Trial Design",
+	    "engine": "R 4.0.2",
+        "method": "randAUGUNREP",
+        "design": "Augmented Design diagonal checks",
+        "timeStamp": "",
+        "requestorId": "",
+        "organization_code": "CIMMYT",
+        "crop": "MAIZE",
+        "program": "GRP",
+        "experiment_id": 321546866,
+        "occurrence_id": [654565,654566]
+  },
+    "parameters":{
+        "entryList": "AUGUNREP_cimmyt_SD_0001.lst",
+        "nTrial": 2,
+        "nFieldCol": 20,
+        "pCheck": 10
+    }
+}
