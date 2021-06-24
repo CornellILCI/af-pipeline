@@ -32,8 +32,8 @@ class Pagination(BaseModel):
 
 
 class PaginationQueryParameters(BaseModel):
-    pageSize: int = Field(1000, description=("The size of the pages to be returned. Default is 1000."))
-    page: int = Field(0, description=("Used to request a specific page of data to be returned"))
+    pageSize: int = Field(1000, description=("The size of the pages to be returned. Default is 1000."), ge=0)
+    page: int = Field(0, description=("Used to request a specific page of data to be returned"), ge=0)
 
 
 class ErrorResponse(BaseModel):
@@ -48,8 +48,7 @@ class AnalysisType(str, Enum):
 class Status(str, Enum):
     PENDING = "PENDING"
     IN_PROGRESS = "IN-PROGRESS"
-    PROCESSED = "PROCESSED"
-    EXPIRED = "EXPIRED"
+    DONE = "DONE"
     FAILURE = "FAILURE"
 
 
