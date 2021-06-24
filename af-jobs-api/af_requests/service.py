@@ -47,6 +47,13 @@ def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParam
     if query_params.institute:
         query = query.filter(db_models.Request.institute == query_params.institute)
 
+    if query_params.status:
+        query = query.filter(db_models.Request.status == query_params.status)
+
+    
+    # Get latest requests first
+    query = query.order_by(db_models.Request.creation_timestamp.desc())
+
     # AnalysisRequestListQueryParameters have default page and pageSize
     query = query.limit(query_params.pageSize).offset(query_params.page * query_params.pageSize)
 

@@ -47,6 +47,7 @@ class AnalysisRequestListQueryParameters(PaginationQueryParameters):
     crop: Optional[str] = Field(None, description="Name of the crop")
     requestorId: Optional[str] = Field(None, description="Id of the user who submits analysis request.")
     institute: Optional[str] = Field(None, description="Name of the institute for which the analysis is submitted.")
+    status: Optional[Status] = None
 
 
 class AnalysisRequestListResponseResult(BaseModel):
