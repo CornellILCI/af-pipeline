@@ -7,8 +7,8 @@ import sys
 from collections import OrderedDict
 from os import path
 
-from pydantic import ValidationError
 from pandas import DataFrame
+from pydantic import ValidationError
 
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
     file_dir = path.dirname(os.path.realpath(__file__))
@@ -16,19 +16,17 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     sys.path.append(pipeline_dir)
 
 from pipeline import config
+from pipeline.analysis_request import AnalysisRequest
 from pipeline.data_reader import DataReaderFactory, PhenotypeData
 from pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError, MissingTaskParameter
 from pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from pipeline.data_reader.models import Experiment, Occurrence
 from pipeline.data_reader.models.enums import DataSource, DataType
+from pipeline.db import services
+from pipeline.db.core import SessionLocal
+from pipeline.db.models import Property
 from pipeline.exceptions import InvalidAnalysisRequest
 from pipeline.pandasutil import df_keep_columns
-
-from pipeline.db.models import Property
-from pipeline.db.core import SessionLocal
-from pipeline.db import services
-
-from pipeline.analysis_request import AnalysisRequest
 
 
 class ProcessData:

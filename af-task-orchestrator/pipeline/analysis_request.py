@@ -1,5 +1,5 @@
-from pydantic import BaseModel, conlist
 from pipeline.data_reader.models.enums import DataSource
+from pydantic import BaseModel, conlist
 
 
 class AnalysisRequest(BaseModel):

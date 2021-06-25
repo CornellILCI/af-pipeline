@@ -43,17 +43,19 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
     >>> import xml.sax
     >>> parser = xml.sax.make_parser()
     >>> parser.setFeature(xml.sax.handler.feature_namespaces, 0)
-    >>> handler = ASRemlContentHandler()
+    >>> handler = ASRemlContentHandler(job_id)
     >>> parser.setContentHandler(handler)
     >>> parser.parse("/path/to/result.xml")
     >>> print(handler.variances)   # list of dicts of variance data
     >>> print(handler.model_stat)  # contains dict of model_stat data
 
     """
-    def __init__(self):
+
+    def __init__(self, job_id: int):
+        self.job_id = job_id
         self.variances = []
         self.REML_LogL = None  # for storing the last REML_LogL
-        self.model_stat = {}
+        self.model_stat = {"job_id": job_id, "tenant_id": 1, "creator_id": 1}
         self.current_variance = None
         self.current_key = None
         self.current_content = ""
@@ -71,7 +73,11 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.in_variance_components = True
         elif tag == TAG_VPARAMETER and self.in_variance_components:
             self.in_vparameter = True
-            self.current_variance = {}  # start a new variance object
+            self.current_variance = {
+                "job_id": self.job_id,
+                "tenant_id": 1,
+                "creator_id": 1,
+            }  # start a new variance object
         elif tag in TRANSFORM_VARIANCE_TAG:
             self.current_key = TRANSFORM_VARIANCE_TAG.get(tag)
         elif tag == TAG_INFO_CRITERIA:

@@ -17,17 +17,12 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     sys.path.append(pipeline_dir)
 
 from pipeline import dpo, utils
+from pipeline.analysis_request import AnalysisRequest
 from pipeline.data_reader.exceptions import DataReaderException
 from pipeline.db import services as db_services
 from pipeline.db.core import SessionLocal
 from pipeline.db.models import Analysis, Job
-from pipeline.db import services as db_services
-from pipeline.data_reader.exceptions import DataReaderException
-from pipeline.exceptions import DpoException
-from pipeline.exceptions import AnalysisError, InvalidAnalysisRequest
-from pipeline import utils
-
-from pipeline.analysis_request import AnalysisRequest
+from pipeline.exceptions import AnalysisError, DpoException, InvalidAnalysisRequest
 
 
 def run(analysis_request: AnalysisRequest):

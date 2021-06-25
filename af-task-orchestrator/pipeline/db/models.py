@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
-from pipeline.db.core import Base
-from sqlalchemy import Column, DateTime, Integer, String, Float
 import os
+
+from pipeline.db.core import Base
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 # workaround to get pytest to work with sqlite
 if os.getenv("env") == "testing":

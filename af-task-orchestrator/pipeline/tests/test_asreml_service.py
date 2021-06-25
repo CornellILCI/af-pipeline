@@ -1,4 +1,5 @@
 import io
+
 from pipeline.asreml.services import process_asreml_result
 from pipeline.db.models import ModelStat, Variance
 

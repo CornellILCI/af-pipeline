@@ -1,7 +1,6 @@
 from pipeline.db.models import Property, PropertyConfig, PropertyMeta, Request
-from sqlalchemy.orm import aliased
 from sqlalchemy import and_, func
-
+from sqlalchemy.orm import aliased
 
 # TODO: Catch database exceptions, mainly NoResultFounException
 

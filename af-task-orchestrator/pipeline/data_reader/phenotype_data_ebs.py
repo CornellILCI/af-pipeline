@@ -1,11 +1,10 @@
 import pandas as pd
+from pipeline import config
 from pipeline.data_reader.exceptions import DataReaderException
 from pipeline.data_reader.models import Experiment, Occurrence, OccurrenceEbs, Trait, VariableEbs
 from pipeline.data_reader.phenotype_data import PhenotypeData
 from pipeline.pandasutil import df_keep_columns
 from pydantic import ValidationError
-
-from pipeline import config
 
 SEARCH_PLOTS_ENDPOINT = "/plots-search"
 

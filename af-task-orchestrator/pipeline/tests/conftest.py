@@ -1,8 +1,10 @@
 import json
-
 # hacky importing since we need to declare these before we import Base
 # since core.py directly declares the vars
-import os; os.environ["env"] = "testing"; os.environ["AFDB_URL"] = "sqlite://"
+import os
+
+os.environ["env"] = "testing"
+os.environ["AFDB_URL"] = "sqlite://"
 
 import tempfile
 
@@ -10,13 +12,10 @@ import pytest
 from pandas import DataFrame
 from pipeline import config
 from pipeline.db.core import Base
-
 # fixtures import area
 from pipeline.tests.fixtures.sample_asremlr_1 import sample_asreml_result_string_1
 from sqlalchemy.engine.create import create_engine
 from sqlalchemy.orm.session import Session
-
-
 
 
 @pytest.fixture(scope="session")
