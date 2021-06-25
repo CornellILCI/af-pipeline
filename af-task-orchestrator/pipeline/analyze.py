@@ -112,7 +112,6 @@ def run(analysis_request: AnalysisRequest):
         except Exception as e:
             analysis.status = "FAILED"
             job.status = "FAILED"
-            print(str(e))
             job.status_message = str(e)[:50] #TODO: Change job status field to text in database.
             job.time_end = datetime.utcnow()
             job.modification_timestamp = datetime.utcnow()
@@ -122,7 +121,6 @@ def run(analysis_request: AnalysisRequest):
         job.status = utils.get_job_status(run_result.stdout, run_result.stderr)
 
         if job.status > 100:
-            print(run_result.stderr.decode("utf-8"))
             job.status_message = run_result.stderr.decode("utf-8")[:50]
         job.modification_timestamp = datetime.utcnow()
         job.time_end = datetime.utcnow()
