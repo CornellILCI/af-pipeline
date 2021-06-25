@@ -3,18 +3,19 @@ import pathlib
 import uuid as uuidlib
 
 import celery_util
+from database import Property, db
 import math
 
-from database import Request, db, Property
 from dto.requests import AnalysisRequestParameters
 from dto.responses import AnalysisRequest
 from flask import jsonify, render_template, request
 from flask.blueprints import Blueprint
 from pydantic import ValidationError
+from services.afdb_service import select_analysis_configs, select_property_by_code
 from sqlalchemy import text
 from services.afdb_service import select_property_by_code, select_analysis_configs, count_property_by_code, count_analysis_configs
 
-af_requests_bp = Blueprint("af_requests", __name__, url_prefix='/v1')
+af_apis = Blueprint("af", __name__, url_prefix='/v1')
 
 #TODO: this will be replaced by the AFDB connector instead of being held in memory
 global analysis_type
@@ -24,14 +25,14 @@ analysis_type = [
     {"name": "Genomic analysis", "id": str(uuidlib.uuid4())}
 ]
 
-@af_requests_bp.route("/analysis-type", methods=["GET"])
+@af_apis.route("/analysis-type", methods=["GET"])
 def get_analysis_type():
     #todo read from AFDB
     
     return jsonify({"status": "ok", "response":analysis_type}), 200
 
 
-@af_requests_bp.route("/analysis-type", methods=["POST"])
+@af_apis.route("/analysis-type", methods=["POST"])
 def post_analysis_type():
     content = request.json
     if "name" not in content:
@@ -47,7 +48,7 @@ def post_analysis_type():
 
     return jsonify({"status": "ok", "id": id}), 201
 
-@af_requests_bp.route("/datasources", methods=["GET"])
+@af_apis.route("/datasources", methods=["GET"])
 def get_data_source():
     path = pathlib.Path(__file__).parent.absolute()
     with open(str(path) + "/datasourceconfig.json") as f:
@@ -56,68 +57,13 @@ def get_data_source():
     return data
 
 
-@af_requests_bp.route("/requests", methods=["POST"])
-def create_request():
-    """Create request object based on body params"""
-    content = request.json
-    request_data: AnalysisRequestParameters = None
-    try:
-        request_data = AnalysisRequestParameters(**content)
-    except ValidationError as e:
-        return jsonify({"errorMsg": str(e)}), 400
-
-    req = Request(
-        uuid=str(uuidlib.uuid4()),
-        institute=request_data.institute,
-        crop=request_data.crop,
-        type=request_data.analysisType,
-        status="PENDING",
-    )
-
-    db.session.add(req)
-    db.session.commit()
-
-    celery_util.send_task(
-        process_name="analyze",
-        args=(
-            req.uuid,
-            content,
-        ),
-    )
-
-    return (
-        jsonify(
-            AnalysisRequest(
-                requestId=req.uuid,
-                crop=req.crop,
-                institute=req.institute,
-                analysisType=req.type,
-                status=req.status,
-                createdOn=req.creation_timestamp,
-                modifiedOn=req.modification_timestamp,
-            ).dict()
-        ),
-        201,
-    )
-
-
-@af_requests_bp.route("/requests/<request_uuid>")
-def get_request(request_uuid):
-    """Get the request object identified by the request_uuid url param."""
-    req = Request.query.filter_by(uuid=request_uuid).first()
-    if req is None:
-        return jsonify({"status": "error", "message": "Request not found"}), 404
-
-    return jsonify(req), 200
-
-
-@af_requests_bp.route("/analysis-configs", methods=["GET"])
+@af_apis.route("/analysis-configs", methods=["GET"])
 def get_analysis_configs():
 
-    page = None if not request.args.get("page") else int(request.args.get("page"))
+    page = None if not request.args.get("page", 0) else int(request.args.get("page", 0))
     if not page or page < 0:
         page = 0
-    pageSize = None if not request.args.get("pageSize") else int(request.args.get("pageSize"))
+    pageSize = None if not request.args.get("pageSize", 1000) else int(request.args.get("pageSize", 1000))
     if not pageSize or pageSize < 1:
         pageSize = 1000
 
@@ -194,22 +140,22 @@ def get_analysis_configs():
     return jsonify(result), 200
 
 
-@af_requests_bp.route("/test", methods=["GET"])
+@af_apis.route("/test", methods=["GET"])
 def test():
     return render_template("loginExample.html")
 
 
-@af_requests_bp.route("/test/redirect", methods=["GET"])
+@af_apis.route("/test/redirect", methods=["GET"])
 def testredirect():
     return render_template("loginExample.html")
 
 
-@af_requests_bp.route("/properties")
+@af_apis.route("/properties")
 def get_properties():
-    page = request.args.get("page")
+    page = request.args.get("page", 0)
     if not page:
         page = 0
-    pageSize = request.args.get("pageSize")
+    pageSize = request.args.get("pageSize", 1000)
     if not pageSize:
         pageSize = 1000
 
@@ -255,16 +201,16 @@ def get_properties():
         "result":{"data":props}}), 200
 
 
-@af_requests_bp.route("/analysis-configs/<analysisConfigId>/formulas")
+@af_apis.route("/analysis-configs/<analysisConfigId>/formulas")
 def get_analysis_config_formulas(analysisConfigId):
     try:
-        page = int(request.args.get('page'))
+        page = int(request.args.get('page', 0))
     except ValueError:
         page = 0
     if not page or not isinstance(page, int) or page < 0 : page = 0
     
     try:
-        pageSize = int(request.args.get('pageSize'))
+        pageSize = int(request.args.get('pageSize', 1000))
     except ValueError:
         pageSize = 1000
         
@@ -305,16 +251,16 @@ def get_analysis_config_formulas(analysisConfigId):
         "result":{"data":ret}}), 200
 
 
-@af_requests_bp.route("/analysis-configs/<analysisConfigId>/residuals")
+@af_apis.route("/analysis-configs/<analysisConfigId>/residuals")
 def get_analysis_config_residuals(analysisConfigId):
     try:
-        page = int(request.args.get('page'))
+        page = int(request.args.get('page', 0))
     except ValueError:
         page = 0
     if not page or not isinstance(page, int) or page < 0 : page = 0
     
     try:
-        pageSize = int(request.args.get('pageSize'))
+        pageSize = int(request.args.get('pageSize', 1000))
     except ValueError:
         pageSize = 1000
 
@@ -353,7 +299,7 @@ def get_analysis_config_residuals(analysisConfigId):
         },
         "result":{"data":ret}}), 200
 
-@af_requests_bp.route("/test/asreml", methods=["POST"])
+@af_apis.route("/test/asreml", methods=["POST"])
 def testasreml():
     content = request.json
     # req = Request(uuid=str(uuidlib.uuid4()))

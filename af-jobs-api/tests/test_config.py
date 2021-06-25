@@ -2,6 +2,7 @@ import os
 
 import config
 
+
 def test_get_allowable_origins():
     
     os.environ["AFAPI_ALLOWABLE_ORIGINS"] = "*"
