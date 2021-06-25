@@ -1,7 +1,8 @@
 #! /usr/local/bin/python
 
-import docker
 import sys
+
+import docker
 
 file1 = sys.argv[1]
 file2 = sys.argv[2]

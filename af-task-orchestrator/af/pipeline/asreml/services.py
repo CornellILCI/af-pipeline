@@ -1,8 +1,8 @@
 import xml.sax
 
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
-from af.pipeline.db.models import ModelStat, Variance
 from af.pipeline.db.core import DBConfig
+from af.pipeline.db.models import ModelStat, Variance
 
 
 def get_file_parser():

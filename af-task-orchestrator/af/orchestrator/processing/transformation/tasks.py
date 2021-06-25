@@ -1,9 +1,11 @@
-import sys, os, json
 import argparse
-import pandas as pd
+import json
+import os
+import sys
 from glob import glob
-import numpy as np
 
+import numpy as np
+import pandas as pd
 from af.orchestrator import config
 from af.orchestrator.app import LOGGER, app
 from af.orchestrator.base import StatusReportingTask

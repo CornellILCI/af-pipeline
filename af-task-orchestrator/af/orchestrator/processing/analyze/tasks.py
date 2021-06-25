@@ -2,13 +2,9 @@ from af.orchestrator import config
 from af.orchestrator.app import app
 from af.orchestrator.base import ResultReportingTask
 from af.orchestrator.exceptions import MissingTaskParameter
-from af.pipeline.data_reader.models.enums import DataSource, DataType
-
 from af.pipeline import analyze as pipeline_analyze
-
 from af.pipeline.analysis_request import AnalysisRequest
-
-from af.orchestrator import config
+from af.pipeline.data_reader.models.enums import DataSource, DataType
 
 
 @app.task(name="analyze", base=ResultReportingTask)

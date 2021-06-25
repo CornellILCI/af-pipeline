@@ -1,7 +1,7 @@
 import datetime
 
-from af.pipeline.db.core import DBConfig
 from af.orchestrator.db.models import Request, Task
+from af.pipeline.db.core import DBConfig
 
 
 class AFDBService:

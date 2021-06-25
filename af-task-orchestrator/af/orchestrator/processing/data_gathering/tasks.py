@@ -2,11 +2,11 @@ from af.orchestrator import config
 from af.orchestrator.app import app
 from af.orchestrator.base import StatusReportingTask
 from af.orchestrator.exceptions import MissingTaskParameter
-from pandas import DataFrame
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError
 from af.pipeline.data_reader.models import Experiment, Occurrence, Trait
 from af.pipeline.data_reader.models.enums import DataSource, DataType
+from pandas import DataFrame
 
 
 @app.task(name="gather_data", base=StatusReportingTask)

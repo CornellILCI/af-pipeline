@@ -2,10 +2,10 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from pandas import DataFrame
 from af.pipeline.data_reader.models import Trait
 from af.pipeline.db.models import Property
 from af.pipeline.dpo import ProcessData
+from pandas import DataFrame
 
 from conftest import get_json_resource, get_test_analysis_request
 

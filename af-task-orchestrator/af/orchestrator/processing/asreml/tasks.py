@@ -1,6 +1,6 @@
+from af.orchestrator import asremlutil
 from af.orchestrator.app import app
 from af.orchestrator.base import StatusReportingTask
-from af.orchestrator import asremlutil
 
 
 @app.task(name="run_asreml")  # , base=StatusReportingTask)
@@ -20,7 +20,7 @@ def run_asreml(params: dict):
 
 
 @app.task(name="parse_asremlr")
-def parse_asremlr( params: dict):
+def parse_asremlr(params: dict):
     """Params is a dict that should contain the ff:
 
     jobId: analaysis job_id
@@ -28,5 +28,4 @@ def parse_asremlr( params: dict):
     """
     job_id = int(params.get("jobId"))
     result_file = params.get("resultFilePath")
-    asremlutil.parse_asremlr( job_id, result_file)
-
+    asremlutil.parse_asremlr(job_id, result_file)

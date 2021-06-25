@@ -1,6 +1,6 @@
-import pandas as pd
 import af.pipeline.data_reader.urlutil as urlutil
 import af.pipeline.pandasutil as pandasutil
+import pandas as pd
 from pandas._testing import assert_frame_equal
 
 

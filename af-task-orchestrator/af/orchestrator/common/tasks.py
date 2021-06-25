@@ -1,7 +1,7 @@
 """Module for common tasks"""
 
-from gevent import time
 from af.orchestrator.app import app
+from gevent import time
 
 
 @app.task(name="common_task")

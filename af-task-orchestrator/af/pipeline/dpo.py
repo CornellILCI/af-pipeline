@@ -18,7 +18,11 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
-from af.pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError, MissingTaskParameter
+from af.pipeline.data_reader.exceptions import (
+    DataSourceNotAvailableError,
+    DataTypeNotAvailableError,
+    MissingTaskParameter,
+)
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from af.pipeline.data_reader.models import Experiment, Occurrence
 from af.pipeline.data_reader.models.enums import DataSource, DataType

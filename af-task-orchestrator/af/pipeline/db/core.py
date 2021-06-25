@@ -1,6 +1,7 @@
 from af.pipeline import config
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
+from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+
 
 class DBConfig:
     _engine = None
@@ -12,7 +13,7 @@ class DBConfig:
         DBConfig._engine = create_engine(config.AFDB_URI)
         return DBConfig._engine
 
-    _SessionLocal = None 
+    _SessionLocal = None
 
     def get_session():
         if DBConfig._SessionLocal:
