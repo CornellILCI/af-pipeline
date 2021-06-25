@@ -195,7 +195,7 @@ def get_properties():
                 "pageSize": pageSize,
                 "currentPage": page,
                 "totalCount": count,
-                "totalPages": math.ceil(count / pageSize)
+                "totalPages": math.ceil(count / int(pageSize))
             }
         },
         "result":{"data":props}}), 200
