@@ -37,12 +37,12 @@ TRANSFORM_MSTAT_TAG = {
 }
 
 TRANSFORM_PREDICTION_TAG = {
-    TAG_PREDICT_TABLE = "PredictTable"
-    TAG_CELL = "id"
-    TAG_IDENTIFIER = "id"
-    TAG_PRED_VALUE = "value"
-    TAG_STNDERR = "std_error"
-    TAG_EPCODE = "e_code"
+    TAG_PREDICT_TABLE : "PredictTable"
+    TAG_CELL : "id"
+    TAG_IDENTIFIER : "id"
+    TAG_PRED_VALUE : "value"
+    TAG_STNDERR : "std_error"
+    TAG_EPCODE : "e_code"
 }
 
 class ASRemlContentHandler(xml.sax.ContentHandler):
