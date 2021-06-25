@@ -2,6 +2,7 @@ import xml.sax
 
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
 from af.pipeline.db.models import ModelStat, Variance
+from af.pipeline.db.core import DBConfig
 
 
 def get_file_parser():
@@ -12,7 +13,8 @@ def get_file_parser():
 
 def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwargs):
     """Service func to process asreml result and save to db"""
-
+    if not session:
+        session = DBConfig.get_session()
     parser = get_file_parser()
     ch = ASRemlContentHandler(job_id)
     parser.setContentHandler(ch)

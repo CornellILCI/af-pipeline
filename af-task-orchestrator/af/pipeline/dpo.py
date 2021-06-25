@@ -23,7 +23,7 @@ from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from af.pipeline.data_reader.models import Experiment, Occurrence
 from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
-from af.pipeline.db.core import SessionLocal
+from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import Property
 from af.pipeline.exceptions import InvalidAnalysisRequest
 from af.pipeline.pandasutil import df_keep_columns
@@ -46,7 +46,7 @@ class ProcessData:
 
         self.occurrence_ids = analysis_request.occurrenceIds
         self.trait_ids = analysis_request.traitIds
-        self.db_session = SessionLocal()
+        self.db_session = DBConfig.get_session()
 
         self.analysis_fields = None
         self.input_fields_to_config_fields = None

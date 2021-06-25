@@ -187,7 +187,7 @@ class Variance(Base):
     creation_timestamp = Column(DateTime)  #  timestamp without time zone NOT NULL DEFAULT now(),
     modification_timestamp = Column(DateTime)  # timestamp without time zone,
     creator_id = Column(Integer, nullable=False)  # integer NOT NULL,
-    modifier_id = (Column(Integer),)
+    modifier_id = Column(Integer)
     is_void = Column(Boolean, nullable=False, default=False)
     job_id = Column(Integer)
 

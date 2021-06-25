@@ -17,10 +17,7 @@ def engine():
 
 @pytest.fixture(scope="session")
 def tables(engine):
-    print("Creating all tables")
     Base.metadata.create_all(engine)
-    for t in Base.metadata.sorted_tables:
-        print(t.name)
     yield
     Base.metadata.drop_all(engine)
 
@@ -30,8 +27,6 @@ def dbsession(engine, tables):
     connection = engine.connect()
     transaction = connection.begin()
     session = scoped_session(sessionmaker(bind=connection))
-
     yield session
-    print("End session")
     transaction.rollback()
     connection.close()

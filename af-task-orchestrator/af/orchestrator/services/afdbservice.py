@@ -1,12 +1,12 @@
 import datetime
 
-from af.orchestrator.db import get_session
+from af.pipeline.db.core import DBConfig
 from af.orchestrator.db.models import Request, Task
 
 
 class AFDBService:
     def __init__(self, _session=None):
-        self._session = _session or get_session()
+        self._session = _session or DBConfig.get_session()
 
     def get_af_request(self, request_uuid):
         return self._session.query(Request).filter_by(uuid=request_uuid).first()

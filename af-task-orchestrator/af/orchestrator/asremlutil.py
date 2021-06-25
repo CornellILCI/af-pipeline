@@ -10,7 +10,6 @@ import os
 import docker
 
 import af.pipeline.asreml.services as asreml_service
-from af.orchestrator.db import db_session
 
 
 def get_docker_url():
@@ -77,5 +76,5 @@ def write_input_file(filename: str, content):
         f.write(content)
 
 
-def parse_asremlr(job_id: int, filename: str):
-    asreml_service.process_asreml_result(db_session, job_id, filename)
+def parse_asremlr( job_id: int, filename: str):
+    asreml_service.process_asreml_result(None, job_id, filename)
