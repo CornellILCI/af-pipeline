@@ -4,6 +4,8 @@ import uuid as uuidlib
 
 import celery_util
 from database import Property, db
+import math
+
 from dto.requests import AnalysisRequestParameters
 from dto.responses import AnalysisRequest
 from flask import jsonify, render_template, request
@@ -11,6 +13,7 @@ from flask.blueprints import Blueprint
 from pydantic import ValidationError
 from services.afdb_service import select_analysis_configs, select_property_by_code
 from sqlalchemy import text
+from services.afdb_service import select_property_by_code, select_analysis_configs, count_property_by_code, count_analysis_configs
 
 af_apis = Blueprint("af", __name__, url_prefix='/v1')
 
@@ -57,10 +60,10 @@ def get_data_source():
 @af_apis.route("/analysis-configs", methods=["GET"])
 def get_analysis_configs():
 
-    page = None if not request.args.get("page") else int(request.args.get("page"))
+    page = None if not request.args.get("page", 0) else int(request.args.get("page", 0))
     if not page or page < 0:
         page = 0
-    pageSize = None if not request.args.get("pageSize") else int(request.args.get("pageSize"))
+    pageSize = None if not request.args.get("pageSize", 1000) else int(request.args.get("pageSize", 1000))
     if not pageSize or pageSize < 1:
         pageSize = 1000
 
@@ -121,7 +124,7 @@ def get_analysis_configs():
         pagination = {
             "totalCount": len(models),
             "pageSize": pageSize,
-            "totalPages": len(models) / pageSize,
+            "totalPages": math.ceil(len(models) / pageSize),
             "currentPage": page,
         }
         result["metadata"] = {"pagination" : pagination}
@@ -149,10 +152,10 @@ def testredirect():
 
 @af_apis.route("/properties")
 def get_properties():
-    page = request.args.get("page")
+    page = request.args.get("page", 0)
     if not page:
         page = 0
-    pageSize = request.args.get("pageSize")
+    pageSize = request.args.get("pageSize", 1000)
     if not pageSize:
         pageSize = 1000
 
@@ -165,6 +168,8 @@ def get_properties():
         return jsonify({"errorMsg": "invalid propertyRoot"}), 400
 
     result = select_property_by_code(propertyRoot, pageSize, int(pageSize) * int(page))
+    count = count_property_by_code(propertyRoot)
+
     props = []
     for row in result:
         
@@ -188,7 +193,9 @@ def get_properties():
     return jsonify({"metadata": {
             "pagination": {
                 "pageSize": pageSize,
-                "currentPage": page
+                "currentPage": page,
+                "totalCount": count,
+                "totalPages": math.ceil(count / pageSize)
             }
         },
         "result":{"data":props}}), 200
@@ -196,12 +203,25 @@ def get_properties():
 
 @af_apis.route("/analysis-configs/<analysisConfigId>/formulas")
 def get_analysis_config_formulas(analysisConfigId):
+    try:
+        page = int(request.args.get('page', 0))
+    except ValueError:
+        page = 0
+    if not page or not isinstance(page, int) or page < 0 : page = 0
+    
+    try:
+        pageSize = int(request.args.get('pageSize', 1000))
+    except ValueError:
+        pageSize = 1000
+        
     page = request.args.get('page')
-    if not page or not isinstance(page, (int, long)) or page < 0 : page = 0
+    if not page or not isinstance(page, int) or page < 0 : page = 0
     pageSize = request.args.get('pageSize') 
-    if not pageSize or not isinstance(pageSize, (int, long)) or pageSize <= 0 : pageSize = 1000
+    if not pageSize or not isinstance(pageSize, int) or pageSize <= 0 : pageSize = 1000
 
-    result = select_analysis_configs(analysisConfigId, pageSize, pageSize*page, "formula");
+    result = select_analysis_configs(analysisConfigId, pageSize, pageSize*page, "formula")
+    count = count_analysis_configs(analysisConfigId, "formula")
+    
     ret = []
     for row in result:
         temp = row.values()
@@ -223,7 +243,9 @@ def get_analysis_config_formulas(analysisConfigId):
     return jsonify({"metadata": {
         "pagination": {
             "pageSize": pageSize,
-            "currentPage": page
+            "currentPage": page,
+            "totalCount": count,
+            "totalPages": math.ceil(count / pageSize)
             }
         },
         "result":{"data":ret}}), 200
@@ -231,12 +253,22 @@ def get_analysis_config_formulas(analysisConfigId):
 
 @af_apis.route("/analysis-configs/<analysisConfigId>/residuals")
 def get_analysis_config_residuals(analysisConfigId):
-    page = request.args.get('page')
-    if not page or not isinstance(page, (int, long)) or page < 0 : page = 0
-    pageSize = request.args.get('pageSize') 
-    if not pageSize or not isinstance(pageSize, (int, long)) or pageSize <= 0 : pageSize = 1000
+    try:
+        page = int(request.args.get('page', 0))
+    except ValueError:
+        page = 0
+    if not page or not isinstance(page, int) or page < 0 : page = 0
+    
+    try:
+        pageSize = int(request.args.get('pageSize', 1000))
+    except ValueError:
+        pageSize = 1000
 
-    result = select_analysis_configs(analysisConfigId, pageSize, pageSize*page, "residual");
+    if not pageSize or not isinstance(pageSize, int) or pageSize <= 0 : pageSize = 1000
+
+    result = select_analysis_configs(analysisConfigId, pageSize, pageSize*page, "residual")
+    count = count_analysis_configs(analysisConfigId, "residual")
+
     ret = []
     for row in result:
         temp = row.values()
@@ -260,7 +292,9 @@ def get_analysis_config_residuals(analysisConfigId):
     return jsonify({"metadata": {
         "pagination": {
             "pageSize": pageSize,
-            "currentPage": page
+            "currentPage": page,
+            "totalCount": count,
+            "totalPages": math.ceil(count / pageSize)
             }
         },
         "result":{"data":ret}}), 200

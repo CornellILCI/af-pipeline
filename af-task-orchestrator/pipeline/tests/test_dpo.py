@@ -23,7 +23,7 @@ def get_job_file_template():
         "\trow !I \n"
         "\trep !A \n"
         "{trait_abbreviation}\n"
-        "{job_file_id}.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
+        "{job_file_path}.csv !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 "
         "!MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER\n"
         "tabulate {trait_abbreviation} ~ entry\n"
         "{trait_abbreviation} ~ mu rep !r entry !f mv\n"
@@ -197,6 +197,7 @@ class TestProcessData(TestCase):
 
         expected_job_file_1 = get_job_file_template().format(
             job_file_id="test_id_1",
+            job_file_path=f"{output_folder.name}/test_id_1",
             trait_abbreviation="trait_abbrev_1",
         )
 
@@ -301,16 +302,19 @@ class TestProcessData(TestCase):
 
         expected_job_file_1 = get_job_file_template().format(
             job_file_id="test_id_1",
+            job_file_path="{output_folder.name}/test_id_1",
             trait_abbreviation="trait_abbrev_1",
         )
 
         expected_job_file_1 = get_job_file_template().format(
             job_file_id="test_id_1_1",
+            job_file_path=f"{output_folder.name}/test_id_1_1",
             trait_abbreviation="trait_abbrev_1",
         )
 
         expected_job_file_2 = get_job_file_template().format(
             job_file_id="test_id_2_1",
+            job_file_path=f"{output_folder.name}/test_id_2_1",
             trait_abbreviation="trait_abbrev_1",
         )
 

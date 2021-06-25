@@ -1,0 +1,178 @@
+{
+    "metadata": {
+      "Rversion": "4.0.2",
+      "date": "07-Mar-2021",
+      "author": "Pedro Augusto Medeiros Barbosa",
+      "email": "p.medeiros@cgiar.org",
+      "syntax": "Rscript randAugUnrep.R --entryList 'AugUnrep_SD_0001.lst' --nTrial 3 --pCheck 10 --nFieldCol 20",
+      "engine": "R 4.0.2", 
+      "method": "randAUGUNREP",
+      "design": "Augmented Design diagonal checks",
+      "modelVersion": 1,
+      "organization_code" : "CIMMYT", 
+      "note": null
+    },
+    "parameters": {
+      "input": {
+        "nTrial": {
+          "variable_label": "No. of Occurrences",
+          "description": "Number of occurrence reps within the experiment",
+          "visible": "T",
+          "minimum": 1,
+          "maximum": null,
+          "unit": null,
+          "values": null,
+          "default": 1,
+          "disabled": "F",
+          "required": "T",
+          "data_type": "integer",
+          "order_number": 1,
+          "variable_abbrev": "OCCURRENCES",
+          "is_layout_variable": "F"
+        },
+        "entryList": {
+          "variable_label": "Entry List",
+          "description": "CSV file with the entries information",
+          "visible": "F",
+          "unit": null,
+          "values": null,
+          "default": null,
+          "disabled": "T",
+          "required": "T",
+          "data_type": "string",
+          "order_number": 2,
+          "variable_abbrev": "entryList",
+          "is_layout_variable": "F",
+          "rule": [
+              {
+                  "order_number": 1,
+                  "type": "validation-design",
+                  "expression": "nCheck>1",
+                  "notification": "Number of check entries should be greater than 1.",
+                  "action": "error"
+                },
+              {
+                  "order_number": 2,
+                  "type": "validation-design",
+                  "expression": "nEntries>50",
+                  "notification": "Number of test entries should be greater than 50.",
+                  "action": "error"
+                }
+          ]
+        },
+        "checkList": {
+          "variable_label": "Check Entry List",
+          "description": "",
+          "visible": "F",
+          "unit": null,
+          "values": null,
+          "default": null,
+          "disabled": "T",
+          "required": "T",
+          "data_type": "string",
+          "order_number": 3,
+          "variable_abbrev": "checkList",
+          "is_layout_variable": "F",
+          "rule": [
+            {
+              "order_number": 1,
+              "type": "validation-design",
+              "expression": "nSpatialCheck>2",
+              "notification": "Number of entries used as spatial checks must be at least 2."
+              "action": "error"
+            }
+          ]
+        }
+        "nFieldCol": {
+          "variable_label": "Columns",
+          "description": "Total number of columns",
+          "visible": "T",
+          "minimum": 10,
+          "maximum": null,
+          "unit": null,
+          "values": null,
+          "default": 20,
+          "disabled": "F",
+          "required": "T",
+          "data_type": "integer",
+          "order_number": 4,
+          "variable_abbrev": "COL",
+          "is_layout_variable": "T"
+        },
+        "pCheck": {
+          "variable_label": "Percentage of check plots",
+          "description": "Percentage of the total plots that spatial check entries will be assigned to (diagonal)",
+          "visible": "T",
+          "minimum": 5,
+          "maximum": 20,
+          "unit": null,
+          "values": {
+            "5%": 5,
+            "6%": 6,
+            "7%": 7,
+            "8%": 8,
+            "9%": 9,
+            "10%": 10,
+            "11%": 11,
+            "12%": 12,
+            "13%": 13,
+            "14%": 14,
+            "15%": 15,
+            "20%": 20
+          },
+          "default": 10,
+          "disabled": "F",
+          "required": "T",
+          "data_type": "integer",
+          "order_number": 5,
+          "variable_abbrev": "check",
+          "is_layout_variable": "T"
+        },
+        "outputFile": {
+          "variable_label": "Output File",
+          "description": "Prefix to be used for the names of the output files",
+          "visible": "F",
+          "minimum": null,
+          "maximum": null,
+          "unit": null,
+          "values": null,
+          "default": null,
+          "disabled": "T",
+          "required": "T",
+          "data_type": "character varying",
+          "order_number": 6,
+          "variable_abbrev": null,
+          "is_layout_variable": "F"
+        },
+        "outputPath": {
+          "variable_label": "Output Path",
+          "description": "Path where output will be saved",
+          "visible": "F",
+          "minimum": null,
+          "maximum": null,
+          "unit": null,
+          "values": null,
+          "default": null,
+          "disabled": "T",
+          "required": "T",
+          "data_type": "character varying",
+          "order_number": 7,
+          "variable_abbrev": null,
+          "is_layout_variable": "F"
+        }
+      },
+      "output": {
+        "DesignArray": {
+          "filetype": "csv",
+          "label": "Randomization Fieldbook file",
+          "description": "spreadsheet file showing the result of  the randomization (and layout, if generated)"
+        },
+        "designInfo": {
+          "filetype": "txt",
+          "label": "Design information file",
+          "description": "contains information on the parameters used to generate the randomization"
+        }
+      }
+    }
+  }
+  

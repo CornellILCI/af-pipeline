@@ -68,9 +68,10 @@ services:
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - BACKEND=rpc://
       - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
-      - ASREML_LICENSE_DIR=asreml_license_dir
-      - ASREML_INPUTS_DIR=asreml_inputs
-      - ASREML_OUTPUTS_DIR=asreml_outputs
+      - ASREML_LICENSE_DIR=/home/asreml/licenses
+      - ASREML_INPUTS_DIR=/home/asreml/inputs 
+      - ASREML_OUTPUTS_DIR=/home/asreml/outputs
+      - ASREML_EXECUTABLE_IMAGE=ebsproject/ba-asreml:21.06 
     links:
       - rabbitmq
     depends_on:
