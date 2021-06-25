@@ -1,22 +1,19 @@
 #!/usr/bin/env python3
 
 import argparse
-import hashlib
 import json
 import os
-import re
 import subprocess
 import sys
-from collections import OrderedDict
 from datetime import datetime
 from os import path
 
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
     file_dir = path.dirname(os.path.realpath(__file__))
-    af.pipeline_dir = path.dirname(file_dir)
+    pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import dpo, utils
+from af.pipeline import config, dpo, utils
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db import services as db_services
@@ -80,7 +77,7 @@ def run(analysis_request: AnalysisRequest):
         db_session, analysis_request.analysisConfigPropertyId, "engine"
     )
 
-    analysis_engine = analysis_engine_meta.value.lower()
+    analysis_engine = config.get_analysis_engine_script(analysis_engine_meta.value)
 
     for job_input_file in job_input_files:
 
@@ -102,11 +99,11 @@ def run(analysis_request: AnalysisRequest):
         job = db_services.add(db_session, job)
         try:
             cmd = [analysis_engine, asreml_job_file, data_file]
-            run_result = subprocess.run(cmd, capture_output=True, shell=True)
+            run_result = subprocess.run(cmd, capture_output=True)
         except Exception as e:
             analysis.status = "FAILED"
             job.status = "FAILED"
-            job.status_message = str(e)
+            job.status_message = str(e)[:50]  # TODO: Change job status field to text in database.
             job.time_end = datetime.utcnow()
             job.modification_timestamp = datetime.utcnow()
             db_session.commit()
@@ -115,7 +112,7 @@ def run(analysis_request: AnalysisRequest):
         job.status = utils.get_job_status(run_result.stdout, run_result.stderr)
 
         if job.status > 100:
-            job.status_message = run_result.stderr.decode("utf-8")
+            job.status_message = run_result.stderr.decode("utf-8")[:50]
         job.modification_timestamp = datetime.utcnow()
         job.time_end = datetime.utcnow()
 
@@ -123,7 +120,7 @@ def run(analysis_request: AnalysisRequest):
 
         db_session.commit()
 
-    analysis.status = "completed"
+    analysis.status = "COMPLETED"
     analysis.modification_timestamp = datetime.utcnow()
     db_session.commit()
     return 0
