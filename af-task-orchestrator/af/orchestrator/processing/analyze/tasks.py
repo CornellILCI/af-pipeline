@@ -4,7 +4,7 @@ from af.orchestrator.base import ResultReportingTask
 from af.orchestrator.exceptions import MissingTaskParameter
 from af.pipeline.data_reader.models.enums import DataSource, DataType
 
-from af.pipeline import analyze as af.pipeline_analyze
+from af.pipeline import analyze as pipeline_analyze
 
 from af.pipeline.analysis_request import AnalysisRequest
 
@@ -28,4 +28,4 @@ def analyze(request_id: str, request_params):
     analysis_request = AnalysisRequest(requestId=request_id, outputFolder=output_folder, **request_params)
 
     # TODO: Condition to check executor is celery, If executor is slurm, submit analyze script as sbatch
-    result = af.pipeline_analyze.run(analysis_request)
+    result = pipeline_analyze.run(analysis_request)

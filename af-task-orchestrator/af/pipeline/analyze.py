@@ -20,7 +20,7 @@ from af.pipeline import dpo, utils
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db import services as db_services
-from af.pipeline.db.core import get_session
+from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import Analysis, Job
 from af.pipeline.exceptions import AnalysisError, DpoException, InvalidAnalysisRequest
 
@@ -39,7 +39,7 @@ def run(analysis_request: AnalysisRequest):
 
     request_id = analysis_request.requestId
 
-    db_session = get_session()
+    db_session = DBConfig.get_session()
 
     # Request source
     _request = db_services.get_request(db_session, analysis_request.requestId)
