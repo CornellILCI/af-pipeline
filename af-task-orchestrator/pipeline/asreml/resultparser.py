@@ -36,6 +36,14 @@ TRANSFORM_MSTAT_TAG = {
     TAG_REML_LOGL: "log_lik",
 }
 
+TRANSFORM_PREDICTION_TAG = {
+    TAG_PREDICT_TABLE = "PredictTable"
+    TAG_CELL = "id"
+    TAG_IDENTIFIER = "id"
+    TAG_PRED_VALUE = "value"
+    TAG_STNDERR = "std_error"
+    TAG_EPCODE = "e_code"
+}
 
 class ASRemlContentHandler(xml.sax.ContentHandler):
     """ASRreml Result XML file content handler
@@ -54,6 +62,9 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         self.variances = []
         self.REML_LogL = None  # for storing the last REML_LogL
         self.model_stat = {}
+
+        self.prediction = {}
+
         self.current_variance = None
         self.current_key = None
         self.current_content = ""
@@ -105,6 +116,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
                 self.in_conclusion = False
 
         self.current_content = ""
+
 
     def characters(self, content):
         if self.in_vparameter or self.in_info_criteria or self.in_a_reml_logl or self.in_conclusion:
