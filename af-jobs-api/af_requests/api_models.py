@@ -2,16 +2,16 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
 from common.api_models import (
-    DataSource,
     AnalysisType,
-    Status,
+    DataSource,
+    ErrorResponse,
     Metadata,
     PaginationQueryParameters,
-    ErrorResponse,
+    Status,
     create_metadata,
 )
+from pydantic import BaseModel, Field
 
 
 class AnalysisRequest(BaseModel):

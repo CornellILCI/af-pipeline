@@ -1,16 +1,16 @@
 import json
 import pathlib
+import uuid as uuidlib
 
 import celery_util
-import uuid as uuidlib
-from database import db, Property
+from database import Property, db
 from dto.requests import AnalysisRequestParameters
 from dto.responses import AnalysisRequest
 from flask import jsonify, render_template, request
 from flask.blueprints import Blueprint
 from pydantic import ValidationError
+from services.afdb_service import select_analysis_configs, select_property_by_code
 from sqlalchemy import text
-from services.afdb_service import select_property_by_code, select_analysis_configs
 
 af_apis = Blueprint("af", __name__, url_prefix='/v1')
 

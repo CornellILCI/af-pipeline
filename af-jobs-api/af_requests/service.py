@@ -1,12 +1,10 @@
+import json
 import uuid as uuidlib
 
 import celery_util
-from database import db
-from af_requests import models as db_models
-
-import json
-
 from af_requests import api_models
+from af_requests import models as db_models
+from database import db
 
 
 def submit_analysis_request(request_data: api_models.AnalysisRequestParameters):

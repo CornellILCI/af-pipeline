@@ -1,10 +1,10 @@
 from functools import wraps
-from flask import request, jsonify
-
-from pydantic import ValidationError
-from common import api_models
-
 from http import HTTPStatus
+
+from common import api_models
+from flask import jsonify, request
+from pydantic import ValidationError
+
 
 def validate_api_request(query_model=None, body_model=None):
     """Validate api requests query and body parameters for given

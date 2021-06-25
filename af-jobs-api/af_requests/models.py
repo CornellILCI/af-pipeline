@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from database import db
 from dataclasses import dataclass
+
+from database import db
 from sqlalchemy.sql import func
 
 

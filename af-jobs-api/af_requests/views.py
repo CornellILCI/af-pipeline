@@ -1,12 +1,10 @@
 from http import HTTPStatus
 
-from af_requests import service, api_models
-from flask import request, jsonify
-
-from flask.blueprints import Blueprint
+from af_requests import api_models, service
 from common.validators import validate_api_request
-
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+from flask import jsonify, request
+from flask.blueprints import Blueprint
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 af_requests_bp = Blueprint("af_requests", __name__, url_prefix="/v1/requests")
 
