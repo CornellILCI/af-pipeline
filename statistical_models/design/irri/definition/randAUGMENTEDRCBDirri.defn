@@ -1,19 +1,49 @@
 {
   "metadata": {
-    "Rversion": "3.5.1",
-    "date": "23-Oct-2020",
+    "Rversion": "4.0.3",
+    "date": "23-Jan-2021",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" --nTrial 3 --nRep 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 --serpentine T -o 'Output3' -p 'D:/Results'",
-	"engine": "R 3.4.4", 
+    "engine": "R 4.0.3", 
     "method": "randAUGMENTEDRCBDirri",
     "design": "Augmented RCBD",
-	"modelVersion": 2,
+    "modelVersion": 3,
     "organization_code" : "IRRI", 
     "note": null
   },
   "parameters": {
     "input": {
+      "entryList": {
+        "variable_label": "Entry List",
+        "description": "CSV file with the entries information",
+        "visible": "F",
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "T",
+        "required": "T",
+        "data_type": "string",
+        "order_number": 1,
+        "variable_abbrev": "entryList",
+        "is_layout_variable": "F",
+        "rule": [
+          {
+            "order_number": 1,
+            "type": "validation-design",
+            "expression": "nCheck>1",
+            "notification": "Number of check entries should be greater than 1.",
+            "action": "error"
+          },
+          {
+            "order_number": 2,
+            "type": "validation-design",
+            "expression": "nEntries>1",
+            "notification": "Number of test entries should be greater than 1.",
+            "action": "error"
+          }
+        ]
+      },
       "nTrial": {
         "variable_label": "No. of Occurrences",
         "description": "Number of occurrence reps within the experiment",
@@ -26,39 +56,9 @@
         "disabled": "F",
         "required": "T",
         "data_type": "integer",
-        "order_number": 1,
+        "order_number": 2,
         "variable_abbrev": "OCCURRENCES",
         "is_layout_variable": "F"
-      },
-      "entryList": {
-        "variable_label": "Entry List",
-        "description": "CSV file with the entries information",
-        "visible": "F",
-        "unit": null,
-        "values": null,
-        "default": null,
-        "disabled": "T",
-        "required": "T",
-        "data_type": "string",
-        "order_number": 2,
-        "variable_abbrev": "entryList",
-        "is_layout_variable": "F",
-		"rule": [
-			{
-				"order_number": 1,
-				"type": "validation-design",
-				"expression": "nCheck>1",
-				"notification": "Number of check entries should be greater than 1.",
-				"action": "error"
-          	},
-			{
-				"order_number": 2,
-				"type": "validation-design",
-				"expression": "nEntries>1",
-				"notification": "Number of test entries should be greater than 1.",
-				"action": "error"
-          	}
-        ]
       },
       "nRep": {
         "variable_label": "No. of Replicates",
@@ -75,28 +75,28 @@
         "order_number": 4,
         "variable_abbrev": "REPLICATION_BLOCK",
         "is_layout_variable": "F",
-		"rule": [
-			{
-				"order_number": 1,
-				"type": "validation-design",
-				"expression": "factor(nEntries)",
-				"notification": "Should be a factor of the number of test entries.",
-				"action": "error"
-          	},
-			{
-				"order_number": 2,
-				"type": "default-value",
-				"expression": "min(factor(Entries))>1",
-				"notification": null,
-				"action": null
-          	},
-			{
-				"order_number": 3,
-				"type": "validation-design",
-				"expression": "value>=((12/(nCheck-1))+1)",
-				"notification": "The error degrees of freedom associated with number of check entries should be at most 12.",
-				"action": "warning"
-          	}
+        "rule": [
+          {
+            "order_number": 1,
+            "type": "validation-design",
+            "expression": "factor(nEntries)",
+            "notification": "Number of replicates should be a factor of the number of test entries.",
+            "action": "error"
+          },
+          {
+            "order_number": 2,
+            "type": "default-value",
+            "expression": "min(factor(Entries))>1",
+            "notification": null,
+            "action": null
+          },
+          {
+            "order_number": 3,
+            "type": "validation-design",
+            "expression": "value>=((12/(nCheck-1))+1)",
+            "notification": "The error degrees of freedom associated with number of check entries should be at most 12.",
+            "action": "warning"
+          }
         ]
       },
       "genLayout": {
@@ -130,14 +130,14 @@
         "order_number": 6,
         "variable_abbrev": "NO_OF_ROWS_PER_BLOCK",
         "is_layout_variable": "T",
-		"rule": [
-			{
-				"order_number": 1,
-				"type": "allowed-value",
-				"expression": "factor(nCheck+(nEntries/nRep))",
-				"notification": null,
-				"action": null
-          	}
+        "rule": [
+          {
+            "order_number": 1,
+            "type": "allowed-value",
+            "expression": "factor(nCheck+(nEntries/nRep))",
+            "notification": null,
+            "action": null
+          }
         ]
       },
       "nFieldRow": {
@@ -155,14 +155,14 @@
         "order_number": 7,
         "variable_abbrev": "ROW",
         "is_layout_variable": "T",
-		"rule": [
-			{
-				"order_number": 1,
-				"type": "validation-design",
-				"expression": "factor(nRep)*nRowPerRep",
-				"notification": null,
-				"action": null
-          	}
+        "rule": [
+          {
+            "order_number": 1,
+            "type": "validation-design",
+            "expression": "factor(nRep)*nRowPerRep",
+            "notification": null,
+            "action": null
+          }
         ]
       },
       "serpentine": {
@@ -173,13 +173,15 @@
         "maximum": null,
         "unit": null,
         "values": {
-          "F": "Plot Order",
-          "T": "Serpentine"
+          "CS": "Column Serpentine",
+          "C0": "Column Order",
+          "RS": "Row Serpentine",
+          "RO": "Row Order"
         },
-        "default": "F",
+        "default": "null",
         "disabled": "F",
         "required": "T",
-        "data_type": "boolean",
+        "data_type": "character",
         "order_number": 8,
         "variable_abbrev": "FLD_ORDER",
         "is_layout_variable": "T"

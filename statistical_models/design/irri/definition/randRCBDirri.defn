@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "Rversion": "3.5.1",
-    "date": "26-Oct-2020",
+    "Rversion": "4.0.3",
+    "date": "26-Jan-2021",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randRCBDirri.R --entryList 'RCBD_SD_0001.lst' --nTrial 3 --nRep 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randRCBDirri.R --entryList 'RCBD_SD_0001.lst' --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 5 --nFieldRow 5 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randRCBDirri.R --entryList 'RCBD_SD_0001.lst' --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 5 --nFieldRow 5 --serpentine T -o 'Output3' -p 'D:/Results'",
@@ -14,6 +14,29 @@
   },
   "parameters": {
     "input": {
+      "entryList": {
+        "variable_label": "Entry List",
+        "description": "CSV file with the entries information",
+        "visible": "F",
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "T",
+        "required": "T",
+        "data_type": "string",
+        "order_number": 1,
+        "variable_abbrev": "entryList",
+        "is_layout_variable": "F",
+        "rule": [
+          {
+            "order number": 1,
+            "type": "validation-design",
+            "expression": "totalEntries<=30",
+            "notification": "Total number of entries is too large for a RCBD. Consider selecting a more appropriate design.",
+            "action": "warning"
+          }
+        ]
+      },
       "nTrial": {
         "variable_label": "No. of Occurrences",
         "description": "Number of occurrences within the experiment",
@@ -26,33 +49,10 @@
         "disabled": "F",
         "required": "T",
         "data_type": "integer",
-        "order_number": 1,
+        "order_number": 2,
         "variable_abbrev": "OCCURRENCES",
         "is_layout_variable": "F"
       },
-      "entryList": {
-        "variable_label": "Entry List",
-        "description": "CSV file with the entries information",
-        "visible": "F",
-        "unit": null,
-        "values": null,
-        "default": null,
-        "disabled": "T",
-        "required": "T",
-        "data_type": "string",
-        "order_number": 2,
-        "variable_abbrev": "entryList",
-        "is_layout_variable": "F",
-		"rule": [
-			{
-				"order number": 1,
-				"type": "validation-design",
-				"expression": "totalEntries<=30",
-				"notification": "Total number of entries is too large for a RCBD. Consider selecting a more appropriate design.",
-				"action": "warning"
-			}
-		]
-	  },
       "nRep": {
         "variable_label": "No. of Replicates",
         "description": "Number of replicates",
@@ -100,15 +100,15 @@
         "order_number": 5,
         "variable_abbrev": "NO_OF_ROWS_PER_BLOCK",
         "is_layout_variable": "T",
-		"rule": [
-			{
-				"order_number": 1,
-				"type": "allowed-value",
-				"expression": "factor(totalEntries)",
-				"notification": null,
-				"action": null
-			}
-		]
+        "rule": [
+          {
+            "order_number": 1,
+            "type": "allowed-value",
+            "expression": "factor(totalEntries)",
+            "notification": null,
+            "action": null
+          }
+        ]
       },
       "nFieldRow": {
         "variable_label": "Rows",
@@ -125,15 +125,15 @@
         "order_number": 6,
         "variable_abbrev": "ROW",
         "is_layout_variable": "T",
-		"rule": [
-			{
-				"order_number": 1,
-				"type": "allowed-value",
-				"expression": "factor(nRep)*nRowPerRep",
-				"notification": null,
-				"action": null
-          	}
-		]
+        "rule": [
+          {
+            "order_number": 1,
+            "type": "allowed-value",
+            "expression": "factor(nRep)*nRowPerRep",
+            "notification": null,
+            "action": null
+          }
+        ]
       },
       "serpentine": {
         "variable_label": "Field Order",
@@ -143,13 +143,15 @@
         "maximum": null,
         "unit": null,
         "values": {
-          "F": "Plot Order",
-          "T": "Serpentine"
+          "CS": "Column Serpentine",
+          "C0": "Column Order",
+          "RS": "Row Serpentine",
+          "RO": "Row Order"
         },
-        "default": "F",
+        "default": "null",
         "disabled": "F",
         "required": "T",
-        "data_type": "boolean",
+        "data_type": "character",
         "order_number": 7,
         "variable_abbrev": "FLD_ORDER",
         "is_layout_variable": "T"
