@@ -17,7 +17,6 @@ TAG_CONCLUSION = "Conclusion"
 TAG_BAYESIAN = "Bayesian"
 TAG_PCOUNT = "ParameterCount"
 
-
 TRANSFORM_VARIANCE_TAG = {
     TAG_SOURCE: "source",
     TAG_VCSTRUCTURE: "model",
@@ -47,7 +46,6 @@ TRANSFORM_PREDICTION_TAG = {
 
 class ASRemlContentHandler(xml.sax.ContentHandler):
     """ASRreml Result XML file content handler
-
     >>> import xml.sax
     >>> parser = xml.sax.make_parser()
     >>> parser.setFeature(xml.sax.handler.feature_namespaces, 0)
@@ -56,13 +54,12 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
     >>> parser.parse("/path/to/result.xml")
     >>> print(handler.variances)   # list of dicts of variance data
     >>> print(handler.model_stat)  # contains dict of model_stat data
-
+    >>> print(handler.prediction)  # contains dict of model_stat data
     """
     def __init__(self):
         self.variances = []
         self.REML_LogL = None  # for storing the last REML_LogL
         self.model_stat = {}
-
         self.prediction = {}
 
         self.current_variance = None
@@ -93,6 +90,8 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
                 self.in_a_reml_logl = True
             elif tag == TAG_CONCLUSION:
                 self.in_conclusion = True
+        elif tag in TRANSFORM_PREDICTION_TAG:
+            self.current_key = TRANSFORM_PREDICTION_TAG.get(tag)
 
     def endElement(self, tag):
         if tag == TAG_VARIANCE_COMPONENTS:
@@ -114,6 +113,8 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             elif tag == TAG_CONCLUSION:
                 self.model_stat["converged"] = str(self.model_stat[self.current_key]).lower() == "logl converged"
                 self.in_conclusion = False
+        elif tag in TRANSFORM_PREDICTION_TAG:
+            self.prediction = False
 
         self.current_content = ""
 

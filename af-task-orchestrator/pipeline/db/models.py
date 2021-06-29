@@ -180,7 +180,11 @@ class ModelStat(Base):
     job_id = Column(Integer)
 
 class Prediction(Base):
+    __tablename__ = "prediction"
+    __table_args__ = {"schema": "af"}
+
     id = Column(Integer, primary_key=True)
+
     value = Column(Float),
     std_error = Column(Float),
     e_code = Column(String(50)),
