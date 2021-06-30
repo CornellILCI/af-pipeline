@@ -75,7 +75,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         self.current_variance = None
         self.current_key = None
         self.current_content = ""
-        self.current_prediction = None
+        self.current_prediction = {}
         self.predictions = []
         self.prow = None
         self.in_prediction_components = False
@@ -107,11 +107,13 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
                 self.in_a_reml_logl = True
             elif tag == TAG_CONCLUSION:
                 self.in_conclusion = True
-        elif tag == TAG_PREDICTION_COMPONENTS:
+        elif tag == TAG_PREDICT_TABLE:
             self.in_prediction_components = True
         elif tag == TAG_PROW and self.in_prediction_components:
             self.in_prow = True
             self.current_prediction = {} # start a new prediction object
+        elif tag in TRANSFORM_PREDICTION_TAG:
+            self.current_key = TRANSFORM_PREDICTION_TAG.get(tag)
 
     def endElement(self, tag):
         if tag == TAG_VARIANCE_COMPONENTS:
@@ -133,7 +135,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             elif tag == TAG_CONCLUSION:
                 self.model_stat["converged"] = str(self.model_stat[self.current_key]).lower() == "logl converged"
                 self.in_conclusion = False
-        if tag == TAG_PREDICTION_COMPONENTS:
+        if tag == TAG_PREDICT_TABLE:
             self.in_prediction_components = False
         elif tag == TAG_PROW and self.in_prediction_components:
             # get current_varariance and store in variances
@@ -147,5 +149,5 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         self.current_content = ""
 
     def characters(self, content):
-        if self.in_vparameter or self.in_info_criteria or self.in_a_reml_logl or self.in_conclusion:
+        if self.in_vparameter or self.in_info_criteria or self.in_a_reml_logl or self.in_conclusion or self.in_prow:
             self.current_content += content

@@ -32,8 +32,9 @@ def test_simple_test_1(sample_asreml_result_string_1):
     assert handler.model_stat["bic"] == "799.2775"
     assert handler.model_stat["components"] == "3"
 
+    # Compare the first Prow element
     assert len(handler.predictions) == 180
     assert handler.predictions[0]["e_code"] == "E"
-    assert handler.predictions[0]["std_error"] == "0.1288585"
-    assert handler.predictions[0]["value"] == "6.6330"
-    assert handler.predictions[0]["id"] == "52"
+    assert handler.predictions[0]["std_error"] == "0.0846111"
+    assert handler.predictions[0]["value"] == "6.6159"
+    assert handler.predictions[0]["id"] == "1"
