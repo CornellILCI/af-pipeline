@@ -209,3 +209,22 @@ class ModelStat(Base):
     modifier_id = Column(Integer)
     is_void = Column(Boolean, nullable=False, default=False)
     job_id = Column(Integer)
+
+class Prediction(Base):
+    __tablename__ = "prediction"
+    __table_args__ = {"schema": "af"}
+
+    id = Column(Integer, primary_key=True)
+
+    value = Column(Float),
+    std_error = Column(Float),
+    e_code = Column(String(50)),
+    ci95_upper = Column(Float),
+    ci95_lower = Column(Float),
+    tenant_id = Column(Integer, nullable=False),
+    creation_timestamp = Column(DateTime), # timestamp without time zone NOT NULL DEFAULT now(),
+    modification_timestamp = Column(DateTime)  # timestamp without time zone,
+    creator_id = Column(Integer, nullable=False),
+    modifier_id = Column(Integer),
+    is_void = Column(Boolean, nullable=False, default=False)
+    job_stat_factor_id  = Column(Integer)
