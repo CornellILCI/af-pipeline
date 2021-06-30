@@ -32,8 +32,8 @@ def test_simple_test_1(sample_asreml_result_string_1):
     assert handler.model_stat["bic"] == "799.2775"
     assert handler.model_stat["components"] == "3"
 
-    assert handler.prediction["id"][0] == "52"
-    assert handler.prediction["value"][0] == "6.6330"
-    assert handler.prediction["std_error"][0] == "0.1288585"
-    assert handler.prediction["e_code"][0] == "E"
-    assert len(handler.prediction) == 180
+    assert len(handler.predictions) == 180
+    assert handler.predictions[0]["e_code"] == "E"
+    assert handler.predictions[0]["std_error"] == "0.1288585"
+    assert handler.predictions[0]["value"] == "6.6330"
+    assert handler.predictions[0]["id"] == "52"

@@ -76,7 +76,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         self.current_key = None
         self.current_content = ""
         self.current_prediction = None
-        self.prediction = {}
+        self.predictions = []
         self.prow = None
         self.in_prediction_components = False
         self.in_variance_components = False
@@ -111,7 +111,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.in_prediction_components = True
         elif tag == TAG_PROW and self.in_prediction_components:
             self.in_prow = True
-            self.current_variance = {}  # start a new variance object
+            self.current_prediction = {} # start a new prediction object
 
     def endElement(self, tag):
         if tag == TAG_VARIANCE_COMPONENTS:
@@ -137,11 +137,11 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.in_prediction_components = False
         elif tag == TAG_PROW and self.in_prediction_components:
             # get current_varariance and store in variances
-            self.prediction.append(dict(self.current_prediction))
+            self.predictions.append(dict(self.current_prediction))
             # reset
             self.in_prow = False
             self.current_prediction = None
-        elif tag in TRANSFORM_VARIANCE_TAG:
+        elif tag in TRANSFORM_PREDICTION_TAG :
             self.current_prediction[self.current_key] = str(self.current_content).strip()
 
         self.current_content = ""
