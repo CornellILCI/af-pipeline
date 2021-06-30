@@ -1,6 +1,7 @@
 import xml.sax
 
 TAG_VARIANCE_COMPONENTS = "VarianceComponents"
+TAG_VARIANCE_COMPONENTS = "PredictionComponent"
 TAG_VPARAMETER = "VParameter"
 TAG_SOURCE = "Source"
 TAG_VCSTRUCTURE = "VCStructure"
@@ -16,15 +17,6 @@ TAG_AKAIKE = "Akaike"
 TAG_CONCLUSION = "Conclusion"
 TAG_BAYESIAN = "Bayesian"
 TAG_PCOUNT = "ParameterCount"
-
-TAG_PREDICTION_COMPONENTS = "PredictionComponent"
-TAG_PREDICT_TABLE = "PredictTable"
-TAG_PROW = "Prow"
-TAG_CELL = "Cell"
-TAG_IDENTIFIER = "Identifier"
-TAG_PRED_VALUE = "PredValue"
-TAG_STNDERR = "StndErr"
-TAG_EPCODE = "EPcode"
 
 TRANSFORM_VARIANCE_TAG = {
     TAG_SOURCE: "source",
@@ -45,11 +37,11 @@ TRANSFORM_MSTAT_TAG = {
 }
 
 TRANSFORM_PREDICTION_TAG = {
-    TAG_PREDICT_TABLE : "prediction",
-    TAG_CELL : "id",
-    TAG_IDENTIFIER : "id",
-    TAG_PRED_VALUE : "value",
-    TAG_STNDERR : "std_error",
+    TAG_PREDICT_TABLE : "PredictTable"
+    TAG_CELL : "id"
+    TAG_IDENTIFIER : "id"
+    TAG_PRED_VALUE : "value"
+    TAG_STNDERR : "std_error"
     TAG_EPCODE : "e_code"
 }
 
@@ -70,7 +62,6 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         self.REML_LogL = None  # for storing the last REML_LogL
         self.model_stat = {}
         self.prediction = {}
-        self.prow = None
 
         self.current_variance = None
         self.current_prediction = None
@@ -80,7 +71,6 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         self.in_variance_components = False
         self.in_prediction_components = False
         self.in_vparameter = False
-        self.in_prow = False
 
         self.in_info_criteria = False
         self.in_a_reml_logl = False
@@ -103,13 +93,13 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
                 self.in_a_reml_logl = True
             elif tag == TAG_CONCLUSION:
                 self.in_conclusion = True
-
         elif tag == TAG_PREDICTION_COMPONENTS:
             self.in_prediction_components = True
-        elif tag == TAG_PROW and self.in_prediction_components:
-            self.in_prow = True
-            self.current_variance = {}  # start a new variance object
-
+        elif tag == TAG_VPARAMETER and self.in_prediction_components:
+            self.in_vparameter = True
+            self.current_prediction = {}  # start a new variance object
+        elif tag in TRANSFORM_PREDICTION_TAG:
+            self.current_key = TRANSFORM_PREDICTION_TAG.get(tag)
 
 
     def endElement(self, tag):
@@ -132,19 +122,25 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             elif tag == TAG_CONCLUSION:
                 self.model_stat["converged"] = str(self.model_stat[self.current_key]).lower() == "logl converged"
                 self.in_conclusion = False
+        elif tag == TAG_VARIANCE_COMPONENTS:
+            self.in_variance_components = False
 
-        if tag == TAG_PREDICTION_COMPONENTS:
-            self.in_prediction_components = False
-        elif tag == TAG_PROW and self.in_prediction_components:
+        elif tag == TAG_VPARAMETER and self.in_variance_components:
+            # get current_varariance and store in variances
+            self.variances.append(dict(self.current_variance))
+            # reset
+            self.in_vparameter = False
+            self.current_variance = None
+
+        elif tag == TAG_VARIANCE_COMPONENTS:
+            self.in_variance_components = False
+
+        elif tag == TAG_VPARAMETER and self.in_prediction_components:
             # get current_varariance and store in variances
             self.prediction.append(dict(self.current_prediction))
             # reset
-            self.in_prow = False
+            self.in_vparameter = False
             self.current_prediction = None
-        elif tag in TRANSFORM_VARIANCE_TAG:
-            self.current_prediction[self.current_key] = str(self.current_content).strip()
-
-
 
         self.current_content = ""
 
