@@ -36,6 +36,11 @@ def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParam
 
     query = db_models.Request.query
 
+    # filter only analysis requests. 
+    # Requests submitted by other frameworks have non standardized status fields other than what 
+    # used by af.
+    query = query.filter(db_models.Request.type == "ANALYZE")
+
     if query_params.requestorId:
         query = query.filter(db_models.Request.requestorId == query_params.requestorId)
 
@@ -48,7 +53,6 @@ def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParam
     if query_params.status:
         query = query.filter(db_models.Request.status == query_params.status)
 
-    
     # Get latest requests first
     query = query.order_by(db_models.Request.creation_timestamp.desc())
 
@@ -65,14 +69,14 @@ def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParam
 
     return api_models.AnalysisRequestListResponse(
         metadata=api_models.create_metadata(query_params.page, query_params.pageSize),
-        result=api_models.AnalysisRequestListResponseResult(data=_analysis_requests)
+        result=api_models.AnalysisRequestListResponseResult(data=_analysis_requests),
     )
 
 
 def get_analysis_request_by_id(request_id: str):
-    
+
     analysis_request = db_models.Request.query.filter(db_models.Request.uuid == request_id).one()
-    
+
     return api_models.AnalysisRequestResponse(result=_map_analsysis_request(analysis_request))
 
 
