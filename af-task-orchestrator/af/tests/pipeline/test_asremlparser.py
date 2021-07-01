@@ -11,6 +11,7 @@ def test_simple_test_1(sample_asreml_result_string_1):
     num_vars = len(handler.variances)
     print(handler.variances)
     print(handler.model_stat)
+    # print(handler.predictions)
     assert num_vars == 3, f"Expecting three variances, got {num_vars}"
     assert handler.variances[0]["job_id"] == sample_job_id
     assert handler.variances[0]["source"] == "entry"
@@ -32,7 +33,6 @@ def test_simple_test_1(sample_asreml_result_string_1):
     assert handler.model_stat["bic"] == "799.2775"
     assert handler.model_stat["components"] == "3"
 
-    # Compare the first Prow element
     assert len(handler.predictions) == 180
     assert handler.predictions[0]["e_code"] == "E"
     assert handler.predictions[0]["std_error"] == "0.0846111"
