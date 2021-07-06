@@ -2,12 +2,12 @@ import json
 import uuid as uuidlib
 
 import celery_util
-from af_requests import api_models
-from af_requests import models as db_models
+from af_request import api_models
+from af_request import models as db_models
 from database import db
 
 
-def submit_analysis_request(request_data: api_models.AnalysisRequestParameters):
+def submit(request_data: api_models.AnalysisRequestParameters):
     """Submits analysis request to pipeline."""
 
     req = db_models.Request(
@@ -32,7 +32,7 @@ def submit_analysis_request(request_data: api_models.AnalysisRequestParameters):
     return _map_analsysis_request(req)
 
 
-def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParameters):
+def query(query_params: api_models.AnalysisRequestListQueryParameters):
 
     query = db_models.Request.query
 
@@ -48,7 +48,6 @@ def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParam
     if query_params.status:
         query = query.filter(db_models.Request.status == query_params.status)
 
-    
     # Get latest requests first
     query = query.order_by(db_models.Request.creation_timestamp.desc())
 
@@ -65,18 +64,19 @@ def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParam
 
     return api_models.AnalysisRequestListResponse(
         metadata=api_models.create_metadata(query_params.page, query_params.pageSize),
-        result=api_models.AnalysisRequestListResponseResult(data=_analysis_requests)
+        result=api_models.AnalysisRequestListResponseResult(data=_analysis_requests),
     )
 
 
-def get_analysis_request_by_id(request_id: str):
-    
+def get_by_id(request_id: str):
+
     analysis_request = db_models.Request.query.filter(db_models.Request.uuid == request_id).one()
-    
+
     return api_models.AnalysisRequestResponse(result=_map_analsysis_request(analysis_request))
 
 
 def _map_analsysis_request(req):
+    """Maps the db result to the Result model."""
     return api_models.AnalysisRequest(
         requestId=req.uuid,
         crop=req.crop,

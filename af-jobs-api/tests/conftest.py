@@ -2,8 +2,8 @@ import tempfile
 
 import pytest
 from af_endpoints import af_apis
-from af_requests.models import Request
-from af_requests.views import af_requests_bp
+from af_request.models import Request
+from af_request.views import af_requests_bp
 from database import db as _db
 
 from api import create_app

@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from af_requests import api_models, service
+from af_request import api_models, service
 from common.validators import validate_api_request
 from flask import jsonify, request
 from flask.blueprints import Blueprint
@@ -16,7 +16,7 @@ def post():
 
     request_data: api_models.AnalysisRequestParameters = api_models.AnalysisRequestParameters(**request.json)
 
-    submitted_request: api_models.AnalysisRequest = service.submit_analysis_request(request_data)
+    submitted_request: api_models.AnalysisRequest = service.submit(request_data)
 
     return jsonify(submitted_request.dict()), HTTPStatus.CREATED
 
@@ -28,7 +28,7 @@ def list():
 
     query_params = api_models.AnalysisRequestListQueryParameters(**request.args)
 
-    analysis_requests = service.get_analysis_requests(query_params)
+    analysis_requests = service.query(query_params)
 
     return jsonify(analysis_requests.dict(exclude_none=True)), HTTPStatus.OK
 
@@ -38,7 +38,7 @@ def get(request_uuid: str):
     """Get the request object identified by the request_uuid url param."""
 
     try:
-        req = service.get_analysis_request_by_id(request_uuid)
+        req = service.get_by_id(request_uuid)
         return jsonify(req.dict(exclude_none=True)), HTTPStatus.OK
     except NoResultFound:
         error_response = api_models.ErrorResponse(errorMsg="AnalysisRequest not found")
