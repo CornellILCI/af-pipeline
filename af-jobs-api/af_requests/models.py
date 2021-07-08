@@ -38,5 +38,3 @@ class Request(db.Model):
 
     # TODO add the other columns here
     tasks = db.relationship("Task", backref="request", foreign_keys="Task.request_id")
-
-

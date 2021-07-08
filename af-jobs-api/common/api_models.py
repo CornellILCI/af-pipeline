@@ -78,6 +78,7 @@ class Property(BaseModel):
 class PropertyListResponseResult(BaseModel):
     data: Optional[List[Property]] = None
 
+
 class Metadata(BaseModel):
     pagination: Optional[Pagination] = None
 
@@ -86,11 +87,6 @@ class PropertyListResponse(BaseModel):
     metadata: Optional[Metadata] = None
     result: Optional[PropertyListResponseResult] = None
 
-def create_metadata(current_page, page_size):
-    return Metadata(
-        pagination=Pagination(
-            currentPage=current_page,
-            pageSize=page_size
-        )
-    )
 
+def create_metadata(current_page, page_size):
+    return Metadata(pagination=Pagination(currentPage=current_page, pageSize=page_size))

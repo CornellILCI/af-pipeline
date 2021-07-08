@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- BA-424 Update in AFDb the default value of nTrial for IWIN Design -->
+    <include file="changesets/21.06/data/template/update_default_value_of_ntrial_for_iwin_design.sql"/>
+
+
+
+    </databaseChangeLog>
