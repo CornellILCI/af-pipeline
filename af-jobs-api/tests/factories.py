@@ -12,13 +12,12 @@ from database import db
 from af_request import models
 
 
-class BaseFactory(Factory):
+class BaseFactory(SQLAlchemyModelFactory):
     """Base Factory"""
 
     class Meta:
 
         abstract = True
-
 
 class CreationModificationBaseFactory(BaseFactory):
     """Timestamp Base Factory."""

@@ -4,11 +4,11 @@ import pytest
 from af_endpoints import af_apis
 from af_request.models import Request
 from af_request.views import af_requests_bp
-from database import db as _db
+from .factories import db as _db
 
 from api import create_app
 
-from .factories import RequestFactory
+from .factories import BaseFactory, RequestFactory
 
 
 TEST_DATABASE_URI = "sqlite://"
@@ -60,6 +60,10 @@ def session(db, request):
     session = db.create_scoped_session(options=options)
 
     db.session = session
+
+    # Set sessions for request factories
+    # For some reason using common session not working
+    RequestFactory._meta.sqlalchemy_session = session
     
     def teardown():
         transaction.rollback()
@@ -84,7 +88,6 @@ def af_request(session):
 
 @pytest.fixture
 def af_requests(session):
-    request = RequestFactory()
-    session.add(request)
+    requests = [RequestFactory(), RequestFactory()]
     session.commit()
-    return [request]
+    return requests
