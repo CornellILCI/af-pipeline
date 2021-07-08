@@ -30,11 +30,16 @@ def test_simple_test_2():
                               'residual': '0.1946',
                               'hat':'0.09771' ,
                               'additional_info':str({'RinvRes': -0.01493, 'AOMstat': -0.03078})})
+
+                            
+
+
     handler = parser.YHatParser()
     handler.read_yht(t.name)
     handler.rename_columns()
     handler.create_correct_df()
 
     assert_frame_equal(handler.df,testDf)
+
 
     # create a 2 row dataframe
