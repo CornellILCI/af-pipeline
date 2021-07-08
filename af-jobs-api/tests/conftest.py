@@ -8,6 +8,9 @@ from database import db as _db
 
 from api import create_app
 
+from .factories import RequestFactory
+
+
 TEST_DATABASE_URI = "sqlite://"
 
 settings_override = {
@@ -47,7 +50,6 @@ def db(app, request):
     request.addfinalizer(teardown)
     return _db
 
-
 @pytest.fixture(scope="function")
 def session(db, request):
 
@@ -58,17 +60,31 @@ def session(db, request):
     session = db.create_scoped_session(options=options)
 
     db.session = session
-
+    
     def teardown():
         transaction.rollback()
         connection.close()
         session.remove()
 
     request.addfinalizer(teardown)
-    return session
+    return db.session
 
 
 @pytest.fixture(scope="function")
 def client(session, app, db):
     with app.test_client() as client:
         yield client
+
+
+@pytest.fixture
+def af_request(session):
+    request = RequestFactory()
+    return request
+
+
+@pytest.fixture
+def af_requests(session):
+    request = RequestFactory()
+    session.add(request)
+    session.commit()
+    return [request]

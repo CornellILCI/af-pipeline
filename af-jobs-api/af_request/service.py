@@ -29,8 +29,13 @@ def submit(request_data: api_models.AnalysisRequestParameters):
         ),
     )
 
-    return _map_analsysis_request(req)
+    return req
 
+def get_all():
+
+    query = db_models.Request.query
+    
+    return query.all()
 
 def query(query_params: api_models.AnalysisRequestListQueryParameters):
 
@@ -56,33 +61,11 @@ def query(query_params: api_models.AnalysisRequestListQueryParameters):
 
     analysis_requests = query.all()
 
-    # DTOs for api response
-    _analysis_requests = []
-
-    for analysis_request in analysis_requests:
-        _analysis_requests.append(_map_analsysis_request(analysis_request))
-
-    return api_models.AnalysisRequestListResponse(
-        metadata=api_models.create_metadata(query_params.page, query_params.pageSize),
-        result=api_models.AnalysisRequestListResponseResult(data=_analysis_requests),
-    )
+    return analysis_requests
 
 
 def get_by_id(request_id: str):
 
     analysis_request = db_models.Request.query.filter(db_models.Request.uuid == request_id).one()
 
-    return api_models.AnalysisRequestResponse(result=_map_analsysis_request(analysis_request))
-
-
-def _map_analsysis_request(req):
-    """Maps the db result to the Result model."""
-    return api_models.AnalysisRequest(
-        requestId=req.uuid,
-        crop=req.crop,
-        institute=req.institute,
-        analysisType=req.type,
-        status=req.status,
-        createdOn=req.creation_timestamp,
-        modifiedOn=req.modification_timestamp,
-    )
+    return analysis_request

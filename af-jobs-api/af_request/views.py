@@ -14,11 +14,13 @@ af_requests_bp = Blueprint("af_requests", __name__, url_prefix="/v1/requests")
 def post():
     """Create request object based on body params"""
 
-    request_data: api_models.AnalysisRequestParameters = api_models.AnalysisRequestParameters(**request.json)
+    request_data = api_models.AnalysisRequestParameters(**request.json)
 
-    submitted_request: api_models.AnalysisRequest = service.submit(request_data)
+    submitted_request = service.submit(request_data)
 
-    return jsonify(submitted_request.dict()), HTTPStatus.CREATED
+    submitted_request_dto = _map_analsysis_request(submitted_request)
+
+    return jsonify(submitted_request_dto.dict()), HTTPStatus.CREATED
 
 
 @af_requests_bp.route("", methods=["GET"])
@@ -30,7 +32,18 @@ def list():
 
     analysis_requests = service.query(query_params)
 
-    return jsonify(analysis_requests.dict(exclude_none=True)), HTTPStatus.OK
+    # DTOs for api response
+    _analysis_requests = []
+
+    for analysis_request in analysis_requests:
+        _analysis_requests.append(_map_analsysis_request(analysis_request))
+
+    response = api_models.AnalysisRequestListResponse(
+        metadata=api_models.create_metadata(query_params.page, query_params.pageSize),
+        result=api_models.AnalysisRequestListResponseResult(data=_analysis_requests),
+    )
+
+    return jsonify(response.dict(exclude_none=True)), HTTPStatus.OK
 
 
 @af_requests_bp.route("/<request_uuid>")
@@ -39,10 +52,24 @@ def get(request_uuid: str):
 
     try:
         req = service.get_by_id(request_uuid)
-        return jsonify(req.dict(exclude_none=True)), HTTPStatus.OK
+        req_dto = api_models.AnalysisRequestResponse(result=_map_analsysis_request(req))
+        return jsonify(req_dto.dict(exclude_none=True)), HTTPStatus.OK
     except NoResultFound:
         error_response = api_models.ErrorResponse(errorMsg="AnalysisRequest not found")
         return jsonify(error_response.dict()), HTTPStatus.NOT_FOUND
     except MultipleResultsFound:
         error_response = api_models.ErrorResponse(errorMsg="Multiple results found")
         return jsonify(error_response.dict()), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def _map_analsysis_request(req):
+    """Maps the db result to the Result model."""
+    return api_models.AnalysisRequest(
+        requestId=req.uuid,
+        crop=req.crop,
+        institute=req.institute,
+        analysisType=req.type,
+        status=req.status,
+        createdOn=req.creation_timestamp,
+        modifiedOn=req.modification_timestamp,
+    )

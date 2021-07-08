@@ -8,11 +8,7 @@ from sqlalchemy.sql import func
 
 @dataclass
 class Request(db.Model):
-    id: int
-    uuid: str
-    status: str
-    tasks: list
-
+    
     __tablename__ = "request"  # Base.metadata.tables["af.request"]
     __table_args__ = {"schema": "af"}
 
@@ -35,8 +31,3 @@ class Request(db.Model):
     method_id = db.Column(db.Integer)
     engine = db.Column(db.String(20))
     msg = db.Column(db.String(500))
-
-    # TODO add the other columns here
-    tasks = db.relationship("Task", backref="request", foreign_keys="Task.request_id")
-
-
