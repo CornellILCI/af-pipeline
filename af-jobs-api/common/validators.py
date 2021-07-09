@@ -32,4 +32,5 @@ def validate_api_request(query_model=None, body_model=None):
             return func(*args, **kwargs)
 
         return wrapper
+
     return decorator

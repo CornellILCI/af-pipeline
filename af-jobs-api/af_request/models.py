@@ -31,3 +31,6 @@ class Request(db.Model):
     method_id = db.Column(db.Integer)
     engine = db.Column(db.String(20))
     msg = db.Column(db.String(500))
+    
+    # TODO add the other columns here
+    tasks = db.relationship("Task", backref="request", foreign_keys="Task.request_id")

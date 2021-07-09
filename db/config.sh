@@ -1,6 +1,9 @@
 #!/bin/bash
 #author: Kevin Palis <kdp44@cornell.edu>
 
+#create a new PostgreSQL cluster
+sudo pg_createcluster 13 main
+
 #configure postgres for access
 sudo sed -i "s/local   all             all                                     peer/local   all             all                                     $postgres_local_auth_method/" /etc/postgresql/13/main/pg_hba.conf
 sudo sed -i "s/host    all             all             127\.0\.0\.1\/32            md5/host    all             all             0\.0\.0\.0\/0            	$postgres_host_auth_method/" /etc/postgresql/13/main/pg_hba.conf

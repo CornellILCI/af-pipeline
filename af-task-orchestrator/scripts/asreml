@@ -1,9 +1,9 @@
 #! /usr/local/bin/python
 
-import docker
+import os
 import sys
 
-import os
+import docker
 
 asreml_executable_image = os.getenv("ASREML_EXECUTABLE_IMAGE")
 

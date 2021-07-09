@@ -1,8 +1,11 @@
 from http import HTTPStatus
 
+import config
+
 from af_request import api_models, service
+from common.api_models import Status
 from common.validators import validate_api_request
-from flask import jsonify, request
+from flask import jsonify, request, send_from_directory
 from flask.blueprints import Blueprint
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
@@ -62,9 +65,17 @@ def get(request_uuid: str):
         return jsonify(error_response.dict()), HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+@af_requests_bp.route("/<request_uuid>/files/result.zip")
+def download_result(request_uuid: str):
+    """Download file result of analysis request as zip file"""
+
+    return send_from_directory(config.get_analysis_request_folder(request_uuid), "result.zip", as_attachment=True)
+
+
 def _map_analsysis_request(req):
     """Maps the db result to the Result model."""
-    return api_models.AnalysisRequest(
+    
+    req_dto = api_models.AnalysisRequest(
         requestId=req.uuid,
         crop=req.crop,
         institute=req.institute,
@@ -73,3 +84,8 @@ def _map_analsysis_request(req):
         createdOn=req.creation_timestamp,
         modifiedOn=req.modification_timestamp,
     )
+
+    if req.status == Status.DONE:
+        req_dto.resultDownloadRelativeUrl = f"/request/{req.uuid}/files/result.zip"
+
+    return req_dto
