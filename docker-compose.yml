@@ -1,0 +1,107 @@
+#docker-compose.yaml
+#this docker-compose is intended for dev/local setup
+version: "3.4"
+volumes:
+  afdb_volume:
+  asreml_license_dir:
+    external: ${EXTERNAL_DIR}     # create these via: docker volume so docker-compose does not add prefix
+  asreml_inputs:
+    external: ${EXTERNAL_DIR}
+  asreml_outputs:
+    external: ${EXTERNAL_DIR}
+
+services:
+  database:
+    image: postgres:9.6-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - type: volume
+        source: afdb_volume
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./postgres
+        target: /docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:management
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  
+  api:
+    build:
+      context: ./af-jobs-api
+      dockerfile: Dockerfile
+    working_dir: /app
+    environment:
+      - C_FORCE_ROOT=true
+      - BROKER=amqp://admin:mypass@rabbitmq:5672
+      - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
+      - AFAPI_ALLOWABLE_ORIGINS=*
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rabbitmq
+      - database
+  
+  worker:
+    build:
+      context: ./af-task-orchestrator
+      dockerfile: Dockerfile
+    working_dir: /app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - asreml_license_dir:/home/asreml/licenses
+      - asreml_inputs:/home/asreml/inputs
+      - asreml_outputs:/home/asreml/outputs
+    environment:
+      - C_FORCE_ROOT=true
+      - BROKER=amqp://admin:mypass@rabbitmq:5672
+      - BACKEND=rpc://
+      - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
+      - ASREML_LICENSE_DIR=/home/asreml/licenses
+      - ASREML_INPUTS_DIR=/home/asreml/inputs 
+      - ASREML_OUTPUTS_DIR=/home/asreml/outputs
+      - ASREML_EXECUTABLE_IMAGE=ebsproject/ba-asreml:21.06 
+    links:
+      - rabbitmq
+    depends_on:
+      - rabbitmq
+      - database
+
+  liquibase:
+    image: liquibase/liquibase:3.10.3
+    restart: 'no'
+    depends_on: 
+      - database
+    volumes:
+      - type: bind
+        source: ./db
+        target: /db/
+    working_dir: /db/build/liquibase/
+    command: ./wait_for_postgres_then_init.sh
+      
+
+
+  # beat:
+  #   build:
+  #     context: ./orchestrator
+  #     dockerfile: Dockerfile
+  #   image: *img
+  #   command: [celery, beat, --app=worker.app, --loglevel=INFO]
+  #   depends_on:
+  #     - rabbitmq
+  #   restart: 'no'
+  #   volumes:
+  #     - ./app:/app
+      
+  

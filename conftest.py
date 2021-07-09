@@ -1,7 +1,6 @@
-import sys
-import os
-
 import json
+import os
+import sys
 
 os.environ["B4R_API_BASE_URL"] = ""
 

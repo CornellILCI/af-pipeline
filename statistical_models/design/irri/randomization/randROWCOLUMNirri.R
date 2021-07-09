@@ -1,20 +1,20 @@
 # -------------------------------------------------------------------------------------
-# Name             : runROWCOLUMN
+# Name             : randROWCOLUMNirri
 # Description      : Generate randomization and layout for Row-Column Design which 
 #                    can be run in the command line with arguments
-# R Version        : 3.5.1 
+# R Version        : 4.0.3 
 # Note             : with entryList as argument and uses entry_id in the randomization
 # -------------------------------------------------------------------------------------
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2019.03.05
-# Date Modified    : 2020.06.22
+# Date Modified    : 2021.02.25
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 2
+# Script Version   : 4
 # Command          : Rscript randROWCOLUMNirri.R --entryList "ROWCOLUMN_SD_0001.lst" 
 #                    --nTrial 3 --nRep 4 --nRowBlk 4 --genLayout T --nFieldRow 8 
-#                    --serpentine F -o "Output" -p "D:/Results"    
+#                    --serpentine CO -o "Output" -p "D:/Results"    
 # -------------------------------------------------------------------------------------
 # Parameters:
 # entryList = a cvs file containing the entry information
@@ -23,14 +23,14 @@
 # nRowBlk = number of blocks per replicate
 # genLayout = logical; if TRUE, layout will be generated
 # nFieldRow = number of field rows, required if genLayout is TRUE
-# serpentine = logical; if TRUE, plot numbers will be in serpentine arrangement, required if genLayout is TRUE
+# serpentine = character; CO = Column Plot Order, RO = Row Plot Order, CS = Column Serpentine, RS = Row Serpentine  
 # outputFile = prefix to be used for the names of the output files
 # outputPath = path where output will be saved
 # ---------------------------------------------------------
 
 # load the needed packages
 suppressWarnings(suppressPackageStartupMessages(library(optparse)))
-suppressWarnings(suppressPackageStartupMessages(library(PBTools)))
+suppressWarnings(suppressPackageStartupMessages(library(PBToolsDesign)))
 
 optionList <- list(
   make_option(opt_str = c("--entryList"), type = "character", 
@@ -45,9 +45,13 @@ optionList <- list(
               help = "Whether layout will be generated or not", metavar = "whether layout will be generated or not"),
   make_option(opt_str = c("--nFieldRow"), type = "integer", default = as.integer(1),
               help = "Number of field rows", metavar = "number of field rows"),
-  make_option(opt_str = c("--serpentine"), type = "logical", default = F,
-              help = "Whether plot numbers will be in serpentine arrangement or not", 
-              metavar = "Whether plot numbers will be in serpentine arrangement or not"),
+  make_option(opt_str = c("--serpentine"), type = "character", default = "CO",
+              help = "Indicates whether plot numbers will be in serpentine arrangement or not written from top-to-bottom or left-to-right", metavar = "Whether plot numbers will be in serpentine arrangement or not"),
+  # make_option(opt_str = c("--serpentine"), type = "logical", default = F,
+  #             help = "Whether plot numbers will be in serpentine arrangement or not", 
+  #             metavar = "Whether plot numbers will be in serpentine arrangement or not"),
+  # make_option(opt_str = c("--topToBottom"), type = "logical", default = T,
+  #             help = "Whether plot numbers will written top-to-bottom or left-to-right", metavar = "Whether plot numbers will written top-to-bottom or left-to-right"),
   make_option(opt_str = c("-o", "--outputFile"), type = "character", default = "RCBD_Expt",
               help = "Prefix to be used for the names of the output files",
               metavar = "prefix to be used for the names of the output files"),
@@ -67,6 +71,16 @@ if (!dir.exists(opt$outputPath)) {
   dir.create(opt$outputPath)
 }
 
+# read fieldOrder
+fieldOrder <- opt$serpentine
+serpentine <- F
+topToBottom <- T
+
+switch(fieldOrder, CO = {serpentine <<- F; topToBottom <<- T},
+       CS = {serpentine <<- T; topToBottom <<- T},
+       RO = {serpentine <<- F; topToBottom <<- F},
+       RS = {serpentine <<- T; topToBottom <<- F})
+
 # read the file containing the entry list
 entryData <- read.csv(file = opt$entryList)
 entryInfo <- entryData[,"entry_id"]
@@ -80,7 +94,8 @@ if (opt$genLayout) {
                                         numTrial = opt$nTrial,
                                         genLayout = opt$genLayout,
                                         numFieldRow = opt$nFieldRow,
-                                        serpentine = opt$serpentine,
+                                        serpentine = serpentine,
+                                        topToBottom = topToBottom,
                                         display = TRUE),
               silent = TRUE)
 } else {
