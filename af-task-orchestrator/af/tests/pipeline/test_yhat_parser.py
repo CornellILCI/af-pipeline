@@ -1,5 +1,5 @@
 from tempfile import NamedTemporaryFile
-import af.pipeline.yhat.yhatparser as parser
+import af.pipeline.asreml.yhatparser as parser
 import pandas as pd
 from pandas._testing import assert_frame_equal
 import os
@@ -28,7 +28,7 @@ def test_yhat_parser():
                               'hat':'0.09771' ,
                               'additional_info':str({'RinvRes': -0.01493, 'AOMstat': -0.03078})})
 
-    handler = parser.parse_yhat_file("/home/vince/dev/work/ebsaf/af-core/af-task-orchestrator/af/pipeline/yhat/templates/71ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ad_SA_1001_yht (1).txt")
+    handler = parser.parse_yhat_file(t.name)
     assert_frame_equal(handler.head(2),testDf)
 
 
