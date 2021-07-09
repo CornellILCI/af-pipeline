@@ -1,20 +1,20 @@
 # -------------------------------------------------------------------------------------
-# Name             : runALPHALATTICE
+# Name             : randALPHALATTICEirri
 # Description      : Generate randomization and layout for Alpha Lattice Design which 
 #                    can be run in the command line with arguments and accepts entry list
-# R Version        : 3.5.1 
+# R Version        : 4.0.3 
 # Note             : with entryList as argument and uses entry_id in the randomization
 # -------------------------------------------------------------------------------------
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2019.03.01
-# Date Modified    : 2020.06.22
+# Date Modified    : 2021.01.15
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 2
+# Script Version   : 4
 # Command          : Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst"
 #                    --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 
-#                    --nRowPerRep 4 --nFieldRow 8 --serpentine F -o "Output" 
+#                    --nRowPerRep 4 --nFieldRow 8 --serpentine CO -o "Output" 
 #                    -p "D:/Results"
 # -------------------------------------------------------------------------------------
 # Parameters:
@@ -26,14 +26,14 @@
 # nFieldRow = number of field rows, required if genLayout is TRUE
 # nRowPerRep = number of rows per replicate, required if genLayout is TRUE
 # nRowPerBlk = number of rows per block, required if genLayout is TRUE
-# serpentine = logical; if TRUE, plot numbers will be in serpentine arrangement, required if genLayout is TRUE
+# serpentine = character; CO = Column Plot Order, RO = Row Plot Order, CS = Column Serpentine, RS = Row Serpentine  
 # outputFile = prefix to be used for the names of the output files
 # outputPath = path where output will be saved
 # ---------------------------------------------------------
 
 # load the needed packages
 suppressWarnings(suppressPackageStartupMessages(library(optparse)))
-suppressWarnings(suppressPackageStartupMessages(library(PBTools)))
+suppressWarnings(suppressPackageStartupMessages(library(PBToolsDesign)))
 
 optionList <- list(
   make_option(opt_str = c("--entryList"), type = "character", 
@@ -52,8 +52,12 @@ optionList <- list(
               help = "Number of rows per replicate", metavar = "number of rows per replicate"),
   make_option(opt_str = c("--nRowPerBlk"), type = "integer", default = as.integer(1),
               help = "Number of rows per block", metavar = "number of rows per block"),
-  make_option(opt_str = c("--serpentine"), type = "logical", default = F,
-              help = "Whether plot numbers will be in serpentine arrangement or not", metavar = "Whether plot numbers will be in serpentine arrangement or not"),
+  make_option(opt_str = c("--serpentine"), type = "character", default = "CO",
+              help = "Indicates whether plot numbers will be in serpentine arrangement or not written from top-to-bottom or left-to-right", metavar = "Whether plot numbers will be in serpentine arrangement or not"),
+  # make_option(opt_str = c("--serpentine"), type = "logical", default = F,
+  #             help = "Whether plot numbers will be in serpentine arrangement or not", metavar = "Whether plot numbers will be in serpentine arrangement or not"),
+  # make_option(opt_str = c("--topToBottom"), type = "logical", default = T,
+  #             help = "Whether plot numbers will written top-to-bottom or left-to-right", metavar = "Whether plot numbers will written top-to-bottom or left-to-right"),
   make_option(opt_str = c("-o", "--outputFile"), type = "character", default = "RCBD_Expt",
               help = "Prefix to be used for the names of the output files",
               metavar = "prefix to be used for the names of the output files"),
@@ -74,6 +78,16 @@ if (!dir.exists(opt$outputPath)) {
   dir.create(opt$outputPath)
 }
 
+# read fieldOrder
+fieldOrder <- opt$serpentine
+serpentine <- F
+topToBottom <- T
+
+switch(fieldOrder, CO = {serpentine <<- F; topToBottom <<- T},
+       CS = {serpentine <<- T; topToBottom <<- T},
+       RO = {serpentine <<- F; topToBottom <<- F},
+       RS = {serpentine <<- T; topToBottom <<- F})
+
 # read the file containing the entry list
 entryData <- read.csv(file = opt$entryList)
 entryInfo <- entryData[,"entry_id"]
@@ -89,7 +103,8 @@ if (opt$genLayout) {
                                            numFieldRow = opt$nFieldRow,
                                            numRowPerRep = opt$nRowPerRep,
                                            numRowPerBlk = opt$nRowPerBlk,
-                                           serpentine = opt$serpentine,
+                                           serpentine = serpentine,
+                                           topToBottom = topToBottom,
                                            display = TRUE),
               silent = TRUE)
 } else {
