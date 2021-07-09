@@ -7,22 +7,19 @@ import sys
 from collections import OrderedDict
 from os import path
 
-from pandas import DataFrame
+import pathlib
+
 from pydantic import ValidationError
 
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
     file_dir = path.dirname(os.path.realpath(__file__))
-    af.pipeline_dir = path.dirname(file_dir)
+    pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
 from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
-from af.pipeline.data_reader.exceptions import (
-    DataSourceNotAvailableError,
-    DataTypeNotAvailableError,
-    MissingTaskParameter,
-)
+
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from af.pipeline.data_reader.models import Experiment, Occurrence
 from af.pipeline.data_reader.models.enums import DataSource, DataType
@@ -55,7 +52,7 @@ class ProcessData:
         self.analysis_fields = None
         self.input_fields_to_config_fields = None
 
-        self.output_folder = analysis_request.outputFolder
+        self.output_folder = config.get_asreml_input_directory(analysis_request.requestId)
 
     def get_traits(self) -> list[Trait]:
         traits = []
@@ -159,13 +156,16 @@ class ProcessData:
 
         request_id = self.analysis_request.requestId
 
-        job_name = "{}_{}".format(request_id, job_id)
+        job_name = f"{request_id}_{job_id}"
 
-        job_file_name = f"{job_name}.as"
-        data_file_name = f"{job_name}.csv"
+        job_file_name = f"{job_id}.as"
+        data_file_name = f"{job_id}.csv"
 
-        job_file_path = os.path.join(self.output_folder, job_file_name)
-        data_file_path = os.path.join(self.output_folder, data_file_name)
+        job_file_path = os.path.join(self.output_folder, job_id, job_file_name)
+        data_file_path = os.path.join(self.output_folder, job_id, data_file_name)
+
+        # create parent directories
+        os.makedirs(pathlib.Path(job_file_path).parent)
 
         job_data.to_csv(data_file_path, index=False)
 

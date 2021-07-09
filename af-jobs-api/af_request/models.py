@@ -8,10 +8,6 @@ from sqlalchemy.sql import func
 
 @dataclass
 class Request(db.Model):
-    id: int
-    uuid: str
-    status: str
-    tasks: list
 
     __tablename__ = "request"  # Base.metadata.tables["af.request"]
     __table_args__ = {"schema": "af"}

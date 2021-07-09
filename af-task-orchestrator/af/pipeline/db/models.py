@@ -223,9 +223,9 @@ class Prediction(Base):
     ci95_upper = Column(Float)
     ci95_lower = Column(Float)
     tenant_id = Column(Integer, nullable=False)
-    creation_timestamp = Column(DateTime) # timestamp without time zone NOT NULL DEFAULT now(),
+    creation_timestamp = Column(DateTime)  # timestamp without time zone NOT NULL DEFAULT now(),
     modification_timestamp = Column(DateTime)  # timestamp without time zone,
     creator_id = Column(Integer, nullable=False)
     modifier_id = Column(Integer)
     is_void = Column(Boolean, nullable=False, default=False)
-    job_stat_factor_id  = Column(Integer)
+    job_stat_factor_id = Column(Integer)
