@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 import config
-
 from af_request import api_models, service
 from common.api_models import Status
 from common.validators import validate_api_request

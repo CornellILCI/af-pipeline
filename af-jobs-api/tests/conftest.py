@@ -4,12 +4,11 @@ import pytest
 from af_endpoints import af_apis
 from af_request.models import Request
 from af_request.views import af_requests_bp
-from .factories import db as _db
 
 from api import create_app
 
-from .factories import BaseFactory, RequestFactory
-
+from .factories import AnalysisRequestParametersFacotry, BaseFactory, RequestFactory
+from .factories import db as _db
 
 TEST_DATABASE_URI = "sqlite://"
 
@@ -50,6 +49,7 @@ def db(app, request):
     request.addfinalizer(teardown)
     return _db
 
+
 @pytest.fixture(scope="function")
 def session(db, request):
 
@@ -63,8 +63,7 @@ def session(db, request):
 
     # Set sessions for request factories
     # For some reason using common session not working
-    RequestFactory._meta.sqlalchemy_session = session
-    
+
     def teardown():
         transaction.rollback()
         connection.close()
@@ -75,6 +74,13 @@ def session(db, request):
 
 
 @pytest.fixture(scope="function")
+def celery_send_task(mocker):
+    mock = mocker.MagicMock()
+    mocker.patch("celery_util.send_task", mock)
+    return mock
+
+
+@pytest.fixture(scope="function")
 def client(session, app, db):
     with app.test_client() as client:
         yield client
@@ -82,12 +88,20 @@ def client(session, app, db):
 
 @pytest.fixture
 def af_request(session):
+    RequestFactory._meta.sqlalchemy_session = session
     request = RequestFactory()
     return request
 
 
 @pytest.fixture
 def af_requests(session):
+    RequestFactory._meta.sqlalchemy_session = session
     requests = [RequestFactory(), RequestFactory()]
     session.commit()
     return requests
+
+
+@pytest.fixture
+def af_request_parameters():
+    analysis_request_parameters = AnalysisRequestParametersFacotry()
+    return analysis_request_parameters

@@ -1,6 +1,5 @@
 import os
 
-
 ROOT_DATA_FOLDER = os.getenv("AF_DATA_DIR")
 
 

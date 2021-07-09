@@ -31,18 +31,13 @@ def submit(request_data: api_models.AnalysisRequestParameters):
 
     return req
 
-def get_all():
-
-    query = db_models.Request.query
-    
-    return query.all()
 
 def query(query_params: api_models.AnalysisRequestListQueryParameters):
 
     query = db_models.Request.query
 
     if query_params.requestorId:
-        query = query.filter(db_models.Request.requestorId == query_params.requestorId)
+        query = query.filter(db_models.Request.requestor_id == query_params.requestorId)
 
     if query_params.crop:
         query = query.filter(db_models.Request.crop == query_params.crop)

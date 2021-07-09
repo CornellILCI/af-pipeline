@@ -1,15 +1,12 @@
 import uuid
-
-from pytz import UTC
 from datetime import datetime
 
-from factory import Sequence, LazyAttribute, post_generation, Factory
-from factory.alchemy import SQLAlchemyModelFactory
-from factory.fuzzy import FuzzyText, FuzzyDateTime, FuzzyChoice
-
+from af_request import api_models, models
 from database import db
-
-from af_request import models
+from factory import Factory, LazyAttribute, Sequence, post_generation
+from factory.alchemy import SQLAlchemyModelFactory
+from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyText
+from pytz import UTC
 
 
 class BaseFactory(SQLAlchemyModelFactory):
@@ -18,6 +15,7 @@ class BaseFactory(SQLAlchemyModelFactory):
     class Meta:
 
         abstract = True
+
 
 class CreationModificationBaseFactory(BaseFactory):
     """Timestamp Base Factory."""
@@ -29,17 +27,37 @@ class CreationModificationBaseFactory(BaseFactory):
 
 
 class RequestFactory(CreationModificationBaseFactory):
-    
-    #id = 1
+
     uuid = LazyAttribute(lambda _: str(uuid.uuid4()))
     type = "ANALYZE"
-    #institute = FuzzyText(length=10)
-    #crop = FuzzyText(length=5)
-    #status = FuzzyChoice(["PENDING", "IN_PROGRESS", "DONE", "FAILURE"])
-    #is_void = False
-    #engine = db.Column(db.String(20))
-    #msg = FuzzyText(length=20)
-    
+    institute = FuzzyText(length=10)
+    crop = FuzzyText(length=5)
+    status = FuzzyChoice(["PENDING", "IN_PROGRESS", "DONE", "FAILURE"])
+    requestor_id = FuzzyText(length=10)
+    is_void = False
+    engine = FuzzyText(length=5)
+    msg = FuzzyText(length=20)
+
     class Meta:
         model = models.Request
 
+class AnalysisRequestParametersFacotry(Factory):
+    
+    dataSource = FuzzyChoice(["EBS", "BRAPI"])
+    dataSourceUrl = Sequence(lambda n: "http://test/{0}".format(n))
+    dataSourceAccessToken = LazyAttribute(lambda _: str(uuid.uuid4())) 
+    crop = FuzzyText(length=5)
+    requestorId = FuzzyText(length=10) 
+    institute = FuzzyText(length=10) 
+    analysisType = "ANALYZE"
+    experimentIds = ["10"]
+    occurrenceIds = ["10"]
+    traitIds = ["1", "2"] 
+    analysisObjectivePropertyId = FuzzyText(length=10) 
+    analysisConfigPropertyId = FuzzyText(length=10)  
+    expLocAnalysisPatternPropertyId = FuzzyText(length=10) 
+    configFormulaPropertyId = FuzzyText(length=10) 
+    configResidualPropertyId = FuzzyText(length=10)  
+    
+    class Meta:
+        model = api_models.AnalysisRequestParameters 
