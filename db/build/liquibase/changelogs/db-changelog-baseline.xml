@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- baseline -->
+    <include file="changesets/baseline/schema/baseline.sql"/>
+
+    <!-- config -->
+    <include file="changesets/baseline/data/template/config.sql"/>
+
+    <!-- longDescription -->
+    <include file="changesets/baseline/data/template/longDescription.sql"/>
+
+    <!-- config-clean -->
+    <include file="changesets/baseline/data/template/config-clean.sql"/>
+
+    <!-- changelenght -->
+    <include file="changesets/baseline/schema/change_lenght_in_analysis_description.sql"/>
+
+    <!-- insert_entry_lst_occ_id -->
+    <include file="changesets/baseline/data/template/insert_entry_lst_occ_id.sql"/>
+
+    <!-- create_af_property_meta -->
+    <include file="changesets/baseline/schema/create_af_property_meta.sql"/>
+
+    <!-- update_af_data -->
+    <include file="changesets/baseline/data/template/update_af_data.sql"/>
+
+    <!-- add_is_layout_variable -->
+    <include file="changesets/baseline/schema/add_is_layout_variable.sql"/>
+
+    <!-- add_is_layout_variable_data -->
+    <include file="changesets/baseline/data/template/add_is_layout_variable_data.sql"/>
+
+    <!-- add_request_entry_table -->
+    <include file="changesets/baseline/schema/add_request_entry_table.sql"/>
+
+    <!-- design_models_v2.1 -->
+    <include file="changesets/baseline/data/template/design_models_v2.1.sql"/>
+
+    <!-- add_new_rules -->
+    <include file="changesets/baseline/data/template/add_new_rules.sql"/>
+
+    <!-- update_request_status -->
+    <include file="changesets/baseline/data/template/update_request_status.sql"/>
+
+    <!-- update_table_comments -->
+    <include file="changesets/baseline/schema/update_table_comments.sql"/>
+
+    <!-- change_model_rule_add_property -->
+    <include file="changesets/baseline/data/template/change_model_rule_add_property.sql"/>
+
+    <!-- add-rules -->
+    <include file="changesets/baseline/data/template/add-rules.sql"/>
+
+    <!-- update-rules-irri-models -->
+    <include file="changesets/baseline/data/template/update-rules-irri-models.sql"/>
+
+    <!-- update-design-rules -->
+    <include file="changesets/baseline/data/template/update-design-rules.sql"/>
+
+    <!-- updateRcbdRulesVserpentine -->
+    <include file="changesets/baseline/data/template/updateRcbdRulesVserpentine.sql"/>
+
+    <!-- disable-layout-variable-rand1 -->
+    <include file="changesets/baseline/data/template/disable-layout-variable-rand1.sql"/>
+
+    <!-- BA-11 Add analysis configuration data -->
+    <include file="changesets/baseline/schema/update_property_name_label.sql"/>
+
+    <!-- BA-1 Correct Property rule -->
+    <include file="changesets/baseline/data/template/update_notifications_in_property_rule.sql"/>
+
+    <!-- BA-72 Change the label of Experimental Design Modela -->
+    <include file="changesets/baseline/data/template/change_label_exp_design.sql"/>
+
+    <!-- BA-11 Add analysis configuration data -->
+    <include file="changesets/baseline/data/template/add_analysis_configuration_data.sql"/>
+
+    </databaseChangeLog>

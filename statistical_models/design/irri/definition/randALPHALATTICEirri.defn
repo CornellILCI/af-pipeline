@@ -74,7 +74,20 @@
         "data_type": "integer",
         "order_number": 3,
         "variable_abbrev": "REP_COUNT",
+<<<<<<< HEAD
         "is_layout_variable": "F"
+=======
+        "is_layout_variable": "F",
+        "rule": [
+          {
+            "order_number": 1,
+            "type": "validation-design",
+            "expression": "value<=(1500/totalEntries)",
+            "notification": "Total number of experimental units should not exceed 1,500.",
+            "action": "error"
+          }
+        ]
+>>>>>>> 8ba5f7e06da69ac3cd8511fdafda642aaec7fa9b
       },
       "nBlk": {
         "variable_label": "No. of Blocks per Rep",
