@@ -16,4 +16,3 @@ def get_allowable_origins():
     if allowable_origins is not None:
         allowable_origins = allowable_origins.split(";")
     return allowable_origins
-

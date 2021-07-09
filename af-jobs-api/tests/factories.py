@@ -41,23 +41,24 @@ class RequestFactory(CreationModificationBaseFactory):
     class Meta:
         model = models.Request
 
+
 class AnalysisRequestParametersFacotry(Factory):
-    
+
     dataSource = FuzzyChoice(["EBS", "BRAPI"])
     dataSourceUrl = Sequence(lambda n: "http://test/{0}".format(n))
-    dataSourceAccessToken = LazyAttribute(lambda _: str(uuid.uuid4())) 
+    dataSourceAccessToken = LazyAttribute(lambda _: str(uuid.uuid4()))
     crop = FuzzyText(length=5)
-    requestorId = FuzzyText(length=10) 
-    institute = FuzzyText(length=10) 
+    requestorId = FuzzyText(length=10)
+    institute = FuzzyText(length=10)
     analysisType = "ANALYZE"
     experimentIds = ["10"]
     occurrenceIds = ["10"]
-    traitIds = ["1", "2"] 
-    analysisObjectivePropertyId = FuzzyText(length=10) 
-    analysisConfigPropertyId = FuzzyText(length=10)  
-    expLocAnalysisPatternPropertyId = FuzzyText(length=10) 
-    configFormulaPropertyId = FuzzyText(length=10) 
-    configResidualPropertyId = FuzzyText(length=10)  
-    
+    traitIds = ["1", "2"]
+    analysisObjectivePropertyId = FuzzyText(length=10)
+    analysisConfigPropertyId = FuzzyText(length=10)
+    expLocAnalysisPatternPropertyId = FuzzyText(length=10)
+    configFormulaPropertyId = FuzzyText(length=10)
+    configResidualPropertyId = FuzzyText(length=10)
+
     class Meta:
-        model = api_models.AnalysisRequestParameters 
+        model = api_models.AnalysisRequestParameters

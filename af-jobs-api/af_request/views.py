@@ -73,7 +73,7 @@ def download_result(request_uuid: str):
 
 def _map_analsysis_request(req):
     """Maps the db result to the Result model."""
-    
+
     req_dto = api_models.AnalysisRequest(
         requestId=req.uuid,
         crop=req.crop,
