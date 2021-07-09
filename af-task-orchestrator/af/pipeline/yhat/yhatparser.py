@@ -1,44 +1,20 @@
 import pandas as pd
 
+YHAT_FILE_COLUMNS_TO_DB_COLUMNS = {"Record":"record",
+     "Yhat":"yhat",
+     "Residual":"residual",
+     "Hat":"hat"}
 
-class YHatParser():
-    """
-    Prepares DataFrame from yht file
-    """
+static = ["record", "yhat", "residual", "hat"]
 
+def parse_yhat_file(yhatfile) -> pd.DataFrame:
 
-    def __init__(self):
-        self.df = None
-        self.record = None
-        self.yhat = None
-        self.residual = None
-        self.hat = None
-
-    def read_yht(self,yht):
-        self.df =  pd.read_csv(yht, delimiter="\s+" )
-
-    def rename_columns(self):
-        self.df.rename(columns={"Record":"record",
-                                "Yhat":"yhat",
-                                "Residual":"residual",
-                                "Hat":"hat"}, inplace=True)
-
-    # def create_dict_for_additional_columns(self):
-    #     self.df["additional_info"] = ""
+    df = pd.read_csv(yhatfile, delimiter="\s+" )
+    df.rename(columns=YHAT_FILE_COLUMNS_TO_DB_COLUMNS, inplace=True)
+    agg_cols = [x for x in df.columns if x not in set(static)]
+    df = df.join(df[agg_cols].agg(dict,axis=1).to_frame('additional_info')).drop(agg_cols,1)
+    df = df.astype(str)
+    return df
 
 
-        # self.yhat = self.df['Yhat']
-        # self.residual = self.df['Residual']
-        # self.hat = self.df['Hat']
-    def create_correct_df(self):
-        agg_cols = ['RinvRes', 'AOMstat']
-        self.df = self.df.join(self.df[agg_cols].agg(dict,axis=1).to_frame('additional_info')).drop(agg_cols,1)
-        self.df = self.df.astype(str)
-
-y = YHatParser()
-y.read_yht('/home/vince/dev/work/ebsaf/af-core/af-task-orchestrator/af/pipeline/yhat/templates/71ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ad_SA_1001_yht (1).txt')
-print(y.df)
-y.rename_columns()
-# y.create_dict_for_additional_columns()
-y.create_correct_df()
-print(y.df.head())
+parse_yhat_file('/home/vince/dev/work/ebsaf/af-core/af-task-orchestrator/af/pipeline/yhat/templates/71ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ad_SA_1001_yht (1).txt')

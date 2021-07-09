@@ -4,11 +4,8 @@ import pandas as pd
 from pandas._testing import assert_frame_equal
 import os
 
-path = "/home/vince/dev/work/ebsaf/af-core/af-task-orchestrator/af/pipeline/yhat/tmp"
 
-
-
-def test_simple_test_2():
+def test_yhat_parser():
     """
     write a df string to a temp file
     pass temp file to the handler for transform
@@ -31,15 +28,8 @@ def test_simple_test_2():
                               'hat':'0.09771' ,
                               'additional_info':str({'RinvRes': -0.01493, 'AOMstat': -0.03078})})
 
-                            
-
-
-    handler = parser.YHatParser()
-    handler.read_yht(t.name)
-    handler.rename_columns()
-    handler.create_correct_df()
-
-    assert_frame_equal(handler.df,testDf)
+    handler = parser.parse_yhat_file("/home/vince/dev/work/ebsaf/af-core/af-task-orchestrator/af/pipeline/yhat/templates/71ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ad_SA_1001_yht (1).txt")
+    assert_frame_equal(handler.head(2),testDf)
 
 
     # create a 2 row dataframe
