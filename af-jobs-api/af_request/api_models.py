@@ -23,6 +23,7 @@ class AnalysisRequest(BaseModel):
     status: Optional[Status] = None
     createdOn: Optional[datetime] = None
     modifiedOn: Optional[datetime] = None
+    resultDownloadRelativeUrl: Optional[str] = None
 
 
 class AnalysisRequestParameters(BaseModel):

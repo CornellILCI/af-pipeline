@@ -111,7 +111,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.in_prediction_components = True
         elif tag == TAG_PROW and self.in_prediction_components:
             self.in_prow = True
-            self.current_prediction = {} # start a new prediction object
+            self.current_prediction = {}  # start a new prediction object
         elif tag in TRANSFORM_PREDICTION_TAG:
             self.current_key = TRANSFORM_PREDICTION_TAG.get(tag)
 
@@ -143,7 +143,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             # reset
             self.in_prow = False
             self.current_prediction = None
-        elif tag in TRANSFORM_PREDICTION_TAG :
+        elif tag in TRANSFORM_PREDICTION_TAG:
             self.current_prediction[self.current_key] = str(self.current_content).strip()
 
         self.current_content = ""

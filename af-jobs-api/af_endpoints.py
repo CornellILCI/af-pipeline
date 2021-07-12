@@ -1,24 +1,22 @@
 import json
+import math
 import pathlib
 import uuid as uuidlib
 
 import celery_util
 from database import Property, db
-import math
-
 from dto.requests import AnalysisRequestParameters
 from dto.responses import AnalysisRequest
 from flask import jsonify, render_template, request
 from flask.blueprints import Blueprint
 from pydantic import ValidationError
-from services.afdb_service import select_analysis_configs, select_property_by_code
-from sqlalchemy import text
 from services.afdb_service import (
-    select_property_by_code,
-    select_analysis_configs,
-    count_property_by_code,
     count_analysis_configs,
+    count_property_by_code,
+    select_analysis_configs,
+    select_property_by_code,
 )
+from sqlalchemy import text
 
 af_apis = Blueprint("af", __name__, url_prefix="/v1")
 
@@ -348,5 +346,5 @@ def testasreml():
     # db.session.add(req)
     # db.session.commit()
     # content["requestId"] = req.uuid
-    celery_util.send_task(process_name="run_asreml", args=(content,), routing_key="ASREML")
+    celery_util.send_task(process_name="run_asreml", args=(content,), queue="ASREML", routing_key="ASREML")
     return "", 200

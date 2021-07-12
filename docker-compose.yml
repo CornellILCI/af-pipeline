@@ -3,6 +3,7 @@
 version: "3.4"
 volumes:
   afdb_volume:
+  af_data_volume:
   asreml_license_dir:
     external: ${EXTERNAL_DIR}     # create these via: docker volume so docker-compose does not add prefix
   asreml_inputs:
@@ -41,11 +42,14 @@ services:
       context: ./af-jobs-api
       dockerfile: Dockerfile
     working_dir: /app
+    volumes:
+      - af_data_volume:/data/
     environment:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
       - AFAPI_ALLOWABLE_ORIGINS=*
+      - AF_DATA_DIR=/data/
     restart: always
     ports:
       - "5000:5000"
@@ -63,6 +67,7 @@ services:
       - asreml_license_dir:/home/asreml/licenses
       - asreml_inputs:/home/asreml/inputs
       - asreml_outputs:/home/asreml/outputs
+      - af_data_volume:/data/
     environment:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672
@@ -88,6 +93,7 @@ services:
       - asreml_license_dir:/home/asreml/licenses
       - asreml_inputs:/home/asreml/inputs
       - asreml_outputs:/home/asreml/outputs
+      - af_data_volume:/data/
     environment:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672

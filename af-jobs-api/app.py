@@ -28,7 +28,7 @@ def create_app(settings: dict = None):
 
     app.register_blueprint(af_apis)
 
-    from af_requests.views import af_requests_bp
+    from af_request.views import af_requests_bp
 
     app.register_blueprint(af_requests_bp)
 
