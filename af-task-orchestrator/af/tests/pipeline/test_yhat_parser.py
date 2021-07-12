@@ -17,6 +17,7 @@ def test_yhat_parser():
     t.seek(0)
 
     testDf = pd.DataFrame(columns=['record','yhat','residual','hat','additional_info'])
+
     testDf.loc[0] = pd.Series({'record': '1',
                               'yhat': '6.7272',
                               'residual': '-0.5713',
