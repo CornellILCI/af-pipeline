@@ -1,0 +1,24 @@
+#! /usr/local/bin/python
+
+import os
+import sys
+
+import docker
+
+asreml_executable_image = os.getenv("ASREML_EXECUTABLE_IMAGE")
+
+file1 = sys.argv[1]
+file2 = sys.argv[2]
+cmd = f'/bin/bash -c "asreml {file1} {file2}"'
+client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+output = client.containers.run(
+    asreml_executable_image,
+    command=cmd,
+    volumes={
+        'asreml_license_dir': {"bind": '/home/asreml/licenses', "mode": "rw"},
+        'asreml_inputs': {"bind": '/home/asreml/inputs', "mode": "rw"},
+        'asreml_outputs': {"bind": '/home/asreml/outputs', "mode": "rw"},
+    },
+    stderr=True, 
+)
+print(str(output))

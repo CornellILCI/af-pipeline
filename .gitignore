@@ -1,5 +1,5 @@
 # Ignore files
-*.tar.gz
+# *.tar.gz
 *.swp
 *.swo
 *.dt
@@ -11,7 +11,6 @@
 *.LOG
 *.DS_Store
 *.pyc
-*.JSON
 *.err
 .Rhistory
 *.sif
@@ -24,4 +23,8 @@ aeo/output/
 aeo/input/
 aeo/scratch/
 venv
+ipython-venv
+venv-dev
 docs/notebooks/.ipynb*
+.vscode
+htmlcov/

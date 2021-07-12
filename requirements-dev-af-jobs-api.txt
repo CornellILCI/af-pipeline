@@ -1,0 +1,2 @@
+-r requirements-dev.txt
+-r ./af-jobs-api/requirements.txt
