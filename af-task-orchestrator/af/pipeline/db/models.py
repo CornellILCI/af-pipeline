@@ -228,4 +228,34 @@ class Prediction(Base):
     creator_id = Column(Integer, nullable=False)
     modifier_id = Column(Integer)
     is_void = Column(Boolean, nullable=False, default=False)
-    job_stat_factor_id  = Column(Integer)
+    job_stat_factor_id = Column(Integer)
+
+
+class FittedValues(Base):
+    __tablename__ = "fitted_values"
+    __table_args__ = {"schema": "af"}
+
+    id = Column(Integer, primary_key=True)
+
+    record = Column(Integer)
+    trait_value = Column(DOUBLE_PRECISION)
+    yhat = Column(DOUBLE_PRECISION)
+    residual = Column(DOUBLE_PRECISION)
+    hat = Column(DOUBLE_PRECISION)
+    plot_id = Column(Integer)
+    rinv_res = Column(DOUBLE_PRECISION)
+    amostat = Column(DOUBLE_PRECISION)
+    amostat_flag = Column(String(50))
+    stat_factor = Column(String(50))
+    covariate_trait_value = Column(DOUBLE_PRECISION)
+    trait_qc = Column(String(50))
+    covariate_trait_qc = Column(String(50))
+    tenant_id = Column(Integer, nullable=False)
+    creation_timestamp = Column(DateTime, server_default=func.now())
+    modification_timestamp = Column(DateTime)
+    creator_id = Column(Integer, nullable=False)
+    modifier_id = Column(Integer)
+    is_void = Column(Boolean, nullable=False, default=False)
+    
+    job_id = Column(Integer)
+    # TODO add ref to job
