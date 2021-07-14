@@ -105,17 +105,19 @@ def get_prediction():
 
 
 class TestProcessData(TestCase):
+    @patch("af.pipeline.config.get_asreml_input_directory")
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
     @patch("af.pipeline.db.services.get_property")
     @patch("af.pipeline.data_reader.DataReaderFactory.get_phenotype_data")
     def test_dpo_sesl_filter(
-        self, mock_phenotype_ebs, mock_get_property, mock_get_analysis_fields, mock_get_analysis_config_properties
+        self, mock_phenotype_ebs, mock_get_property,
+        mock_get_analysis_fields, mock_get_analysis_config_properties, asreml_input_folder
     ):
 
         test_request = get_test_analysis_request()
         output_folder = TemporaryDirectory()
-        test_request.outputFolder = output_folder.name
+        asreml_input_folder.return_value = output_folder.name
 
         phenotype_data_ebs_instance = MagicMock()
         mock_plots = []
@@ -213,17 +215,19 @@ class TestProcessData(TestCase):
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_contents)
 
+    @patch("af.pipeline.config.get_asreml_input_directory")
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
     @patch("af.pipeline.db.services.get_property")
     @patch("af.pipeline.data_reader.DataReaderFactory.get_phenotype_data")
     def test_dpo_seml_filter(
-        self, mock_phenotype_ebs, mock_get_property, mock_get_analysis_fields, mock_get_analysis_config_properties
+        self, mock_phenotype_ebs, mock_get_property,
+        mock_get_analysis_fields, mock_get_analysis_config_properties, asreml_input_folder
     ):
 
         test_request = get_test_analysis_request()
         output_folder = TemporaryDirectory()
-        test_request.outputFolder = output_folder.name
+        asreml_input_folder.return_value = output_folder.name
 
         phenotype_data_ebs_instance = MagicMock()
 
