@@ -111,8 +111,12 @@ class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_property")
     @patch("af.pipeline.data_reader.DataReaderFactory.get_phenotype_data")
     def test_dpo_sesl_filter(
-        self, mock_phenotype_ebs, mock_get_property,
-        mock_get_analysis_fields, mock_get_analysis_config_properties, asreml_input_folder
+        self,
+        mock_phenotype_ebs,
+        mock_get_property,
+        mock_get_analysis_fields,
+        mock_get_analysis_config_properties,
+        asreml_input_folder,
     ):
 
         test_request = get_test_analysis_request()
@@ -221,8 +225,12 @@ class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_property")
     @patch("af.pipeline.data_reader.DataReaderFactory.get_phenotype_data")
     def test_dpo_seml_filter(
-        self, mock_phenotype_ebs, mock_get_property,
-        mock_get_analysis_fields, mock_get_analysis_config_properties, asreml_input_folder
+        self,
+        mock_phenotype_ebs,
+        mock_get_property,
+        mock_get_analysis_fields,
+        mock_get_analysis_config_properties,
+        asreml_input_folder,
     ):
 
         test_request = get_test_analysis_request()

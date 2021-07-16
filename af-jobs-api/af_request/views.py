@@ -67,15 +67,13 @@ def get(request_uuid: str):
 @af_requests_bp.route("/<request_uuid>/files/result.zip")
 def download_result(request_uuid: str):
     """Download file result of analysis request as zip file"""
-    
+
     request_uuid_without_hyphens = request_uuid.replace("-", "")
     download_name = f"{request_uuid_without_hyphens}.zip"
 
     return send_from_directory(
-        config.get_analysis_request_folder(request_uuid),
-        "result.zip",
-        as_attachment=True,
-        download_name=download_name)
+        config.get_analysis_request_folder(request_uuid), "result.zip", as_attachment=True, download_name=download_name
+    )
 
 
 def _map_analsysis_request(req):
@@ -89,7 +87,7 @@ def _map_analsysis_request(req):
         status=req.status,
         createdOn=req.creation_timestamp,
         modifiedOn=req.modification_timestamp,
-        requestorId=req.requestor_id
+        requestorId=req.requestor_id,
     )
 
     if req.status == Status.DONE:

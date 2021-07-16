@@ -2,7 +2,8 @@ import os
 
 ROOT_DATA_FOLDER = os.getenv("AF_DATA_DIR")
 
-RESULT_DOWNLOAD_BY_REQUEST = "/requests/{request_id}/files/result.zip" 
+RESULT_DOWNLOAD_BY_REQUEST = "/requests/{request_id}/files/result.zip"
+
 
 def get_analysis_request_folder(request_id: str) -> str:
     """Returns the shared data folder path for given request id."""

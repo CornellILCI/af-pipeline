@@ -41,7 +41,7 @@ def query(query_params: api_models.AnalysisRequestListQueryParameters):
     # Requests submitted by other frameworks have non standardized status fields other than what
     # used by af.
     query = query.filter(db_models.Request.type == "ANALYZE")
-    
+
     if query_params.requestorId:
         query = query.filter(db_models.Request.requestor_id == query_params.requestorId)
 
