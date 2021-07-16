@@ -89,6 +89,7 @@ def _map_analsysis_request(req):
         status=req.status,
         createdOn=req.creation_timestamp,
         modifiedOn=req.modification_timestamp,
+        requestorId=req.requestor_id
     )
 
     if req.status == Status.DONE:

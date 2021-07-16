@@ -15,6 +15,7 @@ def submit(request_data: api_models.AnalysisRequestParameters):
         institute=request_data.institute,
         crop=request_data.crop,
         type=request_data.analysisType,
+        requestor_id=request_data.requestorId,
         status="PENDING",
     )
 
