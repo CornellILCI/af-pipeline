@@ -68,7 +68,12 @@ def get(request_uuid: str):
 def download_result(request_uuid: str):
     """Download file result of analysis request as zip file"""
 
-    return send_from_directory(config.get_analysis_request_folder(request_uuid), "result.zip", as_attachment=True)
+    request_uuid_without_hyphens = request_uuid.replace("-", "")
+    download_name = f"{request_uuid_without_hyphens}.zip"
+
+    return send_from_directory(
+        config.get_analysis_request_folder(request_uuid), "result.zip", as_attachment=True, download_name=download_name
+    )
 
 
 def _map_analsysis_request(req):
@@ -82,9 +87,10 @@ def _map_analsysis_request(req):
         status=req.status,
         createdOn=req.creation_timestamp,
         modifiedOn=req.modification_timestamp,
+        requestorId=req.requestor_id,
     )
 
     if req.status == Status.DONE:
-        req_dto.resultDownloadRelativeUrl = f"/request/{req.uuid}/files/result.zip"
+        req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
 
     return req_dto
