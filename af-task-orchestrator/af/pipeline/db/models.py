@@ -5,11 +5,14 @@ from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, St
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+
 # workaround to get pytest to work with sqlite
 if os.getenv("env") == "testing":
     from sqlalchemy import Float as DOUBLE_PRECISION
+    from sqlalchemy.types import JSON
 else:
     from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
+    from sqlalchemy.dialects.postgresql import JSONB as JSON
 
 
 class Request(Base):
@@ -258,4 +261,5 @@ class FittedValues(Base):
     is_void = Column(Boolean, nullable=False, default=False)
     
     job_id = Column(Integer)
+    additional_info = Column(JSON, nullable=True)
     # TODO add ref to job
