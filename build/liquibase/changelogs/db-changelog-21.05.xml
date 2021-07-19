@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- DB-370 Create results tables in badb -->
+    <include file="changesets/21.05/schema/create_result_tables.sql"/>
+
+    <!-- BA-325 Update labels of the two new design models -->
+    <include file="changesets/21.05/data/template/update_labes_design_models.sql"/>
+
+    <!-- BA-461 Set is_void=false in badb tables -->
+    <include file="changesets/21.05/data/template/set_is_void_false_property_ui_and_meta.sql"/>
+        
+
+    </databaseChangeLog>
