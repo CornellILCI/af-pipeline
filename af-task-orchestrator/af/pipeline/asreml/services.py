@@ -39,4 +39,5 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
 
 def process_yhat_result(session, job_id: int, filename_or_stream, *args, **kwargs):
     """Service func to process yhat files"""
-    
+
+    pass
