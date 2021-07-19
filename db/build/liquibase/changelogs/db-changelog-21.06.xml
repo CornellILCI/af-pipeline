@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- BA-424 Update in AFDb the default value of nTrial for IWIN Design -->
+    <include file="changesets/21.06/data/template/update_default_value_of_ntrial_for_iwin_design.sql"/>
+
+    <!-- DB-539 Update default values for 2 fields in randRCBDirri -->
+    <include file="changesets/21.06/data/template/update_ntrial_nrep_default_value_randrcbdirri.sql"/>
+
+    <!-- BA-483 correct property #150 statement -->
+    <include file="changesets/21.06/data/template/correct_property_statement.sql"/>
+
+    <!-- BA-484 add columns to model_stat table -->
+    <include file="changesets/21.06/schema\add_columns_to_model_stat_table.sql"/>
+
+
+    </databaseChangeLog>
