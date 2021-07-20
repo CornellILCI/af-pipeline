@@ -27,6 +27,7 @@ def check_file(file) :
 parse_res checks if there is SD and then extracts appropriate data
 """
 
+
 def parse_res(res)-> pd.DataFrame:
     x = 0
     if len(res) > 0:
