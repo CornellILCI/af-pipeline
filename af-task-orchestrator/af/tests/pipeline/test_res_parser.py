@@ -19,6 +19,7 @@ def test_res_parser():
     testDf.loc[0] = pd.Series({'Record': 'section 11, column 14 (of 15), row 22 (of 28)',
                               'SD': '3.70' })
 
+
     handler = parser.parse_res(parser.check_file(t.name))
     assert_frame_equal(handler,testDf)
 
