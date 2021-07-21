@@ -41,12 +41,11 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
 def process_yhat_result(session, job_id: int, filename_or_stream, *args, **kwargs):
     """Service func to process yhat files"""
     data = yhatparser.parse(filename_or_stream)
-    data_dict = data.to_dict('records')
-
+    data_dict = data.to_dict("records")
     for item in data_dict:
-        item['job_id'] = job_id
-        item['tenant_id'] = 1
-        item['creator_id'] = 1
+        item["job_id"] = job_id
+        item["tenant_id"] = 1
+        item["creator_id"] = 1
 
     if data_dict:
         session.bulk_insert_mappings(FittedValues, data_dict)
