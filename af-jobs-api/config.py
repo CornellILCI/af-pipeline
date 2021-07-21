@@ -1,6 +1,6 @@
 import os
 
-ROOT_DATA_FOLDER = os.getenv("AF_DATA_DIR")
+ROOT_DATA_FOLDER = os.getenv("BA_DATA_DIR")
 
 RESULT_DOWNLOAD_BY_REQUEST = "/requests/{request_id}/files/result.zip"
 
