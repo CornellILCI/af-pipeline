@@ -34,7 +34,9 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
 
         session.add(model_stat)
 
-    # TODO: add prediction row shere
+    #if ch.predictions:
+    # add predicitons to db here
+
     session.commit()
 
 

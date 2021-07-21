@@ -2,6 +2,7 @@ import io
 
 from af.pipeline.asreml.services import process_asreml_result, process_yhat_result
 from af.pipeline.db.models import FittedValues, ModelStat, Variance
+import json
 
 
 def test_simple_test_1(dbsession, sample_asreml_result_string_1):
@@ -26,6 +27,7 @@ def test_yhat_parser_service_happy_path(sample_yhat_data_1, dbsession):
     record = dbsession.query(FittedValues).filter_by(record=1).first()
     assert record.additional_info  # not empty
 
-    # SQLITE gets the data as string so
-    print(record.additional_info)
-    assert False
+    # SQLITE gets the data as string so, we must do a test
+    json_data = json.loads(record.additional_info)
+    assert json_data.get("RinvRes") == 0.009825
+    

@@ -2,12 +2,12 @@ import json
 import uuid as uuidlib
 
 import celery_util
-from af_requests import api_models
-from af_requests import models as db_models
+from af_request import api_models
+from af_request import models as db_models
 from database import db
 
 
-def submit_analysis_request(request_data: api_models.AnalysisRequestParameters):
+def submit(request_data: api_models.AnalysisRequestParameters):
     """Submits analysis request to pipeline."""
 
     req = db_models.Request(
@@ -15,6 +15,7 @@ def submit_analysis_request(request_data: api_models.AnalysisRequestParameters):
         institute=request_data.institute,
         crop=request_data.crop,
         type=request_data.analysisType,
+        requestor_id=request_data.requestorId,
         status="PENDING",
     )
 
@@ -29,15 +30,20 @@ def submit_analysis_request(request_data: api_models.AnalysisRequestParameters):
         ),
     )
 
-    return _map_analsysis_request(req)
+    return req
 
 
-def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParameters):
+def query(query_params: api_models.AnalysisRequestListQueryParameters):
 
     query = db_models.Request.query
 
+    # filter only analysis requests.
+    # Requests submitted by other frameworks have non standardized status fields other than what
+    # used by af.
+    query = query.filter(db_models.Request.type == "ANALYZE")
+
     if query_params.requestorId:
-        query = query.filter(db_models.Request.requestorId == query_params.requestorId)
+        query = query.filter(db_models.Request.requestor_id == query_params.requestorId)
 
     if query_params.crop:
         query = query.filter(db_models.Request.crop == query_params.crop)
@@ -56,32 +62,11 @@ def get_analysis_requests(query_params: api_models.AnalysisRequestListQueryParam
 
     analysis_requests = query.all()
 
-    # DTOs for api response
-    _analysis_requests = []
-
-    for analysis_request in analysis_requests:
-        _analysis_requests.append(_map_analsysis_request(analysis_request))
-
-    return api_models.AnalysisRequestListResponse(
-        metadata=api_models.create_metadata(query_params.page, query_params.pageSize),
-        result=api_models.AnalysisRequestListResponseResult(data=_analysis_requests),
-    )
+    return analysis_requests
 
 
-def get_analysis_request_by_id(request_id: str):
+def get_by_id(request_id: str):
 
     analysis_request = db_models.Request.query.filter(db_models.Request.uuid == request_id).one()
 
-    return api_models.AnalysisRequestResponse(result=_map_analsysis_request(analysis_request))
-
-
-def _map_analsysis_request(req):
-    return api_models.AnalysisRequest(
-        requestId=req.uuid,
-        crop=req.crop,
-        institute=req.institute,
-        analysisType=req.type,
-        status=req.status,
-        createdOn=req.creation_timestamp,
-        modifiedOn=req.modification_timestamp,
-    )
+    return analysis_request
