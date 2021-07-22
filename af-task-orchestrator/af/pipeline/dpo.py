@@ -3,11 +3,10 @@
 import argparse
 import json
 import os
+import pathlib
 import sys
 from collections import OrderedDict
 from os import path
-
-import pathlib
 
 from pydantic import ValidationError
 
@@ -19,7 +18,6 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
-
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from af.pipeline.data_reader.models import Experiment, Occurrence
 from af.pipeline.data_reader.models.enums import DataSource, DataType
@@ -52,7 +50,7 @@ class ProcessData:
         self.analysis_fields = None
         self.input_fields_to_config_fields = None
 
-        self.output_folder = config.get_asreml_input_directory(analysis_request.requestId)
+        self.output_folder = analysis_request.outputFolder
 
     def get_traits(self) -> list[Trait]:
         traits = []
@@ -169,7 +167,7 @@ class ProcessData:
 
         job_data.to_csv(data_file_path, index=False)
 
-        job_file_lines = self._get_asrml_job_file_lines(job_name, trait)
+        job_file_lines = self._get_asrml_job_file_lines(job_name, data_file_path, trait)
 
         with open(job_file_path, "w") as j_f:
             for line in job_file_lines:
@@ -201,13 +199,11 @@ class ProcessData:
                 self.input_fields_to_config_fields[input_field_name] = field.Property.code
         return self.input_fields_to_config_fields
 
-    def _get_asrml_job_file_lines(self, job_name, trait: Trait):
+    def _get_asrml_job_file_lines(self, job_name, data_file_path, trait: Trait):
 
         job_file_lines = [job_name]
 
         analysis_config_id = self.analysis_request.analysisConfigPropertyId
-        data_file_name = f"{job_name}.csv"
-        data_file_path = os.path.join(self.output_folder, data_file_name)
 
         # 1: adding the analysis field statements
         for field_line in self._get_analysis_field_lines(analysis_config_id):

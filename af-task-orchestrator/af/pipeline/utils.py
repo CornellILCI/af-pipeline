@@ -1,10 +1,8 @@
 import hashlib
-import re
 import os
-
-from pathlib import Path
-
+import re
 import zipfile
+from pathlib import Path
 
 
 def get_analysis_engine(analysis_request):

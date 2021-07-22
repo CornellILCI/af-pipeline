@@ -49,7 +49,7 @@ services:
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
       - AFAPI_ALLOWABLE_ORIGINS=*
-      - AF_DATA_DIR=/data/
+      - BA_DATA_DIR=/data/
     restart: always
     ports:
       - "5000:5000"
@@ -73,11 +73,8 @@ services:
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - BACKEND=rpc://
       - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
-      - ASREML_LICENSE_DIR=/home/asreml/licenses
-      - ASREML_INPUTS_DIR=/home/asreml/inputs 
-      - ASREML_OUTPUTS_DIR=/home/asreml/outputs
-      - ASREML_EXECUTABLE_IMAGE=ebsproject/ba-asreml:21.06 
-      - AF_DATA_DIR=/data/
+      - BA_DATA_DIR=/data/
+      - ASREML_ACTIVATION_CODE=
     links:
       - rabbitmq
     depends_on:
