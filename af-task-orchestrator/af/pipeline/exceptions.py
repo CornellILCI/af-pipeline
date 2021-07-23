@@ -12,3 +12,7 @@ class RequiredAnalysisRequest(DpoException):
 
 class InvalidAnalysisRequest(DpoException):
     pass
+
+
+class FileParseException(Exception):
+    pass

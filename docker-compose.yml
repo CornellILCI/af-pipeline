@@ -49,7 +49,7 @@ services:
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
       - AFAPI_ALLOWABLE_ORIGINS=*
-      - AF_DATA_DIR=/data/
+      - BA_DATA_DIR=/data/
     restart: always
     ports:
       - "5000:5000"
@@ -73,37 +73,9 @@ services:
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - BACKEND=rpc://
       - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
-      - ASREML_LICENSE_DIR=/home/asreml/licenses
-      - ASREML_INPUTS_DIR=/home/asreml/inputs 
-      - ASREML_OUTPUTS_DIR=/home/asreml/outputs
-      - ASREML_EXECUTABLE_IMAGE=ebsproject/ba-asreml:21.06
-    links:
-      - rabbitmq
-    depends_on:
-      - rabbitmq
-      - database
-
-  asreml_worker:
-    build:
-      context: ./af-task-orchestrator
-      dockerfile: Dockerfile-asreml
-    working_dir: /app
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - asreml_license_dir:/home/asreml/licenses
-      - asreml_inputs:/home/asreml/inputs
-      - asreml_outputs:/home/asreml/outputs
-      - af_data_volume:/data/
-    environment:
-      - C_FORCE_ROOT=true
-      - BROKER=amqp://admin:mypass@rabbitmq:5672
-      - BACKEND=rpc://
-      - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
-      - ASREML_LICENSE_DIR=/home/asreml/licenses
-      - ASREML_INPUTS_DIR=/home/asreml/inputs 
-      - ASREML_OUTPUTS_DIR=/home/asreml/outputs
-      - ASREML_EXECUTABLE_IMAGE=ebsproject/ba-asreml:21.06
-      - ASREML_LICENSE_SEATS=1   # test number of seats
+      - BA_DATA_DIR=/data/
+      - ASREML_ACTIVATION_CODE=${ASREML_ACTIVATION_CODE}
+      - ASREML_SEATS=${ASREML_SEATS}
     links:
       - rabbitmq
     depends_on:

@@ -9,7 +9,7 @@ BRAPI_BASE_URL = os.getenv("BRAPI_BASE_URL")
 
 AFDB_URL = os.getenv("AFDB_URL")
 
-ROOT_DATA_FOLDER = os.getenv("AF_DATA_DIR")
+ROOT_DATA_FOLDER = os.getenv("BA_DATA_DIR")
 
 
 def get_analysis_request_folder(request_id: str) -> str:

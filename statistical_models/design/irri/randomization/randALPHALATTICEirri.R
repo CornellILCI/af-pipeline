@@ -8,10 +8,10 @@
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2019.03.01
-# Date Modified    : 2021.01.15
+# Date Modified    : 2021.07.08
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 4
+# Script Version   : 5
 # Command          : Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst"
 #                    --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 
 #                    --nRowPerRep 4 --nFieldRow 8 --serpentine CO -o "Output" 
@@ -95,7 +95,7 @@ entryInfo <- entryData[,"entry_id"]
 # write the design information
 sink(file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_designInfo.txt", sep = ""))
 if (opt$genLayout) {
-  temp <- try(result <- designAlphaLattice(generate = list(Entry = entryInfo),
+  temp <- try(result <- designAlphaLatticeEBS(generate = list(Entry = entryInfo),
                                            numBlk = opt$nBlk,
                                            numRep = opt$nRep,
                                            numTrial = opt$nTrial,
@@ -108,7 +108,7 @@ if (opt$genLayout) {
                                            display = TRUE),
               silent = TRUE)
 } else {
-  temp <- try(result <- designAlphaLattice(generate = list(Entry = entryInfo),
+  temp <- try(result <- designAlphaLatticeEBS(generate = list(Entry = entryInfo),
                                            numBlk = opt$nBlk,
                                            numRep = opt$nRep,
                                            numTrial = opt$nTrial,

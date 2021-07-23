@@ -10,7 +10,7 @@ class DBConfig:
     def get_engine(cls):
         if DBConfig._engine:
             return DBConfig._engine
-        DBConfig._engine = create_engine(config.AFDB_URI)
+        DBConfig._engine = create_engine(config.AFDB_URI, pool_pre_ping=True)
         return DBConfig._engine
 
     _SessionLocal = None

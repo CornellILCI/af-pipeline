@@ -15,6 +15,7 @@
 .Rhistory
 *.sif
 .coverage
+.env
 
 # Ignore folders
 __pycache__/

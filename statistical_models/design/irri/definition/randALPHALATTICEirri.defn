@@ -1,14 +1,14 @@
 {
   "metadata": {
     "Rversion": "4.0.3",
-    "date": "23-Jan-2021",
+    "date": "09-Jul-2021",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine T -o 'Output3' -p 'D:/Results'",
     "engine": "R 4.0.3",
     "method": "randALPHALATTICEirri",
     "design": "Alpha-Lattice",
-    "modelVersion": 3,
+    "modelVersion": 4,
     "organization_code": "IRRI",
     "note": "Total number of entries should not be a prime number."
   },
@@ -74,6 +74,9 @@
         "data_type": "integer",
         "order_number": 3,
         "variable_abbrev": "REP_COUNT",
+<<<<<<< HEAD
+        "is_layout_variable": "F"
+=======
         "is_layout_variable": "F",
         "rule": [
           {
@@ -84,6 +87,7 @@
             "action": "error"
           }
         ]
+>>>>>>> 8ba5f7e06da69ac3cd8511fdafda642aaec7fa9b
       },
       "nBlk": {
         "variable_label": "No. of Blocks per Rep",
