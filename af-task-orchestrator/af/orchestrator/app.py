@@ -38,3 +38,7 @@ app.conf.task_queues = (default_queue, asreml_queue)
 app.conf.task_default_queue = default_queue_name
 app.conf.task_default_exchange_name = default_exchange_name
 app.conf.task_default_routing_key = default_routing_key
+
+app.conf.task_routes = {
+    'af.orchestrator.processing.asreml.run_asreml': {'queue': asreml_queue_name}
+}
