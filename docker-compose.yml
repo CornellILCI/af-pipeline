@@ -4,12 +4,6 @@ version: "3.4"
 volumes:
   afdb_volume:
   af_data_volume:
-  asreml_license_dir:
-    external: ${EXTERNAL_DIR}     # create these via: docker volume so docker-compose does not add prefix
-  asreml_inputs:
-    external: ${EXTERNAL_DIR}
-  asreml_outputs:
-    external: ${EXTERNAL_DIR}
 
 services:
   database:
@@ -30,9 +24,8 @@ services:
   rabbitmq:
     hostname: rabbitmq
     image: rabbitmq:management
-    environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=mypass
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -63,10 +56,6 @@ services:
       dockerfile: Dockerfile
     working_dir: /app
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - asreml_license_dir:/home/asreml/licenses
-      - asreml_inputs:/home/asreml/inputs
-      - asreml_outputs:/home/asreml/outputs
       - af_data_volume:/data/
     environment:
       - C_FORCE_ROOT=true
