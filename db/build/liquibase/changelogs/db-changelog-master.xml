@@ -15,7 +15,7 @@
 
     <!-- 21.06 -->
     <include file="changelogs/db-changelog-21.06.xml"/>
-    <!--include file="changesets/21.06/tag/dev-tag.xml"/-->
+    <include file="changesets/21.06/tag/dev-tag.xml"/>
 
     <!-- 21.07 -->
     <include file="changelogs/db-changelog-21.07.xml"/>

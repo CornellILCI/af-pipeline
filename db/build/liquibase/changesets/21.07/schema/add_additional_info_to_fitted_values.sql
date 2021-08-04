@@ -5,3 +5,7 @@
 
 ALTER TABLE af.fitted_values
     ADD COLUMN additional_info jsonb;
+
+
+--Revert Changes
+--rollback ALTER TABLE af.fitted_values DROP COLUMN additional_info;
