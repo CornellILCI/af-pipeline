@@ -18,6 +18,21 @@ ALTER TABLE af.effect
     ALTER COLUMN modifier_id TYPE text;
 
 
+ALTER TABLE af.fitted_values
+    ALTER COLUMN trait_value TYPE text,
+    ALTER COLUMN yhat TYPE text,
+    ALTER COLUMN residual TYPE text,
+    ALTER COLUMN hat TYPE text,
+    ALTER COLUMN rinv_res TYPE text,
+    ALTER COLUMN amostat TYPE text,
+    ALTER COLUMN amostat_flag TYPE text,
+    ALTER COLUMN stat_factor TYPE text,
+    ALTER COLUMN covariate_trait_value TYPE text,
+    ALTER COLUMN trait_qc TYPE text,
+    ALTER COLUMN covariate_trait_qc TYPE text,
+    ALTER COLUMN creator_id TYPE text,
+    ALTER COLUMN modifier_id TYPE text;
+
 ALTER TABLE af.job
     ALTER COLUMN name TYPE text,
     ALTER COLUMN time_start TYPE text,
@@ -98,7 +113,7 @@ ALTER TABLE af.property_rule
 
 ALTER TABLE af.property_ui
     ALTER COLUMN unit TYPE text,
-    ALTER COLUMN default TYPE text,
+    ALTER COLUMN "default" TYPE text,
     ALTER COLUMN creator_id TYPE text,
     ALTER COLUMN modifier_id TYPE text;
 
@@ -108,8 +123,6 @@ ALTER TABLE af.request
     ALTER COLUMN category TYPE text,
     ALTER COLUMN type TYPE text,
     ALTER COLUMN design TYPE text,
-    ALTER COLUMN requestor_id TYPE text,
-    ALTER COLUMN institute TYPE text,
     ALTER COLUMN requestor_id TYPE text,
     ALTER COLUMN institute TYPE text,
     ALTER COLUMN crop TYPE text,
