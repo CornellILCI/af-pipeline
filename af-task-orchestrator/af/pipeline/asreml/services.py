@@ -2,7 +2,7 @@ import xml.sax
 
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
 from af.pipeline.db.core import DBConfig
-from af.pipeline.db.models import FittedValues, ModelStat, Variance
+from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
 from af.pipeline.asreml import yhatparser
 
 
@@ -26,16 +26,12 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
         session.bulk_insert_mappings(Variance, ch.variances)
 
     if ch.model_stat:
-        # TODO: Remove the next two lines once we have them on db table
-        ch.model_stat.pop("conclusion")
-        ch.model_stat.pop("converged")
-
         model_stat = ModelStat(**ch.model_stat)
-
         session.add(model_stat)
 
-    #if ch.predictions:
-    # add predicitons to db here
+    if ch.predictions:
+        # add predicitons to db here
+        session.bulk_insert_mappings(Prediction, ch.predictions)
 
     session.commit()
 

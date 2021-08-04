@@ -27,7 +27,7 @@ def test_simple_test_1(sample_asreml_result_string_1):
     # check the model_stat
     assert handler.model_stat["job_id"] == sample_job_id
     assert handler.model_stat["conclusion"] == "LogL Converged"
-    assert handler.model_stat["converged"] == True
+    assert handler.model_stat["is_converged"] == True
     assert handler.model_stat["log_lik"] == "-390.5927"
     assert handler.model_stat["aic"] == "787.1855"
     assert handler.model_stat["bic"] == "799.2775"
