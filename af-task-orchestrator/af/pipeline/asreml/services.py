@@ -22,18 +22,26 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
     parser.parse(filename_or_stream)
 
     # process the objects
-    if ch.variances:
-        session.bulk_insert_mappings(Variance, ch.variances)
 
     if ch.model_stat:
         model_stat = ModelStat(**ch.model_stat)
         session.add(model_stat)
 
-    if ch.predictions:
-        # add predicitons to db here
-        session.bulk_insert_mappings(Prediction, ch.predictions)
+        if model_stat.is_converged:
+            _save_variances(session, ch.variances)
+            _save_predictions(session, ch.predictions)
 
     session.commit()
+
+
+def _save_variances(session, variances):
+    if variances:
+        session.bulk_insert_mappings(Variance, variances)
+
+
+def _save_predictions(session, predictions):
+    if predictions:
+        session.bulk_insert_mappings(Prediction, predictions)
 
 
 def process_yhat_result(session, job_id: int, filename_or_stream, *args, **kwargs):
