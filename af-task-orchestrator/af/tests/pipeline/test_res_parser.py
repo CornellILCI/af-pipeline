@@ -17,15 +17,15 @@ def test_res_parser():
     handler = parser.parse_res(parser.check_file(t.name))
     assert_frame_equal(handler,testDf)
 
-    # 
-    # t2 = NamedTemporaryFile()
-    # f69 = "STND RES\t30\t12.362\t3.81\nSTND RES\t30\t12.362\t2.38"
-    # t2.write(bytes(f69,"UTF-8"))
-    # t2.seek(0)
-    # testDf2 = pd.DataFrame({'Record': ['30', '30'],
-    #                            'SD': [' 3.81', ' 2.38']})
-    # handler2 = parser.parse_res(parser.check_file(t2.name))
-    # assert_frame_equal(handler2,testDf2)
+
+    t2 = NamedTemporaryFile()
+    f69 = "STND RES\t30\t12.362\t3.81\nSTND RES\t30\t12.362\t2.38"
+    t2.write(bytes(f69,"UTF-8"))
+    t2.seek(0)
+    testDf2 = pd.DataFrame({'Record': ['30', '30'],
+                               'SD': [' 3.81', ' 2.38']})
+    handler2 = parser.parse_res(parser.check_file(t2.name))
+    assert_frame_equal(handler2,testDf2)
 
 
 
