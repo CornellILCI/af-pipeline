@@ -48,22 +48,36 @@ def parse_res(res)-> pd.DataFrame:
                     x = x+1
 
             if sd[1] in row:
+                data = row.split('\t')
+                print(data)
+                # data_you_need = data[-2], data[-1]
+                # print(data_you_need)
 
                 SD = [row[12:16], row[-6:-1]]
                 df.loc[len(df.index)] = SD
 
-        print(df)
+        # print(df)
         return df
 
 
     if len(res) == 0 :
         print("no outliers found\n")
 
-
-# li2 = [parse_res(check_file(r)) for r in li]
-# print(li2[0][0:2])
+# row = 'STND RES\t30\t12.362\t3.71'
+#
+# row.split('\t')
+# ['STND RES', '30', '12.362', '3.71']
+# data = row.split('\t')
+# data[-2]
+# # print(data)
+# '12.362'
+# data[-1]
+# '3.71'
+#
+li2 = [parse_res(check_file(r)) for r in li]
+print(li2[0])
 #
 # f69 = "STND RES\t30\t12.362\t3.81\nSTND RES\t30\t12.362\t2.38"
-# print(f69)
+# # print(f69)
 # testDf2 = pd.DataFrame({'Record': ['30', '30'],
 #                         'SD': [' 3.81', ' 2.38']})
