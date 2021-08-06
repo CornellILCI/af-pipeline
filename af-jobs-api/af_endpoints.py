@@ -346,5 +346,5 @@ def testasreml():
     # db.session.add(req)
     # db.session.commit()
     # content["requestId"] = req.uuid
-    celery_util.send_task(process_name="run_asreml", args=(content,))
+    celery_util.send_task(process_name="run_asreml", args=(content,), queue="ASREML", routing_key="ASREML")
     return "", 200

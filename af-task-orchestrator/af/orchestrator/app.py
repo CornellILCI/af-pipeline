@@ -3,13 +3,11 @@ import os
 import jsonpickle.ext.pandas as jsonpickle_pandas
 from celery import Celery
 from celery.utils.log import get_task_logger
+from kombu import Exchange, Queue
 
-# from event_consumer import message_handler
-# from event_consumer.handlers import AMQPRetryConsumerStep
 
 
 jsonpickle_pandas.register_handlers()
-
 # register('json', jsonpickle.dumps, jsonpickle.loads, content_type='application/json')
 
 BROKER = os.getenv("BROKER")
@@ -17,9 +15,30 @@ BACKEND = os.getenv("BACKEND")
 CONSUMER_QUEUE = os.getenv("CONSUMER_QUEUE")
 LOGGER = get_task_logger(__name__)
 
-INSTALLED_TASKS = ["af.orchestrator.processing.analyze"]
+INSTALLED_TASKS = ["af.orchestrator.processing.analyze", "af.orchestrator.processing.asreml"]
+
+default_queue_name = "default"
+default_exchange_name = "default"
+default_routing_key = "default"
+
+asreml_queue_name = "ASREML"
+asreml_routing_key = "ASREML"
 
 
 app = Celery("af-worker", broker=BROKER, backend=BACKEND)
 app.autodiscover_tasks(INSTALLED_TASKS)
 app.conf.update({"accept_content": ["pickle"], "task_serializer": "pickle", "result_serializer": "pickle"})
+
+default_exchange = Exchange(default_exchange_name, type='direct')
+
+default_queue = Queue(default_queue_name, default_exchange, routing_key=default_routing_key)
+asreml_queue = Queue(asreml_queue_name, default_exchange, routing_key=asreml_routing_key)
+
+app.conf.task_queues = (default_queue, asreml_queue)
+app.conf.task_default_queue = default_queue_name
+app.conf.task_default_exchange_name = default_exchange_name
+app.conf.task_default_routing_key = default_routing_key
+
+app.conf.task_routes = {
+    'af.orchestrator.processing.asreml.run_asreml': {'queue': asreml_queue_name}
+}

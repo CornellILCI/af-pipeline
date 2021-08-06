@@ -13,9 +13,9 @@ def get_celery_app():  # pragma: no cover
     return app
 
 
-def send_task(process_name, args):  # pragma: no cover
+def send_task(process_name, args, queue="default", routing_key="default"):  # pragma: no cover
     global CELERY_APP
     if not CELERY_APP:
         CELERY_APP = get_celery_app()
 
-    CELERY_APP.send_task(process_name, args=args)
+    CELERY_APP.send_task(process_name, args=args, queue=queue, routing_key=routing_key)

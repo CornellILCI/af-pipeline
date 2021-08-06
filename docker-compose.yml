@@ -74,7 +74,8 @@ services:
       - BACKEND=rpc://
       - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
       - BA_DATA_DIR=/data/
-      - ASREML_ACTIVATION_CODE=
+      - ASREML_ACTIVATION_CODE=${ASREML_ACTIVATION_CODE}
+      - ASREML_SEATS=${ASREML_SEATS}
     links:
       - rabbitmq
     depends_on:
