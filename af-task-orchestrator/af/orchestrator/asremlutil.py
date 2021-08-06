@@ -11,22 +11,6 @@ import af.pipeline.asreml.services as asreml_service
 import subprocess
 
 
-def get_docker_url():
-    return "unix://var/run/docker.sock"
-
-
-def get_host_inputs_dir():
-    return os.getenv("ASREML_INPUTS_DIR")
-
-
-def get_host_license_dir():
-    return os.getenv("ASREML_LICENSE_DIR")
-
-
-def get_host_outputs_dir():
-    return os.getenv("ASREML_OUTPUTS_DIR")
-
-
 def get_container_license_dir():
     return "/home/asreml/licenses"
 
