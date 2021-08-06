@@ -1,17 +1,7 @@
-from tempfile import NamedTemporaryFile
-
 import pandas as pd
 import re
 
-
 sd = [" SD", "STND"]
-
-f67 = "/home/vince/dev/work/wfiles/resPedro/templatesB/67ac5d6f-5cdc-45fd-a2fa-2bc17a2c58bg_SA_0000/results/67ac5d6f-5cdc-45fd-a2fa-2bc17a2c58bg_SA_1001.res"
-# f68 = "/home/vince/dev/work/wfiles/resPedro/templatesB/68ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ab_SA_0000/results/68ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ab_SA_1001.res"
-f69 = "/home/vince/dev/work/wfiles/resPedro/templatesB/69ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ac_SA_0000/results/69ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ac_SA_1001.res"
-# f84 = "/home/vince/dev/work/wfiles/resPedro/templatesB/84ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ae_SA_0000/results/84ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ae_SA_1001.res"
-# f85 = "/home/vince/dev/work/wfiles/resPedro/templatesB/85/results/85.res"
-li = [ f69]
 
 def check_file(file) :
     try:
@@ -21,7 +11,6 @@ def check_file(file) :
         return res
     except KeyError:
         raise ColumnNotAvailableError(file)
-
 
 """
 parse_res checks if there is SD and then extracts appropriate data
@@ -33,7 +22,6 @@ def parse_res(res)-> pd.DataFrame:
 
         df = pd.DataFrame(columns=['Record','SD'])
 
-
         for row in res :
 
             if sd[0] in row:
@@ -41,43 +29,20 @@ def parse_res(res)-> pd.DataFrame:
                 SD = re.search('\[(.*?)\]', res[x])
 
                 if SD is not None:
-
+                    data = row.split('\t')
+                    result = re.findall("\d+\.\d+", data[0])
                     SD = SD.group(1)
-                    SD = [SD, row[-9:-4]]
+                    SD = [SD, result[0]]
                     df.loc[len(df.index)] = SD
                     x = x+1
 
             if sd[1] in row:
                 data = row.split('\t')
-                print(data)
-                # data_you_need = data[-2], data[-1]
-                # print(data_you_need)
-
-                SD = [row[12:16], row[-6:-1]]
+                SD = [data[1], data[3]]
                 df.loc[len(df.index)] = SD
 
-        # print(df)
+        print(df)
         return df
-
 
     if len(res) == 0 :
         print("no outliers found\n")
-
-# row = 'STND RES\t30\t12.362\t3.71'
-#
-# row.split('\t')
-# ['STND RES', '30', '12.362', '3.71']
-# data = row.split('\t')
-# data[-2]
-# # print(data)
-# '12.362'
-# data[-1]
-# '3.71'
-#
-li2 = [parse_res(check_file(r)) for r in li]
-print(li2[0])
-#
-# f69 = "STND RES\t30\t12.362\t3.81\nSTND RES\t30\t12.362\t2.38"
-# # print(f69)
-# testDf2 = pd.DataFrame({'Record': ['30', '30'],
-#                         'SD': [' 3.81', ' 2.38']})
