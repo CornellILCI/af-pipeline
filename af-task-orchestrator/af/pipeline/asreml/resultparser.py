@@ -46,8 +46,6 @@ TRANSFORM_MSTAT_TAG = {
 
 TRANSFORM_PREDICTION_TAG = {
     TAG_PREDICT_TABLE: "prediction",
-    TAG_CELL: "id",
-    TAG_IDENTIFIER: "id",
     TAG_PRED_VALUE: "value",
     TAG_STNDERR: "std_error",
     TAG_EPCODE: "e_code",

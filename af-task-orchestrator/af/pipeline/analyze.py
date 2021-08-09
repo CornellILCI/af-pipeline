@@ -17,6 +17,7 @@ from af.pipeline import config, dpo, utils
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db import services as db_services
+from af.pipeline.asreml import services as asreml_services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import Analysis, Job
 from af.pipeline.exceptions import AnalysisError, DpoException, InvalidAnalysisRequest
@@ -64,10 +65,11 @@ class Analyze:
 
         try:
             job_input_files = dpo.ProcessData(self.analysis_request).run()
+            self.__update_job(job, "IN-PROGRESS", "Data Pre-Processing completed.")
             return job_input_files
         except (DataReaderException, DpoException) as e:
             self.analysis.status = "FAILED"
-            self.__update_job(job, "FAILED", str(e))
+            self.__update_job(job, "FAILED", "Failed during Data Pre-Processing.")
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
@@ -87,6 +89,7 @@ class Analyze:
             [
                 {
                     "job_name": "job1",
+                    "job_id": "jobId1",
                     "job_result_dir": "/test/"
                 }
             ]
@@ -105,6 +108,7 @@ class Analyze:
             job_name = job_input_file["job_name"]
             asreml_job_file = job_input_file["asreml_job_file"]
             data_file = job_input_file["data_file"]
+            job_dir = utils.get_parent_dir(data_file) 
 
             job_status = "IN-PROGRESS"
             status_message = "Processing the input request"
@@ -117,14 +121,13 @@ class Analyze:
 
                 run_result = subprocess.run(cmd, capture_output=True)
 
-                job_status = utils.get_job_status(run_result.stdout, run_result.stderr)
+                job = self.__update_job(job, "COMPLETED", "Completed the job.")
 
-                if job_status > 100:
-                    status_message = run_result.stdout.decode("utf-8")[:50]
-
-                job = self.__update_job(job, job_status, status_message)
-
-                job_results.append({"job_name": job_name, "job_result_dir": utils.get_parent_dir(data_file)})
+                job_results.append({
+                    "job_name": job_name,
+                    "job_id": job.id,
+                    "job_result_dir": job_dir
+                })
 
             except Exception as e:
                 self.analysis.status = "FAILED"
@@ -140,10 +143,40 @@ class Analyze:
         return job_results
 
     def post_process(self, job_results):
+       
+        try:
+            for job_result in job_results:
+                
+                job_name = job_result["job_name"]
+                job_result_dir = job_result["job_result_dir"]
+                    
+                asr_file_path = path.join(job_result_dir, f"{job_name}.asr")
 
-        for job_result in job_results:
+                job = db_services.get_job_by_name(self.db_session, job_name)
 
-            utils.zip_dir(job_result["job_result_dir"], self.output_file_path, job_result["job_name"])
+                if not path.exists(asr_file_path):
+                    raise AnalysisError("Analysis result file not found.")
+
+                # parse yhat result and save to db
+                yhat_file_path = path.join(job_result_dir, f"{job_name}_yht.txt")
+                asreml_services.process_yhat_result(self.db_session, job_result["job_id"], yhat_file_path)
+                
+                # parse predictions, model stats from xml and save to db
+                asreml_result_xml_path = path.join(job_result_dir, f"{job_name}.xml")
+                asreml_services.process_asreml_result(self.db_session, job_result["job_id"], asreml_result_xml_path)
+                
+                # zip the result files to be downloaded by the users
+                utils.zip_dir(job_result_dir, self.output_file_path, job_name)
+
+                self.__update_job(job, "SUCCESS", "Asreml analysis completed successfully")
+
+                self.db_session.commit()
+        except Exception as e:
+            self.analysis.status = "FAILED"
+            self.__update_job(job, "FAILED", str(e))
+            raise AnalysisError(str(e))
+        finally:
+            self.db_session.commit()
 
     def __get_new_job(self, job_name: str, status: str, status_message: str) -> Job:
 

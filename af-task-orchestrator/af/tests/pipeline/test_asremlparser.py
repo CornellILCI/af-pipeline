@@ -35,7 +35,6 @@ def test_simple_test_1(sample_asreml_result_string_1):
     assert handler.predictions[0]["e_code"] == "E"
     assert handler.predictions[0]["std_error"] == "0.0846111"
     assert handler.predictions[0]["value"] == "6.6159"
-    assert handler.predictions[0]["id"] == "1"
 
 
 def test_not_converged_result(sample_asreml_not_converged_result_string):
