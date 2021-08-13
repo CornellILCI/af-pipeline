@@ -6,11 +6,13 @@ import os
 
 
 def test_sln_parser():
+
     """
     write a df string to a temp file
     pass temp file to the handler for transform
     compare transform to the manually constructed valid df constructed below
     """
+
     t = NamedTemporaryFile()
     string = 'Model_Term\tLevel\tEffect\tseEffect\nrep\t1\t0.0\t0.0'
     t.write(bytes(string, 'UTF-8'))
@@ -37,8 +39,3 @@ def test_sln_parser():
                               'additional_info': str({'GiEffect': 0.627188, 'AOMstat': 0.685164 })})
     handler2 = parser.parse_sln_file(t2.name)
     assert_frame_equal(handler2,testDf2)
-
-
-
-
-    # create a 2 row dataframe
