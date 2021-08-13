@@ -8,7 +8,7 @@ SLN_FILE_COLUMNS_TO_DB_COLUMNS = {"Model_Term":"model_term",
 static = ["model_term", "level", "effect", "se_effect"]
 
 def parse_sln_file(slnfile) -> pd.DataFrame:
-    
+
     """
     write a mock df string to a temporary file
     pass temp file to the handler for transform
