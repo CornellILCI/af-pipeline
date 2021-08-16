@@ -59,7 +59,7 @@ class ProcessData:
             traits.append(trait)
         return traits
 
-    def sesl(self):
+    def seml(self):
         """For Single Experiment Single Location
 
         Generator for ASReml job definition file and input data files for each trait.
@@ -97,7 +97,7 @@ class ProcessData:
                 job_input_files = self._write_job_input_files(f"{trait.trait_id}", plots_and_measurements, trait)
                 yield job_input_files
 
-    def seml(self):
+    def sesl(self):
         """For Single Experiment Multi Location
 
         Generator for ASReml job definition file and input data files for each valid combination of trait
