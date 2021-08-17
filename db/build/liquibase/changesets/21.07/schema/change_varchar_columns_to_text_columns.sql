@@ -14,20 +14,14 @@ ALTER TABLE af.analysis
 
 ALTER TABLE af.effect
     ALTER COLUMN type TYPE text,
+    ALTER COLUMN amostat_flag TYPE text,
     ALTER COLUMN creator_id TYPE text,
     ALTER COLUMN modifier_id TYPE text;
 
 
 ALTER TABLE af.fitted_values
-    ALTER COLUMN trait_value TYPE text,
-    ALTER COLUMN yhat TYPE text,
-    ALTER COLUMN residual TYPE text,
-    ALTER COLUMN hat TYPE text,
-    ALTER COLUMN rinv_res TYPE text,
-    ALTER COLUMN amostat TYPE text,
     ALTER COLUMN amostat_flag TYPE text,
     ALTER COLUMN stat_factor TYPE text,
-    ALTER COLUMN covariate_trait_value TYPE text,
     ALTER COLUMN trait_qc TYPE text,
     ALTER COLUMN covariate_trait_qc TYPE text,
     ALTER COLUMN creator_id TYPE text,
@@ -57,19 +51,13 @@ ALTER TABLE af.job_stat_factor
 
 
 ALTER TABLE af.model_stat
-    ALTER COLUMN log_lik TYPE text,
-    ALTER COLUMN aic TYPE text,
-    ALTER COLUMN bic TYPE text,
+    ALTER COLUMN conclusion TYPE text,
     ALTER COLUMN creator_id TYPE text,
     ALTER COLUMN modifier_id TYPE text;
 
 
 ALTER TABLE af.prediction
-    ALTER COLUMN value TYPE text,
-    ALTER COLUMN std_error TYPE text,
     ALTER COLUMN e_code TYPE text,
-    ALTER COLUMN ci95_upper TYPE text,
-    ALTER COLUMN ci95_lower TYPE text,
     ALTER COLUMN creator_id TYPE text,
     ALTER COLUMN modifier_id TYPE text;
 
@@ -157,10 +145,6 @@ ALTER TABLE af.task
 ALTER TABLE af.variance
     ALTER COLUMN source TYPE text,
     ALTER COLUMN model TYPE text,
-    ALTER COLUMN gamma TYPE text,
-    ALTER COLUMN component TYPE text,
-    ALTER COLUMN component_ratio TYPE text,
-    ALTER COLUMN last_change_percentage TYPE text,
     ALTER COLUMN code TYPE text,
     ALTER COLUMN creator_id TYPE text,
     ALTER COLUMN modifier_id TYPE text;
