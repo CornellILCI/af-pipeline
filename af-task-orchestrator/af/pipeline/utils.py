@@ -25,20 +25,6 @@ def get_request_sha(analysis_request):
     return hash_.hexdigest()
 
 
-def get_job_status(stdout, stderr):
-    # TODO: Check for better way to represent job status
-    err_found = len(stderr) > 0
-    out_found = len(stdout) > 0
-    if err_found and out_found:
-        return 111
-    elif err_found and not out_found:
-        return 101
-    elif not err_found and out_found:
-        return 110
-    elif not (err_found and out_found):
-        return 100
-
-
 def get_parent_dir(file_path: str) -> str:
     _file_path = Path(file_path)
     return _file_path.parent

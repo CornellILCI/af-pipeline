@@ -3,7 +3,7 @@ from af.orchestrator.app import app
 from af.orchestrator.base import StatusReportingTask
 
 
-@app.task(name="run_asreml")  # , base=StatusReportingTask)
+@app.task(name="run_asreml", queue="ASREML")  # , base=StatusReportingTask)
 def run_asreml(params: dict):
     """params is a dict that should contain the following:
 

@@ -154,13 +154,13 @@ class ProcessData:
 
         request_id = self.analysis_request.requestId
 
-        job_name = f"{request_id}_{job_id}"
+        job_name = f"{self.analysis_request.requestId}_{job_id}"
 
-        job_file_name = f"{job_id}.as"
-        data_file_name = f"{job_id}.csv"
+        job_file_name = f"{job_name}.as"
+        data_file_name = f"{job_name}.csv"
 
-        job_file_path = os.path.join(self.output_folder, job_id, job_file_name)
-        data_file_path = os.path.join(self.output_folder, job_id, data_file_name)
+        job_file_path = os.path.join(self.output_folder, job_name, job_file_name)
+        data_file_path = os.path.join(self.output_folder, job_name, data_file_name)
 
         # create parent directories
         os.makedirs(pathlib.Path(job_file_path).parent)
@@ -201,38 +201,42 @@ class ProcessData:
 
     def _get_asrml_job_file_lines(self, job_name, data_file_path, trait: Trait):
 
-        job_file_lines = [job_name]
-
         analysis_config_id = self.analysis_request.analysisConfigPropertyId
+        
+        # 1: add command line options that has to go before everything
+        job_file_lines = ["!XML"]
 
-        # 1: adding the analysis field statements
+        # 2: add title of the analysis run
+        job_file_lines.append(job_name)
+        
+        # 3: adding the analysis field statements
         for field_line in self._get_analysis_field_lines(analysis_config_id):
             job_file_lines.append(field_line)
 
-        # 2: adding trait name
+        # 4: adding trait name
         job_file_lines.append(trait.abbreviation)
 
-        # 3: adding otpions
+        # 5: adding otpions
         asreml_option = self._get_asreml_option(analysis_config_id)
         options_line = "{} {}".format(data_file_path, asreml_option.statement)
         job_file_lines.append(options_line)
 
-        # 4: adding tabulate
+        # 6: adding tabulate
         tabulate = self._get_tabulate(analysis_config_id)
         tabulate_line = "tabulate {}".format(tabulate.statement.format(trait_name=trait.abbreviation))
         job_file_lines.append(tabulate_line)
 
-        # 5: adding formula
+        # 7: adding formula
         formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
         formula_statement = formula.statement.format(trait_name=trait.abbreviation)
         job_file_lines.append(formula_statement)
 
-        # 6: adding residual
+        # 8: adding residual
         residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
         residual_statement = residual.statement
         job_file_lines.append(f"residual {residual.statement}")
 
-        # 7: adding prediction
+        # 9: adding prediction
         prediction = services.get_property(self.db_session, "19")
         prediction_statement = "prediction {}".format(prediction.statement)
         job_file_lines.append(prediction_statement)

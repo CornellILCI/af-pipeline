@@ -6,11 +6,9 @@ import af.pipeline.asreml.resultparser as parser
 def test_simple_test_1(sample_asreml_result_string_1):
     sample_job_id = 123
     handler = parser.ASRemlContentHandler(sample_job_id)
-    xml.sax.parseString(sample_asreml_result_string_1, handler)  # NOTE: this is no how we parse files
+    xml.sax.parseString(sample_asreml_result_string_1, handler)  # NOTE: this is not how we parse files
 
     num_vars = len(handler.variances)
-    print(handler.variances)
-    print(handler.model_stat)
     # print(handler.predictions)
     assert num_vars == 3, f"Expecting three variances, got {num_vars}"
     assert handler.variances[0]["job_id"] == sample_job_id
@@ -27,7 +25,7 @@ def test_simple_test_1(sample_asreml_result_string_1):
     # check the model_stat
     assert handler.model_stat["job_id"] == sample_job_id
     assert handler.model_stat["conclusion"] == "LogL Converged"
-    assert handler.model_stat["converged"] == True
+    assert handler.model_stat["is_converged"]
     assert handler.model_stat["log_lik"] == "-390.5927"
     assert handler.model_stat["aic"] == "787.1855"
     assert handler.model_stat["bic"] == "799.2775"
@@ -37,4 +35,14 @@ def test_simple_test_1(sample_asreml_result_string_1):
     assert handler.predictions[0]["e_code"] == "E"
     assert handler.predictions[0]["std_error"] == "0.0846111"
     assert handler.predictions[0]["value"] == "6.6159"
-    assert handler.predictions[0]["id"] == "1"
+
+
+def test_not_converged_result(sample_asreml_not_converged_result_string):
+    sample_job_id = 123
+    handler = parser.ASRemlContentHandler(sample_job_id)
+    xml.sax.parseString(sample_asreml_not_converged_result_string, handler)
+
+    # check the model_stat
+    assert handler.model_stat["job_id"] == sample_job_id
+    assert handler.model_stat["conclusion"] != "LogL Converged"
+    assert handler.model_stat["is_converged"] is False

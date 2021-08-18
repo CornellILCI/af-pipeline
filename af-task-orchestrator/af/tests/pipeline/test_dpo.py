@@ -12,6 +12,7 @@ from conftest import get_json_resource, get_test_analysis_request
 
 def get_job_file_template():
     return (
+        "!XML\n"
         "{job_file_id}\n"
         "\tloc !A !SORTALL !PRUNEALL\n"
         "\texpt !A !LL 32\n"
@@ -105,7 +106,6 @@ def get_prediction():
 
 
 class TestProcessData(TestCase):
-    @patch("af.pipeline.config.get_asreml_input_directory")
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
     @patch("af.pipeline.db.services.get_property")
@@ -115,13 +115,12 @@ class TestProcessData(TestCase):
         mock_phenotype_ebs,
         mock_get_property,
         mock_get_analysis_fields,
-        mock_get_analysis_config_properties,
-        asreml_input_folder,
+        mock_get_analysis_config_properties
     ):
 
         test_request = get_test_analysis_request()
         output_folder = TemporaryDirectory()
-        asreml_input_folder.return_value = output_folder.name
+        test_request.outputFolder = output_folder.name
 
         phenotype_data_ebs_instance = MagicMock()
         mock_plots = []
@@ -201,7 +200,7 @@ class TestProcessData(TestCase):
 
         expected_job_file_1 = get_job_file_template().format(
             job_file_id="test_id_1",
-            job_file_path=f"{output_folder.name}/test_id_1",
+            job_file_path=f"{output_folder.name}/test_id_1/test_id_1",
             trait_abbreviation="trait_abbrev_1",
         )
 
@@ -219,7 +218,6 @@ class TestProcessData(TestCase):
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_contents)
 
-    @patch("af.pipeline.config.get_asreml_input_directory")
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
     @patch("af.pipeline.db.services.get_property")
@@ -229,13 +227,12 @@ class TestProcessData(TestCase):
         mock_phenotype_ebs,
         mock_get_property,
         mock_get_analysis_fields,
-        mock_get_analysis_config_properties,
-        asreml_input_folder,
+        mock_get_analysis_config_properties
     ):
 
         test_request = get_test_analysis_request()
         output_folder = TemporaryDirectory()
-        asreml_input_folder.return_value = output_folder.name
+        test_request.outputFolder = output_folder.name
 
         phenotype_data_ebs_instance = MagicMock()
 
@@ -311,20 +308,14 @@ class TestProcessData(TestCase):
         )
 
         expected_job_file_1 = get_job_file_template().format(
-            job_file_id="test_id_1",
-            job_file_path="{output_folder.name}/test_id_1",
-            trait_abbreviation="trait_abbrev_1",
-        )
-
-        expected_job_file_1 = get_job_file_template().format(
             job_file_id="test_id_1_1",
-            job_file_path=f"{output_folder.name}/test_id_1_1",
+            job_file_path=f"{output_folder.name}/test_id_1_1/test_id_1_1",
             trait_abbreviation="trait_abbrev_1",
         )
 
         expected_job_file_2 = get_job_file_template().format(
             job_file_id="test_id_2_1",
-            job_file_path=f"{output_folder.name}/test_id_2_1",
+            job_file_path=f"{output_folder.name}/test_id_2_1/test_id_2_1",
             trait_abbreviation="trait_abbrev_1",
         )
 

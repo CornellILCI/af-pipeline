@@ -212,6 +212,8 @@ class ModelStat(Base):
     modifier_id = Column(Integer)
     is_void = Column(Boolean, nullable=False, default=False)
     job_id = Column(Integer)
+    conclusion = Column(String(500))
+    is_converged = Column(Boolean, default=False)
 
 
 class Prediction(Base):
@@ -232,6 +234,8 @@ class Prediction(Base):
     modifier_id = Column(Integer)
     is_void = Column(Boolean, nullable=False, default=False)
     job_stat_factor_id = Column(Integer)
+
+    additional_info = Column(JSON, nullable=True)
 
 
 class FittedValues(Base):

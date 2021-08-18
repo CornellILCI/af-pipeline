@@ -1,8 +1,10 @@
 import xml.sax
 
+from datetime import datetime
+
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
 from af.pipeline.db.core import DBConfig
-from af.pipeline.db.models import FittedValues, ModelStat, Variance
+from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
 from af.pipeline.asreml import yhatparser
 
 
@@ -22,22 +24,32 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
     parser.parse(filename_or_stream)
 
     # process the objects
-    if ch.variances:
-        session.bulk_insert_mappings(Variance, ch.variances)
 
     if ch.model_stat:
-        # TODO: Remove the next two lines once we have them on db table
-        ch.model_stat.pop("conclusion")
-        ch.model_stat.pop("converged")
-
         model_stat = ModelStat(**ch.model_stat)
+        
+        model_stat.job_id = job_id
+        model_stat.tenant_id = 1
+        model_stat.creator_id = 1
+        model_stat.creation_timestamp = datetime.utcnow()
 
         session.add(model_stat)
 
-    #if ch.predictions:
-    # add predicitons to db here
+        if model_stat.is_converged:
+            _save_variances(session, ch.variances)
+            _save_predictions(session, ch.predictions)
 
     session.commit()
+
+
+def _save_variances(session, variances):
+    if variances:
+        session.bulk_insert_mappings(Variance, variances)
+
+
+def _save_predictions(session, predictions):
+    if predictions:
+        session.bulk_insert_mappings(Prediction, predictions)
 
 
 def process_yhat_result(session, job_id: int, filename_or_stream, *args, **kwargs):

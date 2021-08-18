@@ -11,5 +11,4 @@
     <include file="changesets/21.07/schema/change_varchar_columns_to_text_columns.sql"/>
     <include file="changesets/21.07/schema/remove_asreml_specific_columns_in_results_table.sql"/>
 
-
 </databaseChangeLog>

@@ -23,9 +23,10 @@ services:
 
   rabbitmq:
     hostname: rabbitmq
-    image: rabbitmq:management
-    volumes:
-      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    image: rabbitmq:3.8-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -63,7 +64,8 @@ services:
       - BACKEND=rpc://
       - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
       - BA_DATA_DIR=/data/
-      - ASREML_ACTIVATION_CODE=
+      - ASREML_ACTIVATION_CODE=${ASREML_ACTIVATION_CODE}
+      - ASREML_SEATS=${ASREML_SEATS}
     links:
       - rabbitmq
     depends_on:

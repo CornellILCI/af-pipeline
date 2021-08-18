@@ -93,3 +93,8 @@ Your prompt should include the name of the activated virtual environment:
 
 This will install project dependencies as well as dev tools for linting, testing and etc.
 
+5.  Create `.env` file in project root directory.  See/Copy `.env.example` and fill out the following variables:
+
+* `EXTERNAL_DIR=true`    this is used in the shared folder setup.
+* `ASREML_ACTIVATION_CODE=`   you should get the ASREML activation code and set it using this env var so the worker can run asreml.
+* `ASREML_SEATS=1`       this should be set to 1 on local dev.

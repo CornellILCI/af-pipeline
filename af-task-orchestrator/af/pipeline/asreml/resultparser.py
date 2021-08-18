@@ -46,8 +46,6 @@ TRANSFORM_MSTAT_TAG = {
 
 TRANSFORM_PREDICTION_TAG = {
     TAG_PREDICT_TABLE: "prediction",
-    TAG_CELL: "id",
-    TAG_IDENTIFIER: "id",
     TAG_PRED_VALUE: "value",
     TAG_STNDERR: "std_error",
     TAG_EPCODE: "e_code",
@@ -111,7 +109,11 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.in_prediction_components = True
         elif tag == TAG_PROW and self.in_prediction_components:
             self.in_prow = True
-            self.current_prediction = {}  # start a new prediction object
+            self.current_prediction = {
+                "job_id": self.job_id,
+                "tenant_id": 1,
+                "creator_id": 1,
+            }  # start a new prediction object
         elif tag in TRANSFORM_PREDICTION_TAG:
             self.current_key = TRANSFORM_PREDICTION_TAG.get(tag)
 
@@ -133,7 +135,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             if tag == TAG_REML_LOGL:
                 self.in_a_reml_logl = False
             elif tag == TAG_CONCLUSION:
-                self.model_stat["converged"] = str(self.model_stat[self.current_key]).lower() == "logl converged"
+                self.model_stat["is_converged"] = str(self.model_stat[self.current_key]).lower() == "logl converged"
                 self.in_conclusion = False
         if tag == TAG_PREDICT_TABLE:
             self.in_prediction_components = False

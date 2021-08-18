@@ -1,6 +1,8 @@
 #!/bin/sh
 
 # Activate asreml license
+echo $ASREML_ACTIVATION_CODE
 asreml -z $ASREML_ACTIVATION_CODE
 
-celery -A af.orchestrator.app worker --pool=gevent --concurrency=20 -l debug
+
+supervisord -c supervisord.cfg

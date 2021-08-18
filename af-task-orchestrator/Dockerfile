@@ -9,10 +9,11 @@ COPY . /app/
 RUN pip3 install  -r requirements.txt
 
 # Install ASReml-4.2.1.158-Ubuntu-18.04
-RUN apt-get update \
+RUN apt-get update  \
   && apt-get install -y wget \
   && wget https://downloads.vsni.digital/45a157d615a71a6ff3e9c70d79596cc3368ef89f/ASReml-4.2.1.158-Ubuntu-18.04.deb \
-  && apt-get install -y ./ASReml-4.2.1.158-Ubuntu-18.04.deb
+  && apt-get install -y ./ASReml-4.2.1.158-Ubuntu-18.04.deb \
+  && apt-get install -y supervisor
 
 ENTRYPOINT [ "./start-worker.sh" ]
 
