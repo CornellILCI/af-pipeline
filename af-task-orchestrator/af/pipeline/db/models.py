@@ -24,25 +24,25 @@ class Request(Base):
     __tablename__ = "request"  # Base.metadata.tables["af.request"]
     __table_args__ = {"schema": "af"}
 
-    uuid = Column(String(50))
-    category = Column(String(50))
-    type = Column(String(50))
-    design = Column(String(50))
-    requestor_id = Column(String(50))
-    institute = Column(String(50))
-    crop = Column(String(50))
-    program = Column(String(50))
-    status = Column(String(50))
+    uuid = Column(String)
+    category = Column(String)
+    type = Column(String)
+    design = Column(String)
+    requestor_id = Column(String)
+    institute = Column(String)
+    crop = Column(String)
+    program = Column(String)
+    status = Column(String)
     creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)
-    creator_id = Column(String(50))
-    modifier_id = Column(String(50))
+    creator_id = Column(String)
+    modifier_id = Column(String)
     is_void = Column(Boolean, default=False)
     tenant_id = Column(Integer)
     id = Column(Integer, primary_key=True)
     method_id = Column(Integer)
-    engine = Column(String(20))
-    msg = Column(String(500))
+    engine = Column(String)
+    msg = Column(String)
 
     # TODO add the other columns here
     tasks = relationship("Task", backref="request")
@@ -52,12 +52,12 @@ class Task(Base):
     __tablename__ = "task"
     __table_args__ = {"schema": "af"}
 
-    name = Column(String(50))
+    name = Column(String)
     time_start = Column(DateTime)
     time_end = Column(DateTime)
-    status = Column(String(50))
-    err_msg = Column(String(500))
-    processor = Column(String(50))
+    status = Column(String)
+    err_msg = Column(String)
+    processor = Column(String)
     tenant_id = Column(Integer, nullable=False)
     creation_timestamp = Column(DateTime, server_default=func.now())
     modification_timestamp = Column(DateTime)
@@ -75,14 +75,14 @@ class Analysis(Base):
     __table_args__ = {"schema": "af"}
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(50))
-    description = Column(String(100))
+    name = Column(String)
+    description = Column(String)
     request_id = Column(Integer)
     prediction_id = Column(Integer)
     creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)
-    creator_id = Column(String(50))
-    modifier_id = Column(String(50))
+    creator_id = Column(String)
+    modifier_id = Column(String)
     status = Column(String)
     is_void = Column(Boolean, default=False)
     tenant_id = Column(Integer)
@@ -99,11 +99,11 @@ class Job(Base):
     name = Column(String)
     time_start = Column(DateTime)
     time_end = Column(DateTime)
-    output_path = Column(String(50))
+    output_path = Column(String)
     creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)
-    creator_id = Column(String(50))
-    modifier_id = Column(String(50))
+    creator_id = Column(String)
+    modifier_id = Column(String)
     status = Column(String)
     status_message = Column(String)
     is_void = Column(Boolean, default=False)
@@ -116,19 +116,19 @@ class Property(Base):
     __table_args__ = {"schema": "af"}
 
     id = Column(Integer, primary_key=True)
-    code = Column(String(50))
-    name = Column(String(70))
-    label = Column(String(70))
-    description = Column(String(50))
-    type = Column(String(50))
-    data_type = Column(String(50))
+    code = Column(String)
+    name = Column(String)
+    label = Column(String)
+    description = Column(String)
+    type = Column(String)
+    data_type = Column(String)
     creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)
-    creator_id = Column(String(50))
-    modifier_id = Column(String(50))
+    creator_id = Column(String)
+    modifier_id = Column(String)
     is_void = Column(Boolean, default=False)
     tenant_id = Column(Integer)
-    statement = Column(String(250))
+    statement = Column(String)
 
 
 class PropertyMeta(Base):
@@ -136,13 +136,13 @@ class PropertyMeta(Base):
     __table_args__ = {"schema": "af"}
 
     id = Column(Integer, primary_key=True)
-    code = Column(String(30))
-    value = Column(String(255))
+    code = Column(String)
+    value = Column(String)
     tenant_id = Column(Integer)
     creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)
-    creator_id = Column(String(50))
-    modifier_id = Column(String(50))
+    creator_id = Column(String)
+    modifier_id = Column(String)
     is_void = Column(Boolean, default=False)
     property_id = Column(Integer)
 
@@ -158,8 +158,8 @@ class PropertyConfig(Base):
 
     creation_timestamp = Column(DateTime)
     modification_timestamp = Column(DateTime)
-    creator_id = Column(String(50))
-    modifier_id = Column(String(50))
+    creator_id = Column(String)
+    modifier_id = Column(String)
 
     is_void = Column(Boolean, default=False)
     tenant_id = Column(Integer)
@@ -179,13 +179,13 @@ class Variance(Base):
 
     id = Column(Integer, primary_key=True)
 
-    source = Column(String(50))  # character varying(50) COLLATE pg_catalog."default",
-    model = Column(String(50))  # character varying(50) COLLATE pg_catalog."default",
+    source = Column(String)  # character varying(50) COLLATE pg_catalog."default",
+    model = Column(String)  # character varying(50) COLLATE pg_catalog."default",
     gamma = Column(DOUBLE_PRECISION)  # double precision,
     component = Column(DOUBLE_PRECISION)  # double precision,
     component_ratio = Column(DOUBLE_PRECISION)  # double precision,
     last_change_percentage = Column(DOUBLE_PRECISION)  # double precision,
-    code = Column(String(50))  # character varying(50) COLLATE pg_catalog."default",
+    code = Column(String)  # character varying(50) COLLATE pg_catalog."default",
     tenant_id = Column(Integer, nullable=False)  # integer NOT NULL,
     creation_timestamp = Column(DateTime)  #  timestamp without time zone NOT NULL DEFAULT now(),
     modification_timestamp = Column(DateTime)  # timestamp without time zone,
@@ -222,7 +222,7 @@ class Prediction(Base):
 
     value = Column(Float)
     std_error = Column(Float)
-    e_code = Column(String(50))
+    e_code = Column(String)
     ci95_upper = Column(Float)
     ci95_lower = Column(Float)
     tenant_id = Column(Integer, nullable=False)
@@ -248,11 +248,11 @@ class FittedValues(Base):
     plot_id = Column(Integer)
     rinv_res = Column(DOUBLE_PRECISION)
     amostat = Column(DOUBLE_PRECISION)
-    amostat_flag = Column(String(50))
-    stat_factor = Column(String(50))
+    amostat_flag = Column(String)
+    stat_factor = Column(String)
     covariate_trait_value = Column(DOUBLE_PRECISION)
-    trait_qc = Column(String(50))
-    covariate_trait_qc = Column(String(50))
+    trait_qc = Column(String)
+    covariate_trait_qc = Column(String)
     tenant_id = Column(Integer, nullable=False)
     creation_timestamp = Column(DateTime, server_default=func.now())
     modification_timestamp = Column(DateTime)
