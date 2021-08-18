@@ -197,8 +197,7 @@ class Analyze:
     def __update_job(self, job: Job, status: str, status_message: str):
 
         job.status = status
-        # TODO: 50 char limit in database for status messages need to be removed.
-        job.status_message = status_message[:50]
+        job.status_message = status_message
         job.time_end = datetime.utcnow()
         job.modification_timestamp = datetime.utcnow()
 
