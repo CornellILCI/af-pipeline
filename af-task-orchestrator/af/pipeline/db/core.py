@@ -15,11 +15,11 @@ class DBConfig:
 
     _SessionLocal = None
 
+    @staticmethod
     def get_session():
         if DBConfig._SessionLocal:
             return DBConfig._SessionLocal
         DBConfig._SessionLocal = scoped_session(sessionmaker(DBConfig.get_engine()))
-        print(DBConfig._SessionLocal, "n")
         return DBConfig._SessionLocal
 
 
