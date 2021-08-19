@@ -25,6 +25,10 @@ def get_brapi_studies_response():
     """ returns a mock brapi response for studies """
     return get_json_resource(__file__, "brapi_studies_mock_response.json")
 
+def get_brapi_observation_table_response():
+    """returns a mock brapi response for observation units."""
+    return get_json_resource(__file__, "brapi_observations_table_mock_response.json")
+
 
 def get_test_occurrence_brapi() -> Occurrence:
     test_occurrence = {
@@ -49,6 +53,25 @@ class TestPhenotypeDataBrapi(TestCase):
         plots_test_df = get_test_plots()
 
         plots_result_df = PhenotypeDataBrapi(api_base_url="http://test").get_plots("testid")
+
+        # assert dataframe is returned
+        assert isinstance(plots_result_df, pd.DataFrame)
+
+        # arrange columns
+        plots_result_df = plots_result_df[plots_test_df.columns]
+
+        assert_frame_equal(plots_result_df, plots_test_df.astype(str))
+
+    @patch("af.pipeline.data_reader.data_reader.requests.get")
+    def test_get_plots_table(self, mock_get):
+
+        mock_get.return_value.status_code = 200
+
+        mock_get.return_value.json = Mock(side_effect=[get_brapi_observation_table_response()])
+
+        plots_test_df = get_test_plots()
+
+        plots_result_df = PhenotypeDataBrapi(api_base_url="http://test").get_observation_units_table("testid")
 
         # assert dataframe is returned
         assert isinstance(plots_result_df, pd.DataFrame)
