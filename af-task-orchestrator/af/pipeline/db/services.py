@@ -34,7 +34,7 @@ def get_request(db_session, request_id) -> Request:
 
 def get_analysis_by_request_and_name(db_session, request_id, name):
     return db_session.query(Analysis).filter(
-        Analysis.requestId == request_id,
+        Analysis.request_id == request_id,
         Analysis.name == name
     ).first()
 
