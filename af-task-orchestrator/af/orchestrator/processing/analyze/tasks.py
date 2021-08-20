@@ -41,16 +41,15 @@ def pre_process(request_id, analysis_request):
 
 @app.task(name="post_process", base=StatusReportingTask)
 def post_process(request_id, analysis_request, results):
+    result, results = results[0], results[1:]
+    job_name = result["job_name"]
+
+    _ = pipeline_analyze.Analyze(analysis_request).process_job_result(job_name, result)
+
     # process the results here
     if not results:
         done_analyze.delay(request_id)
     else:
-        result, results = results[0], results[1:]
-        job_name = result["job_name"]
-
-        _ = pipeline_analyze.Analyze(analysis_request).process_job_result(job_name, result)
-
-        # then recurse
         post_process.delay(request_id, analysis_request, results)
 
 
