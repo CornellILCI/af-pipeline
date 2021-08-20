@@ -36,24 +36,7 @@ def pre_process(request_id, analysis_request):
 
     results = []  # results initially empty
     args = request_id, analysis_request, input_files, results, engine
-    run_analyze.apply_async(args, queue="ASREML")
-
-
-@app.task(name="run_analyze", queue="ASREML", base=StatusReportingTask)
-def run_analyze(request_id, analysis_request, input_files, results, engine):
-    if not input_files:
-        post_process.delay(request_id, analysis_request, results)
-    else:
-        # pop 1 from input_files
-        input_file, input_files = input_files[0], input_files[1:]
-
-        # run analysis on input file, TODO: call Analyze.run_job() here
-        result = pipeline_analyze.Analyze(analysis_request).run_job(input_file, engine)
-        results.append(result)
-
-        # then recurse
-        args = request_id, analysis_request, input_files, results, engine
-        run_analyze.apply_async(args, queue="ASREML")
+    app.send_task('run_analyze', args=args, queue="ASREML")
 
 
 @app.task(name="post_process", base=StatusReportingTask)
