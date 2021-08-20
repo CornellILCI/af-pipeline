@@ -35,7 +35,8 @@ def pre_process(request_id, analysis_request):
     engine = analyze_object.get_engine()
 
     results = []  # results initially empty
-    run_analyze.delay(request_id, analysis_request, input_files, results, engine)
+    args = request_id, analysis_request, input_files, results, engine
+    run_analyze.apply_async(args, queue="ASREML")
 
 
 @app.task(name="run_analyze", queue="ASREML", base=StatusReportingTask)
@@ -51,7 +52,8 @@ def run_analyze(request_id, analysis_request, input_files, results, engine):
         results.append(result)
 
         # then recurse
-        run_analyze.delay(request_id, analysis_request, input_files, results, engine)
+        args = request_id, analysis_request, input_files, results, engine
+        run_analyze.apply_async(args, queue="ASREML")
 
 
 @app.task(name="post_process", base=StatusReportingTask)
