@@ -69,7 +69,7 @@ class Analyze:
         job = self.__get_new_job(job_name, job_status, status_message)
 
         try:
-            job_input_files = dpo.ProcessDatta(self.analysis_request).run()
+            job_input_files = dpo.ProcessData(self.analysis_request).run()
             self.__update_job(job, "IN-PROGRESS", "Data Pre-Processing completed.")
             return job_input_files
         except (DataReaderException, DpoException) as e:
