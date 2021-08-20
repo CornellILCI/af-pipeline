@@ -1,18 +1,15 @@
-import os
-
+# import os
 import jsonpickle.ext.pandas as jsonpickle_pandas
 from celery import Celery
 from celery.utils.log import get_task_logger
 from kombu import Exchange, Queue
-import sys
 
-print(sys.argv)
 
 jsonpickle_pandas.register_handlers()
 # register('json', jsonpickle.dumps, jsonpickle.loads, content_type='application/json')
 
-BROKER = os.getenv("BROKER")
-BACKEND = os.getenv("BACKEND")
+# BROKER = os.getenv("BROKER")
+# BACKEND = os.getenv("BACKEND")
 LOGGER = get_task_logger(__name__)
 
 # INSTALLED_TASKS = ["af.orchestrator.processing.analyze", "af.orchestrator.processing.asreml"]
