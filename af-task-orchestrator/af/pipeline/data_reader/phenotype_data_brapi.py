@@ -40,7 +40,7 @@ class PhenotypeDataBrapi(PhenotypeData):
 
     brapi_list_page_size = 1000
 
-    def get_observation_units_table(self, occurrence_id: str = None) -> tuple:
+    def get_observation_units_table(self, occurrence_id: str = None, observationLevel: str = None, observationUnitDbId: str = None) -> tuple:
         plots_data = []
         germplasm = []
         germplasm_index = -1
@@ -50,7 +50,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         total_pages = 0
 
         observation_units_filters = ObservationUnitQueryParams(
-            studyDbId=occurrence_id, observationLevel="plot", pageSize=self.brapi_list_page_size
+            studyDbId=occurrence_id, observationLevel=observationLevel, observationUnitDbId=observationUnitDbId, pageSize=self.brapi_list_page_size
         )
 
         while page_num == 0 or page_num < total_pages:
