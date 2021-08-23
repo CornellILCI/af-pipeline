@@ -110,7 +110,7 @@ class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
     @patch("af.pipeline.db.services.get_property")
     @patch("af.pipeline.data_reader.DataReaderFactory.get_phenotype_data")
-    def test_dpo_sesl_filter(
+    def test_dpo_seml_filter(
         self,
         mock_phenotype_ebs,
         mock_get_property,
@@ -185,8 +185,11 @@ class TestProcessData(TestCase):
         phenotype_data_ebs_instance.get_trait.side_effect = mock_traits
 
         mock_phenotype_ebs.return_value = phenotype_data_ebs_instance
+        
+        exploc_analysis_pattern = get_exploc_analysis_pattern()
+        exploc_analysis_pattern.code = "SEML"
 
-        mock_get_property.side_effect = [get_exploc_analysis_pattern(), get_formula(), get_residual(), get_prediction()]
+        mock_get_property.side_effect = [exploc_analysis_pattern, get_formula(), get_residual(), get_prediction()]
         mock_get_analysis_fields.return_value = get_analysis_fields()
         mock_get_analysis_config_properties.side_effect = [get_asreml_option(), get_tabulate()]
 
@@ -222,7 +225,7 @@ class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
     @patch("af.pipeline.db.services.get_property")
     @patch("af.pipeline.data_reader.DataReaderFactory.get_phenotype_data")
-    def test_dpo_seml_filter(
+    def test_dpo_sesl_filter(
         self,
         mock_phenotype_ebs,
         mock_get_property,
@@ -322,7 +325,6 @@ class TestProcessData(TestCase):
         mock_phenotype_ebs.return_value = phenotype_data_ebs_instance
 
         exploc_analysis_pattern = get_exploc_analysis_pattern()
-        exploc_analysis_pattern.code = "SEML"
         mock_get_property.side_effect = [
             exploc_analysis_pattern,
             get_formula(),
