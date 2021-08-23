@@ -1,6 +1,6 @@
 from af.orchestrator import asremlutil
 from af.orchestrator.app import app
-from af.orchestrator.base import StatusReportingTask
+# from af.orchestrator.base import StatusReportingTask
 
 
 @app.task(name="run_asreml", queue="ASREML")  # , base=StatusReportingTask)

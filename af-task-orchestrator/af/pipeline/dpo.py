@@ -19,12 +19,12 @@ from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
-from af.pipeline.data_reader.models import Experiment, Occurrence
-from af.pipeline.data_reader.models.enums import DataSource, DataType
+# from af.pipeline.data_reader.models import Experiment, Occurrence
+# from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
-from af.pipeline.db.models import Property
-from af.pipeline.exceptions import InvalidAnalysisRequest
+# from af.pipeline.db.models import Property
+from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 from af.pipeline.pandasutil import df_keep_columns
 
 
@@ -202,13 +202,13 @@ class ProcessData:
     def _get_asrml_job_file_lines(self, job_name, data_file_path, trait: Trait):
 
         analysis_config_id = self.analysis_request.analysisConfigPropertyId
-        
+
         # 1: add command line options that has to go before everything
         job_file_lines = ["!XML"]
 
         # 2: add title of the analysis run
         job_file_lines.append(job_name)
-        
+
         # 3: adding the analysis field statements
         for field_line in self._get_analysis_field_lines(analysis_config_id):
             job_file_lines.append(field_line)

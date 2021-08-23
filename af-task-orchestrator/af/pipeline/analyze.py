@@ -15,12 +15,13 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 
 from af.pipeline import config, dpo, utils
 from af.pipeline.analysis_request import AnalysisRequest
+from af.pipeline.asreml import services as asreml_services
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db import services as db_services
-from af.pipeline.asreml import services as asreml_services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import Analysis, Job
 from af.pipeline.exceptions import AnalysisError, DpoException, InvalidAnalysisRequest
+from pydantic import ValidationError
 
 
 class Analyze:
@@ -40,17 +41,21 @@ class Analyze:
         # Request source, DB record
         self._analysis_request = db_services.get_request(self.db_session, analysis_request.requestId)
 
-        # Create DB record for Analysis
-
-        # Add new analysis
-        self.analysis = Analysis(
-            request_id=self._analysis_request.id,
-            name=analysis_request.requestId,
-            creation_timestamp=datetime.utcnow(),
-            status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
+        # load existing analysis record OR create if it does not exist
+        self.analysis = db_services.get_analysis_by_request_and_name(
+            self.db_session, request_id=self._analysis_request.id, name=analysis_request.requestId
         )
 
-        self.analysis = db_services.add(self.db_session, self.analysis)
+        if not self.analysis:
+            # Create DB record for Analysis
+            self.analysis = Analysis(
+                request_id=self._analysis_request.id,
+                name=analysis_request.requestId,
+                creation_timestamp=datetime.utcnow(),
+                status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
+            )
+
+            self.analysis = db_services.add(self.db_session, self.analysis)
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
 
@@ -94,47 +99,13 @@ class Analyze:
                 }
             ]
         """
-        analysis_engine_meta = db_services.get_analysis_config_meta_data(
-            self.db_session, self.analysis_request.analysisConfigPropertyId, "engine"
-        )
-
-        analysis_engine = config.get_analysis_engine_script(analysis_engine_meta.value)
 
         # output of each analysis job
         job_results = []
 
         for job_input_file in job_input_files:
-
-            job_name = job_input_file["job_name"]
-            asreml_job_file = job_input_file["asreml_job_file"]
-            data_file = job_input_file["data_file"]
-            job_dir = utils.get_parent_dir(data_file) 
-
-            job_status = "IN-PROGRESS"
-            status_message = "Processing the input request"
-
-            job = self.__get_new_job(job_name, job_status, status_message)
-
-            try:
-
-                cmd = [analysis_engine, asreml_job_file, data_file]
-
-                run_result = subprocess.run(cmd, capture_output=True)
-
-                job = self.__update_job(job, "COMPLETED", "Completed the job.")
-
-                job_results.append({
-                    "job_name": job_name,
-                    "job_id": job.id,
-                    "job_result_dir": job_dir
-                })
-
-            except Exception as e:
-                self.analysis.status = "FAILED"
-                self.__update_job(job, "FAILED", str(e))
-                raise AnalysisError(str(e))
-            finally:
-                self.db_session.commit()
+            job_result = self.run_job(job_input_file, self.get_engine())
+            job_results.append(job_result)
 
         self.analysis.status = "COMPLETED"
         self.analysis.modification_timestamp = datetime.utcnow()
@@ -142,35 +113,65 @@ class Analyze:
 
         return job_results
 
-    def post_process(self, job_results):
-       
+    def get_engine(self):
+        analysis_engine_meta = db_services.get_analysis_config_meta_data(
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "engine"
+        )
+
+        return config.get_analysis_engine_script(analysis_engine_meta.value)
+
+    def run_job(self, job_input_file, analysis_engine):
+        job_name = job_input_file["job_name"]
+        asreml_job_file = job_input_file["asreml_job_file"]
+        data_file = job_input_file["data_file"]
+        job_dir = utils.get_parent_dir(data_file)
+
+        job_status = "IN-PROGRESS"
+        status_message = "Processing the input request"
+
+        job = self.__get_new_job(job_name, job_status, status_message)
+
         try:
-            for job_result in job_results:
-                
-                job_name = job_result["job_name"]
-                job_result_dir = job_result["job_result_dir"]
-                    
-                asr_file_path = path.join(job_result_dir, f"{job_name}.asr")
+            cmd = [analysis_engine, asreml_job_file, data_file]
+            _ = subprocess.run(cmd, capture_output=True)
+            job = self.__update_job(job, "COMPLETED", "Completed the job.")
 
-                job = db_services.get_job_by_name(self.db_session, job_name)
+            return {"job_name": job_name, "job_id": job.id, "job_result_dir": job_dir}
 
-                if not path.exists(asr_file_path):
-                    raise AnalysisError("Analysis result file not found.")
+        except Exception as e:
+            self.analysis.status = "FAILED"
+            self.__update_job(job, "FAILED", str(e))
+            raise AnalysisError(str(e))
+        finally:
+            self.db_session.commit()
 
-                # parse yhat result and save to db
-                yhat_file_path = path.join(job_result_dir, f"{job_name}_yht.txt")
-                asreml_services.process_yhat_result(self.db_session, job_result["job_id"], yhat_file_path)
-                
-                # parse predictions, model stats from xml and save to db
-                asreml_result_xml_path = path.join(job_result_dir, f"{job_name}.xml")
-                asreml_services.process_asreml_result(self.db_session, job_result["job_id"], asreml_result_xml_path)
-                
-                # zip the result files to be downloaded by the users
-                utils.zip_dir(job_result_dir, self.output_file_path, job_name)
+    def post_process(self, job_results):
+        for job_result in job_results:
+            job_name = job_result["job_name"]
+            self.process_job_result(job_name, job_result)
 
-                self.__update_job(job, "SUCCESS", "Asreml analysis completed successfully")
+    def process_job_result(self, job_name, job_result: dict):
+        try:
+            job = db_services.get_job_by_name(self.db_session, job_name)
+            job_result_dir = job_result["job_result_dir"]
+            asr_file_path = path.join(job_result_dir, f"{job.name}.asr")
 
-                self.db_session.commit()
+            if not path.exists(asr_file_path):
+                raise AnalysisError("Analysis result file not found.")
+
+            # parse yhat result and save to db
+            yhat_file_path = path.join(job_result_dir, f"{job.name}_yht.txt")
+            asreml_services.process_yhat_result(self.db_session, job_result["job_id"], yhat_file_path)
+
+            # parse predictions, model stats from xml and save to db
+            asreml_result_xml_path = path.join(job_result_dir, f"{job.name}.xml")
+            asreml_services.process_asreml_result(self.db_session, job_result["job_id"], asreml_result_xml_path)
+
+            # zip the result files to be downloaded by the users
+            utils.zip_dir(job_result_dir, self.output_file_path, job.name)
+
+            self.__update_job(job, "SUCCESS", "Asreml analysis completed successfully")
+
         except Exception as e:
             self.analysis.status = "FAILED"
             self.__update_job(job, "FAILED", str(e))

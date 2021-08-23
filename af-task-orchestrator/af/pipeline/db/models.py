@@ -187,7 +187,7 @@ class Variance(Base):
     last_change_percentage = Column(DOUBLE_PRECISION)  # double precision,
     code = Column(String)  # character varying(50) COLLATE pg_catalog."default",
     tenant_id = Column(Integer, nullable=False)  # integer NOT NULL,
-    creation_timestamp = Column(DateTime)  #  timestamp without time zone NOT NULL DEFAULT now(),
+    creation_timestamp = Column(DateTime)  # timestamp without time zone NOT NULL DEFAULT now(),
     modification_timestamp = Column(DateTime)  # timestamp without time zone,
     creator_id = Column(Integer, nullable=False)  # integer NOT NULL,
     modifier_id = Column(Integer)

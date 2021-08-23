@@ -1,4 +1,4 @@
-from af.pipeline.db.models import Property, PropertyConfig, PropertyMeta, Request, Job
+from af.pipeline.db.models import Analysis, Job, Property, PropertyConfig, PropertyMeta, Request
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
 
@@ -31,8 +31,17 @@ def get_child_properties(db_session, property_root: str, property_name: str) -> 
 def get_request(db_session, request_id) -> Request:
     return db_session.query(Request).filter(Request.uuid == request_id).one()
 
+
+def get_analysis_by_request_and_name(db_session, request_id, name):
+    return db_session.query(Analysis).filter(
+        Analysis.request_id == request_id,
+        Analysis.name == name
+    ).first()
+
+
 def get_job_by_name(db_session, job_name) -> Job:
     return db_session.query(Job).filter(Job.name == job_name).one()
+
 
 def get_analysis_config_properties(db_session, analysis_config_id: str, property_code: str) -> list[Property]:
 

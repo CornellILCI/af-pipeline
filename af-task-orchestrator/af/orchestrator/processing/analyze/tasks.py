@@ -1,11 +1,11 @@
 from af.orchestrator import config
 from af.orchestrator.app import app
-from af.orchestrator.base import ResultReportingTask
+from af.orchestrator.base import ResultReportingTask, StatusReportingTask
 from af.pipeline import analyze as pipeline_analyze
 from af.pipeline.analysis_request import AnalysisRequest
 
 
-@app.task(name="analyze", base=ResultReportingTask)
+@app.task(name="analyze", base=StatusReportingTask)
 def analyze(request_id: str, request_params):
     """Analyze taks run the analysis engine for given task request parameters.
 
@@ -22,4 +22,38 @@ def analyze(request_id: str, request_params):
     analysis_request = AnalysisRequest(requestId=request_id, outputFolder=output_folder, **request_params)
 
     # TODO: Condition to check executor is celery, If executor is slurm, submit analyze script as sbatch
-    result = pipeline_analyze.Analyze(analysis_request).run()
+    # pipeline_analyze.Analyze(analysis_request).run()
+    # let's call init_analyze with the analysis_request object
+
+    pre_process.delay(request_id, analysis_request)
+
+
+@app.task(name="pre_process", base=StatusReportingTask)
+def pre_process(request_id, analysis_request):
+    analyze_object = pipeline_analyze.Analyze(analysis_request)
+    input_files = analyze_object.pre_process()
+    engine = analyze_object.get_engine()
+
+    results = []  # results initially empty
+    args = request_id, analysis_request, input_files, results, engine
+    app.send_task('run_analyze', args=args, queue="ASREML")
+
+
+@app.task(name="post_process", base=StatusReportingTask)
+def post_process(request_id, analysis_request, results):
+    result, results = results[0], results[1:]
+    job_name = result["job_name"]
+
+    _ = pipeline_analyze.Analyze(analysis_request).process_job_result(job_name, result)
+
+    # process the results here
+    if not results:
+        done_analyze.delay(request_id)
+    else:
+        post_process.delay(request_id, analysis_request, results)
+
+
+@app.task(name="done_analyze", base=ResultReportingTask)
+def done_analyze(request_id):
+    # this is the terminal task to report DONE in tasks
+    pass  # trigger ResultReportingTask success event handler
