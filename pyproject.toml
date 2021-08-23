@@ -12,9 +12,9 @@ known_first_party = "dependenpy"
 include_trailing_comma = true
 
 [tool.flakehell]
-format = "colored"
+format = "grouped"
 max_line_length = 120
-show_source = false
+show_source = true
 exclude = ["tests/fixtures"]
 
 [tool.flakehell.plugins]

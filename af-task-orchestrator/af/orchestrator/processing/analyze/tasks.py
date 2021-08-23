@@ -5,7 +5,7 @@ from af.pipeline import analyze as pipeline_analyze
 from af.pipeline.analysis_request import AnalysisRequest
 
 
-@app.task(name="analyze", base=ResultReportingTask)
+@app.task(name="analyze", base=StatusReportingTask)
 def analyze(request_id: str, request_params):
     """Analyze taks run the analysis engine for given task request parameters.
 
