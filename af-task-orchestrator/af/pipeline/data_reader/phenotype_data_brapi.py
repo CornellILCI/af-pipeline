@@ -44,6 +44,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         plots_data = []
         germplasm = []
         germplasm_index = -1
+        plots_header = []
 
         page_num = 0
         total_pages = 0
@@ -67,10 +68,12 @@ class PhenotypeDataBrapi(PhenotypeData):
             page_num += 1
 
             plots_data.extend(brapi_response.result.data.copy())
+            
+            if plots_header == [] : plots_header = brapi_response.result.headerRow.copy()
 
             if germplasm_index == -1:
                 try:
-                    germplasm_index = brapi_response.result.headerRow.index('germplasm')
+                    germplasm_index = brapi_response.result.headerRow.index('germplasmDbId')
                 except ValueError:
                     germplasm_index = -1
                 
@@ -79,7 +82,7 @@ class PhenotypeDataBrapi(PhenotypeData):
             for row in plots_data:
                 germplasm.append(row[germplasm_index])
 
-        return germplasm, germplasm_index
+        return germplasm, plots_data, plots_header
 
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:

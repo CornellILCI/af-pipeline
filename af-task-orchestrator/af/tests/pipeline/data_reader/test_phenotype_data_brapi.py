@@ -69,17 +69,26 @@ class TestPhenotypeDataBrapi(TestCase):
 
         mock_get.return_value.json = Mock(side_effect=[get_brapi_observation_table_response()])
 
-        plots_test_df = get_test_plots()
+        germplasm, plots_data, plots_header = PhenotypeDataBrapi(api_base_url="http://test").get_observation_units_table("testid")
 
-        plots_result_df = PhenotypeDataBrapi(api_base_url="http://test").get_observation_units_table("testid")
+        assert isinstance(germplasm, list) 
+        assert isinstance(plots_data, list) 
+        assert isinstance(plots_header, list) 
 
-        # assert dataframe is returned
-        assert isinstance(plots_result_df, pd.DataFrame)
+    @patch("af.pipeline.data_reader.data_reader.requests.get")
+    def test_get_genotype(self, mock_get):
 
-        # arrange columns
-        plots_result_df = plots_result_df[plots_test_df.columns]
+        mock_get.return_value.status_code = 200
 
-        assert_frame_equal(plots_result_df, plots_test_df.astype(str))
+        mock_get.return_value.json = Mock(side_effect=[get_brapi_observation_table_response()])
+
+        germplasm, plots_data, plots_header = PhenotypeDataBrapi(api_base_url="http://test").get_observation_units_table("testid")
+
+        assert isinstance(germplasm, list) 
+        assert isinstance(plots_data, list) 
+        assert isinstance(plots_header, list) 
+
+
 
     @patch("af.pipeline.data_reader.data_reader.requests.get")
     def test_get_plots_with_pages(self, mock_get):
