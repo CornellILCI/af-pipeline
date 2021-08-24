@@ -267,3 +267,13 @@ class FittedValues(Base):
     job_id = Column(Integer)
     additional_info = Column(JSON, nullable=True)
     # TODO add ref to job
+
+
+class ResidualOutlier(Base):
+    __tablename__ = "residual_outlier"
+    __table_args__ = {"schema": "af"}
+    
+    id = Column(Integer, primary_key=True)
+    record = Column(Integer)
+    outliers = Column(String(255))
+

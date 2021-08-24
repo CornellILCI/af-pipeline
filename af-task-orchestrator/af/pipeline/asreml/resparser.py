@@ -38,11 +38,16 @@ def parse_res(res)-> pd.DataFrame:
 
             if sd[1] in row:
                 data = row.split('\t')
+                # print([data[0]])
                 SD = [data[1], data[3]]
                 df.loc[len(df.index)] = SD
 
-        print(df)
         return df
 
     if len(res) == 0 :
         print("no outliers found\n")
+
+
+# hi = "/home/vince/dev/work/wfiles/resPedro/templatesB/69ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ac_SA_0000/results/69ac5d6f-5cdc-45fd-a2fa-2bc17a2c58ac_SA_1001.res"
+# aloha = check_file(hi)
+# parse_res(aloha)

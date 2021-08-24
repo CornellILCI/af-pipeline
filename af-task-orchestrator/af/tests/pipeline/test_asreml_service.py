@@ -1,7 +1,7 @@
 import io
 
 from af.pipeline.asreml.services import process_asreml_result, process_yhat_result
-from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
+from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance, ResidualOutlier
 import json
 
 
@@ -44,4 +44,9 @@ def test_yhat_parser_service_happy_path(sample_yhat_data_1, dbsession):
     # SQLITE gets the data as string so, we must do a test
     json_data = json.loads(record.additional_info)
     assert json_data.get("RinvRes") == 0.009825
+
     
+def test_save_residual_outlier(sample_res_data_1, dbsession):
+    x = dbsession.query(ResidualOutlier.id)
+    print(x)
+    assert dbsession.query(ResidualOutlier.id).count() == 2

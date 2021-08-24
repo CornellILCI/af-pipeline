@@ -4,7 +4,7 @@ from datetime import datetime
 
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
 from af.pipeline.db.core import DBConfig
-from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
+from af.pipeline.db.models import FittedValues, ModelStat, Prediction, ResidualOutlier, Variance
 from af.pipeline.asreml import yhatparser
 
 
@@ -64,3 +64,8 @@ def process_yhat_result(session, job_id: int, filename_or_stream, *args, **kwarg
     if data_dict:
         session.bulk_insert_mappings(FittedValues, data_dict)
         session.commit()
+
+def _save_residual_outlier(session, outliers):
+    
+    if outliers:
+        session.bulk_insert_mappings(ResidualOutlier, outliers)
