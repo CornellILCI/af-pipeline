@@ -1459,6 +1459,16 @@ class Trait(TraitBaseClass):
         None, description='The ID which uniquely identifies a trait', example='9b2e34f5'
     )
 
+class VariantSetRequest(BaseModel):
+    variantSetDbId: Optional[str]
+    variantDbId: Optional[str]
+    callSetDbId: Optional[str]
+    studyDbId: Optional[str]
+    studyName: Optional[str]
+    page: Optional[int]
+    pageSize: Optional[int]
+    Authorization: Optional[str]
+
 
 class VariantSet(BaseModel):
     additionalInfo: Optional[Dict[str, str]] = Field(
