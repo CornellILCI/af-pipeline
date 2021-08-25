@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from abc import ABC, abstractmethod
 import json
 import os
 import pathlib
@@ -28,7 +29,27 @@ from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 from af.pipeline.pandasutil import df_keep_columns
 
 
-class ProcessData:
+class ProcessData(ABC):
+    """Abstract class for ProcessData objects"""
+
+    @abstractmethod
+    def get_traits(self):
+        pass
+
+    @abstractmethod
+    def seml(self):
+        pass
+
+    @abstractmethod
+    def sesl(self):
+        pass
+
+    @abstractmethod
+    def run(self):
+        pass
+
+
+class AsremlProcessData(ProcessData):
     def __init__(self, analysis_request: AnalysisRequest):
         """Constructor.
 
@@ -307,10 +328,10 @@ class ProcessData:
             raise DpoException(f"Analysis pattern value: {exptloc_analysis_pattern} is invalid")
 
         for job_input in job_inputs_gen:
-            print(job_input)
             job_inputs.append(job_input)
 
         return job_inputs
+
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import abc
 import argparse
 import json
 import os
@@ -23,7 +23,14 @@ from af.pipeline.db.models import Analysis, Job
 from af.pipeline.exceptions import AnalysisError, DpoException, InvalidAnalysisRequest
 from pydantic import ValidationError
 
+class Analyze(abc.ABC):
 
+    @abc.abstractmethod
+    def pre_process(self) -> list:
+        pass
+
+    @abc.abstractmethod
+    
 class Analyze:
     def __init__(self, analysis_request: AnalysisRequest):
         """Constructor.
@@ -118,7 +125,7 @@ class Analyze:
             self.db_session, self.analysis_request.analysisConfigPropertyId, "engine"
         )
 
-        return config.get_analysis_engine_script(analysis_engine_meta.value)
+        return config._script(analysis_engine_meta.value)
 
     def run_job(self, job_input_file, analysis_engine):
         job_name = job_input_file["job_name"]
