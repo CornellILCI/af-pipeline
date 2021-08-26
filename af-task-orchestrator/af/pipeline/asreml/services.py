@@ -5,7 +5,7 @@ from datetime import datetime
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
 from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import FittedValues, ModelStat, Prediction, ResidualOutlier, Variance
-from af.pipeline.asreml import yhatparser
+from af.pipeline.asreml import yhatparser, resparser
 
 
 def get_file_parser():
@@ -65,7 +65,11 @@ def process_yhat_result(session, job_id: int, filename_or_stream, *args, **kwarg
         session.bulk_insert_mappings(FittedValues, data_dict)
         session.commit()
 
-def _save_residual_outlier(session, outliers):
+def _save_residual_outlier(session, outliers, filename_or_stream ):
+    data = resparser.parse_res(resparser.check_file(filename_or_stream))
+    
     
     if outliers:
         session.bulk_insert_mappings(ResidualOutlier, outliers)
+
+    
