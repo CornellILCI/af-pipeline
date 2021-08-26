@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
-from af.pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
+from af.pipeline.data_reader.genotype_data_brapi import GenotypeDataBrapi
 from pandas._testing import assert_frame_equal
 
 from conftest import get_json_resource, get_test_plot_measurements, get_test_plots
@@ -48,7 +48,7 @@ class TestGenotypeDataBrapi(TestCase):
 
         plots_test_df = get_test_plots()
 
-        plots_result_df = PhenotypeDataBrapi(api_base_url="http://test").get_plots("testid")
+        plots_result_df = GenotypeDataBrapi(api_base_url="http://test").get_plots("testid")
 
         # assert dataframe is returned
         assert isinstance(plots_result_df, pd.DataFrame)
