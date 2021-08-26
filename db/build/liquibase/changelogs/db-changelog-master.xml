@@ -19,5 +19,10 @@
 
     <!-- 21.07 -->
     <include file="changelogs/db-changelog-21.07.xml"/>
+    <include file="changesets/21.07/tag/dev-tag.xml"/>
+
+    <!-- 21.08 -->
+    <include file="changelogs/db-changelog-21.08.xml"/>
+    <!--include file="changesets/21.08/tag/dev-tag.xml"/-->
 
   </databaseChangeLog>
