@@ -40,7 +40,7 @@ def get_test_occurrence_brapi() -> Occurrence:
 
 class TestGenotypeDataBrapi(TestCase):
     @patch("af.pipeline.data_reader.data_reader.requests.get")
-    def test_get_(self, mock_get):
+    def test_get_variantsets(self, mock_get):
 
         mock_get.return_value.status_code = 200
 
