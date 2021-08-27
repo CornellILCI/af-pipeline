@@ -274,6 +274,6 @@ class ResidualOutlier(Base):
     __table_args__ = {"schema": "af"}
     
     id = Column(Integer, primary_key=True)
-    record = Column(Integer)
-    outliers = Column(String(255))
+    job_id = Column(Integer)
+    outliers = Column(JSON, nullable=True)
 

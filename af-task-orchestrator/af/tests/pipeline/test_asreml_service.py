@@ -1,6 +1,9 @@
 import io
+from tempfile import NamedTemporaryFile
 
-from af.pipeline.asreml.services import process_asreml_result, process_yhat_result
+from numpy import save
+
+from af.pipeline.asreml.services import process_asreml_result, process_yhat_result, save_residual_outlier
 from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance, ResidualOutlier
 import json
 
@@ -29,6 +32,7 @@ def test_asr_not_converged_result(dbsession, sample_asreml_not_converged_result_
     assert dbsession.query(Variance.id).count() == 0  # there should be no variance objects saved
     assert dbsession.query(ModelStat.id).count() == 1  # model stat should be saved
     assert dbsession.query(Prediction.id).count() == 0  # there should be no prediction objects saved.
+    assert dbsession.query(ResidualOutlier.id).count() == 0  # there should be no prediction objects saved.
 
 
 def test_yhat_parser_service_happy_path(sample_yhat_data_1, dbsession):
@@ -47,6 +51,14 @@ def test_yhat_parser_service_happy_path(sample_yhat_data_1, dbsession):
 
     
 def test_save_residual_outlier(sample_res_data_1, dbsession):
-    x = dbsession.query(ResidualOutlier.id)
-    print(x)
-    assert dbsession.query(ResidualOutlier.id).count() == 2
+    x = dbsession.query(ResidualOutlier.id)  
+    tmp = NamedTemporaryFile()
+    data = """Residual [section 11, column 9 (of 15), row 19 (of 28)] is  3.70 SD\nResidual [section 11, column 15 (of 15), row 2 (of 28)] is  3.61 SD
+"""
+    data2 = "STND RES\t30\t12.362\t3.81"
+
+    tmp.write(bytes(data2, 'UTF-8'))
+    tmp.seek(0)
+
+    y = save_residual_outlier(dbsession, tmp.name)
+    assert dbsession.query(ResidualOutlier.outliers).count() == 0

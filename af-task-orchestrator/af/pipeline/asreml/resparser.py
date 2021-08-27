@@ -1,7 +1,12 @@
+from numpy import NAN
 import pandas as pd
 import re
+import json
 
 sd = [" SD", "STND"]
+
+{"type": "spatial", "data": { "section": NAN, "column": [], "row": [], "SD": 3.7 }}
+        
 
 def check_file(file) :
     try:
@@ -26,23 +31,37 @@ def parse_res(res)-> pd.DataFrame:
 
             if sd[0] in row:
 
-                SD = re.search('\[(.*?)\]', res[x])
+                SDrow = re.search('\[(.*?)\]', res[x])
+                dict = {'type':'spatial'}
+                data = {}
 
-                if SD is not None:
-                    data = row.split('\t')
-                    result = re.findall("\d+\.\d+", data[0])
-                    SD = SD.group(1)
-                    SD = [SD, result[0]]
-                    df.loc[len(df.index)] = SD
+                if SDrow is not None:
+                    r = row.split('\t')
+                    SDrow = SDrow.group(1)
+                    sr = SDrow.split(",")
+                    data['section'] = [ re.findall(r'\d+', sr[0])][0][0]
+                    data['column'] = [ re.findall(r'\d+', sr[1])][0]
+                    data['row'] = [ re.findall(r'\d+', sr[2])][0]
+                    data['SD'] = re.findall("\d+\.\d+", r[0])[0]
+                    dict['data'] = data
+                    rjson = json.dumps(dict)
+                    print("\n",rjson,"\n")
                     x = x+1
+                    return rjson
 
             if sd[1] in row:
-                data = row.split('\t')
+                dict = {'type':'record'}
+                data = {}
+                r = row.split('\t')
                 # print([data[0]])
-                SD = [data[1], data[3]]
-                df.loc[len(df.index)] = SD
+                data['record'] = r[1]
+                data['value'] = r[2]
+                data['scale'] = r[3]
+                dict['data'] = data
+                rjson = json.dumps(dict)
 
-        return df
+                print(rjson)
+
 
     if len(res) == 0 :
         print("no outliers found\n")
