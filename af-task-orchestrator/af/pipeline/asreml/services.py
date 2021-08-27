@@ -4,7 +4,7 @@ from datetime import datetime
 
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
 from af.pipeline.db.core import DBConfig
-from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
+from af.pipeline.db.models import FittedValues, ModelStat, PredictionEffect, Variance
 from af.pipeline.asreml import yhatparser
 
 
@@ -49,7 +49,7 @@ def _save_variances(session, variances):
 
 def _save_predictions(session, predictions):
     if predictions:
-        session.bulk_insert_mappings(Prediction, predictions)
+        session.bulk_insert_mappings(PredictionEffect, predictions)
 
 
 def process_yhat_result(session, job_id: int, filename_or_stream, *args, **kwargs):

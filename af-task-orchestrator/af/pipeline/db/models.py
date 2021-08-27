@@ -1,7 +1,7 @@
 import os
 
 from af.pipeline.db.core import Base
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Numeric
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -179,8 +179,8 @@ class Variance(Base):
 
     id = Column(Integer, primary_key=True)
 
-    source = Column(String)  # character varying(50) COLLATE pg_catalog."default",
-    model = Column(String)  # character varying(50) COLLATE pg_catalog."default",
+    source = Column(String)
+    model = Column(String)
     gamma = Column(DOUBLE_PRECISION)  # double precision,
     component = Column(DOUBLE_PRECISION)  # double precision,
     component_ratio = Column(DOUBLE_PRECISION)  # double precision,
@@ -216,26 +216,27 @@ class ModelStat(Base):
     is_converged = Column(Boolean, default=False)
 
 
-class Prediction(Base):
-    __tablename__ = "prediction"
+class PredictionEffect(Base):
+    __tablename__ = "prediction_effect"
     __table_args__ = {"schema": "af"}
 
     id = Column(Integer, primary_key=True)
-
-    value = Column(Float)
-    std_error = Column(Float)
+    
+    job_id = Column(Integer, nullable=False)
+    factor = Column(JSON, nullable=False)
+    value = Column(Numeric)
+    std_error = Column(Numeric)
     e_code = Column(String)
-    ci95_upper = Column(Float)
-    ci95_lower = Column(Float)
+    effect = Column(Numeric, nullable=False)
+    se_effect = Column(Numeric, nullable=False)
     tenant_id = Column(Integer, nullable=False)
     creation_timestamp = Column(DateTime)  # timestamp without time zone NOT NULL DEFAULT now(),
     modification_timestamp = Column(DateTime)  # timestamp without time zone,
     creator_id = Column(Integer, nullable=False)
     modifier_id = Column(Integer)
     is_void = Column(Boolean, nullable=False, default=False)
-    job_stat_factor_id = Column(Integer)
 
-    additional_info = Column(JSON, nullable=True)
+    additional = Column(JSON, nullable=True)
 
 
 class FittedValues(Base):

@@ -111,6 +111,9 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.in_prow = True
             self.current_prediction = {
                 "job_id": self.job_id,
+                "factor": {},
+                "effect": 1,
+                "se_effect": 1,
                 "tenant_id": 1,
                 "creator_id": 1,
             }  # start a new prediction object
