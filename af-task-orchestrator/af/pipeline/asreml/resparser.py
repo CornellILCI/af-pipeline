@@ -25,8 +25,6 @@ def parse_res(res)-> pd.DataFrame:
     x = 0
     if len(res) > 0:
 
-        df = pd.DataFrame(columns=['Record','SD'])
-
         for row in res :
 
             if sd[0] in row:
@@ -53,7 +51,6 @@ def parse_res(res)-> pd.DataFrame:
                 dict = {'type':'record'}
                 data = {}
                 r = row.split('\t')
-                # print([data[0]])
                 data['record'] = r[1]
                 data['value'] = r[2]
                 data['scale'] = r[3]

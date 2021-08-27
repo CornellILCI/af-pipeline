@@ -68,4 +68,13 @@ def process_yhat_result(session, job_id: int, filename_or_stream, *args, **kwarg
 def save_residual_outlier(session, job_id:int, filename):
     
     outliers = resparser.parse_res(resparser.check_file(filename))
-    print(outliers)
+
+    data_dict = {}
+
+    for outlier in outliers:
+        data_dict["job_id"] = job_id
+        data_dict["outlier"] = outlier
+    if data_dict:
+        session.bulk_insert_mappings(ResidualOutlier, data_dict)
+        session.commit()
+    

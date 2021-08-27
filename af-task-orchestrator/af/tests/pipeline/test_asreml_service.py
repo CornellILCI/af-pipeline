@@ -53,12 +53,13 @@ def test_yhat_parser_service_happy_path(sample_yhat_data_1, dbsession):
 def test_save_residual_outlier(sample_res_data_1, dbsession):
     x = dbsession.query(ResidualOutlier.id)  
     tmp = NamedTemporaryFile()
-    data = """Residual [section 11, column 9 (of 15), row 19 (of 28)] is  3.70 SD\nResidual [section 11, column 15 (of 15), row 2 (of 28)] is  3.61 SD
+    data1 = """Residual [section 11, column 9 (of 15), row 19 (of 28)] is  3.70 SD\nResidual [section 11, column 15 (of 15), row 2 (of 28)] is  3.61 SD
 """
     data2 = "STND RES\t30\t12.362\t3.81"
 
-    tmp.write(bytes(data2, 'UTF-8'))
+    tmp.write(bytes(data1, 'UTF-8'))
     tmp.seek(0)
+    sample_job_id = 123
 
-    y = save_residual_outlier(dbsession, tmp.name)
-    assert dbsession.query(ResidualOutlier.outliers).count() == 0
+    y = save_residual_outlier(dbsession, sample_job_id, tmp.name)
+    assert dbsession.query(ResidualOutlier.outliers).count() == 2
