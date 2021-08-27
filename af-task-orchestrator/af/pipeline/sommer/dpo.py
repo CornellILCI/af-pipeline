@@ -1,0 +1,4 @@
+
+
+class SommeRProcessData(ProcessData):
+    pass

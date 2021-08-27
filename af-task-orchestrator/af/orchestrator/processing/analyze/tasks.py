@@ -30,9 +30,9 @@ def analyze(request_id: str, request_params):
 
 @app.task(name="pre_process", base=StatusReportingTask)
 def pre_process(request_id, analysis_request):
-    analyze_object = pipeline_analyze.Analyze(analysis_request)
+    analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
     input_files = analyze_object.pre_process()
-    engine = analyze_object.get_engine()
+    engine = analyze_object.get_engine_script()
 
     results = []  # results initially empty
     args = request_id, analysis_request, input_files, results, engine
@@ -44,7 +44,7 @@ def post_process(request_id, analysis_request, results):
     result, results = results[0], results[1:]
     job_name = result["job_name"]
 
-    _ = pipeline_analyze.Analyze(analysis_request).process_job_result(job_name, result)
+    _ = pipeline_analyze.get_analyze_object(analysis_request).process_job_result(job_name, result)
 
     # process the results here
     if not results:
