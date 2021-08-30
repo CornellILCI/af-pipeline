@@ -1,6 +1,6 @@
 { 
    "metadata": { 
-      "id": "21rowcol-sesl-5wsp-arar-1yld00000000_SA_0000", 
+      "id": "SA_0000", 
       "category": "Analysis", 
       "type": "Phenotypic Analysis", 
       "engine": "ASReml-4", 
@@ -19,7 +19,7 @@
          " 10 " 
       ] 
       "trait_id": [ 
-         "1" 
+         "1", "3" 
       ] 
    }, 
    "parameters": { 
