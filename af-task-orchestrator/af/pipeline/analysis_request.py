@@ -16,3 +16,4 @@ class AnalysisRequest(BaseModel):
     configFormulaPropertyId: str
     configResidualPropertyId: str
     outputFolder: str
+    predictionId: str

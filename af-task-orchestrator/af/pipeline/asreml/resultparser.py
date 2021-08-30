@@ -1,4 +1,5 @@
 import xml.sax
+import re
 
 TAG_VARIANCE_COMPONENTS = "VarianceComponents"
 TAG_VPARAMETER = "VParameter"
@@ -19,6 +20,9 @@ TAG_PCOUNT = "ParameterCount"
 
 TAG_PREDICTION_COMPONENTS = "PredictionComponent"
 TAG_PREDICT_TABLE = "PredictTable"
+TAG_CLASSIFY_SET = "ClassifySet"
+CLASSIFYSET_VARIABLE_TAG_REGEX = re.compile("Variable_\d+$")
+PREDICTION_IDENTIFIER_TAG_REGEX = re.compile("Identifier(_\d+|)$")
 TAG_PROW = "Prow"
 TAG_CELL = "Cell"
 TAG_IDENTIFIER = "Identifier"
@@ -51,7 +55,6 @@ TRANSFORM_PREDICTION_TAG = {
     TAG_EPCODE: "e_code",
 }
 
-
 class ASRemlContentHandler(xml.sax.ContentHandler):
     """ASRreml Result XML file content handler
     >>> import xml.sax
@@ -83,6 +86,9 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         self.in_info_criteria = False
         self.in_a_reml_logl = False
         self.in_conclusion = False
+        self.in_prediction_classifyset = False
+        self.prediction_variables = [] #list of prediction variables
+        self.prediction_identifier_index = -1
 
     def startElement(self, tag, attributes):
         self.current_data = tag
@@ -107,6 +113,10 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
                 self.in_conclusion = True
         elif tag == TAG_PREDICT_TABLE:
             self.in_prediction_components = True
+        elif self.in_prediction_components and tag == TAG_CLASSIFY_SET:
+            self.in_prediction_classifyset = True
+        elif self.in_prediction_components and PREDICTION_IDENTIFIER_TAG_REGEX.match(tag) is not None:
+            self.prediction_identifier_index += 1
         elif tag == TAG_PROW and self.in_prediction_components:
             self.in_prow = True
             self.current_prediction = {
@@ -142,17 +152,34 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
                 self.in_conclusion = False
         if tag == TAG_PREDICT_TABLE:
             self.in_prediction_components = False
+        elif self.in_prediction_components and tag == TAG_CLASSIFY_SET:
+            self.in_prediction_classifyset = False
         elif tag == TAG_PROW and self.in_prediction_components:
+            # set the num of factor
+            self.current_prediction["factor"]["num_factors"] = self.prediction_identifier_index + 1
             # get current_varariance and store in variances
             self.predictions.append(dict(self.current_prediction))
             # reset
             self.in_prow = False
             self.current_prediction = None
+            self.prediction_identifier_index = -1
+        elif self.in_prediction_classifyset and CLASSIFYSET_VARIABLE_TAG_REGEX.match(tag) is not None:
+            self.prediction_variables.append(str(self.current_content).strip())
+        elif self.in_prow and PREDICTION_IDENTIFIER_TAG_REGEX.match(tag) is not None:
+            factor_name = self.prediction_variables[self.prediction_identifier_index]
+            self.current_prediction["factor"][factor_name] = str(self.current_content).strip() 
         elif tag in TRANSFORM_PREDICTION_TAG:
             self.current_prediction[self.current_key] = str(self.current_content).strip()
+        
 
         self.current_content = ""
 
     def characters(self, content):
-        if self.in_vparameter or self.in_info_criteria or self.in_a_reml_logl or self.in_conclusion or self.in_prow:
+        if (self.in_vparameter or
+            self.in_info_criteria or
+            self.in_a_reml_logl or
+            self.in_conclusion or
+            self.in_prow or
+            self.in_prediction_classifyset):
+
             self.current_content += content
