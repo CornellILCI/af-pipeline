@@ -237,7 +237,7 @@ class ProcessData:
         job_file_lines.append(f"residual {residual.statement}")
 
         # 9: adding prediction
-        prediction = services.get_property(self.db_session, "19")
+        prediction = services.get_property(self.db_session, self.analysis_request.predictionId)
         prediction_statement = "prediction {}".format(prediction.statement)
         job_file_lines.append(prediction_statement)
 
