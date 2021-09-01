@@ -6,7 +6,7 @@ UNIVERSAL_UNKNOWN = "NA"
 
 ANALYZE_IMPLEMENTATIONS = {
     "asreml": "af.pipeline.asreml.analyze.AsremlAnalyze",
-    "sommer": "af.pipeline.sommer.analyze.SommerAnalyze"
+    "sommer": "af.pipeline.sommer.analyze.SommeRAnalyze"
 }
 
 
@@ -17,6 +17,8 @@ def get_afdb_uri():
 def get_analysis_engine_script(engine_name: str):
     # This needs to configured from db
     engine = engine_name.lower()
+
+    # Or this can just be defined by their respective Analyze classes
     if engine == "asreml":
         return "asreml"
     

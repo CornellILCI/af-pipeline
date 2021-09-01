@@ -17,9 +17,15 @@ from af.pipeline import config
 from pydantic import ValidationError
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.exceptions import InvalidAnalysisRequest
-
+from af.pipeline.dpo import ProcessData
 
 class Analyze(abc.ABC):
+
+    dpo_cls: ProcessData = None
+
+    def get_process_data(self, analysis_request, *args, **kwargs):
+        return self.dpo_cls(analysis_request)
+
 
     @abc.abstractmethod
     def pre_process(self, *args, **kwargs):

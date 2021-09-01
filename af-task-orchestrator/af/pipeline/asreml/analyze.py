@@ -22,6 +22,10 @@ from af.pipeline.exceptions import AnalysisError, DpoException
 
 
 class AsremlAnalyze(Analyze):
+
+    dpo_cls = AsremlProcessData
+    engine_script = "asreml"
+
     def __init__(self, analysis_request: AnalysisRequest, *args, **kwargs):
         """Constructor.
 
@@ -56,14 +60,7 @@ class AsremlAnalyze(Analyze):
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
         # the engine script would have been determined from get_analyze_object so just pass it here
-        
-        self._engine_script = kwargs.get("engine_script") or self._load_engine_script()
 
-    def _load_engine_script(self):
-        analysis_engine_meta = db_services.get_analysis_config_meta_data(
-            self.db_session, self.analysis_request.analysisConfigPropertyId, "engine"
-        )
-        return config._script(analysis_engine_meta.value)
 
     def pre_process(self):
         # Run data pre-processing to get asreml job file and processed data files.
@@ -74,7 +71,7 @@ class AsremlAnalyze(Analyze):
         job = self.__get_new_job(job_name, job_status, status_message)
 
         try:
-            job_input_files = AsremlProcessData(self.analysis_request).run()
+            job_input_files = self.get_process_data(self.analysis_request).run()
             self.__update_job(job, "IN-PROGRESS", "Data Pre-Processing completed.")
             return job_input_files
         except (DataReaderException, DpoException) as e:
@@ -119,9 +116,9 @@ class AsremlAnalyze(Analyze):
         return job_results
 
     def get_engine_script(self):
-        return self._engine_script
+        return self.engine_script
 
-    def run_job(self, job_input_file, analysis_engine):
+    def run_job(self, job_input_file, analysis_engine=None):
         if not analysis_engine:
             analysis_engine = self.get_engine_script()
 
