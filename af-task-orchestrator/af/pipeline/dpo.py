@@ -7,6 +7,7 @@ import pathlib
 import sys
 from collections import OrderedDict
 from os import path
+import pandas as pd
 
 from pydantic import ValidationError
 
@@ -18,14 +19,16 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
-from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+from af.pipeline.data_reader.models import Trait, Occurrence  # noqa: E402; noqa: E402
+
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
+
 # from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
-from af.pipeline.pandasutil import df_keep_columns
+from af.pipeline import pandasutil
 
 
 class ProcessData:
@@ -52,12 +55,32 @@ class ProcessData:
 
         self.output_folder = analysis_request.outputFolder
 
-    def get_traits(self) -> list[Trait]:
+    def __get_traits(self) -> list[Trait]:
         traits = []
         for trait_id in self.trait_ids:
             trait: Trait = self.data_reader.get_trait(trait_id)
             traits.append(trait)
         return traits
+
+    def __save_entries(self, job_name, plots: pd.DataFrame):
+
+        entry_columns = ["entry_id", "entry_name", "entry_type"]
+        entries_df = plots[entry_columns]
+
+        job_folder = self.__get_job_folder(job_name)
+
+        # save entry df to create a analysis report for later
+        pandasutil.save_df_to_tsv(entries_df, "entries.tsv", job_folder)
+
+    def __get_job_folder(self, job_name: str) -> str:
+
+        job_folder = os.path.join(self.output_folder, job_name)
+
+        if not os.path.isdir(job_folder):
+            # create parent directories
+            os.makedirs(pathlib.Path(job_folder))
+
+        return job_folder
 
     def seml(self):
         """For Single Experiment Single Location
@@ -71,10 +94,10 @@ class ProcessData:
 
         plots_by_occurrence_id = {}
 
-        traits: list[Trait] = self.get_traits()
+        traits: list[Trait] = self.__get_traits()
 
         for occurrence_id in self.occurrence_ids:
-            plots_by_occurrence_id[occurrence_id] = self.data_reader.get_plots(occurrence_id)
+            plots_by_occurrence_id[occurrence_id]: pd.DataFrame = self.data_reader.get_plots(occurrence_id)
 
         for trait in traits:
 
@@ -82,7 +105,13 @@ class ProcessData:
 
             for occurrence_id in self.occurrence_ids:
 
+                job_name = f"{self.analysis_request.requestId}_{trait.trait_id}"
+
                 plots = plots_by_occurrence_id[occurrence_id]
+
+                # save entries in plots
+                self.__save_entries(job_name, plots)
+
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
                 _plots_and_measurements = plots.merge(plot_measurements_, on="plot_id", how="left")
@@ -94,7 +123,7 @@ class ProcessData:
             plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
 
             if not plots_and_measurements.empty:
-                job_input_files = self._write_job_input_files(f"{trait.trait_id}", plots_and_measurements, trait)
+                job_input_files = self._write_job_input_files(job_name, plots_and_measurements, trait)
                 yield job_input_files
 
     def sesl(self):
@@ -108,11 +137,19 @@ class ProcessData:
             DataReaderException when unable to extract data from datasource.
         """
 
-        traits: list[Trait] = self.get_traits()
+        traits: list[Trait] = self.__get_traits()
 
         for occurrence_id in self.occurrence_ids:
+
             plots = self.data_reader.get_plots(occurrence_id)
+
             for trait in traits:
+
+                job_name = f"{self.analysis_request.requestId}_{occurrence_id}_{trait.trait_id}"
+
+                # save entries in plots
+                self.__save_entries(job_name, plots)
+
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
                 # default is inner join
@@ -121,9 +158,7 @@ class ProcessData:
                 plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
 
                 if not plots_and_measurements.empty:
-                    job_input_files = self._write_job_input_files(
-                        f"{occurrence_id}_{trait.trait_id}", plots_and_measurements, trait
-                    )
+                    job_input_files = self._write_job_input_files(job_name, plots_and_measurements, trait)
                     yield job_input_files
 
     def _format_result_data(self, plots_and_measurements, trait):
@@ -142,7 +177,9 @@ class ProcessData:
         input_fields_to_config_fields["trait_value"] = trait.abbreviation
 
         # Key only the config field columns
-        plots_and_measurements = df_keep_columns(plots_and_measurements, input_fields_to_config_fields.keys())
+        plots_and_measurements = pandasutil.df_keep_columns(
+            plots_and_measurements, input_fields_to_config_fields.keys()
+        )
 
         plots_and_measurements = plots_and_measurements.rename(columns=input_fields_to_config_fields)
 
@@ -150,20 +187,17 @@ class ProcessData:
 
         return plots_and_measurements
 
-    def _write_job_input_files(self, job_id, job_data, trait):
+    def _write_job_input_files(self, job_name, job_data, trait):
 
         request_id = self.analysis_request.requestId
-
-        job_name = f"{self.analysis_request.requestId}_{job_id}"
 
         job_file_name = f"{job_name}.as"
         data_file_name = f"{job_name}.csv"
 
-        job_file_path = os.path.join(self.output_folder, job_name, job_file_name)
-        data_file_path = os.path.join(self.output_folder, job_name, data_file_name)
+        job_folder = self.__get_job_folder(job_name)
 
-        # create parent directories
-        os.makedirs(pathlib.Path(job_file_path).parent)
+        job_file_path = os.path.join(job_folder, job_file_name)
+        data_file_path = os.path.join(job_folder, data_file_name)
 
         job_data.to_csv(data_file_path, index=False)
 

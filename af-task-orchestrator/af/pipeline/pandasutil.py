@@ -1,9 +1,11 @@
+import os
 from typing import Iterable
 
-from pandas import DataFrame
+import pandas as pd
+from af.pipeline import exceptions
 
 
-def df_keep_columns(df: DataFrame, columns_to_keep: Iterable[str]) -> DataFrame:
+def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.DataFrame:
     """Keeps only columns in given set.
 
     Keeps only columns in input set and drops columns not in the given set.
@@ -27,3 +29,23 @@ def df_keep_columns(df: DataFrame, columns_to_keep: Iterable[str]) -> DataFrame:
     df = df[columns_to_keep]
 
     return df
+
+
+def save_df_to_tsv(df: pd.DataFrame, file_name: str, output_folder: str):
+    """Saves daataframe as a tab delimitted file.
+
+    Args:
+        df:
+            Input dataframe
+        file_name:
+            Name of the tab delimitted file
+        output_folder:
+            Folder path where the file needs to be saved.
+    """
+
+    if not os.path.isdir(output_folder):
+        raise exceptions.InvalidFilePath(output_folder + " does not exist")
+
+    file_path = os.path.join(output_folder, file_name)
+
+    df.to_csv(file_path, sep="\t", index=False)

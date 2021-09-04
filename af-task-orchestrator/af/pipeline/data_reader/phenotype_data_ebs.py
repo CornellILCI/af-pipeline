@@ -22,6 +22,8 @@ class PhenotypeDataEbs(PhenotypeData):
     plots_api_fields_to_local_fields = {
         "plotDbId": "plot_id",
         "entryDbId": "entry_id",
+        "entryName": "entry_name",
+        "entryType": "entry_type",
         "paX": "pa_x",
         "paY": "pa_y",
         "rep": "rep_factor",
