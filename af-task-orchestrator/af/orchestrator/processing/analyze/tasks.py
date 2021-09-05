@@ -32,11 +32,11 @@ def analyze(request_id: str, request_params):
 def pre_process(request_id, analysis_request):
     analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
     input_files = analyze_object.pre_process()
-    engine = analyze_object.get_engine_script()
+    # engine = analyze_object.get_engine_script()
 
     results = []  # results initially empty
-    args = request_id, analysis_request, input_files, results, engine
-    app.send_task('run_analyze', args=args, queue="ASREML")
+    args = request_id, analysis_request, input_files, results
+    app.send_task("run_analyze", args=args, queue="ASREML")
 
 
 @app.task(name="post_process", base=StatusReportingTask)

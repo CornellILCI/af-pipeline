@@ -1,14 +1,18 @@
 import os
-from af.pipeline.dpo import ProcessData
+import pathlib
+from collections import OrderedDict
 
 from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
+from af.pipeline.dpo import ProcessData
+
 # from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException
 from af.pipeline.pandasutil import df_keep_columns
@@ -138,7 +142,7 @@ class AsremlProcessData(ProcessData):
 
     def _write_job_input_files(self, job_id, job_data, trait):
 
-        request_id = self.analysis_request.requestId
+        # request_id = self.analysis_request.requestId
 
         job_name = f"{self.analysis_request.requestId}_{job_id}"
 
@@ -219,7 +223,7 @@ class AsremlProcessData(ProcessData):
 
         # 8: adding residual
         residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
-        residual_statement = residual.statement
+        # residual_statement = residual.statement
         job_file_lines.append(f"residual {residual.statement}")
 
         # 9: adding prediction
@@ -296,4 +300,3 @@ class AsremlProcessData(ProcessData):
             job_inputs.append(job_input)
 
         return job_inputs
-

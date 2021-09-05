@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 import argparse
-from abc import ABC, abstractmethod
 import json
 import os
-import pathlib
+
+# import pathlib
 import sys
-from collections import OrderedDict
+from abc import ABC, abstractmethod
+
+# from collections import OrderedDict
 from os import path
 
 from pydantic import ValidationError
@@ -16,17 +18,19 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import config
+# from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
-from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
-from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+from af.pipeline.exceptions import InvalidAnalysisRequest
+
+# from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
+# from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
-from af.pipeline.db import services
-from af.pipeline.db.core import DBConfig
+# from af.pipeline.db import services
+# from af.pipeline.db.core import DBConfig
 # from af.pipeline.db.models import Property
-from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
-from af.pipeline.pandasutil import df_keep_columns
+# from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
+# from af.pipeline.pandasutil import df_keep_columns
 
 
 class ProcessData(ABC):
@@ -47,8 +51,6 @@ class ProcessData(ABC):
     @abstractmethod
     def run(self):
         pass
-
-
 
 
 if __name__ == "__main__":

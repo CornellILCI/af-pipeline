@@ -5,7 +5,6 @@ from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, St
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-
 # workaround to get pytest to work with sqlite
 if os.getenv("env") == "testing":
     from sqlalchemy import Float as DOUBLE_PRECISION
@@ -257,7 +256,7 @@ class FittedValues(Base):
     creator_id = Column(Integer, nullable=False)
     modifier_id = Column(Integer)
     is_void = Column(Boolean, nullable=False, default=False)
-    
+
     job_id = Column(Integer)
     additional_info = Column(JSON, nullable=True)
     # TODO add ref to job

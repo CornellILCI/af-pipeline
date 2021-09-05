@@ -9,11 +9,11 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline.analyze import Analyze
-from af.pipeline import config, utils
-from af.pipeline.asreml.dpo import AsremlProcessData
+from af.pipeline import utils
 from af.pipeline.analysis_request import AnalysisRequest
+from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services
+from af.pipeline.asreml.dpo import AsremlProcessData
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db import services as db_services
 from af.pipeline.db.core import DBConfig
@@ -60,7 +60,6 @@ class AsremlAnalyze(Analyze):
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
         # the engine script would have been determined from get_analyze_object so just pass it here
-
 
     def pre_process(self):
         # Run data pre-processing to get asreml job file and processed data files.
