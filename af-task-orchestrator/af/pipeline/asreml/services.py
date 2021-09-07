@@ -41,6 +41,8 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
 
     session.commit()
 
+    return ch
+
 
 def _save_variances(session, variances):
     if variances:

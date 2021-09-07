@@ -157,15 +157,21 @@ class Analyze:
             asr_file_path = path.join(job_result_dir, f"{job.name}.asr")
 
             if not path.exists(asr_file_path):
-                raise AnalysisError("Analysis result file not found.")
+                raise AnalysisError("Analysis result asr file not found.")
+            
+            # parse predictions, model stats from xml and save to db
+            asreml_result_xml_path = path.join(job_result_dir, f"{job.name}.xml")
+            asreml_result_content = asreml_services.process_asreml_result(
+                self.db_session, job_result["job_id"], asreml_result_xml_path
+            )
+
+            print(asreml_result_content.predictions)
 
             # parse yhat result and save to db
             yhat_file_path = path.join(job_result_dir, f"{job.name}_yht.txt")
+            if not path.exists(yhat_file_path):
+                raise AnalysisError("Analysis result yhat file not found.")
             asreml_services.process_yhat_result(self.db_session, job_result["job_id"], yhat_file_path)
-
-            # parse predictions, model stats from xml and save to db
-            asreml_result_xml_path = path.join(job_result_dir, f"{job.name}.xml")
-            asreml_services.process_asreml_result(self.db_session, job_result["job_id"], asreml_result_xml_path)
 
             # zip the result files to be downloaded by the users
             utils.zip_dir(job_result_dir, self.output_file_path, job.name)
