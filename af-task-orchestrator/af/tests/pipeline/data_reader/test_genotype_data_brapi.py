@@ -5,25 +5,15 @@ from unittest.mock import Mock, patch
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
-from af.pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
+from af.pipeline.data_reader.genotype_data_brapi import GenotypeDataBrapi
 from pandas._testing import assert_frame_equal
 
 from conftest import get_json_resource, get_test_plot_measurements, get_test_plots
 
 
-def get_brapi_observation_units_response():
+def get_brapi_variantsets_units_response():
     """returns a mock brapi response for observation units."""
-    return get_json_resource(__file__, "brapi_observationunits_mock_response.json")
-
-
-def get_brapi_observations_response():
-    """ returns a mock brapi response for observation units """
-    return get_json_resource(__file__, "brapi_observations_mock_response.json")
-
-
-def get_brapi_studies_response():
-    """ returns a mock brapi response for studies """
-    return get_json_resource(__file__, "brapi_studies_mock_response.json")
+    return get_json_resource(__file__, "brapi_variantsets_mock_response.json")
 
 
 def get_test_occurrence_brapi() -> Occurrence:
@@ -44,11 +34,11 @@ class TestGenotypeDataBrapi(TestCase):
 
         mock_get.return_value.status_code = 200
 
-        mock_get.return_value.json = Mock(side_effect=[get_brapi_observation_units_response()])
+        mock_get.return_value.json = Mock(side_effect=[get_brapi_variantsets_units_response()])
 
         plots_test_df = get_test_plots()
 
-        plots_result_df = PhenotypeDataBrapi(api_base_url="http://test").get_plots("testid")
+        plots_result_df = GenotypeDataBrapi(api_base_url="http://test").get_variantsets(["testid"])
 
         # assert dataframe is returned
         assert isinstance(plots_result_df, pd.DataFrame)

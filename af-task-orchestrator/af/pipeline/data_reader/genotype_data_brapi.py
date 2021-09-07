@@ -2,24 +2,34 @@ import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study
-from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
-from af.pipeline.data_reader.phenotype_data import PhenotypeData
+from af.pipeline.data_reader.models.brapi.genotyping import VariantSetRequest, VariantSetsListResponseResult
+from af.pipeline.data_reader.genotype_data import GenotypeData
 from af.pipeline.pandasutil import df_keep_columns
 from pydantic import ValidationError
 
-GET_OBSERVATION_UNITS_URL = "/variantsets"
+GET_VARIANT_SETS_URL = "/variantsets"
 
 
-class GenotypeDataBrapi(PhenotypeData):
+class GenotypeDataBrapi(GenotypeData):
 
     brapi_list_page_size = 1000
 
     def get_variantsets(self, studyDbIds: list[str] = None) -> tuple:
 
-        observation_units_filters = VariantSetRequest(
-            callSetDbIds=occurrence_id
+        for studyDbId in studyDbIds:
+            filters = VariantSetRequest(
+                callSetDbId=studyDbId                
+            )
+
+            api_response = self.get(endpoint=GET_VARIANT_SETS_URL, params=filters.dict())
+
+            if not api_response.is_success:
+                raise DataReaderException(api_response.error)
+
+            brapi_response = VariantSetsListResponseResult(**api_response.body['result'])
+
             
-        )
+        
 
 
         return "",""
