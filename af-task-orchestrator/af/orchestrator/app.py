@@ -4,7 +4,6 @@ from celery import Celery
 from celery.utils.log import get_task_logger
 from kombu import Exchange, Queue
 
-
 jsonpickle_pandas.register_handlers()
 # register('json', jsonpickle.dumps, jsonpickle.loads, content_type='application/json')
 

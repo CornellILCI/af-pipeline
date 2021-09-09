@@ -36,7 +36,7 @@ def pre_process(request_id, analysis_request):
 
     results = []  # results initially empty
     args = request_id, analysis_request, input_files, results, engine
-    app.send_task('run_analyze', args=args, queue="ASREML")
+    app.send_task("run_analyze", args=args, queue="ASREML")
 
 
 @app.task(name="post_process", base=StatusReportingTask)
@@ -48,12 +48,12 @@ def post_process(request_id, analysis_request, results):
 
     # process the results here
     if not results:
-        done_analyze.delay(request_id)
+        done_analyze.delay(request_id, analysis_request)
     else:
         post_process.delay(request_id, analysis_request, results)
 
 
 @app.task(name="done_analyze", base=ResultReportingTask)
-def done_analyze(request_id):
+def done_analyze(request_id, analysis_request):
     # this is the terminal task to report DONE in tasks
-    pass  # trigger ResultReportingTask success event handler
+    _ = pipeline_analyze.Analyze(analysis_request).finalize()

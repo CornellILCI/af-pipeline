@@ -1,6 +1,5 @@
 import json
 import os
-
 # hacky importing since we need to declare these before we import Base
 # since core.py directly declares the vars
 import tempfile

@@ -1,11 +1,10 @@
 import xml.sax
-
 from datetime import datetime
 
+from af.pipeline.asreml import yhatparser
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
 from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
-from af.pipeline.asreml import yhatparser
 
 
 def get_file_parser():

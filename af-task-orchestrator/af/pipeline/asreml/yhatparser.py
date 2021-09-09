@@ -1,6 +1,6 @@
-import pandas as pd
 import json
 
+import pandas as pd
 from af.pipeline.exceptions import FileParseException
 
 YHAT_FILE_COLUMNS_TO_DB_COLUMNS = {"Record": "record", "Yhat": "yhat", "Residual": "residual", "Hat": "hat"}

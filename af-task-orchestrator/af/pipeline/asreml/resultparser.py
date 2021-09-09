@@ -1,5 +1,5 @@
-import xml.sax
 import re
+import xml.sax
 
 TAG_VARIANCE_COMPONENTS = "VarianceComponents"
 TAG_VPARAMETER = "VParameter"
@@ -122,9 +122,6 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.in_prow = True
             self.current_prediction = {
                 "job_id": self.job_id,
-                "factor": {},
-                "effect": 1,
-                "se_effect": 1,
                 "tenant_id": 1,
                 "creator_id": 1,
             }  # start a new prediction object
@@ -157,7 +154,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.in_prediction_classifyset = False
         elif tag == TAG_PROW and self.in_prediction_components:
             # set the num of factor
-            self.current_prediction["factor"]["num_factors"] = self.prediction_identifier_index + 1
+            self.current_prediction["num_factors"] = self.prediction_identifier_index + 1
             # get current_varariance and store in variances
             self.predictions.append(dict(self.current_prediction))
             # reset
@@ -168,7 +165,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.prediction_variables.append(str(self.current_content).strip())
         elif self.in_prow and PREDICTION_IDENTIFIER_TAG_REGEX.match(tag) is not None:
             factor_name = self.prediction_variables[self.prediction_identifier_index]
-            self.current_prediction["factor"][factor_name] = str(self.current_content).strip()
+            self.current_prediction[factor_name] = str(self.current_content).strip()
         elif tag in TRANSFORM_PREDICTION_TAG:
             self.current_prediction[self.current_key] = str(self.current_content).strip()
 

@@ -5,8 +5,9 @@ asremlutil.py
 Contains utility funcs for accessing asreml related run args
 """
 
-import af.pipeline.asreml.services as asreml_service
 import subprocess
+
+import af.pipeline.asreml.services as asreml_service
 
 
 def get_container_license_dir():

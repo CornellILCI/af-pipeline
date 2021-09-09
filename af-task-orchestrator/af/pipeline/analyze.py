@@ -8,12 +8,14 @@ import sys
 from datetime import datetime
 from os import path
 
+import pandas as pd
+
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
     file_dir = path.dirname(os.path.realpath(__file__))
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import config, dpo, utils
+from af.pipeline import config, dpo, utils, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.asreml import services as asreml_services
 from af.pipeline.data_reader.exceptions import DataReaderException
@@ -58,6 +60,7 @@ class Analyze:
             self.analysis = db_services.add(self.db_session, self.analysis)
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
+        self.report_file_path = path.join(analysis_request.outputFolder, "report.xlsx")
 
     def pre_process(self):
 
@@ -158,14 +161,13 @@ class Analyze:
 
             if not path.exists(asr_file_path):
                 raise AnalysisError("Analysis result asr file not found.")
-            
+
             # parse predictions, model stats from xml and save to db
             asreml_result_xml_path = path.join(job_result_dir, f"{job.name}.xml")
             asreml_result_content = asreml_services.process_asreml_result(
                 self.db_session, job_result["job_id"], asreml_result_xml_path
             )
-
-            print(asreml_result_content.predictions)
+            self.__write_entries_report(asreml_result_content.predictions)
 
             # parse yhat result and save to db
             yhat_file_path = path.join(job_result_dir, f"{job.name}_yht.txt")
@@ -184,6 +186,21 @@ class Analyze:
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
+
+    def finalize(self):
+        """
+        tasks to run finally after all process done
+        """
+
+        if os.path.isfile(self.report_file_path):
+            utils.zip_file(self.report_file_path, self.output_file_path)
+        else:
+            raise AnalysisError("No analysis report generated. Analysis failed.")
+
+    def __write_entries_report(self, predictions):
+        
+        predictions_df = pd.DataFrame(predictions)
+        pandasutil.append_df_to_excel(self.report_file_path, predictions_df, sheet_name="entries")
 
     def __get_new_job(self, job_name: str, status: str, status_message: str) -> Job:
 

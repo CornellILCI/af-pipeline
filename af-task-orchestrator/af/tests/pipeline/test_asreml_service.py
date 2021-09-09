@@ -1,8 +1,8 @@
 import io
+import json
 
 from af.pipeline.asreml.services import process_asreml_result, process_yhat_result
 from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
-import json
 
 
 def test_simple_test_1(dbsession, sample_asreml_result_string_1):

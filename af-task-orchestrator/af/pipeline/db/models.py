@@ -5,7 +5,6 @@ from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, St
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-
 # workaround to get pytest to work with sqlite
 if os.getenv("env") == "testing":
     from sqlalchemy import Float as DOUBLE_PRECISION

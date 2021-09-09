@@ -7,8 +7,8 @@ import pathlib
 import sys
 from collections import OrderedDict
 from os import path
-import pandas as pd
 
+import pandas as pd
 from pydantic import ValidationError
 
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
@@ -16,19 +16,16 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import config
+from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
-from af.pipeline.data_reader.models import Trait, Occurrence  # noqa: E402; noqa: E402
-
+from af.pipeline.data_reader.models import Occurrence, Trait  # noqa: E402; noqa: E402
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
-
 # from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
-from af.pipeline import pandasutil
 
 
 class ProcessData:
