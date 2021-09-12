@@ -13,6 +13,8 @@ def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.Data
     Keeps only columns in input set and drops columns not in the given set.
     Unmapped column in input set is ignored.
 
+    A simple df[keep_columns] will fail when one of the keep column missing in df.
+
     Args:
         df:
             Input dataframe
@@ -31,26 +33,6 @@ def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.Data
     df = df[columns_to_keep]
 
     return df
-
-
-def save_df_to_tsv(df: pd.DataFrame, file_name: str, output_folder: str):
-    """Saves daataframe as a tab delimitted file.
-
-    Args:
-        df:
-            Input dataframe
-        file_name:
-            Name of the tab delimitted file
-        output_folder:
-            Folder path where the file needs to be saved.
-    """
-
-    if not os.path.isdir(output_folder):
-        raise exceptions.InvalidFilePath(output_folder + " does not exist")
-
-    file_path = os.path.join(output_folder, file_name)
-
-    df.to_csv(file_path, sep="\t", index=False)
 
 
 def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncate_sheet=False, **to_excel_kwargs):
@@ -73,21 +55,14 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
         to_excel_kwargs: arguments which will be passed to `DataFrame.to_excel()`
                          [can be a dictionary]
 
-    Usage examples:
-
-    >>> append_df_to_excel('d:/temp/test.xlsx', df)
-
-    >>> append_df_to_excel('d:/temp/test.xlsx', df, header=None, index=False)
-
-    >>> append_df_to_excel('d:/temp/test.xlsx', df, sheet_name='Sheet2',
-                           index=False)
-
-    >>> append_df_to_excel('d:/temp/test.xlsx', df, sheet_name='Sheet2',
-                           index=False, startrow=25)
-
     (ref) [MaxU](https://stackoverflow.com/questions/38074678/
     append-existing-excel-sheet-with-new-dataframe-using-python-pandas)
     """
+
+    # by default ignore df indices
+    if "index" not in to_excel_kwargs:
+        to_excel_kwargs["index"] = False
+
     # Excel file doesn't exist - saving and exiting
     if not os.path.isfile(filename):
         df.to_excel(
@@ -123,6 +98,9 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
 
     if startrow is None:
         startrow = 0
+
+    if sheet_name in writer.sheets:
+        to_excel_kwargs["header"] = False
 
     # write out the new sheet
     df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)

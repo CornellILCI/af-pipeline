@@ -130,6 +130,8 @@ class TestProcessData(TestCase):
             "loc_id",
             "occurr_id",
             "entry_id",
+            "entry_name",
+            "entry_type",
             "pa_x",
             "pa_y",
             "rep_factor",
@@ -142,8 +144,8 @@ class TestProcessData(TestCase):
             DataFrame(
                 columns=plots_columns,
                 data=[
-                    [2909, 1, 1, 1, 1, 1, 1, 1, 1, "G"],
-                    [2910, 1, 1, 1, 1, 1, 2, 1, 1, "G"],
+                    [2909, 1, 1, 1, 1, "entry_name", "entry_type", 1, 1, 1, 1, "G"],
+                    [2910, 1, 1, 1, 1, "entry_name", "entry_type", 1, 2, 1, 1, "G"],
                 ],
             )
         )
@@ -153,8 +155,8 @@ class TestProcessData(TestCase):
             DataFrame(
                 columns=plots_columns,
                 data=[
-                    [2911, 1, 1, 2, 1, 2, 1, 1, 1, "G"],
-                    [2912, 1, 1, 2, 1, 2, 2, 1, 1, "G"],
+                    [2911, 1, 1, 2, 1, "entry_name", "entry_type", 2, 1, 1, 1, "G"],
+                    [2912, 1, 1, 2, 1, "entry_name", "entry_type", 2, 2, 1, 1, "G"],
                 ],
             )
         )
@@ -246,6 +248,8 @@ class TestProcessData(TestCase):
             "loc_id",
             "occurr_id",
             "entry_id",
+            "entry_name",
+            "entry_type",
             "pa_x",
             "pa_y",
             "rep_factor",
@@ -258,8 +262,8 @@ class TestProcessData(TestCase):
             DataFrame(
                 columns=plots_columns,
                 data=[
-                    [2909, 1, 1, 1, 1, 1, 1, 1, 1, "G"],
-                    [2910, 1, 1, 1, 1, 1, 2, 1, 1, "G"],
+                    [2909, 1, 1, 1, 1, "entry_name", "entry_type", 1, 1, 1, 1, "G"],
+                    [2910, 1, 1, 1, 1, "entry_name", "entry_type", 1, 2, 1, 1, "G"],
                 ],
             )
         )
@@ -269,8 +273,8 @@ class TestProcessData(TestCase):
             DataFrame(
                 columns=plots_columns,
                 data=[
-                    [2911, 1, 1, 2, 1, 2, 1, 1, 1, "G"],
-                    [2912, 1, 1, 2, 1, 2, 2, 1, 1, "G"],
+                    [2911, 1, 1, 2, 1, "entry_name", "entry_type", 2, 1, 1, 1, "G"],
+                    [2912, 1, 1, 2, 1, "entry_name", "entry_type", 2, 2, 1, 1, "G"],
                 ],
             )
         )

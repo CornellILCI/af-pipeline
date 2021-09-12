@@ -188,7 +188,7 @@ class PhenotypeDataEbs(PhenotypeData):
             location=_occurrence_ebs.location,
             rep_count=_occurrence_ebs.repCount,
             entry_count=_occurrence_ebs.entryCount,
-            plot_count=_occurrence_ebs.plotCount,
+            plot_count=_occurrence_ebs.plotCount
         )
 
     def get_experiment(self, experiment_id: str = None) -> Experiment:

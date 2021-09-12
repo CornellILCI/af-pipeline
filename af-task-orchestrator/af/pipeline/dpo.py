@@ -20,10 +20,12 @@ from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Occurrence, Trait  # noqa: E402; noqa: E402
-# from af.pipeline.data_reader.models import Experiment, Occurrence
+
+from af.pipeline.data_reader.models import Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
+
 # from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 
@@ -50,6 +52,9 @@ class ProcessData:
         self.analysis_fields = None
         self.input_fields_to_config_fields = None
 
+        if not os.path.isdir(analysis_request.outputFolder):
+            raise InvalidAnalysisRequest(analysis_request.outputFolder + " does not exist")
+
         self.output_folder = analysis_request.outputFolder
 
     def __get_traits(self) -> list[Trait]:
@@ -59,15 +64,32 @@ class ProcessData:
             traits.append(trait)
         return traits
 
-    def __save_entries(self, job_name, plots: pd.DataFrame):
+    def __save_entries(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait):
 
         entry_columns = ["entry_id", "entry_name", "entry_type"]
-        entries_df = plots[entry_columns]
+        entries_df = plots.loc[:, entry_columns] # get a copy, not a view
+
+        entries_df['experiment_id'] = occurrence.experiment_id
+        entries_df['experiment_name'] = occurrence.experiment_name
+        entries_df['location'] = occurrence.location
+        entries_df['location_id'] = occurrence.location_id
+        entries_df['trait_abbreviation'] = trait.abbreviation
 
         job_folder = self.__get_job_folder(job_name)
 
-        # save entry df to create a analysis report for later
-        pandasutil.save_df_to_tsv(entries_df, "entries.tsv", job_folder)
+        entries_file_path = os.path.join(job_folder, "entries.tsv")
+
+        to_csv_kwargs = {
+            'sep': '\t',
+            'index': False
+        }
+
+        if os.path.isfile(entries_file_path):
+            to_csv_kwargs.update({'header' : False, 'mode': 'a'})
+
+        entries_df.to_csv(entries_file_path, **to_csv_kwargs)
+
+        return entries_file_path
 
     def __get_job_folder(self, job_name: str) -> str:
 
@@ -89,25 +111,32 @@ class ProcessData:
             DataReaderException when unable to extract data from datasource.
         """
 
-        plots_by_occurrence_id = {}
+        plots_by_id = {}
+        occurrences_by_id = {}
 
         traits: list[Trait] = self.__get_traits()
 
+        # read once
         for occurrence_id in self.occurrence_ids:
-            plots_by_occurrence_id[occurrence_id]: pd.DataFrame = self.data_reader.get_plots(occurrence_id)
+            plots_by_id[occurrence_id]: pd.DataFrame = self.data_reader.get_plots(occurrence_id)
+            occurrences_by_id[occurrence_id]: Occurrence = self.data_reader.get_occurrence(occurrence_id)
 
         for trait in traits:
 
             plots_and_measurements = None
 
+            job_name = f"{self.analysis_request.requestId}_{trait.trait_id}"
+
+            # processed input files and other metadata required to run the analysis
+            job_data = {}
+
             for occurrence_id in self.occurrence_ids:
 
-                job_name = f"{self.analysis_request.requestId}_{trait.trait_id}"
-
-                plots = plots_by_occurrence_id[occurrence_id]
-
+                plots = plots_by_id[occurrence_id]
+                occurrence = occurrences_by_id[occurrence_id]
+            
                 # save entries in plots
-                self.__save_entries(job_name, plots)
+                job_data["entries_file_path"] = self.__save_entries(job_name, plots, occurrence, trait)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
@@ -121,7 +150,8 @@ class ProcessData:
 
             if not plots_and_measurements.empty:
                 job_input_files = self._write_job_input_files(job_name, plots_and_measurements, trait)
-                yield job_input_files
+                job_data.update(job_input_files)
+                yield job_data
 
     def sesl(self):
         """For Single Experiment Multi Location
@@ -139,13 +169,17 @@ class ProcessData:
         for occurrence_id in self.occurrence_ids:
 
             plots = self.data_reader.get_plots(occurrence_id)
+            occurrence: Occurrence = self.data_reader.get_occurrence(occurrence_id)
 
             for trait in traits:
 
                 job_name = f"{self.analysis_request.requestId}_{occurrence_id}_{trait.trait_id}"
 
+                # processed input files and other metadata required to run the analysis
+                job_data = {}
+
                 # save entries in plots
-                self.__save_entries(job_name, plots)
+                job_data["entries_file_path"] = self.__save_entries(job_name, plots, occurrence, trait)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
@@ -156,7 +190,8 @@ class ProcessData:
 
                 if not plots_and_measurements.empty:
                     job_input_files = self._write_job_input_files(job_name, plots_and_measurements, trait)
-                    yield job_input_files
+                    job_data.update(job_input_files)
+                    yield job_data
 
     def _format_result_data(self, plots_and_measurements, trait):
 
@@ -204,7 +239,11 @@ class ProcessData:
             for line in job_file_lines:
                 j_f.write("{}\n".format(line))
 
-        return {"data_file": data_file_path, "asreml_job_file": job_file_path, "job_name": job_name}
+        return {
+            "data_file": data_file_path,
+            "asreml_job_file": job_file_path,
+            "job_name": job_name,
+        }
 
     def _get_analysis_fields(self):
         if not self.analysis_fields:
@@ -338,7 +377,6 @@ class ProcessData:
             raise DpoException(f"Analysis pattern value: {exptloc_analysis_pattern} is invalid")
 
         for job_input in job_inputs_gen:
-            print(job_input)
             job_inputs.append(job_input)
 
         return job_inputs
