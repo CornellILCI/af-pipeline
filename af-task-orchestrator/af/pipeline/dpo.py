@@ -7,6 +7,7 @@ import pathlib
 import sys
 from collections import OrderedDict
 from os import path
+import dataclasses
 
 import pandas as pd
 from pydantic import ValidationError
@@ -18,10 +19,12 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 
 from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
+from af.pipeline.job_data import JobData
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Occurrence, Trait  # noqa: E402; noqa: E402
 
 from af.pipeline.data_reader.models import Occurrence
+
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
@@ -67,25 +70,22 @@ class ProcessData:
     def __save_entries(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait):
 
         entry_columns = ["entry_id", "entry_name", "entry_type"]
-        entries_df = plots.loc[:, entry_columns] # get a copy, not a view
+        entries_df = plots.loc[:, entry_columns]  # get a copy, not a view
 
-        entries_df['experiment_id'] = occurrence.experiment_id
-        entries_df['experiment_name'] = occurrence.experiment_name
-        entries_df['location'] = occurrence.location
-        entries_df['location_id'] = occurrence.location_id
-        entries_df['trait_abbreviation'] = trait.abbreviation
+        entries_df["experiment_id"] = occurrence.experiment_id
+        entries_df["experiment_name"] = occurrence.experiment_name
+        entries_df["location"] = occurrence.location
+        entries_df["location_id"] = occurrence.location_id
+        entries_df["trait_abbreviation"] = trait.abbreviation
 
         job_folder = self.__get_job_folder(job_name)
 
         entries_file_path = os.path.join(job_folder, "entries.tsv")
 
-        to_csv_kwargs = {
-            'sep': '\t',
-            'index': False
-        }
+        to_csv_kwargs = {"sep": "\t", "index": False}
 
         if os.path.isfile(entries_file_path):
-            to_csv_kwargs.update({'header' : False, 'mode': 'a'})
+            to_csv_kwargs.update({"header": False, "mode": "a"})
 
         entries_df.to_csv(entries_file_path, **to_csv_kwargs)
 
@@ -125,22 +125,27 @@ class ProcessData:
 
             plots_and_measurements = None
 
-            job_name = f"{self.analysis_request.requestId}_{trait.trait_id}"
-
             # processed input files and other metadata required to run the analysis
-            job_data = {}
+            job_data = JobData()
+
+            job_name = f"{self.analysis_request.requestId}_{trait.trait_id}"
+            job_data.job_name = job_name
 
             for occurrence_id in self.occurrence_ids:
 
                 plots = plots_by_id[occurrence_id]
                 occurrence = occurrences_by_id[occurrence_id]
-            
+                
+                # for report creations and other cross checking
+                job_data.occurrences.append(occurrence)
+
                 # save entries in plots
-                job_data["entries_file_path"] = self.__save_entries(job_name, plots, occurrence, trait)
+                job_data.entries_file = self.__save_entries(job_name, plots, occurrence, trait)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
                 _plots_and_measurements = plots.merge(plot_measurements_, on="plot_id", how="left")
+
                 if plots_and_measurements is None:
                     plots_and_measurements = _plots_and_measurements
                 else:
@@ -149,8 +154,7 @@ class ProcessData:
             plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
 
             if not plots_and_measurements.empty:
-                job_input_files = self._write_job_input_files(job_name, plots_and_measurements, trait)
-                job_data.update(job_input_files)
+                self._write_job_data(job_data, plots_and_measurements, trait)
                 yield job_data
 
     def sesl(self):
@@ -170,16 +174,21 @@ class ProcessData:
 
             plots = self.data_reader.get_plots(occurrence_id)
             occurrence: Occurrence = self.data_reader.get_occurrence(occurrence_id)
-
+            
             for trait in traits:
 
                 job_name = f"{self.analysis_request.requestId}_{occurrence_id}_{trait.trait_id}"
 
                 # processed input files and other metadata required to run the analysis
-                job_data = {}
+                job_data = JobData()
+
+                job_data.job_name = job_name
+            
+                # for report creations and other cross checking
+                job_data.occurrences.append(occurrence)
 
                 # save entries in plots
-                job_data["entries_file_path"] = self.__save_entries(job_name, plots, occurrence, trait)
+                job_data.entries_file = self.__save_entries(job_name, plots, occurrence, trait)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
@@ -189,8 +198,7 @@ class ProcessData:
                 plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
 
                 if not plots_and_measurements.empty:
-                    job_input_files = self._write_job_input_files(job_name, plots_and_measurements, trait)
-                    job_data.update(job_input_files)
+                    self._write_job_data(job_data, plots_and_measurements, trait)
                     yield job_data
 
     def _format_result_data(self, plots_and_measurements, trait):
@@ -219,31 +227,27 @@ class ProcessData:
 
         return plots_and_measurements
 
-    def _write_job_input_files(self, job_name, job_data, trait):
+    def _write_job_data(self, job_data, plots_and_measurements, trait):
 
         request_id = self.analysis_request.requestId
 
-        job_file_name = f"{job_name}.as"
-        data_file_name = f"{job_name}.csv"
+        job_file_name = f"{job_data.job_name}.as"
+        data_file_name = f"{job_data.job_name}.csv"
 
-        job_folder = self.__get_job_folder(job_name)
+        job_folder = self.__get_job_folder(job_data.job_name)
 
-        job_file_path = os.path.join(job_folder, job_file_name)
-        data_file_path = os.path.join(job_folder, data_file_name)
+        job_data.job_file = os.path.join(job_folder, job_file_name)
+        job_data.data_file = os.path.join(job_folder, data_file_name)
 
-        job_data.to_csv(data_file_path, index=False)
+        plots_and_measurements.to_csv(job_data.data_file, index=False)
 
-        job_file_lines = self._get_asrml_job_file_lines(job_name, data_file_path, trait)
+        job_file_lines = self._get_asreml_job_file_lines(job_data, job_data.data_file, trait)
 
-        with open(job_file_path, "w") as j_f:
+        with open(job_data.job_file, "w") as j_f:
             for line in job_file_lines:
                 j_f.write("{}\n".format(line))
 
-        return {
-            "data_file": data_file_path,
-            "asreml_job_file": job_file_path,
-            "job_name": job_name,
-        }
+        return job_data
 
     def _get_analysis_fields(self):
         if not self.analysis_fields:
@@ -269,7 +273,7 @@ class ProcessData:
                 self.input_fields_to_config_fields[input_field_name] = field.Property.code
         return self.input_fields_to_config_fields
 
-    def _get_asrml_job_file_lines(self, job_name, data_file_path, trait: Trait):
+    def _get_asreml_job_file_lines(self, job_data, data_file_path, trait: Trait):
 
         analysis_config_id = self.analysis_request.analysisConfigPropertyId
 
@@ -277,7 +281,7 @@ class ProcessData:
         job_file_lines = ["!XML"]
 
         # 2: add title of the analysis run
-        job_file_lines.append(job_name)
+        job_file_lines.append(job_data.job_name)
 
         # 3: adding the analysis field statements
         for field_line in self._get_analysis_field_lines(analysis_config_id):
@@ -355,7 +359,8 @@ class ProcessData:
                     {
                         "job_name": "job1"
                         "data_file": "/test/test.csv",
-                        "asreml_job_file": "/test/test.as"
+                        "job_file": "/test/test.as",
+                        "entries_file": "/test/test_entries.csv"
                     }
                 ]
 
@@ -377,7 +382,8 @@ class ProcessData:
             raise DpoException(f"Analysis pattern value: {exptloc_analysis_pattern} is invalid")
 
         for job_input in job_inputs_gen:
-            job_inputs.append(job_input)
+            job_input.analysis_trait_pattern = exptloc_analysis_pattern.code
+            job_inputs.append(dataclasses.asdict(job_input))
 
         return job_inputs
 

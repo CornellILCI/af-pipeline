@@ -26,11 +26,18 @@ def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.Data
     """
 
     # convert to set
-    columns_to_keep = set(columns_to_keep)
+    columns_to_keep_set = set(columns_to_keep)
 
-    columns_to_drop = set(df.columns) - columns_to_keep
-    columns_to_keep = set(df.columns) - columns_to_drop
-    df = df[columns_to_keep]
+    columns_to_drop = set(df.columns) - columns_to_keep_set
+    columns_to_keep_set = set(df.columns) - columns_to_drop
+
+    # to make sure order
+    eligible_columns = []
+    for column in columns_to_keep:
+        if column in columns_to_keep_set:
+            eligible_columns.append(column)
+
+    df = df[eligible_columns]
 
     return df
 

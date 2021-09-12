@@ -42,9 +42,9 @@ def pre_process(request_id, analysis_request):
 @app.task(name="post_process", base=StatusReportingTask)
 def post_process(request_id, analysis_request, results):
     result, results = results[0], results[1:]
-    job_name = result["job_name"]
+    job_name = result.job_name
 
-    _ = pipeline_analyze.Analyze(analysis_request).process_job_result(job_name, result)
+    _ = pipeline_analyze.Analyze(analysis_request).process_job_result(result)
 
     # process the results here
     if not results:

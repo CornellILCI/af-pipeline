@@ -17,6 +17,7 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 
 from af.pipeline import config, dpo, utils, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
+from af.pipeline.job_data import JobData
 from af.pipeline.asreml import services as asreml_services
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db import services as db_services
@@ -72,9 +73,9 @@ class Analyze:
         job = self.__get_new_job(job_name, job_status, status_message)
 
         try:
-            job_input_files = dpo.ProcessData(self.analysis_request).run()
+            job_data = dpo.ProcessData(self.analysis_request).run()
             self.__update_job(job, "IN-PROGRESS", "Data Pre-Processing completed.")
-            return job_input_files
+            return job_data
         except (DataReaderException, DpoException) as e:
             self.analysis.status = "FAILED"
             self.__update_job(job, "FAILED", "Failed during Data Pre-Processing.")
@@ -82,14 +83,15 @@ class Analyze:
         finally:
             self.db_session.commit()
 
-    def analyze(self, job_input_files):
+    def analyze(self, jobs_to_run):
         """Takes a list of analysis job objects and run analysis for each.
         example:
             [
                 {
                     "job_name": "job1"
                     "data_file": "/test/test.csv",
-                    "asreml_job_file": "/test/test.as"
+                    "job_file": "/test/test.as",
+                    "entries_file": "/test/test_entries.csv"
                 }
             ]
         Returns:
@@ -98,7 +100,10 @@ class Analyze:
                 {
                     "job_name": "job1",
                     "job_id": "jobId1",
-                    "job_result_dir": "/test/"
+                    "job_result_dir": "/test/",
+                    "data_file": "/test/test.csv",
+                    "job_file": "/test/test.as",
+                    "entries_file": "/test/test_entries.csv"
                 }
             ]
         """
@@ -106,8 +111,8 @@ class Analyze:
         # output of each analysis job
         job_results = []
 
-        for job_input_file in job_input_files:
-            job_result = self.run_job(job_input_file, self.get_engine())
+        for job_data in jobs_to_run:
+            job_result = self.run_job(job_data, self.get_engine())
             job_results.append(job_result)
 
         self.analysis.status = "COMPLETED"
@@ -123,11 +128,13 @@ class Analyze:
 
         return config.get_analysis_engine_script(analysis_engine_meta.value)
 
-    def run_job(self, job_input_files, analysis_engine):
+    def run_job(self, job_data, analysis_engine):
 
-        job_name = job_input_files["job_name"]
-        asreml_job_file = job_input_files["asreml_job_file"]
-        data_file = job_input_files["data_file"]
+        job_data = JobData(**job_data)
+
+        job_name = job_data.job_name
+        asreml_job_file = job_data.job_file
+        data_file = job_data.data_file
         job_dir = utils.get_parent_dir(data_file)
 
         job_status = "IN-PROGRESS"
@@ -139,12 +146,10 @@ class Analyze:
             cmd = [analysis_engine, asreml_job_file, data_file]
             _ = subprocess.run(cmd, capture_output=True)
             job = self.__update_job(job, "COMPLETED", "Completed the job.")
-            
-            job_result = {"job_name": job_name, "job_id": job.id, "job_result_dir": job_dir}
 
-            job_result.update(job_input_files)
+            job_data.job_result_dir = job_dir
 
-            return job_result
+            return job_data
 
         except Exception as e:
             self.analysis.status = "FAILED"
@@ -155,34 +160,32 @@ class Analyze:
 
     def post_process(self, job_results):
         for job_result in job_results:
-            job_name = job_result["job_name"]
-            self.process_job_result(job_name, job_result)
+            self.process_job_result(job_result)
 
-    def process_job_result(self, job_name, job_result: dict):
+    def process_job_result(self, job_result: dict):
         try:
-            job = db_services.get_job_by_name(self.db_session, job_name)
-            job_result_dir = job_result["job_result_dir"]
-            asr_file_path = path.join(job_result_dir, f"{job.name}.asr")
-            entries_file_path = job_result["entries_file_path"]
+
+            job = db_services.get_job_by_name(self.db_session, job_result.job_name)
+            asr_file_path = path.join(job_result.job_result_dir, f"{job.name}.asr")
 
             if not path.exists(asr_file_path):
                 raise AnalysisError("Analysis result asr file not found.")
 
             # parse predictions, model stats from xml and save to db
-            asreml_result_xml_path = path.join(job_result_dir, f"{job.name}.xml")
+            asreml_result_xml_path = path.join(job_result.job_result_dir, f"{job.name}.xml")
             asreml_result_content = asreml_services.process_asreml_result(
-                self.db_session, job_result["job_id"], asreml_result_xml_path
+                self.db_session, job.id, asreml_result_xml_path
             )
-            self.__update_analysis_report(asreml_result_content, entries_file_path)
+            self.__update_analysis_report(asreml_result_content, job_result.entries_file)
 
             # parse yhat result and save to db
-            yhat_file_path = path.join(job_result_dir, f"{job.name}_yht.txt")
+            yhat_file_path = path.join(job_result.job_result_dir, f"{job.name}_yht.txt")
             if not path.exists(yhat_file_path):
                 raise AnalysisError("Analysis result yhat file not found.")
-            asreml_services.process_yhat_result(self.db_session, job_result["job_id"], yhat_file_path)
+            asreml_services.process_yhat_result(self.db_session, job.id, yhat_file_path)
 
             # zip the result files to be downloaded by the users
-            utils.zip_dir(job_result_dir, self.output_file_path, job.name)
+            utils.zip_dir(job_result.job_result_dir, self.output_file_path, job.name)
 
             self.__update_job(job, "SUCCESS", "Asreml analysis completed successfully")
 
@@ -204,46 +207,65 @@ class Analyze:
             raise AnalysisError("No analysis result report generated by the engine. Analysis failed.")
 
     def __update_analysis_report(self, asreml_result_content, entries_file_path):
-        
+
         entries_df = pd.read_csv(entries_file_path, sep="\t", dtype=str)
-        
+
         # write model statistics
         if len(asreml_result_content.model_stat) > 0:
             model_stats_df = pd.DataFrame([asreml_result_content.model_stat])
             self.__write_model_stats_report(model_stats_df, entries_df)
 
         predictions_df = pd.DataFrame(asreml_result_content.predictions)
-        
+
         # write entry report
-        if 'entry' in predictions_df.columns:
+        if "entry" in predictions_df.columns:
             self.__write_entry_report(predictions_df, entries_df)
-        
+
         # write location report
-        if 'loc' in predictions_df.columns:
+        if "loc" in predictions_df.columns:
             self.__write_location_report(predictions_df, entries_df)
-        
+
         # write entry and location report
-        if 'entry' in predictions_df.columns and 'loc' in predictions_df.columns:
+        if "entry" in predictions_df.columns and "loc" in predictions_df.columns:
             self.__write_entry_location_report(predictions_df, entries_df)
 
     def __write_model_stats_report(self, model_stats_df, entries_df):
 
-        model_stats_report_columns = ['job_id', 'experiment_name', 'trait_abbreviation', 'location_name',
-            'log_lik', 'aic', 'bic', 'components', 'conclusion', 'is_converged']
-        
-        model_stats_df['experiment_name'] = ",".join(entries_df.experiment_name.drop_duplicates().astype(str))
-        model_stats_df['location_name'] = ",".join(entries_df.location.drop_duplicates().astype(str))
-        model_stats_df['trait_abbreviation'] = ",".join(entries_df.trait_abbreviation.drop_duplicates().astype(str))
+        model_stats_report_columns = [
+            "job_id",
+            "experiment_name",
+            "trait_abbreviation",
+            "location_name",
+            "log_lik",
+            "aic",
+            "bic",
+            "components",
+            "conclusion",
+            "is_converged",
+        ]
 
-        model_stats_df = model_stats_df[model_stats_report_columns]
+        model_stats_df["experiment_name"] = ",".join(entries_df.experiment_name.drop_duplicates().astype(str))
+        model_stats_df["location_name"] = ",".join(entries_df.location.drop_duplicates().astype(str))
+        model_stats_df["trait_abbreviation"] = ",".join(entries_df.trait_abbreviation.drop_duplicates().astype(str))
+
+        model_stats_df = pandasutil.df_keep_columns(model_stats_df, model_stats_report_columns)
 
         pandasutil.append_df_to_excel(self.report_file_path, model_stats_df, sheet_name="model statistics")
 
     def __write_entry_report(self, predictions_df, entries_df):
-        
+
         entries_report_columns = [
-            'job_id', 'experiment_id', 'experiment_name', 'trait_abbreviation', 
-            'entry', 'entry_name', 'entry_type', 'value', 'std_error', 'e_code']
+            "job_id",
+            "experiment_id",
+            "experiment_name",
+            "trait_abbreviation",
+            "entry",
+            "entry_name",
+            "entry_type",
+            "value",
+            "std_error",
+            "e_code",
+        ]
 
         # get entry only rows
         entry_report = predictions_df[predictions_df.entry.notnull()]
@@ -252,7 +274,7 @@ class Analyze:
         if len(entry_report) == 0:
             return
 
-        entry_report = entry_report.merge(entries_df, left_on='entry', right_on='entry_id')
+        entry_report = entry_report.merge(entries_df, left_on="entry", right_on="entry_id")
 
         entry_report = entry_report[entries_report_columns]
 
@@ -261,30 +283,44 @@ class Analyze:
     def __write_location_report(self, predictions_df, entries_df):
 
         location_report_columns = [
-            'job_id', 'trait_abbreviation', 'location_id', 'location', 'value', 'std_error', 'e_code']
-        
-        location_df = entries_df[['location_id', 'location']].drop_duplicates()
-        
+            "job_id",
+            "trait_abbreviation",
+            "location_id",
+            "location",
+            "value",
+            "std_error",
+            "e_code",
+        ]
+
+        location_df = entries_df[["location_id", "location"]].drop_duplicates()
+
         # get location only rows
         location_report = predictions_df[predictions_df.loc.notnull()]
         location_report = entry_report[entry_report.num_factors == 1]
 
         if len(location_report) == 0:
             return
-        
-        location_report = location_report.merge(location_df, left_on='loc', right_on='location_id')
+
+        location_report = location_report.merge(location_df, left_on="loc", right_on="location_id")
 
         location_report = location_report[location_report_columns]
 
         pandasutil.append_df_to_excel(self.report_file_path, location_report, sheet_name="location")
-    
+
     def __write_entry_location_report(self, predictions_df, entries_df):
 
         entry_location_report_columns = [
-            'job_id', 'trait_abbreviation', 'entry', 'entry_name',
-            'location_id', 'location', 'value', 'std_error',
-            'e_code']
-        
+            "job_id",
+            "trait_abbreviation",
+            "entry",
+            "entry_name",
+            "location_id",
+            "location",
+            "value",
+            "std_error",
+            "e_code",
+        ]
+
         # get entry location only rows
         entry_location_report = predictions_df[predictions_df.entry.notnull()]
         entry_location_report = entry_location_report[entry_location_report.loc.notnull()]
@@ -292,14 +328,15 @@ class Analyze:
 
         if len(entry_location_report) == 0:
             return
-        
+
         entry_location_report = entry_location_report.merge(
-            entries_df, left_on=['entry', 'loc'], right_on=['entry_id', 'location_id'])
+            entries_df, left_on=["entry", "loc"], right_on=["entry_id", "location_id"]
+        )
 
         entry_location_report = entry_location_report[location_report_columns]
 
         pandasutil.append_df_to_excel(self.report_file_path, entry_location_report, sheet_name="entry x location")
-    
+
     def __get_new_job(self, job_name: str, status: str, status_message: str) -> Job:
 
         job_start_time = datetime.utcnow()
