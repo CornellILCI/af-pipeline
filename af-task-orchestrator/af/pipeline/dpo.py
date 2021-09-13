@@ -135,8 +135,6 @@ class ProcessData:
 
                 plots = plots_by_id[occurrence_id]
                 occurrence = occurrences_by_id[occurrence_id]
-                
-                # for report creations and other cross checking
                 job_data.occurrences.append(occurrence)
 
                 # save entries in plots
@@ -174,7 +172,7 @@ class ProcessData:
 
             plots = self.data_reader.get_plots(occurrence_id)
             occurrence: Occurrence = self.data_reader.get_occurrence(occurrence_id)
-            
+
             for trait in traits:
 
                 job_name = f"{self.analysis_request.requestId}_{occurrence_id}_{trait.trait_id}"
@@ -183,8 +181,6 @@ class ProcessData:
                 job_data = JobData()
 
                 job_data.job_name = job_name
-            
-                # for report creations and other cross checking
                 job_data.occurrences.append(occurrence)
 
                 # save entries in plots
@@ -311,7 +307,7 @@ class ProcessData:
         job_file_lines.append(f"residual {residual.statement}")
 
         # 9: adding prediction
-        prediction = services.get_property(self.db_session, "19")
+        prediction = services.get_property(self.db_session, self.analysis_request.analysisObjectivePropertyId)
         prediction_statement = "prediction {}".format(prediction.statement)
         job_file_lines.append(prediction_statement)
 
@@ -382,7 +378,6 @@ class ProcessData:
             raise DpoException(f"Analysis pattern value: {exptloc_analysis_pattern} is invalid")
 
         for job_input in job_inputs_gen:
-            job_input.analysis_trait_pattern = exptloc_analysis_pattern.code
             job_inputs.append(dataclasses.asdict(job_input))
 
         return job_inputs

@@ -40,20 +40,23 @@ def pre_process(request_id, analysis_request):
 
 
 @app.task(name="post_process", base=StatusReportingTask)
-def post_process(request_id, analysis_request, results):
+def post_process(request_id, analysis_request, results, gathered_occurrences=None):
     result, results = results[0], results[1:]
     job_name = result.job_name
+    
+    if gathered_occurrences is None:
+        gathered_occurrences = {}
 
-    _ = pipeline_analyze.Analyze(analysis_request).process_job_result(result)
+    gathered_occurrences = pipeline_analyze.Analyze(analysis_request).process_job_result(result, gathered_occurrences)
 
     # process the results here
     if not results:
-        done_analyze.delay(request_id, analysis_request)
+        done_analyze.delay(request_id, analysis_request, gathered_occurrences)
     else:
-        post_process.delay(request_id, analysis_request, results)
+        post_process.delay(request_id, analysis_request, results, gathered_occurrences)
 
 
 @app.task(name="done_analyze", base=ResultReportingTask)
-def done_analyze(request_id, analysis_request):
+def done_analyze(request_id, analysis_request, gathered_occurrences):
     # this is the terminal task to report DONE in tasks
-    _ = pipeline_analyze.Analyze(analysis_request).finalize()
+    _ = pipeline_analyze.Analyze(analysis_request).finalize(gathered_occurrences)
