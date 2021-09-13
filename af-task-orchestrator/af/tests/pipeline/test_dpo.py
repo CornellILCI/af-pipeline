@@ -2,7 +2,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from af.pipeline.data_reader.models import Trait
+from af.pipeline.data_reader.models import Occurrence, Trait
 from af.pipeline.db.models import Property
 from af.pipeline.dpo import ProcessData
 from pandas import DataFrame
@@ -162,6 +162,18 @@ class TestProcessData(TestCase):
         )
 
         phenotype_data_ebs_instance.get_plots.side_effect = mock_plots
+        
+        mock_occurrences = [
+            Occurrence(
+                occurrence_id=1, occurrence_name="occur_1",
+                experiment_id="1", experiment_name="experiment1",
+                location_id=1, location="loc1"),
+            Occurrence(
+                occurrence_id=2, occurrence_name="occur_2",
+                experiment_id="1", experiment_name="experiment1",
+                location_id=1, location="loc1")
+        ]
+        phenotype_data_ebs_instance.get_occurrence.side_effect = mock_occurrences
 
         mock_plot_measurements = []
         plot_measurements_columns = ["plot_id", "trait_id", "trait_qc", "trait_value"]
@@ -213,8 +225,8 @@ class TestProcessData(TestCase):
 
         self.assertEqual(len(results), 1)
 
-        self.assertTrue("asreml_job_file" in results[0])
-        with open(results[0]["asreml_job_file"]) as job_f_:
+        self.assertTrue("job_file" in results[0])
+        with open(results[0]["job_file"]) as job_f_:
             job_file_contents = job_f_.read()
             self.assertEqual(job_file_contents, expected_job_file_1)
 
@@ -280,6 +292,18 @@ class TestProcessData(TestCase):
         )
 
         phenotype_data_ebs_instance.get_plots.side_effect = mock_plots
+        
+        mock_occurrences = [
+            Occurrence(
+                occurrence_id=1, occurrence_name="occur_1",
+                experiment_id="1", experiment_name="experiment1",
+                location_id=1, location="loc1"),
+            Occurrence(
+                occurrence_id=2, occurrence_name="occur_2",
+                experiment_id="1", experiment_name="experiment1",
+                location_id=1, location="loc1")
+        ]
+        phenotype_data_ebs_instance.get_occurrence.side_effect = mock_occurrences
 
         mock_plot_measurements = []
         plot_measurements_columns = ["plot_id", "trait_id", "trait_qc", "trait_value"]
@@ -349,8 +373,8 @@ class TestProcessData(TestCase):
 
         self.assertEqual(len(results), 2)
 
-        self.assertTrue("asreml_job_file" in results[0])
-        with open(results[0]["asreml_job_file"]) as job_f_:
+        self.assertTrue("job_file" in results[0])
+        with open(results[0]["job_file"]) as job_f_:
             job_file_contents = job_f_.read()
             self.assertEqual(job_file_contents, expected_job_file_1)
 
@@ -359,8 +383,8 @@ class TestProcessData(TestCase):
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_1_contents)
 
-        self.assertTrue("asreml_job_file" in results[1])
-        with open(results[1]["asreml_job_file"]) as job_f_:
+        self.assertTrue("job_file" in results[1])
+        with open(results[1]["job_file"]) as job_f_:
             job_file_contents = job_f_.read()
             self.assertEqual(job_file_contents, expected_job_file_2)
 
