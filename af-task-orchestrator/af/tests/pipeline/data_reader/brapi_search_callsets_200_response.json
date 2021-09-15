@@ -1,0 +1,46 @@
+{
+    "@context": [
+      "https://brapi.org/jsonld/context/metadata.jsonld"
+    ],
+    "metadata": {
+      "datafiles": [
+        {
+          "fileDescription": "This is an Excel data file",
+          "fileMD5Hash": "c2365e900c81a89cf74d83dab60df146",
+          "fileName": "datafile.xlsx",
+          "fileSize": 4398,
+          "fileType": "application/vnd.ms-excel",
+          "fileURL": "https://wiki.brapi.org/examples/datafile.xlsx"
+        }
+      ],
+      "status": [
+        {
+          "message": "Request accepted, response successful",
+          "messageType": "INFO"
+        }
+      ],
+      "pagination": "string"
+    },
+    "result": {
+      "data": [
+        {
+          "additionalInfo": {
+            "additionalProp1": "string",
+            "additionalProp2": "string",
+            "additionalProp3": "string"
+          },
+          "callSetDbId": "eb2bfd3d",
+          "callSetName": "Sample_123_DNA_Run_456",
+          "created": "2021-09-15T18:00:31.633Z",
+          "sampleDbId": "5e50e11d",
+          "studyDbId": "708149c1",
+          "updated": "2021-09-15T18:00:31.633Z",
+          "variantSetDbIds": [
+            "cfd3d60f",
+            "a4e8bfe9"
+          ]
+        }
+      ]
+    }
+}
+  

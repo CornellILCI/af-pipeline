@@ -15,6 +15,14 @@ def get_brapi_variantsets_units_response():
     """returns a mock brapi response for observation units."""
     return get_json_resource(__file__, "brapi_variantsets_mock_response.json")
 
+def post_brapi_search_callsets_200_response():
+    """returns a mock brapi response for observation units."""
+    return get_json_resource(__file__, "brapi_search_callsets_200_response.json")
+
+def post_brapi_search_callsets_202_response():
+    """returns a mock brapi response for observation units."""
+    return get_json_resource(__file__, "brapi_search_callsets_200_response.json")
+
 
 def get_test_occurrence_brapi() -> Occurrence:
     test_occurrence = {
@@ -47,3 +55,13 @@ class TestGenotypeDataBrapi(TestCase):
         plots_result_df = plots_result_df[plots_test_df.columns]
 
         assert_frame_equal(plots_result_df, plots_test_df.astype(str))
+
+    @patch("af.pipeline.data_reader.data_reader.requests.get")
+    def test_post_search_callsets(self, mock_post):
+        mock_post.return_value.status_code = 200
+
+        mock_post.return_value.json = Mock(side_effect=[post_brapi_search_callsets_200_response()])
+
+        plots_result_df = GenotypeDataBrapi(api_base_url="http://test").post_search_callsets(["testid"])
+
+        return False
