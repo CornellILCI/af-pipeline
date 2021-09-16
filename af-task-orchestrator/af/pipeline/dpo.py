@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+import dataclasses
 import json
 import os
 import pathlib
 import sys
 from collections import OrderedDict
 from os import path
-import dataclasses
 
 import pandas as pd
 from pydantic import ValidationError
@@ -19,18 +19,14 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 
 from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
-from af.pipeline.job_data import JobData
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Occurrence, Trait  # noqa: E402; noqa: E402
-
-from af.pipeline.data_reader.models import Occurrence
-
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
-
 # from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
+from af.pipeline.job_data import JobData
 
 
 class ProcessData:
@@ -67,29 +63,29 @@ class ProcessData:
             traits.append(trait)
         return traits
 
-    def __save_entries(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait):
+    def __save_metadata(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait: Trait):
 
-        entry_columns = ["entry_id", "entry_name", "entry_type"]
-        entries_df = plots.loc[:, entry_columns]  # get a copy, not a view
+        metadata_columns = ["entry_id", "entry_name", "entry_type"]
+        metadata_df = plots.loc[:, metadata_columns]  # get a copy, not a view
 
-        entries_df["experiment_id"] = occurrence.experiment_id
-        entries_df["experiment_name"] = occurrence.experiment_name
-        entries_df["location"] = occurrence.location
-        entries_df["location_id"] = occurrence.location_id
-        entries_df["trait_abbreviation"] = trait.abbreviation
+        metadata_df["experiment_id"] = occurrence.experiment_id
+        metadata_df["experiment_name"] = occurrence.experiment_name
+        metadata_df["location"] = occurrence.location
+        metadata_df["location_id"] = occurrence.location_id
+        metadata_df["trait_abbreviation"] = trait.abbreviation
 
         job_folder = self.__get_job_folder(job_name)
 
-        entries_file_path = os.path.join(job_folder, "entries.tsv")
+        metadata_file_path = os.path.join(job_folder, "metadata.tsv")
 
         to_csv_kwargs = {"sep": "\t", "index": False}
 
-        if os.path.isfile(entries_file_path):
+        if os.path.isfile(metadata_file_path):
             to_csv_kwargs.update({"header": False, "mode": "a"})
 
-        entries_df.to_csv(entries_file_path, **to_csv_kwargs)
+        metadata_df.to_csv(metadata_file_path, **to_csv_kwargs)
 
-        return entries_file_path
+        return metadata_file_path
 
     def __get_job_folder(self, job_name: str) -> str:
 
@@ -137,8 +133,8 @@ class ProcessData:
                 occurrence = occurrences_by_id[occurrence_id]
                 job_data.occurrences.append(occurrence)
 
-                # save entries in plots
-                job_data.entries_file = self.__save_entries(job_name, plots, occurrence, trait)
+                # save metadata in plots
+                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
@@ -183,8 +179,8 @@ class ProcessData:
                 job_data.job_name = job_name
                 job_data.occurrences.append(occurrence)
 
-                # save entries in plots
-                job_data.entries_file = self.__save_entries(job_name, plots, occurrence, trait)
+                # save metadata in plots
+                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
@@ -356,7 +352,7 @@ class ProcessData:
                         "job_name": "job1"
                         "data_file": "/test/test.csv",
                         "job_file": "/test/test.as",
-                        "entries_file": "/test/test_entries.csv"
+                        "metadata_file": "/test/test_metadata.csv"
                     }
                 ]
 

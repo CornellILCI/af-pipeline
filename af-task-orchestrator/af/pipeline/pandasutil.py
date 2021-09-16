@@ -1,9 +1,8 @@
 import os
 from typing import Iterable
 
-import pandas as pd
 import openpyxl
-
+import pandas as pd
 from af.pipeline import exceptions
 
 

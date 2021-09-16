@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+
 from af.pipeline.data_reader.models import Occurrence  # noqa: E402; noqa: E402
 
 
@@ -9,7 +10,7 @@ class JobData:
     job_name: str = ""
     data_file: str = ""
     job_file: str = ""
-    entries_file: str = ""
+    metadata_file: str = ""
     job_result_dir: str = ""
 
     occurrences: list[Occurrence] = field(default_factory=list)

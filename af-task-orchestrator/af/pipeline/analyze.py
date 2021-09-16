@@ -15,15 +15,15 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import config, dpo, utils, pandasutil
+from af.pipeline import config, dpo, pandasutil, utils
 from af.pipeline.analysis_request import AnalysisRequest
-from af.pipeline.job_data import JobData
 from af.pipeline.asreml import services as asreml_services
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db import services as db_services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import Analysis, Job
 from af.pipeline.exceptions import AnalysisError, DpoException, InvalidAnalysisRequest
+from af.pipeline.job_data import JobData
 from pydantic import ValidationError
 
 
@@ -91,7 +91,7 @@ class Analyze:
                     "job_name": "job1"
                     "data_file": "/test/test.csv",
                     "job_file": "/test/test.as",
-                    "entries_file": "/test/test_entries.csv"
+                    "metadata_file": "/test/test_metadata.csv"
                 }
             ]
         Returns:
@@ -103,7 +103,7 @@ class Analyze:
                     "job_result_dir": "/test/",
                     "data_file": "/test/test.csv",
                     "job_file": "/test/test.as",
-                    "entries_file": "/test/test_entries.csv"
+                    "metadata_file": "/test/test_metadata.csv"
                 }
             ]
         """
@@ -188,7 +188,8 @@ class Analyze:
             utils.zip_dir(job_result.job_result_dir, self.output_file_path, job.name)
 
             self.__update_job(job, "SUCCESS", "Asreml analysis completed successfully")
-
+            
+            # gather occurrences from the jobs, so we don't have to read occurrences again.
             for occurrence in job_result.occurrences:
                 if occurrence.occurrence_id not in gathered_occurrences:
                     gathered_occurrences[occurrence.occurrence_id] = occurrence
@@ -217,26 +218,26 @@ class Analyze:
 
     def __update_analysis_report(self, job_result, asreml_result_content):
 
-        entries_df = pd.read_csv(job_result.entries_file, sep="\t", dtype=str)
+        metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
 
         # write model statistics
         if len(asreml_result_content.model_stat) > 0:
             model_stats_df = pd.DataFrame([asreml_result_content.model_stat])
-            self.__write_model_stats_report(model_stats_df, entries_df)
+            self.__write_model_stats_report(model_stats_df, metadata_df)
 
         predictions_df = pd.DataFrame(asreml_result_content.predictions)
 
         # write entry report
         if "entry" in predictions_df.columns:
-            self.__write_entry_report(predictions_df, entries_df)
+            self.__write_entry_report(predictions_df, metadata_df)
 
         # write location report
         if "loc" in predictions_df.columns:
-            self.__write_location_report(predictions_df, entries_df)
+            self.__write_location_report(predictions_df, metadata_df)
 
         # write entry and location report
         if "entry" in predictions_df.columns and "loc" in predictions_df.columns:
-            self.__write_entry_location_report(predictions_df, entries_df)
+            self.__write_entry_location_report(predictions_df, metadata_df)
 
     def __write_request_info_to_report(self, gathered_occurrences):
         
@@ -273,7 +274,7 @@ class Analyze:
         occurrence_report = pd.DataFrame(occurrence_report_build)
         pandasutil.append_df_to_excel(self.report_file_path, occurrence_report, sheet_name="request info", header=True)
 
-    def __write_model_stats_report(self, model_stats_df, entries_df):
+    def __write_model_stats_report(self, model_stats_df, metadata_df):
 
         model_stats_report_columns = [
             "job_id",
@@ -288,17 +289,17 @@ class Analyze:
             "is_converged",
         ]
 
-        model_stats_df["experiment_name"] = ",".join(entries_df.experiment_name.drop_duplicates().astype(str))
-        model_stats_df["location_name"] = ",".join(entries_df.location.drop_duplicates().astype(str))
-        model_stats_df["trait_abbreviation"] = ",".join(entries_df.trait_abbreviation.drop_duplicates().astype(str))
+        model_stats_df["experiment_name"] = ",".join(metadata_df.experiment_name.drop_duplicates().astype(str))
+        model_stats_df["location_name"] = ",".join(metadata_df.location.drop_duplicates().astype(str))
+        model_stats_df["trait_abbreviation"] = ",".join(metadata_df.trait_abbreviation.drop_duplicates().astype(str))
 
         model_stats_df = pandasutil.df_keep_columns(model_stats_df, model_stats_report_columns)
 
         pandasutil.append_df_to_excel(self.report_file_path, model_stats_df, sheet_name="model statistics")
 
-    def __write_entry_report(self, predictions_df, entries_df):
+    def __write_entry_report(self, predictions_df, metadata_df):
 
-        entries_report_columns = [
+        metadata_report_columns = [
             "job_id",
             "experiment_id",
             "experiment_name",
@@ -318,13 +319,13 @@ class Analyze:
         if len(entry_report) == 0:
             return
 
-        entry_report = entry_report.merge(entries_df, left_on="entry", right_on="entry_id")
+        entry_report = entry_report.merge(metadata_df, left_on="entry", right_on="entry_id")
 
-        entry_report = entry_report[entries_report_columns]
+        entry_report = entry_report[metadata_report_columns]
 
-        pandasutil.append_df_to_excel(self.report_file_path, entry_report, sheet_name="entries")
+        pandasutil.append_df_to_excel(self.report_file_path, entry_report, sheet_name="entry")
 
-    def __write_location_report(self, predictions_df, entries_df):
+    def __write_location_report(self, predictions_df, metadata_df):
 
         location_report_columns = [
             "job_id",
@@ -336,7 +337,7 @@ class Analyze:
             "e_code",
         ]
 
-        location_df = entries_df[["location_id", "location"]].drop_duplicates()
+        location_df = metadata_df[["location_id", "location"]].drop_duplicates()
 
         # get location only rows
         location_report = predictions_df[predictions_df.loc.notnull()]
@@ -351,7 +352,7 @@ class Analyze:
 
         pandasutil.append_df_to_excel(self.report_file_path, location_report, sheet_name="location")
 
-    def __write_entry_location_report(self, predictions_df, entries_df):
+    def __write_entry_location_report(self, predictions_df, metadata_df):
 
         entry_location_report_columns = [
             "job_id",
@@ -374,7 +375,7 @@ class Analyze:
             return
 
         entry_location_report = entry_location_report.merge(
-            entries_df, left_on=["entry", "loc"], right_on=["entry_id", "location_id"]
+            metadata_df, left_on=["entry", "loc"], right_on=["entry_id", "location_id"]
         )
 
         entry_location_report = entry_location_report[location_report_columns]
