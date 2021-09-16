@@ -70,7 +70,7 @@ class ProcessData:
 
         metadata_df["experiment_id"] = occurrence.experiment_id
         metadata_df["experiment_name"] = occurrence.experiment_name
-        metadata_df["location"] = occurrence.location
+        metadata_df["location_name"] = occurrence.location
         metadata_df["location_id"] = occurrence.location_id
         metadata_df["trait_abbreviation"] = trait.abbreviation
 
