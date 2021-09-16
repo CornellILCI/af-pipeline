@@ -7,11 +7,14 @@ from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
 from pydantic import ValidationError
 
+# all urls are set here
 GET_OBSERVATION_UNITS_URL = "/observationunits"
 
 GET_OBSERVATIONS_URL = "/observations"
 
 GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
+
+GET_GERMPLASM_BY_ID_URL = "/search/germplasm/{germplasmDbId}"
 
 
 class PhenotypeDataBrapi(PhenotypeData):
@@ -55,6 +58,7 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             if not api_response.is_success:
                 raise DataReaderException(api_response.error)
+
 
             brapi_response = BaseListResponse(**api_response.body)
 
@@ -195,3 +199,24 @@ class PhenotypeDataBrapi(PhenotypeData):
 
     def get_trait(self, trait_id: int = None):
         raise NotImplementedError
+
+    def search_germplasm(germplasm_id: int = None):
+
+        germplasm_url = GET_GERMPLASM_BY_ID_URL.format(germplasmDbId=germplasm_id)
+        api_response = self.get(endpoint=germplasm_url)
+
+        if not api_response.is_success:
+            raise DataReaderException(api_response.error)
+
+        result = api_response.body["result"]
+        # JUST PUI?
+
+        if result is None:
+            raise DataReaderException("Germplasms are not found")
+        
+
+
+ 
+    # def get_occurrence(self, occurrence_id: int = None):
+    #     studies_url = GET_STUDIES_BY_ID_URL.format(studyDbId=occurrence_id)
+    #     api_response = self.get(endpoint=studies_url)

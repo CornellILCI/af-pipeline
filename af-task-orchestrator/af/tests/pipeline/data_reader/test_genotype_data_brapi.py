@@ -36,32 +36,33 @@ def get_test_occurrence_brapi() -> Occurrence:
     return Occurrence(**test_occurrence)
 
 
-class TestGenotypeDataBrapi(TestCase):
-    @patch("af.pipeline.data_reader.data_reader.requests.get")
-    def test_get_variantsets(self, mock_get):
+# class TestGenotypeDataBrapi(TestCase):
+#     @patch("af.pipeline.data_reader.data_reader.requests.get")
+#     def test_get_variantsets(self, mock_get):
 
-        mock_get.return_value.status_code = 200
+#         mock_get.return_value.status_code = 200
 
-        mock_get.return_value.json = Mock(side_effect=[get_brapi_variantsets_units_response()])
+#         mock_get.return_value.json = Mock(side_effect=[get_brapi_variantsets_units_response()])
 
-        plots_test_df = get_test_plots()
+#         plots_test_df = get_test_plots()
 
-        plots_result_df = GenotypeDataBrapi(api_base_url="http://test").get_variantsets(["testid"])
+#         plots_result_df = GenotypeDataBrapi(api_base_url="http://test").get_variantsets(["testid"])
 
-        # assert dataframe is returned
-        assert isinstance(plots_result_df, pd.DataFrame)
+#         # assert dataframe is returned
+#         assert isinstance(plots_result_df, pd.DataFrame)
 
-        # arrange columns
-        plots_result_df = plots_result_df[plots_test_df.columns]
+#         # arrange columns
+#         plots_result_df = plots_result_df[plots_test_df.columns]
 
-        assert_frame_equal(plots_result_df, plots_test_df.astype(str))
+        # assert_frame_equal(plots_result_df, plots_test_df.astype(str))
 
-    @patch("af.pipeline.data_reader.data_reader.requests.get")
-    def test_post_search_callsets(self, mock_post):
-        mock_post.return_value.status_code = 200
+@patch("af.pipeline.data_reader.data_reader.requests.get")
+def test_post_search_callsets(self, mock_post):
+    mock_post.return_value.status_code = 200
 
-        mock_post.return_value.json = Mock(side_effect=[post_brapi_search_callsets_200_response()])
+    mock_post.return_value.json = Mock(side_effect=[post_brapi_search_callsets_200_response()])
 
-        plots_result_df = GenotypeDataBrapi(api_base_url="http://test").post_search_callsets(["testid"])
+    plots_result_df = GenotypeDataBrapi(api_base_url="http://test").post_search_callsets(["testid"])
 
-        return False
+    return False
+#         assert_frame_equal(plots_result_df, plots_test_df.astype(str))

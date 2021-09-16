@@ -25,6 +25,10 @@ def get_brapi_studies_response():
     """ returns a mock brapi response for studies """
     return get_json_resource(__file__, "brapi_studies_mock_response.json")
 
+def get_brapi_germplasm_response():
+    """ returns a mock brapi response for studies """
+    return get_json_resource(__file__, "brapi_germplasm_mock_response.json")
+
 
 def get_test_occurrence_brapi() -> Occurrence:
     test_occurrence = {
@@ -214,3 +218,4 @@ class TestPhenotypeDataBrapi(TestCase):
 
         with self.assertRaises(DataReaderException):
             PhenotypeDataBrapi(api_base_url="http://test").get_occurrence(occurrence_id="test")
+
