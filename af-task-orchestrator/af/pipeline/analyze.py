@@ -33,24 +33,16 @@ class Analyze(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def analyze(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
     def run_job(self, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def post_process(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
     def process_job_result(self, *args, **kwargs):
         pass
 
-    @abc.abstractmethod
-    def run(self, *args, **kwargs):
-        pass
+    # @abc.abstractmethod
+    # def run(self, *args, **kwargs):
+    #     pass  TODO:  maybe this should be a concrete run()
 
     @abc.abstractmethod
     def get_engine_script(self):
