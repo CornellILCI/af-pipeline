@@ -4,6 +4,9 @@ import re
 import zipfile
 from pathlib import Path
 
+import openpyxl
+
+from af.pipeline import exceptions
 
 def get_analysis_engine(analysis_request):
     engine = analysis_request["metadata"]["engine"]
@@ -28,6 +31,42 @@ def get_request_sha(analysis_request):
 def get_parent_dir(file_path: str) -> str:
     _file_path = Path(file_path)
     return _file_path.parent
+
+
+def create_workbook(workbook_file: str, sheet_names: list[str]):
+    """ Creates a excel workbook for given file path.
+
+    Args:
+        workbook_file: path of the excel file to be created.
+        sheet_names: initializes the workbook with given sheet names.
+    """
+
+    wb = openpyxl.workbook.Workbook()
+
+    for sheet in sheet_names:
+        wb.create_sheet(sheet)
+
+    wb.save(filename=workbook_file)
+
+
+def remove_empty_worksheets(workbook_file: str):
+    """ Removes empty worksheets in given workbook
+
+    Args:
+        workbook_file: path to the excel file
+
+    """
+
+    if os.path.isfile(workbook_file):
+        raise exceptions.InvalidFilePath("Workbook file not found.")
+
+    wb = openpyxl.load_workbook(workbook_file)
+
+    for sheet_name in wb.get_sheet_names():
+        sheet = wb.get_sheet_by_name(sheet_name)
+
+        if sheet.max_row == 1 and sheet.max_col == 1:
+            wb.remove_sheet(sheet)
 
 
 def zip_dir(dir_to_zip: str, zip_file_path: str, base_dir: str):

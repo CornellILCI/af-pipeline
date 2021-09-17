@@ -105,7 +105,7 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
     if startrow is None:
         startrow = 0
 
-    if sheet_name in writer.sheets and 'header' not in to_excel_kwargs:
+    if sheet_name in writer.sheets and startrow > 1 and "header" not in to_excel_kwargs:
         to_excel_kwargs["header"] = False
 
     # write out the new sheet
