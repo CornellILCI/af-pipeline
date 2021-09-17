@@ -1,7 +1,6 @@
 import json
 from unittest import TestCase
 from unittest.mock import Mock, patch
-
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
@@ -219,3 +218,18 @@ class TestPhenotypeDataBrapi(TestCase):
         with self.assertRaises(DataReaderException):
             PhenotypeDataBrapi(api_base_url="http://test").get_occurrence(occurrence_id="test")
 
+    @patch("af.pipeline.data_reader.data_reader.requests.get")
+    def test_get_germplasm(self,mock_get):
+        from af.pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
+
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = get_brapi_studies_response()
+
+        search_query = {"germplasmDbIds": ["e9c6edd7", "1b1df4a6"]}
+
+
+        germplasm_result = (PhenotypeDataBrapi(api_base_url="http://test")).search_germplasm(germplasm_id=search_query.values)
+        print(germplasm_result)
+
+        # for field, value in test_germplasm:
+        #     assert value == germplasm_result.dict()[field]

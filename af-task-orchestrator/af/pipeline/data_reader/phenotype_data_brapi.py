@@ -1,11 +1,16 @@
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
-from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study
+from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
 from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
+from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
+
+
+
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel, parse_obj_as
+
 
 # all urls are set here
 GET_OBSERVATION_UNITS_URL = "/observationunits"
@@ -14,8 +19,7 @@ GET_OBSERVATIONS_URL = "/observations"
 
 GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
-GET_GERMPLASM_BY_ID_URL = "/search/germplasm/{germplasmDbId}"
-
+GET_GERMPLASM_DB_IDS = "/search/germplasm/{searchResultDbId}"
 
 class PhenotypeDataBrapi(PhenotypeData):
     """Reads phenotype data from a brapi ebs data source."""
@@ -200,23 +204,33 @@ class PhenotypeDataBrapi(PhenotypeData):
     def get_trait(self, trait_id: int = None):
         raise NotImplementedError
 
-    def search_germplasm(germplasm_id: int = None):
+    def search_germplasm(self, germplasm: list[str]):
 
-        germplasm_url = GET_GERMPLASM_BY_ID_URL.format(germplasmDbId=germplasm_id)
-        api_response = self.get(endpoint=germplasm_url)
+        api_response = self.post(endpoint="/search/germplasm", data=search_query)
+        germplasm_id_data = api_response.body["result"]["searchResultDbID"]
+        germplasm_url = GET_GERMPLASM_DB_IDS.format(searchResultDbId=germplasm_id_data)
+        api_response_2 = self.get(endpoint=germplasm_url)
+        items = parse_obj_as(list[Germplasm()], germplasm_id_data)
 
-        if not api_response.is_success:
+        return items
+
+        # parse this into alist of Germplasm objects
+        if not api_response_2.is_success:
             raise DataReaderException(api_response.error)
-
-        result = api_response.body["result"]
-        # JUST PUI?
 
         if result is None:
             raise DataReaderException("Germplasms are not found")
         
 
 
+
+
  
-    # def get_occurrence(self, occurrence_id: int = None):
-    #     studies_url = GET_STUDIES_BY_ID_URL.format(studyDbId=occurrence_id)
-    #     api_response = self.get(endpoint=studies_url)
+
+
+
+
+
+
+
+
