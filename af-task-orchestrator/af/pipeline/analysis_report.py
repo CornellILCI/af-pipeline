@@ -1,5 +1,6 @@
 import pandas as pd
 from af.pipeline import pandasutil, utils
+from af.pipeline.db import services as db_services
 
 
 REQUEST_INFO_SHEET_NAME = "Request Info"
@@ -16,6 +17,45 @@ REPORT_SHEETS = [
     LOCATION_SHEET_NAME,
     ENTRY_LOCATION_SHEET_NAME,
 ]
+
+
+def write_request_settings(db_session, report_file, analysis_request):
+
+    # write request settings report
+    formula = db_services.get_property(db_session, analysis_request.configFormulaPropertyId)
+    residual = db_services.get_property(db_session, analysis_request.configResidualPropertyId)
+    prediction = db_services.get_property(db_session, analysis_request.analysisObjectivePropertyId)
+    exptloc_analysis_pattern = db_services.get_property(db_session, analysis_request.expLocAnalysisPatternPropertyId)
+
+    request_settings_build = [
+        {"Request Settings": ""},
+        {"": ""},
+        {"Request Settings": "Objective", "": prediction.name},
+        {"Request Settings": "Trait Pattern", "": exptloc_analysis_pattern.name},
+        {"Request Settings": "Main Model", "": formula.name},
+        {"Request Settings": "Spatial Objective", "": residual.name},
+    ]
+
+    request_settings = pd.DataFrame(request_settings_build)
+
+    pandasutil.append_df_to_excel(report_file, request_settings, sheet_name=REQUEST_INFO_SHEET_NAME)
+
+
+def write_occurrences(report_file, occurrences):
+    
+    # write a gap for occurrence
+    gaps = pd.DataFrame([{"": ""}, {"": ""}])
+    pandasutil.append_df_to_excel(report_file, gaps, sheet_name=REQUEST_INFO_SHEET_NAME, header=True)
+
+    # write occurrences
+    occurrence_report_build = []  # empty dict for occurrences
+    for occurrence_id in occurrences:
+        occurrence_report_build.append(occurrences[occurrence_id].dict())
+
+    occurrence_report = pd.DataFrame(occurrence_report_build)
+    pandasutil.append_df_to_excel(
+        report_file, occurrence_report, sheet_name=REQUEST_INFO_SHEET_NAME, header=True
+    )
 
 
 def write_predictions(report_file: str, predictions: list[dict], metadata_df: pd.DataFrame):
