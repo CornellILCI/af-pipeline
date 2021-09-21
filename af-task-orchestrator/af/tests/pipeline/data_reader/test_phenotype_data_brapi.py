@@ -4,8 +4,11 @@ from unittest.mock import Mock, patch
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
+from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
+
 from af.pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 from pandas._testing import assert_frame_equal
+
 
 from conftest import get_json_resource, get_test_plot_measurements, get_test_plots
 
@@ -40,6 +43,63 @@ def get_test_occurrence_brapi() -> Occurrence:
     }
     return Occurrence(**test_occurrence)
 
+def get_test_germplasm_brapi() -> Germplasm:
+    test_germplasm_1 = {
+        "commonCropName": "rice",
+        "germplasmPUI":"9",
+        "germplasmDbId": "bd76c553-3862-11eb-95eb-0242ac140004",
+        "defaultDisplayName": "TANGKAI ROTAN",
+        "accessionNumber": "IRGC 31",
+        "germplasmName": "TANGKAI ROTAN",
+        "pedigree": "TR",
+        "synonyms": { "synonym": "IRGC 31", "type": "ACCNO"},
+        "countryOfOriginCode": "IRRI-GRC",
+        "typeOfGermplasmStorageCode": [],
+        "taxonIds": [],
+        "donors": [],
+        "acquisitionDate": "1961-03-27",
+        "breedingMethodDbId": "70",
+        "additionalInfo": {
+            "TAXNO_AP_text": "2832",
+            "MLS_DATE_AP_text": "29-JUN-2004",
+            "COLL_AA_text": "IRGC 31        ;O. SATIVA;;;;;MYS",
+            "SampStat_AP_text": "T",
+            "STATUS_ACC_AP_text": "AV",
+            "ORI_COUN_AP_text": "MALAYSIA",
+            "SPP_CODE_AP_text": "S",
+            "IPSTAT_AP_text": "FAO (14/09/1994)",
+            "VGISO_AA_text": "1" }
+            }
+    test_germplasm_2 = {
+        "commonCropName": "rice",
+        "germplasmPUI":"19",
+        "germplasmDbId": "bd76c553-3862-11eb-95eb-0242ac140004",
+        "defaultDisplayName": "TANGKAI BOTAN",
+        "accessionNumber": "IRGC 31",
+        "germplasmName": "TANGKAI ROTAN",
+        "pedigree": "TR",
+        "synonyms": { "synonym": "IRGC 31", "type": "ACCNO"},
+        "countryOfOriginCode": "IRRI-GRC",
+        "typeOfGermplasmStorageCode": [],
+        "taxonIds": [],
+        "donors": [],
+        "acquisitionDate": "1961-03-27",
+        "breedingMethodDbId": "70",
+        "additionalInfo": {
+            "TAXNO_AP_text": "2832",
+            "MLS_DATE_AP_text": "29-JUN-2004",
+            "COLL_AA_text": "IRGC 31        ;O. SATIVA;;;;;MYS",
+            "SampStat_AP_text": "T",
+            "STATUS_ACC_AP_text": "AV",
+            "ORI_COUN_AP_text": "MALAYSIA",
+            "SPP_CODE_AP_text": "S",
+            "IPSTAT_AP_text": "FAO (14/09/1994)",
+            "VGISO_AA_text": "1" }
+            }
+    test_germplasms = [test_germplasm_1,test_germplasm_2]
+    li = [Germplasm(**tg) for tg in test_germplasms]
+    li= list(li)
+    return li
 
 class TestPhenotypeDataBrapi(TestCase):
     @patch("af.pipeline.data_reader.data_reader.requests.get")
@@ -218,18 +278,20 @@ class TestPhenotypeDataBrapi(TestCase):
         with self.assertRaises(DataReaderException):
             PhenotypeDataBrapi(api_base_url="http://test").get_occurrence(occurrence_id="test")
 
+
+    @patch("af.pipeline.data_reader.data_reader.requests.post")  
     @patch("af.pipeline.data_reader.data_reader.requests.get")
-    def test_get_germplasm(self,mock_get):
-        from af.pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
+    def test_search_germplasm(self,mock_post, mock_get):
 
         mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = get_brapi_studies_response()
+        mock_post.return_value.status_code = 200
+        
+        # test_germplasm = get_test_germplasm_brapi()
 
         search_query = {"germplasmDbIds": ["e9c6edd7", "1b1df4a6"]}
-
-
-        germplasm_result = (PhenotypeDataBrapi(api_base_url="http://test")).search_germplasm(germplasm_id=search_query.values)
+        germplasm_result = (PhenotypeDataBrapi(api_base_url="http://test")).search_germplasm(germplasm_search_ids=search_query.values)
         print(germplasm_result)
 
-        # for field, value in test_germplasm:
-        #     assert value == germplasm_result.dict()[field]
+        # for germplasm in test_germplasm:
+        #     for field, value in germplasm:
+        #         assert value == germplasm_result.dict()[field]

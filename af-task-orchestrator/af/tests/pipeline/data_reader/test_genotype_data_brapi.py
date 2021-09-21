@@ -57,13 +57,13 @@ def get_test_occurrence_brapi() -> Occurrence:
     #     assert_frame_equal(plots_result_df, plots_test_df.astype(str))
     # 
 
-@patch("af.pipeline.data_reader.data_reader.requests.get")
-def test_post_search_callsets(self, mock_post):
-    mock_post.return_value.status_code = 200
+# @patch("af.pipeline.data_reader.data_reader.requests.get")
+# def test_post_search_callsets(self, mock_post):
+#     mock_post.return_value.status_code = 200
 
-    mock_post.return_value.json = Mock(side_effect=[post_brapi_search_callsets_200_response()])
+#     mock_post.return_value.json = Mock(side_effect=[post_brapi_search_callsets_200_response()])
 
-    plots_result_df = GenotypeDataBrapi(api_base_url="http://test").post_search_callsets(["testid"])
+#     plots_result_df = GenotypeDataBrapi(api_base_url="http://test").post_search_callsets(["testid"])
 
-    return False
-#         assert_frame_equal(plots_result_df, plots_test_df.astype(str))
+#     return False
+# #         assert_frame_equal(plots_result_df, plots_test_df.astype(str))

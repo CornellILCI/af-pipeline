@@ -1,10 +1,12 @@
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
+from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study
+
 from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
 from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
 from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
-
+# 
 
 
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
@@ -19,7 +21,7 @@ GET_OBSERVATIONS_URL = "/observations"
 
 GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
-GET_GERMPLASM_DB_IDS = "/search/germplasm/{searchResultDbId}"
+GET_GERMPLASM_BY_DB_ID = "/search/germplasm/{searchResultDbId}"
 
 class PhenotypeDataBrapi(PhenotypeData):
     """Reads phenotype data from a brapi ebs data source."""
@@ -204,22 +206,22 @@ class PhenotypeDataBrapi(PhenotypeData):
     def get_trait(self, trait_id: int = None):
         raise NotImplementedError
 
-    def search_germplasm(self, germplasm: list[str]):
+    def search_germplasm(self, germplasm_search_ids: list[str]):
 
-        api_response = self.post(endpoint="/search/germplasm", data=search_query)
-        germplasm_id_data = api_response.body["result"]["searchResultDbID"]
-        germplasm_url = GET_GERMPLASM_DB_IDS.format(searchResultDbId=germplasm_id_data)
-        api_response_2 = self.get(endpoint=germplasm_url)
-        items = parse_obj_as(list[Germplasm()], germplasm_id_data)
+        search_germplasm = self.post(endpoint="/search/germplasm", data=germplasm_search_ids)
+        search_germplasm_dbid = search_germplasm.body["result"]["searchResultDbID"]
+        get_germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
+        get_germplasm = self.get(endpoint=get_germplasm_url)
+        germplasm_ids = parse_obj_as(list[Germplasm()], get_germplasm)
 
-        return items
+        return germplasm_ids
 
-        # parse this into alist of Germplasm objects
-        if not api_response_2.is_success:
-            raise DataReaderException(api_response.error)
+        # # parse this into alist of Germplasm objects
+        # if not get_germplasm.is_success:
+        #     raise DataReaderException(search_germplasm.error)
 
-        if result is None:
-            raise DataReaderException("Germplasms are not found")
+        # if result is None:
+        #     raise DataReaderException("Germplasms are not found")
         
 
 
