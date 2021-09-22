@@ -26,18 +26,31 @@ class Analyze(abc.ABC):
     engine_script: str = ""
 
     def get_process_data(self, analysis_request, *args, **kwargs):
+        """Get the associated ProcessData object for this Analyze"""
         return self.dpo_cls(analysis_request)
 
     @abc.abstractmethod
     def pre_process(self, *args, **kwargs):
+        """Do pre-processing of data needed for analysis.  The list of input files
+        should be returned by this method.
+
+        TODO:  Assess other analysis (sommeR) if this really needs to be abstract.
+    
+        """
         pass
 
     @abc.abstractmethod
-    def run_job(self, *args, **kwargs):
+    def run_job(self, job_input_file, *args, **kwargs):
+        """
+        This method should define the execution of the job given the input_file.
+        """
         pass
 
     @abc.abstractmethod
     def process_job_result(self, *args, **kwargs):
+        """
+        This method should define the processing of the job_result of a given job.
+        """
         pass
 
     # @abc.abstractmethod
@@ -46,6 +59,7 @@ class Analyze(abc.ABC):
 
     @abc.abstractmethod
     def get_engine_script(self):
+        """This method should return the script name associated with the analysis."""
         pass
 
 
