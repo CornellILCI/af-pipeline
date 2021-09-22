@@ -49,6 +49,14 @@ class ProcessData(ABC):
         pass
 
     @abstractmethod
+    def mesl(self):
+        pass
+
+    @abstractmethod
+    def meml(self):
+        pass
+
+    @abstractmethod
     def run(self):
         pass
 
