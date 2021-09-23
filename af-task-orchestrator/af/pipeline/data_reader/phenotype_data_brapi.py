@@ -208,31 +208,27 @@ class PhenotypeDataBrapi(PhenotypeData):
 
     def search_germplasm(self, germplasm_search_ids: list[str]):
 
-        search_germplasm = self.post(endpoint="/search/germplasm", data=germplasm_search_ids)
-        search_germplasm_dbid = search_germplasm.body["result"]["searchResultDbID"]
-        get_germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
-        get_germplasm = self.get(endpoint=get_germplasm_url)
-        germplasm_ids = parse_obj_as(list[Germplasm()], get_germplasm)
+        post_search_germplasm = self.post(endpoint="/search/germplasm", data=germplasm_search_ids)
+        print(post_search_germplasm)
+#         search_germplasm_dbid = post_search_germplasm.body["result"]["searchResultDbID"]
+#         germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
+#         get_germplasm = self.get(endpoint=germplasm_url)
+#         germplasm_list = parse_obj_as(list[Germplasm()], get_germplasm)
 
-        return germplasm_ids
+#         return germplasm_list
 
-        # # parse this into alist of Germplasm objects
-        # if not get_germplasm.is_success:
-        #     raise DataReaderException(search_germplasm.error)
+#         # # parse this into alist of Germplasm objects
+#         # if not get_germplasm.is_success:
+#         #     raise DataReaderException(search_germplasm.error)
 
-        # if result is None:
-        #     raise DataReaderException("Germplasms are not found")
+#         # if result is None:
+#         #     raise DataReaderException("Germplasms are not found")
         
 
 
 
 
- 
 
 
-
-
-
-
-
-
+# phenotype = PhenotypeDataBrapi(api_base_url="https://brapi.bms-uat-test.net/bmsapi/rice/brapi/v2/")
+# phenotype.search_germplasm(["e9c6edd7","1b1df4a6"])
