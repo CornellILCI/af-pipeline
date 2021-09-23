@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study
@@ -207,13 +208,16 @@ class PhenotypeDataBrapi(PhenotypeData):
         raise NotImplementedError
 
     def search_germplasm(self, germplasm_search_ids: list[str]):
-
-        post_search_germplasm = self.post(endpoint="/search/germplasm", data=germplasm_search_ids)
-        print(post_search_germplasm)
-#         search_germplasm_dbid = post_search_germplasm.body["result"]["searchResultDbID"]
-#         germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
-#         get_germplasm = self.get(endpoint=germplasm_url)
-#         germplasm_list = parse_obj_as(list[Germplasm()], get_germplasm)
+        data = {"germplasmDbIds": germplasm_search_ids}
+        data = json.dumps(data)
+        data = json.loads(data)
+        post_search_germplasm = self.post(endpoint="/search/germplasm/", data=data)
+        print(post_search_germplasm.body["result"])
+        # search_germplasm_dbid = post_search_germplasm.body["result"]["searchResultDbID"]
+        # germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
+        # get_germplasm = self.get(endpoint=germplasm_url)
+        
+        # germplasm_list = parse_obj_as(list[Germplasm()], get_germplasm)
 
 #         return germplasm_list
 
@@ -224,11 +228,3 @@ class PhenotypeDataBrapi(PhenotypeData):
 #         # if result is None:
 #         #     raise DataReaderException("Germplasms are not found")
         
-
-
-
-
-
-
-# phenotype = PhenotypeDataBrapi(api_base_url="https://brapi.bms-uat-test.net/bmsapi/rice/brapi/v2/")
-# phenotype.search_germplasm(["e9c6edd7","1b1df4a6"])
