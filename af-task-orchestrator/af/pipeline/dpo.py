@@ -21,9 +21,11 @@ from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Occurrence, Trait  # noqa: E402; noqa: E402
+
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
+
 # from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 from af.pipeline.job_data import JobData
@@ -284,7 +286,7 @@ class ProcessData:
 
         # 5: adding otpions
         asreml_option = self._get_asreml_option(analysis_config_id)
-        options_line = "{} {}".format(data_file_path, asreml_option.statement)
+        options_line = f"{data_file_path} {asreml_option.statement}"
         job_file_lines.append(options_line)
 
         # 6: adding tabulate
@@ -303,9 +305,9 @@ class ProcessData:
         job_file_lines.append(f"residual {residual.statement}")
 
         # 9: adding prediction
-        prediction = services.get_property(self.db_session, self.analysis_request.analysisObjectivePropertyId)
-        prediction_statement = "prediction {}".format(prediction.statement)
-        job_file_lines.append(prediction_statement)
+        for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
+            prediction = services.get_property(self.db_session, prediction_property_id)
+            job_file_lines.append(f"prediction {prediction.statement}")
 
         return job_file_lines
 
