@@ -5,8 +5,9 @@ asremlutil.py
 Contains utility funcs for accessing asreml related run args
 """
 
-import af.pipeline.asreml.services as asreml_service
 import subprocess
+
+import af.pipeline.asreml.services as asreml_service
 
 
 def get_container_license_dir():
@@ -37,7 +38,7 @@ def run_asreml(input_job_file_name, input_data_file_name):
 
     """
     command = get_asreml_command(input_job_file_name, input_data_file_name)
-    return subprocess.check_output(command, shell=False) 
+    return subprocess.check_output(command, shell=False)
 
 
 def write_input_file(filename: str, content):
