@@ -209,15 +209,14 @@ class PhenotypeDataBrapi(PhenotypeData):
 
     def search_germplasm(self, germplasm_search_ids: list[str]):
         data = {"germplasmDbIds": germplasm_search_ids}
-        data = json.dumps(data)
-        data = json.loads(data)
-        post_search_germplasm = self.post(endpoint="/search/germplasm/", data=data)
-        print(post_search_germplasm.body["result"])
-        # search_germplasm_dbid = post_search_germplasm.body["result"]["searchResultDbID"]
-        # germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
-        # get_germplasm = self.get(endpoint=germplasm_url)
-        
-        # germplasm_list = parse_obj_as(list[Germplasm()], get_germplasm)
+
+        # print("hi")
+        post_search_germplasm = self.post(endpoint="/search/germplasm/", json=data)
+        search_germplasm_dbid = post_search_germplasm.body["result"]["searchResultDbId"]
+        germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
+        get_germplasm = self.get(endpoint=germplasm_url)
+        germplasm_list = parse_obj_as(list[Germplasm()], get_germplasm)
+        return germplasm_list
 
 #         return germplasm_list
 
