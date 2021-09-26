@@ -42,7 +42,7 @@ def write_request_settings(db_session, report_file, analysis_request):
 
 
 def write_occurrences(report_file, occurrences):
-    
+
     # write a gap for occurrence
     gaps = pd.DataFrame([{"": ""}, {"": ""}])
     pandasutil.append_df_to_excel(report_file, gaps, sheet_name=REQUEST_INFO_SHEET_NAME, header=True)
@@ -53,9 +53,7 @@ def write_occurrences(report_file, occurrences):
         occurrence_report_build.append(occurrences[occurrence_id].dict())
 
     occurrence_report = pd.DataFrame(occurrence_report_build)
-    pandasutil.append_df_to_excel(
-        report_file, occurrence_report, sheet_name=REQUEST_INFO_SHEET_NAME, header=True
-    )
+    pandasutil.append_df_to_excel(report_file, occurrence_report, sheet_name=REQUEST_INFO_SHEET_NAME, header=True)
 
 
 def write_predictions(report_file: str, predictions: list[dict], metadata_df: pd.DataFrame):

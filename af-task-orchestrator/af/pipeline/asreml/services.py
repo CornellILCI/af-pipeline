@@ -1,8 +1,10 @@
+import io
 import xml.sax
 from datetime import datetime
 
 from af.pipeline.asreml import yhatparser
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
+from af.pipeline.asreml import stupid_asreml_xml_resolver
 from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
 
@@ -20,13 +22,22 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
     parser = get_file_parser()
     ch = ASRemlContentHandler(job_id)
     parser.setContentHandler(ch)
-    parser.parse(filename_or_stream)
+
+    resolved_xml_string = None
+
+    try:
+        parser.parse(filename_or_stream)
+    except xml.sax.SAXParseException:
+        # try resolving the predict table mismatched tags
+        resolved_xml_string = stupid_asreml_xml_resolver.resolve_unmatched_tags(filename_or_stream)
+
+    if resolved_xml_string:
+        parser.parse(io.StringIO(resolved_xml_string))
 
     # process the objects
-
     if ch.model_stat:
         model_stat = ModelStat(**ch.model_stat)
-        
+
         model_stat.job_id = job_id
         model_stat.tenant_id = 1
         model_stat.creator_id = 1

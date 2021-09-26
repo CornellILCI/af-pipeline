@@ -90,6 +90,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
         self.in_prediction_classifyset = False
         self.prediction_variables = []  # list of prediction variables
         self.prediction_identifier_index = -1
+        self.num_factors = 0
 
     def startElement(self, tag, attributes):
         self.current_data = tag
@@ -150,6 +151,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
                 self.in_conclusion = False
         if tag == TAG_PREDICT_TABLE:
             self.in_prediction_components = False
+            self.prediction_variables = []
         elif self.in_prediction_components and tag == TAG_CLASSIFY_SET:
             self.in_prediction_classifyset = False
         elif tag == TAG_PROW and self.in_prediction_components:
@@ -163,6 +165,7 @@ class ASRemlContentHandler(xml.sax.ContentHandler):
             self.prediction_identifier_index = -1
         elif self.in_prediction_classifyset and CLASSIFYSET_VARIABLE_TAG_REGEX.match(tag) is not None:
             self.prediction_variables.append(str(self.current_content).strip())
+            self.num_factors += 1
         elif self.in_prow and PREDICTION_IDENTIFIER_TAG_REGEX.match(tag) is not None:
             factor_name = self.prediction_variables[self.prediction_identifier_index]
             self.current_prediction[factor_name] = str(self.current_content).strip()
