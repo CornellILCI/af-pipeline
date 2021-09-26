@@ -30,12 +30,12 @@ def analyze(request_id: str, request_params):
 
 @app.task(name="pre_process", base=StatusReportingTask)
 def pre_process(request_id, analysis_request):
-    analyze_object = pipeline_analyze.Analyze(analysis_request)
+    analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
     input_files = analyze_object.pre_process()
-    engine = analyze_object.get_engine()
+    # engine = analyze_object.get_engine_script()
 
     results = []  # results initially empty
-    args = request_id, analysis_request, input_files, results, engine
+    args = request_id, analysis_request, input_files, results
     app.send_task("run_analyze", args=args, queue="ASREML")
 
 
@@ -47,8 +47,9 @@ def post_process(request_id, analysis_request, results, gathered_objects=None):
     if gathered_objects is None:
         gathered_objects = {}
 
-    gathered_objects = pipeline_analyze.Analyze(analysis_request).process_job_result(result, gathered_objects)
-
+    analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
+    gathered_objects = analyze_object.process_job_result(result, gathered_objects)
+    
     # process the results here
     if not results:
         done_analyze.delay(request_id, analysis_request, gathered_objects)
@@ -57,6 +58,6 @@ def post_process(request_id, analysis_request, results, gathered_objects=None):
 
 
 @app.task(name="done_analyze", base=ResultReportingTask)
-def done_analyze(request_id, analysis_request, gathered_occurrences):
+def done_analyze(request_id, analysis_request, gathered_objects):
     # this is the terminal task to report DONE in tasks
-    _ = pipeline_analyze.Analyze(analysis_request).finalize(gathered_occurrences)
+    _ = pipeline_analyze.get_analyze_object(analysis_request).finalize(gathered_objects)

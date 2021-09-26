@@ -41,6 +41,7 @@ def get_test_analysis_request():
         configFormulaPropertyId="1",
         configResidualPropertyId="1",
         outputFolder="test",
+        configPredictionPropertyIds=["19"]
     )
     return analysis_request
 

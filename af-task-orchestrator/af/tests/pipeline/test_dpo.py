@@ -3,8 +3,8 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 from af.pipeline.data_reader.models import Occurrence, Trait
+from af.pipeline.asreml import dpo
 from af.pipeline.db.models import Property
-from af.pipeline.dpo import ProcessData
 from pandas import DataFrame
 
 from conftest import get_json_resource, get_test_analysis_request
@@ -221,17 +221,16 @@ class TestProcessData(TestCase):
             trait_abbreviation="trait_abbrev_1",
         )
 
-        results = ProcessData(test_request).run()
+        dpo_object = dpo.AsremlProcessData(test_request)
+        results = dpo_object.run()
 
         self.assertEqual(len(results), 1)
 
-        self.assertTrue("job_file" in results[0])
-        with open(results[0]["job_file"]) as job_f_:
+        with open(results[0].job_file) as job_f_:
             job_file_contents = job_f_.read()
             self.assertEqual(job_file_contents, expected_job_file_1)
 
-        self.assertTrue("data_file" in results[0])
-        with open(results[0]["data_file"]) as data_f_:
+        with open(results[0].data_file) as data_f_:
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_contents)
 
@@ -369,26 +368,24 @@ class TestProcessData(TestCase):
             get_asreml_option(),
             get_tabulate(),
         ]
-        results = ProcessData(test_request).run()
+        
+        dpo_object = dpo.AsremlProcessData(test_request)
+        results = dpo_object.run()
 
         self.assertEqual(len(results), 2)
 
-        self.assertTrue("job_file" in results[0])
-        with open(results[0]["job_file"]) as job_f_:
+        with open(results[0].job_file) as job_f_:
             job_file_contents = job_f_.read()
             self.assertEqual(job_file_contents, expected_job_file_1)
 
-        self.assertTrue("data_file" in results[0])
-        with open(results[0]["data_file"]) as data_f_:
+        with open(results[0].data_file) as data_f_:
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_1_contents)
 
-        self.assertTrue("job_file" in results[1])
-        with open(results[1]["job_file"]) as job_f_:
+        with open(results[1].job_file) as job_f_:
             job_file_contents = job_f_.read()
             self.assertEqual(job_file_contents, expected_job_file_2)
 
-        self.assertTrue("data_file" in results[1])
-        with open(results[1]["data_file"]) as data_f_:
+        with open(results[1].data_file) as data_f_:
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_2_contents)
