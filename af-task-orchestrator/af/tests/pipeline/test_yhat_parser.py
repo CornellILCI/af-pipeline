@@ -1,9 +1,10 @@
+import json
+import os
 from tempfile import NamedTemporaryFile
+
 import af.pipeline.asreml.yhatparser as parser
 import pandas as pd
 from pandas._testing import assert_frame_equal
-import os
-import json
 
 
 def test_yhat_parser():

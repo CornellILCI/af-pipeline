@@ -44,6 +44,7 @@ class AnalysisRequestParameters(BaseModel):
     )
     configFormulaPropertyId: str = Field(..., description="Property Id of the formula to run the analysis.")
     configResidualPropertyId: str = Field(..., description="Property Id of the residual for the analysis model.")
+    configPredictionPropertyIds: list[str] = Field([], description="Property Ids of predictions in the model.")
 
 
 class AnalysisRequestListQueryParameters(PaginationQueryParameters):

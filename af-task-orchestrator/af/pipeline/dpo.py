@@ -37,10 +37,6 @@ class ProcessData(ABC):
     """Abstract class for ProcessData objects"""
 
     @abstractmethod
-    def get_traits(self):
-        pass
-
-    @abstractmethod
     def seml(self):
         pass
 

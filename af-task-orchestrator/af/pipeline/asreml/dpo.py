@@ -2,10 +2,12 @@ import os
 import pathlib
 from collections import OrderedDict
 
-from af.pipeline import config
+import pandas as pd
+from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
+from af.pipeline.job_data import JobData
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
-from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+from af.pipeline.data_reader.models import Trait, Occurrence  # noqa: E402; noqa: E402
 
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
@@ -42,12 +44,46 @@ class AsremlProcessData(ProcessData):
 
         self.output_folder = analysis_request.outputFolder
 
-    def get_traits(self) -> list[Trait]:
+    def __get_traits(self) -> list[Trait]:
         traits = []
         for trait_id in self.trait_ids:
             trait: Trait = self.data_reader.get_trait(trait_id)
             traits.append(trait)
         return traits
+
+    def __save_metadata(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait: Trait):
+
+        metadata_columns = ["entry_id", "entry_name", "entry_type"]
+        metadata_df = plots.loc[:, metadata_columns]  # get a copy, not a view
+
+        metadata_df["experiment_id"] = occurrence.experiment_id
+        metadata_df["experiment_name"] = occurrence.experiment_name
+        metadata_df["location_name"] = occurrence.location
+        metadata_df["location_id"] = occurrence.location_id
+        metadata_df["trait_abbreviation"] = trait.abbreviation
+
+        job_folder = self.__get_job_folder(job_name)
+
+        metadata_file_path = os.path.join(job_folder, "metadata.tsv")
+
+        to_csv_kwargs = {"sep": "\t", "index": False}
+
+        if os.path.isfile(metadata_file_path):
+            to_csv_kwargs.update({"header": False, "mode": "a"})
+
+        metadata_df.to_csv(metadata_file_path, **to_csv_kwargs)
+
+        return metadata_file_path
+
+    def __get_job_folder(self, job_name: str) -> str:
+
+        job_folder = os.path.join(self.output_folder, job_name)
+
+        if not os.path.isdir(job_folder):
+            # create parent directories
+            os.makedirs(pathlib.Path(job_folder))
+
+        return job_folder
 
     def seml(self):
         """For Single Experiment Single Location
@@ -59,23 +95,39 @@ class AsremlProcessData(ProcessData):
             DataReaderException when unable to extract data from datasource.
         """
 
-        plots_by_occurrence_id = {}
+        plots_by_id = {}
+        occurrences_by_id = {}
 
-        traits: list[Trait] = self.get_traits()
+        traits: list[Trait] = self.__get_traits()
 
+        # read once
         for occurrence_id in self.occurrence_ids:
-            plots_by_occurrence_id[occurrence_id] = self.data_reader.get_plots(occurrence_id)
+            plots_by_id[occurrence_id]: pd.DataFrame = self.data_reader.get_plots(occurrence_id)
+            occurrences_by_id[occurrence_id]: Occurrence = self.data_reader.get_occurrence(occurrence_id)
 
         for trait in traits:
 
             plots_and_measurements = None
 
+            # processed input files and other metadata required to run the analysis
+            job_data = JobData()
+
+            job_name = f"{self.analysis_request.requestId}_{trait.trait_id}"
+            job_data.job_name = job_name
+
             for occurrence_id in self.occurrence_ids:
 
-                plots = plots_by_occurrence_id[occurrence_id]
+                plots = plots_by_id[occurrence_id]
+                occurrence = occurrences_by_id[occurrence_id]
+                job_data.occurrences.append(occurrence)
+
+                # save metadata in plots
+                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
+
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
                 _plots_and_measurements = plots.merge(plot_measurements_, on="plot_id", how="left")
+
                 if plots_and_measurements is None:
                     plots_and_measurements = _plots_and_measurements
                 else:
@@ -84,8 +136,8 @@ class AsremlProcessData(ProcessData):
             plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
 
             if not plots_and_measurements.empty:
-                job_input_files = self._write_job_input_files(f"{trait.trait_id}", plots_and_measurements, trait)
-                yield job_input_files
+                self._write_job_data(job_data, plots_and_measurements, trait)
+                yield job_data
 
     def sesl(self):
         """For Single Experiment Multi Location
@@ -98,11 +150,26 @@ class AsremlProcessData(ProcessData):
             DataReaderException when unable to extract data from datasource.
         """
 
-        traits: list[Trait] = self.get_traits()
+        traits: list[Trait] = self.__get_traits()
 
         for occurrence_id in self.occurrence_ids:
+
             plots = self.data_reader.get_plots(occurrence_id)
+            occurrence: Occurrence = self.data_reader.get_occurrence(occurrence_id)
+
             for trait in traits:
+
+                job_name = f"{self.analysis_request.requestId}_{occurrence_id}_{trait.trait_id}"
+
+                # processed input files and other metadata required to run the analysis
+                job_data = JobData()
+
+                job_data.job_name = job_name
+                job_data.occurrences.append(occurrence)
+
+                # save metadata in plots
+                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
+
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
                 # default is inner join
@@ -111,10 +178,14 @@ class AsremlProcessData(ProcessData):
                 plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
 
                 if not plots_and_measurements.empty:
-                    job_input_files = self._write_job_input_files(
-                        f"{occurrence_id}_{trait.trait_id}", plots_and_measurements, trait
-                    )
-                    yield job_input_files
+                    self._write_job_data(job_data, plots_and_measurements, trait)
+                    yield job_data
+
+    def mesl(self):
+        pass
+
+    def meml(self):
+        pass
 
     def _format_result_data(self, plots_and_measurements, trait):
 
@@ -132,7 +203,9 @@ class AsremlProcessData(ProcessData):
         input_fields_to_config_fields["trait_value"] = trait.abbreviation
 
         # Key only the config field columns
-        plots_and_measurements = df_keep_columns(plots_and_measurements, input_fields_to_config_fields.keys())
+        plots_and_measurements = pandasutil.df_keep_columns(
+            plots_and_measurements, input_fields_to_config_fields.keys()
+        )
 
         plots_and_measurements = plots_and_measurements.rename(columns=input_fields_to_config_fields)
 
@@ -142,28 +215,45 @@ class AsremlProcessData(ProcessData):
 
     def _write_job_input_files(self, job_id, job_data, trait):
 
-        # request_id = self.analysis_request.requestId
+        job_file_name = f"{job_data.job_name}.as"
+        data_file_name = f"{job_data.job_name}.csv"
 
-        job_name = f"{self.analysis_request.requestId}_{job_id}"
+        job_folder = self.__get_job_folder(job_data.job_name)
 
-        job_file_name = f"{job_name}.as"
-        data_file_name = f"{job_name}.csv"
+        job_data.job_file = os.path.join(job_folder, job_file_name)
+        job_data.data_file = os.path.join(job_folder, data_file_name)
 
-        job_file_path = os.path.join(self.output_folder, job_name, job_file_name)
-        data_file_path = os.path.join(self.output_folder, job_name, data_file_name)
+        plots_and_measurements.to_csv(job_data.data_file, index=False)
 
-        # create parent directories
-        os.makedirs(pathlib.Path(job_file_path).parent)
+        job_file_lines = self._get_asreml_job_file_lines(job_data, job_data.data_file, trait)
 
-        job_data.to_csv(data_file_path, index=False)
-
-        job_file_lines = self._get_asrml_job_file_lines(job_name, data_file_path, trait)
-
-        with open(job_file_path, "w") as j_f:
+        with open(job_data.job_file, "w") as j_f:
             for line in job_file_lines:
                 j_f.write("{}\n".format(line))
 
-        return {"data_file": data_file_path, "asreml_job_file": job_file_path, "job_name": job_name}
+        return job_data
+
+    def _write_job_data(self, job_data, plots_and_measurements, trait):
+
+        request_id = self.analysis_request.requestId
+
+        job_file_name = f"{job_data.job_name}.as"
+        data_file_name = f"{job_data.job_name}.csv"
+
+        job_folder = self.__get_job_folder(job_data.job_name)
+
+        job_data.job_file = os.path.join(job_folder, job_file_name)
+        job_data.data_file = os.path.join(job_folder, data_file_name)
+
+        plots_and_measurements.to_csv(job_data.data_file, index=False)
+
+        job_file_lines = self._get_asreml_job_file_lines(job_data, trait)
+
+        with open(job_data.job_file, "w") as j_f:
+            for line in job_file_lines:
+                j_f.write("{}\n".format(line))
+
+        return job_data
 
     def _get_analysis_fields(self):
         if not self.analysis_fields:
@@ -189,7 +279,7 @@ class AsremlProcessData(ProcessData):
                 self.input_fields_to_config_fields[input_field_name] = field.Property.code
         return self.input_fields_to_config_fields
 
-    def _get_asrml_job_file_lines(self, job_name, data_file_path, trait: Trait):
+    def _get_asreml_job_file_lines(self, job_data, trait: Trait):
 
         analysis_config_id = self.analysis_request.analysisConfigPropertyId
 
@@ -197,7 +287,7 @@ class AsremlProcessData(ProcessData):
         job_file_lines = ["!XML"]
 
         # 2: add title of the analysis run
-        job_file_lines.append(job_name)
+        job_file_lines.append(job_data.job_name)
 
         # 3: adding the analysis field statements
         for field_line in self._get_analysis_field_lines(analysis_config_id):
@@ -208,7 +298,7 @@ class AsremlProcessData(ProcessData):
 
         # 5: adding otpions
         asreml_option = self._get_asreml_option(analysis_config_id)
-        options_line = "{} {}".format(data_file_path, asreml_option.statement)
+        options_line = f"{job_data.data_file} {asreml_option.statement}"
         job_file_lines.append(options_line)
 
         # 6: adding tabulate
@@ -223,13 +313,13 @@ class AsremlProcessData(ProcessData):
 
         # 8: adding residual
         residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
-        # residual_statement = residual.statement
+        residual_statement = residual.statement
         job_file_lines.append(f"residual {residual.statement}")
 
         # 9: adding prediction
-        prediction = services.get_property(self.db_session, "19")
-        prediction_statement = "prediction {}".format(prediction.statement)
-        job_file_lines.append(prediction_statement)
+        for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
+            prediction = services.get_property(self.db_session, prediction_property_id)
+            job_file_lines.append(f"prediction {prediction.statement}")
 
         return job_file_lines
 

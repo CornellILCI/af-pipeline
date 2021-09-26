@@ -16,3 +16,7 @@ class InvalidAnalysisRequest(DpoException):
 
 class FileParseException(Exception):
     pass
+
+
+class InvalidFilePath(Exception):
+    pass

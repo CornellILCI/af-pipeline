@@ -17,12 +17,12 @@ def get_brapi_observation_units_response():
 
 
 def get_brapi_observations_response():
-    """ returns a mock brapi response for observation units """
+    """returns a mock brapi response for observation units"""
     return get_json_resource(__file__, "brapi_observations_mock_response.json")
 
 
 def get_brapi_studies_response():
-    """ returns a mock brapi response for studies """
+    """returns a mock brapi response for studies"""
     return get_json_resource(__file__, "brapi_studies_mock_response.json")
 
 
