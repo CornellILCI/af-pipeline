@@ -22,6 +22,8 @@ class PhenotypeDataEbs(PhenotypeData):
     plots_api_fields_to_local_fields = {
         "plotDbId": "plot_id",
         "entryDbId": "entry_id",
+        "entryName": "entry_name",
+        "entryType": "entry_type",
         "paX": "pa_x",
         "paY": "pa_y",
         "rep": "rep_factor",
@@ -186,7 +188,7 @@ class PhenotypeDataEbs(PhenotypeData):
             location=_occurrence_ebs.location,
             rep_count=_occurrence_ebs.repCount,
             entry_count=_occurrence_ebs.entryCount,
-            plot_count=_occurrence_ebs.plotCount,
+            plot_count=_occurrence_ebs.plotCount
         )
 
     def get_experiment(self, experiment_id: str = None) -> Experiment:

@@ -1,4 +1,5 @@
 from af.tests import setup  # noqa:F401 isort:skip
+import tempfile
 
 import pytest
 from af.pipeline import config
@@ -16,6 +17,11 @@ def engine():
     engine = create_engine(config.get_afdb_uri())
     engine.execute("ATTACH DATABASE ':memory:' AS af")
     return engine
+
+
+@pytest.fixture(scope="function")
+def temp_dir():
+    return tempfile.TemporaryDirectory()
 
 
 @pytest.fixture(scope="session")

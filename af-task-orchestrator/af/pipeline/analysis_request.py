@@ -15,4 +15,5 @@ class AnalysisRequest(BaseModel):
     expLocAnalysisPatternPropertyId: str
     configFormulaPropertyId: str
     configResidualPropertyId: str
+    configPredictionPropertyIds: list[str] = []
     outputFolder: str
