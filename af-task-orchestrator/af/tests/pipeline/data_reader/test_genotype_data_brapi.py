@@ -21,7 +21,7 @@ def post_brapi_search_callsets_200_response():
 
 def post_brapi_search_callsets_202_response():
     """returns a mock brapi response for observation units."""
-    return get_json_resource(__file__, "brapi_search_callsets_200_response.json")
+    return get_json_resource(__file__, "brapi_search_callsets_202_response.json")
 
 
 def get_test_occurrence_brapi() -> Occurrence:
@@ -57,13 +57,27 @@ def get_test_occurrence_brapi() -> Occurrence:
     #     assert_frame_equal(plots_result_df, plots_test_df.astype(str))
     # 
 
-# @patch("af.pipeline.data_reader.data_reader.requests.get")
-# def test_post_search_callsets(self, mock_post):
-#     mock_post.return_value.status_code = 200
+    @patch("af.pipeline.data_reader.data_reader.requests.post")
+    def test_post_search_callsets(self, mock_post):
+        mock_post.return_value.status_code = 200
 
 #     mock_post.return_value.json = Mock(side_effect=[post_brapi_search_callsets_200_response()])
 
 #     plots_result_df = GenotypeDataBrapi(api_base_url="http://test").post_search_callsets(["testid"])
 
-#     return False
-# #         assert_frame_equal(plots_result_df, plots_test_df.astype(str))
+        return False
+
+    @patch("af.pipeline.data_reader.data_reader.requests.post")
+    @patch("af.pipeline.data_reader.data_reader.requests.get")
+    def test_post_search_callsets_with_202(self, mock_post, mock_get):
+        mock_post.return_value.status_code = 202
+
+        mock_post.return_value.json = Mock(side_effect=[post_brapi_search_callsets_202_response()])
+
+        mock_post.return_value.status_code = Mock(side_effect=[202, 200])   
+
+        mock_get.return_value.json = Mock(side_effect=[post_brapi_search_callsets_202_response(), post_brapi_search_callsets_200_response()])
+
+        plots_result_df = GenotypeDataBrapi(api_base_url="http://test").post_search_callsets(["testid"])
+
+        return False
