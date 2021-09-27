@@ -1,18 +1,28 @@
 import pandas as pd
+import json
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study
+
+from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
 from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
+from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
+# 
+
+
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel, parse_obj_as
 
+
+# all urls are set here
 GET_OBSERVATION_UNITS_URL = "/observationunits"
 
 GET_OBSERVATIONS_URL = "/observations"
 
 GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
+GET_GERMPLASM_BY_DB_ID = "/search/germplasm/{searchResultDbId}"
 
 class PhenotypeDataBrapi(PhenotypeData):
     """Reads phenotype data from a brapi ebs data source."""
@@ -55,6 +65,7 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             if not api_response.is_success:
                 raise DataReaderException(api_response.error)
+
 
             brapi_response = BaseListResponse(**api_response.body)
 
@@ -195,3 +206,24 @@ class PhenotypeDataBrapi(PhenotypeData):
 
     def get_trait(self, trait_id: int = None):
         raise NotImplementedError
+
+    def search_germplasm(self, germplasm_search_ids: list[str]):
+        data = {"germplasmDbIds": germplasm_search_ids}
+
+        # print("hi")
+        post_search_germplasm = self.post(endpoint="/search/germplasm/", json=data)
+        search_germplasm_dbid = post_search_germplasm.body["result"]["searchResultDbId"]
+        germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
+        get_germplasm = self.get(endpoint=germplasm_url)
+        germplasm_list = parse_obj_as(list[Germplasm()], get_germplasm)
+        return germplasm_list
+
+#         return germplasm_list
+
+#         # # parse this into alist of Germplasm objects
+#         # if not get_germplasm.is_success:
+#         #     raise DataReaderException(search_germplasm.error)
+
+#         # if result is None:
+#         #     raise DataReaderException("Germplasms are not found")
+        
