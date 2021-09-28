@@ -290,19 +290,19 @@ class AsremlProcessData(ProcessData):
         job_file_lines.append(job_data.job_name)
 
         # 3: adding the analysis field statements
-        for field_line in self._get_analysis_field_lines(analysis_config_id):
+        for field_line in self._get_analysis_field_lines():
             job_file_lines.append(field_line)
 
         # 4: adding trait name
         job_file_lines.append(trait.abbreviation)
 
         # 5: adding otpions
-        asreml_option = self._get_asreml_option(analysis_config_id)
+        asreml_option = self._get_asreml_option()
         options_line = f"{job_data.data_file} {asreml_option.statement}"
         job_file_lines.append(options_line)
 
         # 6: adding tabulate
-        tabulate = self._get_tabulate(analysis_config_id)
+        tabulate = self._get_tabulate()
         tabulate_line = "tabulate {}".format(tabulate.statement.format(trait_name=trait.abbreviation))
         job_file_lines.append(tabulate_line)
 
@@ -316,29 +316,32 @@ class AsremlProcessData(ProcessData):
         residual_statement = residual.statement
         job_file_lines.append(f"residual {residual.statement}")
 
-        # 9: adding prediction
-        for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
-            prediction = services.get_property(self.db_session, prediction_property_id)
+        # 9: adding all the predictions if prediction not defined by the user.
+        predictions = self._get_predictions()
+        for prediction in predictions:
             job_file_lines.append(f"prediction {prediction.statement}")
 
         return job_file_lines
 
-    def _get_asreml_option(self, analysis_config_id: str):
-        asreml_options = services.get_analysis_config_properties(self.db_session, analysis_config_id, "asrmel_options")
+    def _get_asreml_option(self):
+        asreml_options = services.get_analysis_config_properties(
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "asrmel_options")
         if len(asreml_options) > 0:
             return asreml_options[0]
         else:
             raise DpoException("No ASREML engine options found.")
 
-    def _get_tabulate(self, analysis_config_id: str):
-        tabulate = services.get_analysis_config_properties(self.db_session, analysis_config_id, "tabulate")
+    def _get_tabulate(self):
+        tabulate = services.get_analysis_config_properties(
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "tabulate")
         if len(tabulate) > 0:
             return tabulate[0]
         else:
             raise DpoException("No analysis config tabulate found.")
 
-    def _get_analysis_field_lines(self, analysis_config_id: str):
-        analysis_fields = services.get_analysis_config_module_fields(self.db_session, analysis_config_id)
+    def _get_analysis_field_lines(self):
+        analysis_fields = services.get_analysis_config_module_fields(
+            self.db_session, self.analysis_request.analysisConfigPropertyId)
         if len(analysis_fields) == 0:
             raise DpoException("No Analysis fields found.")
         for field in analysis_fields:
@@ -349,6 +352,18 @@ class AsremlProcessData(ProcessData):
             )
             yield field_line
 
+    def _get_predictions(self):
+
+        predictions = []
+        if len(self.analysis_request.configPredictionPropertyIds) == 0:
+            predictions = services.get_analysis_config_properties(
+                self.db_session, self.analysis_request.analysisConfigPropertyId, 'prediction')
+        else:
+            for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
+                predictions.append(services.get_property(self.db_session, prediction_property_id))
+
+        return predictions
+    
     def run(self):
         """Pre process input data before inputing into analytical engine.
 
