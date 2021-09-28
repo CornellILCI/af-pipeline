@@ -8,10 +8,10 @@
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2019.03.12
-# Date Modified    : 2021.05.22
+# Date Modified    : 2021.09.28
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 3
+# Script Version   : 4
 # Command          : Rscript randAUGMENTEDRCBDirri.R --entryList "AUGMENTEDRCBD_SD_0001.lst" 
 #                    --nTrial 3 --nRep 4 --genLayout T --nRowPerRep 8 --nFieldRow 16 
 #                    --serpentine CO -o "Output" -p "D:/Results" 
@@ -134,12 +134,12 @@ if(all(class(temp) == "try-error")) { stop(paste("Error in designAugmentedRCB:",
 
 # rename columns
 fbook <- result$fieldbook
-if (opt$genLayout) { names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number", "field_row", "field_col")
-} else { names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number") }
+if (opt$genLayout) { names(fbook) <- c("occurrence", "replicate", "block","entry_id","entry_type", "plot_number", "field_row", "field_col")
+} else { names(fbook) <- c("occurrence", "replicate", "block","entry_id","entry_type", "plot_number") }
 
 # rearrange columns
-if (opt$genLayout) { nfbook <- fbook[, c("occurrence", "plot_number", "replicate", "entry_id","field_row", "field_col")]
-} else { nfbook <- fbook[, c("occurrence", "plot_number", "replicate", "entry_id")] }
+if (opt$genLayout) { nfbook <- fbook[, c("occurrence", "plot_number", "replicate", "block","entry_id","field_row", "field_col")]
+} else { nfbook <- fbook[, c("occurrence", "plot_number", "replicate", "block","entry_id")] }
 
 # save the fieldbook to a csv file
 write.csv(nfbook, file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_DesignArray.csv", sep = ""), row.names = FALSE)
