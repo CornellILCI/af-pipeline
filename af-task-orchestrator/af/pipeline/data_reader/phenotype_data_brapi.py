@@ -217,9 +217,10 @@ class PhenotypeDataBrapi(PhenotypeData):
         germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
         
         get_germplasm = self.get(endpoint=germplasm_url)
-        
-        # germplasm_list = parse_obj_as(list[Germplasm()], get_germplasm)
-        
+        print(get_germplasm)
+        germplasm_list = parse_obj_as(list[Germplasm], get_germplasm.body["result"]["data"])
+        print(germplasm_list)
+
         if not get_germplasm.is_success:
             raise DataReaderException(search_germplasm.error)
 
