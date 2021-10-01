@@ -305,4 +305,3 @@ class TestPhenotypeDataBrapi(TestCase):
         # for germplasm in test_germplasm:
         #     for field, value in germplasm:
         #         assert value == germplasm_result.dict()[field]
-xit

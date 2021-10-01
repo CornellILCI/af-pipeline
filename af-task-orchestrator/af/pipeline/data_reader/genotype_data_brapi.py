@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.models.api_response import ApiResponse
@@ -18,9 +19,12 @@ class GenotypeDataBrapi(GenotypeData):
 
     brapi_list_page_size = 1000
 
-    def get_search_callsets(self, id) -> ApiResponse:
+    def get_search_callsets(self, id, page: int = 0) -> ApiResponse:
 
-        api_response = self.get(endpoint=GET_SEARCH_CALLSETS_URL+"/"+id)
+        if(page == 0):
+            api_response = self.get(endpoint=GET_SEARCH_CALLSETS_URL+"/"+id)
+        else:
+            api_response = self.get(endpoint=GET_SEARCH_CALLSETS_URL+"/"+id, params={'pageSize':page})
 
         if not api_response.is_success:
             raise DataReaderException(api_response.error)
@@ -47,15 +51,16 @@ class GenotypeDataBrapi(GenotypeData):
 
         return "",""
 
-    def post_search_callsets(self, germplasmDbIds: list[str] = None) -> tuple :
-        
+    def post_search_callsets(self, germplasmDbIds: list[str] = None) -> list :
+        ret = []
 
+        getId = ""
         # do first post to search 
         filters = CallSetsSearchRequest(
             germplasmDbIds = germplasmDbIds
         )
         api_response = self.post(endpoint=POST_SEARCH_CALLSETS_URL, params=filters.dict())
-
+        paginationCalls = "post"
         if not api_response.is_success:
             raise DataReaderException(api_response.error)
 
@@ -64,40 +69,43 @@ class GenotypeDataBrapi(GenotypeData):
             response = api_response.http_status
             while response == 202:
                 brapi_response = Field202AcceptedSearchResponse(**api_response.body)
-                api_response = self.get_search_callsets(brapi_response.result.searchResultsDbId)
+                getId = brapi_response.result.searchResultsDbId
+                api_response = self.get_search_callsets(getId)
+                paginationCalls = "get"
                 response = api_response.http_status
 
         if api_response.http_status != 200:
             raise DataReaderException(api_response.error)
             
-        brapi_response = CallSetResponse(**api_response.body)
-            
-
-        #if response is
-
-        
-
-        
+        brapi_response = CallSetsListResponse(**api_response.body)    
+        ret.append(brapi_response.result.data)
 
         pageNum = 0
-        totalPages = 0
+        totalPages = brapi_response.metadata.pagination.totalPages
 
-        while pageNum == 0 or (pageNum < totalPages):
+        while pageNum < (totalPages - 1 ):
+            pageNum = pageNum + 1
             filters = CallSetsSearchRequest(
                 germplasmDbIds = germplasmDbIds,
                 pageSize=self.brapi_list_page_size,
                 page=pageNum
             )
 
-            
-            api_response = self.post(endpoint=POST_SEARCH_CALLSETS_URL, params=filters.dict())
+            if paginationCalls == "post":
+                filters.page = pageNum
+                api_response = self.post(endpoint=POST_SEARCH_CALLSETS_URL, params=filters.dict())
+
+                brapi_response = CallSetsListResponse(**api_response.body)    
+                ret.append(brapi_response.result.data)
+            elif paginationCalls == "get":
+                api_response = self.get_search_callsets(getId, pageNum)
+
+                brapi_response = CallSetsListResponse(**api_response.body)    
+                ret.append(brapi_response.result.data)
 
             if not api_response.is_success:
                 raise DataReaderException(api_response.error)
 
-            
-
-
-        return "",""
+        return ret
 
 
