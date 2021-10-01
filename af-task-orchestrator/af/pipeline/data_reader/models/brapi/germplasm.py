@@ -1565,8 +1565,8 @@ class GermplasmNewRequest(BaseModel):
         description='A specific panel/collection/population name this germplasm belongs to.',
         example='Rice Diversity Panel 1 (RDP1)',
     )
-    commonCropName: str = Field(
-        ...,
+    commonCropName: Optional[str] = Field(
+        None,
         description='Common name for the crop \n\nMCPD (v2.1) (CROPNAME) 10. Common name of the crop. Example: "malting barley", "mas".',
         example='Maize',
     )
@@ -1588,7 +1588,7 @@ class GermplasmNewRequest(BaseModel):
         description='Genus name for taxon. Initial uppercase letter required.\n\nMCPD (v2.1) (GENUS) 5. Genus name for taxon. Initial uppercase letter required.\n\nMIAPPE V1.1 (DM-43) Genus - Genus name for the organism under study, according to standard scientific nomenclature.',
         example='Aspergillus',
     )
-    germplasmName: str = Field(
+    germplasmName: Optional[str]= Field(
         ...,
         description='Name of the germplasm. It can be the preferred name and does not have to be unique.\n\nMCPD (v2.1) (ACCENAME) 11. Either a registered or other designation given to the material received, other than the donors accession number (23) or collecting number (3). First letter uppercase. Multiple names are separated by a semicolon without space.',
         example='A0000003',
@@ -1598,7 +1598,7 @@ class GermplasmNewRequest(BaseModel):
         description='Information for material (orchard, natural sites, ...). Geographic identification of the plants from which seeds or cutting have been taken to produce that germplasm.',
     )
     germplasmPUI: Optional[str] = Field(
-        ...,
+        None,
         description='The Permanent Unique Identifier which represents a germplasm\n\nMIAPPE V1.1 (DM-41) Biological material ID - Code used to identify the biological material in the data file. Should be unique within the Investigation. Can correspond to experimental plant ID, seed lot ID, etc This material identification is different from a BiosampleID which corresponds to Observation Unit or Samples sections below.\n\nMCPD (v2.1) (PUID) 0. Any persistent, unique identifier assigned to the accession so it can be unambiguously referenced at the global level and the information associated with it harvested through automated means. Report one PUID for each accession. The Secretariat of the International Treaty on Plant Genetic Resources for Food and Agriculture (PGRFA) is facilitating the assignment of a persistent unique identifier (PUID), in the form of a DOI, to PGRFA at the accession level. Genebanks not applying a true PUID to their accessions should use, and request recipients to use, the concatenation of INSTCODE, ACCENUMB, and GENUS as a globally unique identifier similar in most respects to the PUID whenever they exchange information on accessions with third parties.',
         example='http://pui.per/accession/A0000003',
     )

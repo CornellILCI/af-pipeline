@@ -29,11 +29,11 @@ def get_brapi_studies_response():
 
 # def get_search_result_dbid 
 def get_brapi_search_result_dbid_mock_response():
-    """ returns a mock brapi response for studies """
+    """ returns a mock brapi response for germplasm """
     return get_json_resource(__file__, "brapi_search_result_dbid_mock_response.json")
 
 def get_brapi_germplasm_response():
-    """ returns a mock brapi response for studies """
+    """ returns a mock brapi response for germplasm """
     return get_json_resource(__file__, "brapi_germplasm_mock_response.json")
 
 
@@ -47,65 +47,6 @@ def get_test_occurrence_brapi() -> Occurrence:
         "location": "test_location",
     }
     return Occurrence(**test_occurrence)
-
-
-# def get_test_germplasm_brapi() -> Germplasm:
-#     test_germplasm_1 = {
-#         "commonCropName": "rice",
-#         "germplasmPUI":"9",
-#         "germplasmDbId": "bd76c553-3862-11eb-95eb-0242ac140004",
-#         "defaultDisplayName": "TANGKAI ROTAN",
-#         "accessionNumber": "IRGC 31",
-#         "germplasmName": "TANGKAI ROTAN",
-#         "pedigree": "TR",
-#         "synonyms": { "synonym": "IRGC 31", "type": "ACCNO"},
-#         "countryOfOriginCode": "IRRI-GRC",
-#         "typeOfGermplasmStorageCode": [],
-#         "taxonIds": [],
-#         "donors": [],
-#         "acquisitionDate": "1961-03-27",
-#         "breedingMethodDbId": "70",
-#         "additionalInfo": {
-#             "TAXNO_AP_text": "2832",
-#             "MLS_DATE_AP_text": "29-JUN-2004",
-#             "COLL_AA_text": "IRGC 31        ;O. SATIVA;;;;;MYS",
-#             "SampStat_AP_text": "T",
-#             "STATUS_ACC_AP_text": "AV",
-#             "ORI_COUN_AP_text": "MALAYSIA",
-#             "SPP_CODE_AP_text": "S",
-#             "IPSTAT_AP_text": "FAO (14/09/1994)",
-#             "VGISO_AA_text": "1" }
-#             }
-#     test_germplasm_2 = {
-#         "commonCropName": "rice",
-#         "germplasmPUI":"19",
-#         "germplasmDbId": "bd76c553-3862-11eb-95eb-0242ac140004",
-#         "defaultDisplayName": "TANGKAI BOTAN",
-#         "accessionNumber": "IRGC 31",
-#         "germplasmName": "TANGKAI ROTAN",
-#         "pedigree": "TR",
-#         "synonyms": { "synonym": "IRGC 31", "type": "ACCNO"},
-#         "countryOfOriginCode": "IRRI-GRC",
-#         "typeOfGermplasmStorageCode": [],
-#         "taxonIds": [],
-#         "donors": [],
-#         "acquisitionDate": "1961-03-27",
-#         "breedingMethodDbId": "70",
-#         "additionalInfo": {
-#             "TAXNO_AP_text": "2832",
-#             "MLS_DATE_AP_text": "29-JUN-2004",
-#             "COLL_AA_text": "IRGC 31        ;O. SATIVA;;;;;MYS",
-#             "SampStat_AP_text": "T",
-#             "STATUS_ACC_AP_text": "AV",
-#             "ORI_COUN_AP_text": "MALAYSIA",
-#             "SPP_CODE_AP_text": "S",
-#             "IPSTAT_AP_text": "FAO (14/09/1994)",
-#             "VGISO_AA_text": "1" }
-#             }
-#     test_germplasms = [test_germplasm_1,test_germplasm_2]
-#     li = [Germplasm(**tg) for tg in test_germplasms]
-#     li = list(li)
-#     return li
 
 
 class TestPhenotypeDataBrapi(TestCase):
@@ -288,20 +229,20 @@ class TestPhenotypeDataBrapi(TestCase):
     @patch("af.pipeline.data_reader.data_reader.requests.post")  
     @patch("af.pipeline.data_reader.data_reader.requests.get")
     def test_search_germplasm(self,mock_post, mock_get):        
- 
-        brapi_response = get_brapi_germplasm_response()
+        """ 
+        """
+        brapi_post_response = get_brapi_germplasm_response()
         mock_post.return_value.status_code = 202
-        mock_post.return_value.json.return_value = brapi_response
+        mock_post.return_value.json.return_value = brapi_post_response
 
-        brapi_response = get_brapi_search_result_dbid_mock_response()
+        brapi_get_response = get_brapi_search_result_dbid_mock_response()
         mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = brapi_response
+        mock_get.return_value.json.return_value = brapi_get_response
 
         # test_germplasm = get_test_germplasm_brapi()
-        search_query = {"germplasmDbIds": ["e9c6edd7", "1b1df4a6"]}
+        search_query = {"germplasmDbIds": ["bd76c553-3862-11eb-95eb-0242ac140004"]}
         germplasm_result = (PhenotypeDataBrapi(api_base_url="http://test")).search_germplasm(germplasm_search_ids=search_query.values)
-        print(germplasm_result)
-
-        # for germplasm in test_germplasm:
-        #     for field, value in germplasm:
-        #         assert value == germplasm_result.dict()[field]
+        assert germplasm_result.body['result']['data'][0]['germplasmName'] == 'TANGKAI ROTAN'
+        assert germplasm_result.body['result']['data'][0]["germplasmPUI"]=="9"
+        assert germplasm_result.body['result']['data'][0]['germplasmDbId'] == "bd76c553-3862-11eb-95eb-0242ac140004"
+        assert germplasm_result.body['result']['data'][0]['pedigree'] == 'TR'
