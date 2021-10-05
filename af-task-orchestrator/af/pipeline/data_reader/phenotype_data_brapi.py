@@ -23,6 +23,7 @@ GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
 GET_GERMPLASM_BY_DB_ID = "/search/germplasm/{searchResultDbId}"
 
+
 class PhenotypeDataBrapi(PhenotypeData):
     """Reads phenotype data from a brapi ebs data source."""
 
@@ -64,7 +65,6 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             if not api_response.is_success:
                 raise DataReaderException(api_response.error)
-
 
             brapi_response = BaseListResponse(**api_response.body)
 
@@ -207,24 +207,36 @@ class PhenotypeDataBrapi(PhenotypeData):
         raise NotImplementedError
 
     def search_germplasm(self, germplasm_search_ids: list[str]):
-        
-        data = {"germplasmDbIds": germplasm_search_ids}
 
-        post_search_germplasm = self.post(endpoint="/search/germplasm/", json=data)
+        search_query = {"germplasmDbIds": germplasm_search_ids}
+
+        search_germplasm_response = self.post(endpoint="/search/germplasm/", json=search_query)
         
-        search_germplasm_dbid = post_search_germplasm.body["result"]["searchResultDbId"]
+        if not search_germplasm_response.is_success:
+            raise DataReaderException(search_germplasm.error)
+
+        if search_germplasm_response.body is None:
+            raise DataReaderException("Germplasms are not found")
+    
+
+        if search_germplasm_response.http_status == 202:
+
+            search_germplasm_dbid = search_germplasm_response.body["result"]["searchResultDbId"]
+
+            germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
+
+            get_germplasm = self.get(endpoint=germplasm_url)
+            germplasm_list = parse_obj_as(list[Germplasm], get_germplasm.body["result"]["data"])
+            
+            return germplasm_list
         
-        germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
-        
-        get_germplasm = self.get(endpoint=germplasm_url)
-        print(get_germplasm)
-        germplasm_list = parse_obj_as(list[Germplasm], get_germplasm.body["result"]["data"])
-        print(germplasm_list)
+        if search_germplasm_response.http_status == 200:
+            
+            germplasm_list = parse_obj_as(list[Germplasm], search_germplasm_response.body["result"]["data"])
+            return germplasm_list
 
         if not get_germplasm.is_success:
             raise DataReaderException(search_germplasm.error)
 
         if get_germplasm.body is None:
             raise DataReaderException("Germplasms are not found")
-
-        return get_germplasm

@@ -27,12 +27,14 @@ def get_brapi_studies_response():
     """ returns a mock brapi response for studies """
     return get_json_resource(__file__, "brapi_studies_mock_response.json")
 
-# def get_search_result_dbid 
+
+# def get_search_result_dbid
 def get_brapi_search_result_dbid_mock_response():
     """ returns a mock brapi response for germplasm """
     return get_json_resource(__file__, "brapi_search_result_dbid_mock_response.json")
 
-def get_brapi_germplasm_response():
+
+def brapi_germplasm_response():
     """ returns a mock brapi response for germplasm """
     return get_json_resource(__file__, "brapi_germplasm_mock_response.json")
 
@@ -225,24 +227,63 @@ class TestPhenotypeDataBrapi(TestCase):
         with self.assertRaises(DataReaderException):
             PhenotypeDataBrapi(api_base_url="http://test").get_occurrence(occurrence_id="test")
 
+    @patch("af.pipeline.data_reader.data_reader.requests.post")
+    def test_search_germplasm_case_1(self, mock_post):
+        """"""
+        brapi_post_response = brapi_germplasm_response()
 
-    @patch("af.pipeline.data_reader.data_reader.requests.post")  
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = brapi_post_response
+        
+        search_query = {
+            "germplasmDbIds": ["bd76c553-3862-11eb-95eb-0242ac140004",
+                               "zg6c553-3862-11eb-95eb-0242ac140004"]
+                               }
+
+        germplasm_result = (PhenotypeDataBrapi(api_base_url="http://test")).search_germplasm(
+            germplasm_search_ids=search_query.values
+        )
+
+        assert germplasm_result[0].germplasmName == "TANGKAI ROTAN"
+        assert germplasm_result[0].germplasmPUI == "9"
+        assert germplasm_result[0].germplasmDbId == "bd76c553-3862-11eb-95eb-0242ac140004"
+        assert germplasm_result[0].pedigree == "TR"
+
+        assert germplasm_result[1].germplasmName == "TANGKAI BOTAN"
+        assert germplasm_result[1].germplasmPUI == "19"
+        assert germplasm_result[1].germplasmDbId == "zg76c553-3862-11eb-95eb-0242ac140004"
+        assert germplasm_result[1].pedigree == "TR"
+
     @patch("af.pipeline.data_reader.data_reader.requests.get")
-    def test_search_germplasm(self,mock_post, mock_get):        
-        """ 
-        """
-        brapi_post_response = get_brapi_germplasm_response()
+    @patch("af.pipeline.data_reader.data_reader.requests.post")
+    def test_search_germplasm_case_2(self, mock_post, mock_get):
+        """"""
+        brapi_post_response = get_brapi_search_result_dbid_mock_response()
+
         mock_post.return_value.status_code = 202
         mock_post.return_value.json.return_value = brapi_post_response
 
-        brapi_get_response = get_brapi_search_result_dbid_mock_response()
+        brapi_get_response = brapi_germplasm_response()
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = brapi_get_response
 
-        # test_germplasm = get_test_germplasm_brapi()
-        search_query = {"germplasmDbIds": ["bd76c553-3862-11eb-95eb-0242ac140004"]}
-        germplasm_result = (PhenotypeDataBrapi(api_base_url="http://test")).search_germplasm(germplasm_search_ids=search_query.values)
-        assert germplasm_result.body['result']['data'][0]['germplasmName'] == 'TANGKAI ROTAN'
-        assert germplasm_result.body['result']['data'][0]["germplasmPUI"]=="9"
-        assert germplasm_result.body['result']['data'][0]['germplasmDbId'] == "bd76c553-3862-11eb-95eb-0242ac140004"
-        assert germplasm_result.body['result']['data'][0]['pedigree'] == 'TR'
+        search_query = {
+            "germplasmDbIds": ["bd76c553-3862-11eb-95eb-0242ac140004",
+                               "zg6c553-3862-11eb-95eb-0242ac140004"]
+                               }
+
+        germplasm_result = (PhenotypeDataBrapi(api_base_url="http://test")).search_germplasm(
+            germplasm_search_ids=search_query.values
+        )
+
+        assert germplasm_result[0].germplasmName == "TANGKAI ROTAN"
+        assert germplasm_result[0].germplasmPUI == "9"
+        assert germplasm_result[0].germplasmDbId == "bd76c553-3862-11eb-95eb-0242ac140004"
+        assert germplasm_result[0].pedigree == "TR"
+
+        assert germplasm_result[1].germplasmName == "TANGKAI BOTAN"
+        assert germplasm_result[1].germplasmPUI == "19"
+        assert germplasm_result[1].germplasmDbId == "zg76c553-3862-11eb-95eb-0242ac140004"
+        assert germplasm_result[1].pedigree == "TR"
+
+        # write test case for 200 ( where list of germplasm are returned directly)
