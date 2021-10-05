@@ -46,24 +46,24 @@ def get_test_occurrence_brapi() -> Occurrence:
 
 class TestGenotypeDataBrapi(TestCase):
     
-    @patch("af.pipeline.data_reader.data_reader.requests.get")
-    def test_get_variantsets(self, mock_get):
+    # @patch("af.pipeline.data_reader.data_reader.requests.get")
+    # def test_get_variantsets(self, mock_get):
 
-        mock_get.return_value.status_code = 200
+    #     mock_get.return_value.status_code = 200
 
-        mock_get.return_value.json = Mock(side_effect=[get_brapi_variantsets_units_response()])
+    #     mock_get.return_value.json = Mock(side_effect=[get_brapi_variantsets_units_response()])
 
-        plots_test_df = get_test_plots()
+    #     plots_test_df = get_test_plots()
 
-        plots_result_df = GenotypeDataBrapi(api_base_url="http://test").get_variantsets(["testid"])
+    #     plots_result_df = GenotypeDataBrapi(api_base_url="http://test").get_variantsets(["testid"])
 
-        # assert dataframe is returned
-        assert isinstance(plots_result_df, pd.DataFrame)
+    #     # assert dataframe is returned
+    #     assert isinstance(plots_result_df, pd.DataFrame)
 
-        # arrange columns
-        plots_result_df = plots_result_df[plots_test_df.columns]
+    #     # arrange columns
+    #     plots_result_df = plots_result_df[plots_test_df.columns]
 
-        assert_frame_equal(plots_result_df, plots_test_df.astype(str))
+    #     assert_frame_equal(plots_result_df, plots_test_df.astype(str))
     
 
     @patch("af.pipeline.data_reader.data_reader.requests.post")
