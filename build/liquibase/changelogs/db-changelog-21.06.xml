@@ -11,7 +11,7 @@
     <include file="changesets/21.06/data/template/correct_property_statement.sql"/>
 
     <!-- BA-484 add columns to model_stat table -->
-    <include file="changesets/21.06/schema\add_columns_to_model_stat_table.sql"/>
+    <include file="changesets/21.06/schema/add_columns_to_model_stat_table.sql"/>
 
 
     </databaseChangeLog>
