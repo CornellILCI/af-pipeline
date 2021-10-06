@@ -1,0 +1,26 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    
+    <!-- DB-695 Correct properties #165 and #20 -->
+    <include file="changesets/21.09/data/template/correct_properties_165_and_20.sql"/>
+
+    <!-- DB-696 Add property for residual and asreml opt -->
+    <include file="changesets/21.09/data/template/add_property_for_residual_and_asreml_opt.sql"/>
+
+    <!-- DB-697 Update property_config of property residual_opt8 -->
+    <include file="changesets/21.09/data/template/update_config_for_residual_opt8.sql"/>
+
+    <!-- DB-690 Update database documentation -->
+    <include file="changesets/21.09/schema/update_db_documentation.sql"/>
+
+    <!-- DB-692 Add 2 new models for IRRI, Config5 and config6 -->
+    <include file="changesets/21.09/data/template/add_2_new_models_for_irri.sql"/>
+
+    <!-- DB-697 Assign residual and asrmel in property_config -->
+    <include file="changesets/21.09/data/template/assign_property_residual_and_asrmel.sql"/>
+
+    <!-- DB-692 Add 2 new models for CIMMYT, Config7 and config8 -->
+    <include file="changesets/21.09/data/template/add_2_new_models_for_cimmyt.sql"/>
+ 
+
+  </databaseChangeLog>
