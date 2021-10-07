@@ -22,27 +22,7 @@ from af.pipeline.pandasutil import df_keep_columns
 
 class AsremlProcessData(ProcessData):
     def __init__(self, analysis_request: AnalysisRequest):
-        """Constructor.
-
-        Args:
-            analysis_request: Object with all required inputs to run analysis.
-        """
-
-        self.analysis_request = analysis_request
-
-        factory = DataReaderFactory(analysis_request.dataSource.name)
-        self.data_reader: PhenotypeData = factory.get_phenotype_data(
-            api_base_url=analysis_request.dataSourceUrl, api_bearer_token=analysis_request.dataSourceAccessToken
-        )
-
-        self.occurrence_ids = analysis_request.occurrenceIds
-        self.trait_ids = analysis_request.traitIds
-        self.db_session = DBConfig.get_session()
-
-        self.analysis_fields = None
-        self.input_fields_to_config_fields = None
-
-        self.output_folder = analysis_request.outputFolder
+        super().__init__(analysis_request)
 
     def __get_traits(self) -> list[Trait]:
         traits = []
@@ -75,15 +55,6 @@ class AsremlProcessData(ProcessData):
 
         return metadata_file_path
 
-    def __get_job_folder(self, job_name: str) -> str:
-
-        job_folder = os.path.join(self.output_folder, job_name)
-
-        if not os.path.isdir(job_folder):
-            # create parent directories
-            os.makedirs(pathlib.Path(job_folder))
-
-        return job_folder
 
     def seml(self):
         """For Single Experiment Single Location
