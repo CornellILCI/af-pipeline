@@ -5,7 +5,6 @@ import zipfile
 from pathlib import Path
 
 import openpyxl
-
 from af.pipeline import exceptions
 
 
