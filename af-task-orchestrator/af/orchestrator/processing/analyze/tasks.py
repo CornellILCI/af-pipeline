@@ -49,7 +49,7 @@ def post_process(request_id, analysis_request, results, gathered_objects=None):
 
     analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
     gathered_objects = analyze_object.process_job_result(result, gathered_objects)
-    
+
     # process the results here
     if not results:
         done_analyze.delay(request_id, analysis_request, gathered_objects)

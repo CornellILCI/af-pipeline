@@ -7,11 +7,13 @@ from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Occurrence, Trait  # noqa: E402; noqa: E402
+
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.dpo import ProcessData
+
 # from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException
 from af.pipeline.job_data import JobData
@@ -52,7 +54,6 @@ class AsremlProcessData(ProcessData):
         metadata_df.to_csv(metadata_file_path, **to_csv_kwargs)
 
         return metadata_file_path
-
 
     def seml(self):
         """For Single Experiment Single Location
@@ -294,7 +295,8 @@ class AsremlProcessData(ProcessData):
 
     def _get_asreml_option(self):
         asreml_options = services.get_analysis_config_properties(
-            self.db_session, self.analysis_request.analysisConfigPropertyId, "asrmel_options")
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "asrmel_options"
+        )
         if len(asreml_options) > 0:
             return asreml_options[0]
         else:
@@ -302,7 +304,8 @@ class AsremlProcessData(ProcessData):
 
     def _get_tabulate(self):
         tabulate = services.get_analysis_config_properties(
-            self.db_session, self.analysis_request.analysisConfigPropertyId, "tabulate")
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "tabulate"
+        )
         if len(tabulate) > 0:
             return tabulate[0]
         else:
@@ -310,7 +313,8 @@ class AsremlProcessData(ProcessData):
 
     def _get_analysis_field_lines(self):
         analysis_fields = services.get_analysis_config_module_fields(
-            self.db_session, self.analysis_request.analysisConfigPropertyId)
+            self.db_session, self.analysis_request.analysisConfigPropertyId
+        )
         if len(analysis_fields) == 0:
             raise DpoException("No Analysis fields found.")
         for field in analysis_fields:
@@ -326,13 +330,14 @@ class AsremlProcessData(ProcessData):
         predictions = []
         if len(self.analysis_request.configPredictionPropertyIds) == 0:
             predictions = services.get_analysis_config_properties(
-                self.db_session, self.analysis_request.analysisConfigPropertyId, 'prediction')
+                self.db_session, self.analysis_request.analysisConfigPropertyId, "prediction"
+            )
         else:
             for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
                 predictions.append(services.get_property(self.db_session, prediction_property_id))
 
         return predictions
-    
+
     def run(self):
         """Pre process input data before inputing into analytical engine.
 

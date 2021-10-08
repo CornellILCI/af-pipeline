@@ -3,9 +3,11 @@
 import argparse
 import json
 import os
+
 # import pathlib
 import sys
 from abc import ABC, abstractmethod
+
 # from collections import OrderedDict
 from os import path
 
@@ -23,6 +25,7 @@ from af.pipeline.exceptions import InvalidAnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.db.core import DBConfig
 import pathlib
+
 # from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType

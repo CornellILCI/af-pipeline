@@ -1,5 +1,6 @@
 import json
 import os
+
 # hacky importing since we need to declare these before we import Base
 # since core.py directly declares the vars
 import tempfile
@@ -41,7 +42,7 @@ def get_test_analysis_request():
         configFormulaPropertyId="1",
         configResidualPropertyId="1",
         outputFolder="test",
-        configPredictionPropertyIds=["19"]
+        configPredictionPropertyIds=["19"],
     )
     return analysis_request
 
