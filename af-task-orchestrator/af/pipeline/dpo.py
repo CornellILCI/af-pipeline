@@ -72,23 +72,8 @@ class ProcessData(ABC):
         return job_folder
 
     @abstractmethod
-    def seml(self):
-        pass
-
-    @abstractmethod
-    def sesl(self):
-        pass
-
-    @abstractmethod
-    def mesl(self):
-        pass
-
-    @abstractmethod
-    def meml(self):
-        pass
-
-    @abstractmethod
     def run(self):
+        """This method should return the list of preprocessed input files info"""
         pass
 
 
