@@ -1,7 +1,8 @@
+from typing import List
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
-from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study
+from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study, TableResponse
 from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
@@ -12,6 +13,8 @@ GET_OBSERVATION_UNITS_URL = "/observationunits"
 GET_OBSERVATIONS_URL = "/observations"
 
 GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
+
+GET_OBSERVATION_UNITS_TABLE_URL = "/observationunits/table"
 
 
 class PhenotypeDataBrapi(PhenotypeData):
@@ -36,6 +39,51 @@ class PhenotypeDataBrapi(PhenotypeData):
     }
 
     brapi_list_page_size = 1000
+
+    def get_observation_units_table(self, occurrence_id: str = None, observationLevel: str = None, observationUnitDbId: str = None) -> tuple:
+        plots_data = []
+        germplasm = []
+        germplasm_index = -1
+        plots_header = []
+
+        page_num = 0
+        total_pages = 0
+
+        observation_units_filters = ObservationUnitQueryParams(
+            studyDbId=occurrence_id, observationLevel=observationLevel, observationUnitDbId=observationUnitDbId, pageSize=self.brapi_list_page_size
+        )
+
+        while page_num == 0 or page_num < total_pages:
+
+            observation_units_filters.page = page_num
+
+            api_response = self.get(endpoint=GET_OBSERVATION_UNITS_TABLE_URL, params=observation_units_filters.dict())
+
+            if not api_response.is_success:
+                raise DataReaderException(api_response.error)
+
+            total_pages = api_response.body['metadata']['pagination']['totalPages']
+
+            brapi_response = TableResponse(**api_response.body)
+            page_num += 1
+
+            plots_data.extend(brapi_response.result.data.copy())
+            
+            if plots_header == [] : plots_header = brapi_response.result.headerRow.copy()
+
+            if germplasm_index == -1:
+                try:
+                    germplasm_index = brapi_response.result.headerRow.index('germplasmDbId')
+                except ValueError:
+                    germplasm_index = -1
+                
+
+        if germplasm_index != -1:
+            for row in plots_data:
+                germplasm.append(row[germplasm_index])
+
+        return germplasm, plots_data, plots_header
+
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
 

@@ -5,18 +5,16 @@ from collections import OrderedDict
 import pandas as pd
 from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
-from af.pipeline.job_data import JobData
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
-from af.pipeline.data_reader.models import Trait, Occurrence  # noqa: E402; noqa: E402
-
+from af.pipeline.data_reader.models import Occurrence, Trait  # noqa: E402; noqa: E402
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.dpo import ProcessData
-
 # from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException
+from af.pipeline.job_data import JobData
 from af.pipeline.pandasutil import df_keep_columns
 
 

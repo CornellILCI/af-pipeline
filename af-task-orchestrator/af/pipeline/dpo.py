@@ -3,11 +3,9 @@
 import argparse
 import json
 import os
-
 # import pathlib
 import sys
 from abc import ABC, abstractmethod
-
 # from collections import OrderedDict
 from os import path
 
