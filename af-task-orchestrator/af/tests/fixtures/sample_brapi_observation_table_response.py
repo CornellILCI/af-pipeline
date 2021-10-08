@@ -1,5 +1,6 @@
-import pytest
 import json
+
+import pytest
 from af.pipeline.data_reader.models import ApiResponse
 
 _table_response_body = json.loads("""{

@@ -1,4 +1,5 @@
 from typing import List
+
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence

@@ -1,6 +1,7 @@
-from af.pipeline.dpo import ProcessData
-import os
 import csv
+import os
+
+from af.pipeline.dpo import ProcessData
 
 
 class SommeRProcessData(ProcessData):
