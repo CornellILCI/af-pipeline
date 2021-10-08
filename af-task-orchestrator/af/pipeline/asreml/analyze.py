@@ -132,7 +132,8 @@ class AsremlAnalyze(Analyze):
             metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
 
             # initialize the report workbook
-            utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
+            if not os.path.isfile(self.report_file_path):
+                utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
 
             # write prediction to the analysis report
             analysis_report.write_predictions(self.report_file_path, asreml_result_content.predictions, metadata_df)
