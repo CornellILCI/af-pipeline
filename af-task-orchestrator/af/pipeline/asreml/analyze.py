@@ -1,9 +1,10 @@
 import os
 import subprocess
 import sys
-import pandas as pd
 from datetime import datetime
 from os import path
+
+import pandas as pd
 
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
     file_dir = path.dirname(os.path.realpath(__file__))
@@ -12,7 +13,6 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 
 from af.pipeline import analysis_report, config, dpo, pandasutil, utils
 from af.pipeline.analysis_request import AnalysisRequest
-from af.pipeline.job_data import JobData
 from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services
 from af.pipeline.asreml.dpo import AsremlProcessData
@@ -21,6 +21,7 @@ from af.pipeline.db import services as db_services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import Analysis, Job
 from af.pipeline.exceptions import AnalysisError, DpoException
+from af.pipeline.job_data import JobData
 
 
 class AsremlAnalyze(Analyze):
@@ -131,7 +132,8 @@ class AsremlAnalyze(Analyze):
             metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
 
             # initialize the report workbook
-            utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
+            if not os.path.isfile(self.report_file_path):
+                utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
 
             # write prediction to the analysis report
             analysis_report.write_predictions(self.report_file_path, asreml_result_content.predictions, metadata_df)

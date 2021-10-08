@@ -2,9 +2,8 @@ import io
 import xml.sax
 from datetime import datetime
 
-from af.pipeline.asreml import yhatparser
+from af.pipeline.asreml import stupid_asreml_xml_resolver, yhatparser
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
-from af.pipeline.asreml import stupid_asreml_xml_resolver
 from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
 

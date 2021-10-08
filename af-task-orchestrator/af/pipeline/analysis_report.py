@@ -2,7 +2,6 @@ import pandas as pd
 from af.pipeline import pandasutil, utils
 from af.pipeline.db import services as db_services
 
-
 REQUEST_INFO_SHEET_NAME = "Request Info"
 ENTRY_SHEET_NAME = "Entry"
 LOCATION_SHEET_NAME = "Location"
@@ -124,6 +123,8 @@ def write_entry_predictions(report_file: str, predictions_df: pd.DataFrame, meta
 
     entry_report = entry_report[entry_report_columns]
 
+    entry_report = entry_report.drop_duplicates()
+
     pandasutil.append_df_to_excel(report_file, entry_report, sheet_name=ENTRY_SHEET_NAME)
 
 
@@ -144,6 +145,8 @@ def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, m
     location_report = location_report.merge(location_df, left_on="loc", right_on="location_id")
 
     location_report = location_report[location_report_columns]
+
+    location_report = location_report.drop_duplicates()
 
     pandasutil.append_df_to_excel(report_file, location_report, sheet_name=LOCATION_SHEET_NAME)
 
@@ -174,6 +177,8 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
     )
 
     entry_location_report = entry_location_report[entry_location_report_columns]
+
+    entry_location_report = entry_location_report.drop_duplicates()
 
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
 
