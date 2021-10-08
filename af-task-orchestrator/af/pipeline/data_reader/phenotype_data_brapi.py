@@ -69,7 +69,8 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             plots_data.extend(brapi_response.result.data.copy())
             
-            if plots_header == [] : plots_header = brapi_response.result.headerRow.copy()
+            if plots_header == []:
+                plots_header = brapi_response.result.headerRow.copy()
 
             if germplasm_index == -1:
                 try:
@@ -77,7 +78,6 @@ class PhenotypeDataBrapi(PhenotypeData):
                 except ValueError:
                     germplasm_index = -1
                 
-
         if germplasm_index != -1:
             for row in plots_data:
                 germplasm.append(row[germplasm_index])

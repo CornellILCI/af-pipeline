@@ -40,7 +40,7 @@ class AsremlProcessData(ProcessData):
         metadata_df["location_id"] = occurrence.location_id
         metadata_df["trait_abbreviation"] = trait.abbreviation
 
-        job_folder = self.__get_job_folder(job_name)
+        job_folder = self.get_job_folder(job_name)
 
         metadata_file_path = os.path.join(job_folder, "metadata.tsv")
 
@@ -187,7 +187,7 @@ class AsremlProcessData(ProcessData):
         job_file_name = f"{job_data.job_name}.as"
         data_file_name = f"{job_data.job_name}.csv"
 
-        job_folder = self.__get_job_folder(job_data.job_name)
+        job_folder = self.get_job_folder(job_data.job_name)
 
         job_data.job_file = os.path.join(job_folder, job_file_name)
         job_data.data_file = os.path.join(job_folder, data_file_name)
@@ -209,7 +209,7 @@ class AsremlProcessData(ProcessData):
         job_file_name = f"{job_data.job_name}.as"
         data_file_name = f"{job_data.job_name}.csv"
 
-        job_folder = self.__get_job_folder(job_data.job_name)
+        job_folder = self.get_job_folder(job_data.job_name)
 
         job_data.job_file = os.path.join(job_folder, job_file_name)
         job_data.data_file = os.path.join(job_folder, data_file_name)

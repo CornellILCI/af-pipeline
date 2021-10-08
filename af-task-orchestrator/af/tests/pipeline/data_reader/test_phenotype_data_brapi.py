@@ -70,7 +70,6 @@ class TestPhenotypeDataBrapi(TestCase):
         mock_get.return_value.json = Mock(side_effect=[get_brapi_observation_table_response()])
 
         germplasm, plots_data, plots_header = PhenotypeDataBrapi(api_base_url="http://test").get_observation_units_table("testid")
-
         assert isinstance(germplasm, list) 
         assert isinstance(plots_data, list) 
         assert isinstance(plots_header, list) 

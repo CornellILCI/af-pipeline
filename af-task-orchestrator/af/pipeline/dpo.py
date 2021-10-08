@@ -58,8 +58,7 @@ class ProcessData(ABC):
 
         self.output_folder = analysis_request.outputFolder
 
-
-    def __get_job_folder(self, job_name: str) -> str:
+    def get_job_folder(self, job_name: str) -> str:
 
         job_folder = os.path.join(self.output_folder, job_name)
 
