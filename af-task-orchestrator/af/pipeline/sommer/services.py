@@ -1,4 +1,3 @@
-
 import csv
 from af.pipeline.exceptions import FileParseException
 from af.pipeline.db.models import ModelStat, Prediction
@@ -14,12 +13,13 @@ SOMMER_MODEL_STAT_COLUMNS_TO_DB_COLUMNS = {
     "AIC": "aic",
     "BIC": "bic",
     "Method": "method_id",
-    "Converge": "is_converged"
+    "Converge": "is_converged",
 }
 
 static = ["record", "yhat", "residual", "hat"]
 
-def get_model_stat(job_id: int, model_stat_result_file_path: str): 
+
+def get_model_stat(job_id: int, model_stat_result_file_path: str):
     """
     Creates a Model Stat sqlalchemy object, by parsing the input sommer result file. Model Stat model is already defined in db models.
     """
@@ -32,9 +32,10 @@ def get_model_stat(job_id: int, model_stat_result_file_path: str):
         return model_stat_object
 
     except Exception as exc:
-        raise FileParseException(exc)   
+        raise FileParseException(exc)
 
-def get_prediction(job_id: int, prediction_result_file_path: str):
+
+def get_predictions(job_id: int, prediction_result_file_path: str):
 
     """
     Creates a list of Prediction sqlalchemy objects, by parsing the input sommer result file. Prediction model is already defined in db models.

@@ -1,37 +1,44 @@
-
 from tempfile import NamedTemporaryFile
 
-from af.pipeline.sommer.services import get_prediction, get_model_stat
+from af.pipeline.sommer.services import get_predictions, get_model_stat
 
-pred = "/home/vince/Documents/work/BA-726/output_pred.csv"
-stat_model = "/home/vince/Documents/work/BA-726/output_statmodel.csv"
 
-def test_sommer_services():
-    """
-    """
+"""
+Test get_model_statistics and get_predictions in /af/pipeline/sommer/services.py
+"""
+
+
+def test_get_model_stat():
     id = 1
-    # testing both how many objects, as well as those pred objects
     t = NamedTemporaryFile()
-    ms = "logLik\tAIC\tBIC\tMethod\tConverge\n-397.735837845444\t799.471675690887\t808.840899146223\tNR\tTRUE"
+    ms = "logLik,AIC,BIC,Method,Converge\n-397.735837845444,799.471675690887,-808.840899146223,NR,TRUE"
     t.write(bytes(ms, "UTF-8"))
     t.seek(0)
-    m = get_model_stat(id,t.name)
-    assert m.log_lik == "-397.735837845444"
+    model_stat_object = get_model_stat(id, t.name)
+    assert model_stat_object.log_lik == "-397.735837845444"
+    assert model_stat_object.aic == "799.471675690887"
+    assert model_stat_object.bic == "-808.840899146223"
+    assert model_stat_object.method_id == "NR"
+    assert model_stat_object.is_converged == "TRUE"
+    assert model_stat_object.log_lik != "397.735837845444"
+    assert model_stat_object.aic != "-799.471675690887"
+    assert model_stat_object.bic != "808.840899146223"
+    assert model_stat_object.method_id != ": )"
+    assert model_stat_object.is_converged != "FALSE"
 
-   
+
+def test_get_predictions():
     t = NamedTemporaryFile()
-    string = "trait\tID\tpredicted.value\tstandard.error\nPhenotype\tH1\t62.1888255460774\t1.03460693957888\nPhenotype\tH10\t62.641540901158\t1.00062584891098"
+    string = "trait,ID,predicted.value,standard.error\nPhenotype,H1,62.1888255460774,1.03460693957888\nPhenotype,H10,62.641540901158,1.00062584891098"
     t.write(bytes(string, "UTF-8"))
-    t.seek(0) 
-    x = get_prediction(id,t.name)
-    x2 = x[0]
-    assert x2.value == "62.1888255460774"
-
-
-#   string = ""
-#   t.write(bytes(string, "UTF-8"))
-#   t.seek(0)
-#   print("hi")
-
-
-
+    t.seek(0)
+    prediction_object_list = get_predictions(id, t.name)
+    prediction_object = prediction_object_list[0]
+    assert prediction_object.trait_value == "Phenotype"
+    assert prediction_object.id == "H1"
+    assert prediction_object.value == "62.1888255460774"
+    assert prediction_object.std_error == "1.03460693957888"
+    assert prediction_object.trait_value != "Genotype"
+    assert prediction_object.id != "H2"
+    assert prediction_object.value != "-62.1888255460774"
+    assert prediction_object.std_error != "-1.03460693957888"
