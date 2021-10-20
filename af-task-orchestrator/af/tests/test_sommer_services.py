@@ -1,38 +1,37 @@
-import json
-import io
-from af.pipeline.sommer.services import get_prediction
-from af.pipeline.db.models import Prediction
 
-import os
 from tempfile import NamedTemporaryFile
 
-from af.pipeline.sommer.services import parser
-import pandas as pd
-from pandas._testing import assert_frame_equal
+from af.pipeline.sommer.services import get_prediction, get_model_stat
 
+pred = "/home/vince/Documents/work/BA-726/output_pred.csv"
+stat_model = "/home/vince/Documents/work/BA-726/output_statmodel.csv"
 
 def test_sommer_services():
     """
     """
+    id = 1
+    # testing both how many objects, as well as those pred objects
     t = NamedTemporaryFile()
-    string = ""
-    t.write(bytes(string, "UTF-8"))
+    ms = "logLik\tAIC\tBIC\tMethod\tConverge\n-397.735837845444\t799.471675690887\t808.840899146223\tNR\tTRUE"
+    t.write(bytes(ms, "UTF-8"))
     t.seek(0)
-    print("hi")
+    m = get_model_stat(id,t.name)
+    assert m.log_lik == "-397.735837845444"
 
-    # eg testDf = pd.DataFrame(columns=["record", "yhat", "residual", "hat", "additional_info"])
-
-    # testDf.loc[0] = pd.Series(
-    #     {
-    #         "record": "1",
-    #         "yhat": "6.7272",
-    #         "residual": "-0.5713",
-    #         "hat": "0.04985",
-    #         "additional_info": json.dumps({"RinvRes": 0.009825, "AOMstat": 0.02041}),
-    #     }
-    # )
+   
+    t = NamedTemporaryFile()
+    string = "trait\tID\tpredicted.value\tstandard.error\nPhenotype\tH1\t62.1888255460774\t1.03460693957888\nPhenotype\tH10\t62.641540901158\t1.00062584891098"
+    t.write(bytes(string, "UTF-8"))
+    t.seek(0) 
+    x = get_prediction(id,t.name)
+    x2 = x[0]
+    assert x2.value == "62.1888255460774"
 
 
-    # handler = parser.parse(t.name)
-    # assert_frame_equal(handler.head(2), testDf)
+#   string = ""
+#   t.write(bytes(string, "UTF-8"))
+#   t.seek(0)
+#   print("hi")
+
+
 
