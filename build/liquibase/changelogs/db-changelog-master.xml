@@ -29,4 +29,8 @@
     <include file="changelogs/db-changelog-21.09.xml"/>
     <include file="changesets/21.09/tag/dev-tag.xml"/>
 
+    <!-- 21.10 -->
+    <include file="changelogs/db-changelog-21.10.xml"/>
+    <!--include file="changesets/21.09/tag/dev-tag.xml"/-->
+
   </databaseChangeLog>
