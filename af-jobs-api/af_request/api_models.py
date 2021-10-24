@@ -24,6 +24,7 @@ class AnalysisRequest(BaseModel):
     createdOn: Optional[datetime] = None
     modifiedOn: Optional[datetime] = None
     resultDownloadRelativeUrl: Optional[str] = None
+    configFormulaProperty = None
 
 
 class AnalysisRequestParameters(BaseModel):

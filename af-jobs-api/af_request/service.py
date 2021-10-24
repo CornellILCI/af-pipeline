@@ -6,20 +6,41 @@ from af_request import api_models
 from af_request import models as db_models
 from database import db
 
+from datetime import datetime
 
 def submit(request_data: api_models.AnalysisRequestParameters):
     """Submits analysis request to pipeline."""
 
+    analysis_uuid = str(uuidlib.uuid4()) 
+
     req = db_models.Request(
-        uuid=str(uuidlib.uuid4()),
+        uuid=analysis_uuid,
         institute=request_data.institute,
         crop=request_data.crop,
         type=request_data.analysisType,
         requestor_id=request_data.requestorId,
         status="PENDING",
     )
+    
+    req_data = { 
+        "experiments": request_data.experimentIds,
+        "occurrences": request_data.occurrenceIds,
+        "traits": request_data.traitIds
+    }
 
-    db.session.add(req)
+    analysis = db_models.Analysis(
+        request=req,
+        name=analysis_uuid,
+        creation_timestamp=datetime.utcnow(),
+        status="IN-PROGRESS",
+        formula_id=request_data.configFormulaPropertyId,
+        residual_id=request_data.configResidualPropertyId,
+        exp_loc_pattern_id=request_data.expLocAnalysisPatternPropertyId,
+        model_id=request_data.configFormulaPropertyId,
+        analysis_request_data=req_data
+    )
+    
+    db.session.add(analysis)
     db.session.commit()
 
     celery_util.send_task(

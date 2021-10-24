@@ -89,6 +89,9 @@ def _map_analsysis_request(req):
         modifiedOn=req.modification_timestamp,
         requestorId=req.requestor_id,
     )
+    
+    if req.analyses is not None and len(req.analyses) > 0:
+        req_dto.configFormulaProperty=req.analyses[0].formula
 
     if req.status == Status.DONE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)

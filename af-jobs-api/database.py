@@ -1,13 +1,30 @@
 import datetime
 from dataclasses import dataclass
 
-from flask_sqlalchemy import SessionBase, SignallingSession, SQLAlchemy
+from flask_sqlalchemy import SessionBase, SignallingSession, SQLAlchemy, Model
+import sqlalchemy as sa
 from sqlalchemy.sql import func
 
-# database instance
-db = SQLAlchemy()
+from sqlalchemy.ext.declarative import declared_attr
 
-# models
+
+# Base Model
+class BaseModel(Model):
+
+    __table_args__ = {"schema": "af"}
+
+    id = sa.Column(sa.Integer, primary_key=True)
+    status = sa.Column(sa.String)
+    creation_timestamp = sa.Column(sa.DateTime, server_default=func.now())
+    modification_timestamp = sa.Column(sa.DateTime)
+    creator_id = sa.Column(sa.String)
+    modifier_id = sa.Column(sa.String)
+    is_void = sa.Column(sa.Boolean, default=False)
+    tenant_id = sa.Column(sa.Integer)
+
+
+# database instance
+db = SQLAlchemy(model_class=BaseModel)
 
 
 @dataclass
@@ -22,7 +39,6 @@ class Task(db.Model):
     request_id: int
 
     __tablename__ = "task"
-    __table_args__ = {"schema": "af"}
 
     name = db.Column(db.String)
     time_start = db.Column(db.DateTime)
@@ -31,12 +47,6 @@ class Task(db.Model):
     err_msg = db.Column(db.String)
     processor = db.Column(db.String)
     tenant_id = db.Column(db.Integer, nullable=False)
-    creation_timestamp = db.Column(db.DateTime, server_default=func.now())
-    modification_timestamp = db.Column(db.DateTime)
-    creator_id = db.Column(db.Integer, nullable=False)
-    modifier_id = db.Column(db.Integer)
-    is_void = db.Column(db.Boolean, nullable=False, default=False)
-    id = db.Column(db.Integer, primary_key=True)
     request_id = db.Column(db.Integer, db.ForeignKey("af.request.id"))
     parent_id = db.Column(db.Integer)
 
@@ -67,13 +77,7 @@ class Property(db.Model):
     description = db.Column(db.String)
     type = db.Column(db.String)
     data_type = db.Column(db.String)
-    creation_timestamp = db.Column(db.DateTime)
-    modification_timestamp = db.Column(db.DateTime)
-    creator_id = db.Column(db.String)
-    modifier_id = db.Column(db.String)
-    is_void = db.Column(db.Boolean, nullable=False, default=False)
     tenant_id = db.Column(db.Integer)
-    id = db.Column(db.Integer, primary_key=True)
     statement = db.Column(db.String)
 
     property_configs = db.relationship("PropertyConfig", backref="property", foreign_keys="PropertyConfig.property_id")
@@ -88,13 +92,7 @@ class PropertyConfig(db.Model):
     # TODO:  define columns and Foreign key here
     is_required = db.Column(db.Boolean, default=False)
     order_number = db.Column(db.Integer, default=1)
-    creation_timestamp = db.Column(db.DateTime, server_default=func.now())
-    modification_timestamp = db.Column(db.DateTime)
-    creator_id = db.Column(db.String)
-    modifier_id = db.Column(db.String)
-    is_void = db.Column(db.Boolean, default=False)
     tenant_id = db.Column(db.Integer)
-    id = db.Column(db.Integer, primary_key=True)
     property_id = db.Column(db.Integer, db.ForeignKey("af.property.id"))
     config_property_id = db.Column(db.Integer)
     property_ui_id = db.Column(db.Integer, db.ForeignKey("af.property_ui.id"))
@@ -117,10 +115,4 @@ class PropertyUI(db.Model):
     is_disabled = db.Column(db.Boolean, default=False)
     is_multiple = db.Column(db.Boolean, default=False)
     is_catalogue = db.Column(db.Boolean, default=False)
-    creation_timestamp = db.Column(db.DateTime, server_default=func.now())
-    modification_timestamp = db.Column(db.DateTime)
-    creator_id = db.Column(db.String)
-    modifier_id = db.Column(db.String)
-    is_void = db.Column(db.Boolean, default=False)
     tenant_id = db.Column(db.Integer)
-    id = db.Column(db.Integer, primary_key=True)
