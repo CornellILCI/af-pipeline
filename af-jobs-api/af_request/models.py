@@ -22,11 +22,12 @@ class Request(db.Model):
     method_id = db.Column(db.Integer)
     engine = db.Column(db.String)
     msg = db.Column(db.String)
+    status = db.Column(db.String)
 
     # TODO add the other columns here
     tasks = db.relationship("Task", backref="request", foreign_keys="Task.request_id")
 
-    analyses = db.relationship(Analysis, backref="request")
+    analyses = db.relationship("Analysis", back_populates="request")
 
 
 @dataclass
@@ -37,6 +38,7 @@ class Analysis(db.Model):
     name = db.Column(db.String)
     description = db.Column(db.String)
     request_id = db.Column(db.Integer, db.ForeignKey(Request.id))
+    status = db.Column(db.String)
 
     prediction_id = db.Column(db.Integer, db.ForeignKey(Property.id))
     model_id = db.Column(db.Integer, db.ForeignKey(Property.id))
@@ -49,7 +51,7 @@ class Analysis(db.Model):
     analysis_request_data = db.Column(db.JSON)
     additional_info = db.Column(db.JSON)
 
-    request = db.relationship(Request)
+    request = db.relationship(Request, back_populates="analyses")
 
     # map for all relationships to Property
     prediction = db.relationship(Property, foreign_keys=[prediction_id])

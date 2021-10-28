@@ -14,7 +14,6 @@ class BaseModel(Model):
     __table_args__ = {"schema": "af"}
 
     id = sa.Column(sa.Integer, primary_key=True)
-    status = sa.Column(sa.String)
     creation_timestamp = sa.Column(sa.DateTime, server_default=func.now())
     modification_timestamp = sa.Column(sa.DateTime)
     creator_id = sa.Column(sa.String)
@@ -49,6 +48,7 @@ class Task(db.Model):
     tenant_id = db.Column(db.Integer, nullable=False)
     request_id = db.Column(db.Integer, db.ForeignKey("af.request.id"))
     parent_id = db.Column(db.Integer)
+    status = sa.Column(sa.String)
 
 
 @dataclass

@@ -14,8 +14,38 @@ from common.api_models import (
 from pydantic import BaseModel, Field
 
 
-class AnalysisRequest(BaseModel):
-    requestId: Optional[str] = None
+class AfBaseModel(BaseModel):
+    status: Optional[Status] = None
+    createdOn: Optional[datetime] = None
+    modifiedOn: Optional[datetime] = None
+
+
+class Property(AfBaseModel):
+    propertyId: Optional[str] = None
+    propertyCode: Optional[str] = None
+    propertyName: Optional[str] = None
+    label: Optional[str] = None
+    statement: Optional[str] = None
+    type: Optional[str] = None
+
+
+class Experiment(BaseModel):
+    experimentId: str
+    experimentName: str
+
+
+class Occrrence(BaseModel):
+    occurrenceId: str
+    occurrenceName: str
+
+
+class Trait(BaseModel):
+    traitId: str
+    traitName: str
+
+
+class AnalysisRequest(AfBaseModel):
+    requestId: str = None
     requestorId: Optional[str] = None
     crop: Optional[str] = Field(None, description="Name of the crop")
     institute: Optional[str] = Field(None, description="Name of the institute for which the analysis is submitted.")
@@ -24,7 +54,15 @@ class AnalysisRequest(BaseModel):
     createdOn: Optional[datetime] = None
     modifiedOn: Optional[datetime] = None
     resultDownloadRelativeUrl: Optional[str] = None
-    configFormulaProperty = None
+    analysisObjectiveProperty: Optional[Property] = Field(None, description="Property of analysis objective.")
+    analysisConfigProperty: Optional[Property] = Field(None, description="Property of analysis configuration.")
+    expLocAnalysisPatternProperty: Optional[Property] = Field(
+        None, description="Property of experiment location analysis pattern."
+    )
+    configFormulaProperty: Optional[Property] = Field(None, description="Property of the formula to run the analysis.")
+    configResidualProperty: Optional[Property] = Field(
+        None, description="Property of the residual for the analysis model."
+    )
 
 
 class AnalysisRequestParameters(BaseModel):
@@ -35,9 +73,9 @@ class AnalysisRequestParameters(BaseModel):
     requestorId: Optional[str] = Field(None, description="Id of the user who submits analysis request.")
     institute: Optional[str] = Field(None, description="Name of the institute for which the analysis is submitted.")
     analysisType: Optional[AnalysisType] = AnalysisType.ANALYZE
-    experimentIds: List[str]
-    occurrenceIds: List[str]
-    traitIds: List[str]
+    experiments: List[Experiment]
+    occurrences: List[Occrrence]
+    traits: List[Trait]
     analysisObjectivePropertyId: str = Field(..., description="Property Id of selected analysis objective.")
     analysisConfigPropertyId: str = Field(..., description="Property Id of selected analysis configuration.")
     expLocAnalysisPatternPropertyId: str = Field(

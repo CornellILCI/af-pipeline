@@ -4,7 +4,8 @@ import config
 from af_request import api_models, service
 from common.api_models import Status
 from common.validators import validate_api_request
-from flask import jsonify, request, send_from_directory
+from common.responses import json_response
+from flask import jsonify, request, send_from_directory, make_response
 from flask.blueprints import Blueprint
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
@@ -22,7 +23,7 @@ def post():
 
     submitted_request_dto = _map_analsysis_request(submitted_request)
 
-    return jsonify(submitted_request_dto.dict()), HTTPStatus.CREATED
+    return json_response(submitted_request_dto, HTTPStatus.CREATED)
 
 
 @af_requests_bp.route("", methods=["GET"])
@@ -45,7 +46,7 @@ def list():
         result=api_models.AnalysisRequestListResponseResult(data=_analysis_requests),
     )
 
-    return jsonify(response.dict(exclude_none=True)), HTTPStatus.OK
+    return json_response(response, HTTPStatus.OK)
 
 
 @af_requests_bp.route("/<request_uuid>")
@@ -55,13 +56,13 @@ def get(request_uuid: str):
     try:
         req = service.get_by_id(request_uuid)
         req_dto = api_models.AnalysisRequestResponse(result=_map_analsysis_request(req))
-        return jsonify(req_dto.dict(exclude_none=True)), HTTPStatus.OK
+        return json_response(req_dto, HTTPStatus.OK)
     except NoResultFound:
         error_response = api_models.ErrorResponse(errorMsg="AnalysisRequest not found")
-        return jsonify(error_response.dict()), HTTPStatus.NOT_FOUND
+        return json_response(error_response, HTTPStatus.NOT_FOUND)
     except MultipleResultsFound:
         error_response = api_models.ErrorResponse(errorMsg="Multiple results found")
-        return jsonify(error_response.dict()), HTTPStatus.INTERNAL_SERVER_ERROR
+        return json_response(error_response, HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 @af_requests_bp.route("/<request_uuid>/files/result.zip")
@@ -89,11 +90,32 @@ def _map_analsysis_request(req):
         modifiedOn=req.modification_timestamp,
         requestorId=req.requestor_id,
     )
-    
-    if req.analyses is not None and len(req.analyses) > 0:
-        req_dto.configFormulaProperty=req.analyses[0].formula
+
+    if req.analyses is not None and len(req.analyses) == 1:
+        req_dto.configFormulaProperty = _map_property(req.analyses[0].formula)
+        req_dto.configResidualProperty = _map_property(req.analyses[0].residual)
+        req_dto.
 
     if req.status == Status.DONE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
 
     return req_dto
+
+
+def _map_property(_property):
+
+    if _property is None:
+        return None
+
+    property_dto = api_models.Property(
+        propertyId=_property.id,
+        propertyCode=_property.code,
+        propertyName=_property.name,
+        label=_property.label,
+        statement=_property.statement,
+        type=_property.type,
+        createdOn=_property.creation_timestamp,
+        modifiedOn=_property.modification_timestamp,
+    )
+
+    return property_dto
