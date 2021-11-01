@@ -2,18 +2,18 @@ import csv
 from af.pipeline.exceptions import FileParseException
 from af.pipeline.db.models import ModelStat, Prediction
 
-SOMMER_PREDICTION_COLUMNS_TO_DB_COLUMNS = {
-    "trait": "trait_value",
-    "ID": "id",
-    "predicted.value": "value",
-    "standard.error": "std_error",
-}
 SOMMER_MODEL_STAT_COLUMNS_TO_DB_COLUMNS = {
     "logLik": "log_lik",
     "AIC": "aic",
     "BIC": "bic",
     "Method": "method_id",
     "Converge": "is_converged",
+}
+SOMMER_PREDICTION_COLUMNS_TO_DB_COLUMNS = {
+    "trait": "trait_value",
+    "ID": "id",
+    "predicted.value": "value",
+    "standard.error": "std_error",
 }
 
 static = ["record", "yhat", "residual", "hat"]

@@ -180,6 +180,7 @@ class TestPhenotypeDataEbs(TestCase):
         plot_measurements_result = PhenotypeDataEbs(api_base_url="http://test").get_plot_measurements("testid")
 
         # assert dataframe is returned
+        print(plot_measurements_result)
         assert isinstance(plot_measurements_result, pd.DataFrame)
 
         plot_measurements_result = plot_measurements_result[plot_measurements_expected.columns]

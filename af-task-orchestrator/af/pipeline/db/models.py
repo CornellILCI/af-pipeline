@@ -197,7 +197,6 @@ class Variance(Base):
 class ModelStat(Base):
     __tablename__ = "model_stat"
     __table_args__ = {"schema": "af"}
-
     id = Column(Integer, primary_key=True)
 
     log_lik = Column(DOUBLE_PRECISION)  # double precision,
@@ -213,6 +212,7 @@ class ModelStat(Base):
     job_id = Column(Integer)
     conclusion = Column(String(500))
     is_converged = Column(Boolean, default=False)
+    method_id = Column(Integer)
 
 
 class Prediction(Base):
@@ -223,6 +223,7 @@ class Prediction(Base):
 
     value = Column(Float)
     std_error = Column(Float)
+    trait_value = Column(DOUBLE_PRECISION)
     e_code = Column(String)
     ci95_upper = Column(Float)
     ci95_lower = Column(Float)
