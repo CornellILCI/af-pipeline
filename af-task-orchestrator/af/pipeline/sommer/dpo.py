@@ -13,15 +13,24 @@ class SommeRProcessData(ProcessData):
         return f"{self.analysis_request.requestId}"
 
     def __prepare_inputfile_csv(self) -> dict:
-        germplasm, plot_data, headers = self.data_reader.get_observation_units_table()
 
+        # there can be multiple experiments
+        experiment_ids = self.analysis_request.experimentIds
         job_folder = self.get_job_folder(self.__get_job_name())
         data_file = os.path.join(job_folder, f"{self.__get_job_name()}.csv")
+        headers_written = False
         with open(data_file, "w") as f:
             writer = csv.writer(f)
-            writer.writerow(headers)
-            for data in plot_data:
-                writer.writerow(data)
+        
+            for exp_id in experiment_ids:
+                germplasm, plot_data, headers = self.data_reader.get_observation_units_table(
+                    occurence_id=exp_id
+                )
+                if not headers_written:
+                    writer.writerow(headers)
+                    headers_written = True
+                for data in plot_data:
+                    writer.writerow(data)
 
         return {"job_name": self.__get_job_name(), "data_file": data_file}
 
