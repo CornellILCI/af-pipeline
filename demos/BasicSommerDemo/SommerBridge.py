@@ -10,10 +10,10 @@ data = {}
 
 data['rep'] = 1
 data['grm'] = here+"/Input/GRM.txt"
-data['phenofounders'] = here+"/Input/Phenofounders2.csv"
+data['input_phenotypic_data'] = here+"/Input/Phenofounders2.csv"
 
-data['Phenotype'] = "~rep"
-data['random'] = "~vs(ID, Gu=A)"
+data['fixed'] = "Phenotype~rep" #"{trait_name}~rep" trait_name is the column in the 
+data['random'] = "~ID" #"~vs(ID, Gu=A)"
 data['rcov'] = "~ units"
 
 

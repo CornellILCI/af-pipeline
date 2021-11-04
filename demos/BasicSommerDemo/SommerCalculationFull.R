@@ -26,7 +26,7 @@ print(jsonInput)
 # nChrom <- if("nChrom" %in% names(jsonInput)) jsonInput$nChrom else 10                       # number of chromosomes
 # nLoci <- if("nLoci" %in% names(jsonInput)) jsonInput$nLoci else 100                         # number of loci per chromosome
 stopifnot(
-    "phenofounders" %in% names(jsonInput),
+    "input_phenotypic_data" %in% names(jsonInput),
     "grm" %in% names(jsonInput),
     "output_var" %in% names(jsonInput),
     "output_statmodel" %in% names(jsonInput),
@@ -34,12 +34,12 @@ stopifnot(
     "output_pred" %in% names(jsonInput),
     "output_yhat" %in% names(jsonInput),
     "output_outliers" %in% names(jsonInput),
-    "Phenotype" %in% names(jsonInput),
+    "fixed" %in% names(jsonInput),
     "random" %in% names(jsonInput),
     "rcov" %in% names(jsonInput)
 )
 
-phenofounders <- if("phenofounders" %in% names(jsonInput)) jsonInput$phenofounders else ''
+input_phenotypic_data <- if("input_phenotypic_data" %in% names(jsonInput)) jsonInput$input_phenotypic_data else ''
 grm <- if("grm" %in% names(jsonInput)) jsonInput$grm else ''
 output <- if("output" %in% names(jsonInput)) jsonInput$output else ''
 
@@ -52,7 +52,7 @@ library(sommer)
 library(gtools)
 
 # Phenofounders <- read.csv('/Users/sb2597/Documents/TestPythonToR/Sommer ILCI code/Phenofounders.csv', header=T)
-Phenofounders <- read.csv(phenofounders, header=T)
+Phenofounders <- read.csv(input_phenotypic_data, header=T)
 
 head(Phenofounders)
 # A <- read.table('/Users/sb2597/Documents/TestPythonToR/Sommer ILCI code/GRM.txt', header = T)
@@ -62,15 +62,18 @@ A[1:10,1:10]
 Phenofounders$ID <- colnames(A) ## this is just to make the ID of the phenotype data and the row/column name on the GRM are the same
 #Phenofounders$rep <- rep
 
-mix1 <- mmer(Phenotype~rep,
-             random=~vs(ID, Gu=A),	     #ID is the ID of the hybrids
-             rcov=~ units,		             #this is for the residuals and its always 'units'
-             data=Phenofounders)
+# mix1 <- mmer(Phenotype~rep,
+#              random=~vs(ID, Gu=A),	     #ID is the ID of the hybrids
+#              rcov=~ units,		             #this is for the residuals and its always 'units'
+#              data=Phenofounders)
+
+# mix1 <- mmer(fixed = jsonImput$fixed,
+#              random =~vs(ID, Gu=A),	     #ID is the ID of the hybrids
+#              rcov =~ units,		             #this is for the residuals and its always 'units'
+#              data = Phenofounders)
 
 
-
-
-sommerModel <-paste("mix1 <- mmer(Phenotype", jsonInput$Phenotype, ",\n", 
+sommerModel <-paste("mix1 <- mmer(fixed=", jsonInput$fixed, ",\n", 
           "random=", jsonInput$random, ",\n", 
           "rcov=", jsonInput$rcov, ",\n",
           "data=Phenofounders)",
