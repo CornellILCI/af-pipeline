@@ -7,7 +7,7 @@ from af_request.views import af_requests_bp
 
 from api import create_app
 
-from .factories import AnalysisRequestParametersFacotry, BaseFactory, RequestFactory
+from .factories import AnalysisRequestParametersFacotry, BaseFactory, RequestFactory, AnalysisFactory
 from .factories import db as _db
 
 TEST_DATABASE_URI = "sqlite://"
@@ -97,7 +97,6 @@ def af_request(session):
 def af_requests(session):
     RequestFactory._meta.sqlalchemy_session = session
     requests = [RequestFactory(), RequestFactory()]
-    session.commit()
     return requests
 
 

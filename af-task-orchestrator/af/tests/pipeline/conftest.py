@@ -24,7 +24,7 @@ def get_json_resource(testfile, json_file_name):
 
 
 def get_test_analysis_request():
-    from af.pipeline.analysis_request import AnalysisRequest
+    from af.pipeline.analysis_request import AnalysisRequest, Experiment, Occurrence, Trait
 
     output_folder = tempfile.TemporaryDirectory()
     analysis_request = AnalysisRequest(
@@ -32,9 +32,12 @@ def get_test_analysis_request():
         dataSource="EBS",
         dataSourceUrl="http://test.org",
         dataSourceAccessToken="",
-        experimentIds=[""],
-        occurrenceIds=["1", "2"],
-        traitIds=["1"],
+        experiments=[Experiment(experimentId="1", experimentName="name1")],
+        occurrences=[
+            Occurrence(occurrenceId="1", occurrenceName="occur1"),
+            Occurrence(occurrenceId="2", occurrenceName="occur2")
+        ],
+        traits=[Trait(traitId="1", traitName="trait1")],
         analysisObjectivePropertyId="1",
         analysisConfigPropertyId="1",
         expLocAnalysisPatternPropertyId="1",

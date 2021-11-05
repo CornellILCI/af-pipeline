@@ -13,6 +13,11 @@ def test_query(session, af_requests):
     # Filter by requestor id and expect 1 result
     expected_request = af_requests[0]
 
+    print(expected_request.requestor_id)
+    print(expected_request.uuid)
+    print(af_requests[1].requestor_id)
+    print(af_requests[1].uuid)
+
     query_params = api_models.AnalysisRequestListQueryParameters(requestorId=expected_request.requestor_id)
 
     test_requests = service.query(query_params)
@@ -29,6 +34,7 @@ def test_get_by_id(session, af_request):
 
     from af_request import service
 
+    print(af_request)
     test_request = service.get_by_id(af_request.uuid)
 
     assert test_request.id == af_request.id

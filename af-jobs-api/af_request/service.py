@@ -23,9 +23,9 @@ def submit(request_data: api_models.AnalysisRequestParameters):
     )
     
     req_data = { 
-        "experiments": request_data.experimentIds,
-        "occurrences": request_data.occurrenceIds,
-        "traits": request_data.traitIds
+        "experiments": [experiment.dict() for experiment in request_data.experiments],
+        "occurrences": [occurrence.dict() for occurrence in request_data.occurrences],
+        "traits": [trait.dict() for trait in request_data.traits]
     }
 
     analysis = db_models.Analysis(
@@ -39,17 +39,16 @@ def submit(request_data: api_models.AnalysisRequestParameters):
         model_id=request_data.configFormulaPropertyId,
         analysis_request_data=req_data
     )
-    
-    db.session.add(analysis)
-    db.session.commit()
+    with db.session.begin(): 
+        db.session.add(analysis)
 
-    celery_util.send_task(
-        process_name="analyze",
-        args=(
-            req.uuid,
-            json.loads(request_data.json()),
-        ),
-    )
+        celery_util.send_task(
+            process_name="analyze",
+            args=(
+                req.uuid,
+                json.loads(request_data.json()),
+            ),
+        )
 
     return req
 

@@ -94,7 +94,6 @@ def _map_analsysis_request(req):
     if req.analyses is not None and len(req.analyses) == 1:
         req_dto.configFormulaProperty = _map_property(req.analyses[0].formula)
         req_dto.configResidualProperty = _map_property(req.analyses[0].residual)
-        req_dto.
 
     if req.status == Status.DONE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
