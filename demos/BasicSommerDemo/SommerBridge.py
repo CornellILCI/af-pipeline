@@ -24,6 +24,7 @@ data['output_BV'] = here+"/Output/BVs.csv"
 data['output_pred'] = here+"/Output/pvs.csv"
 data['output_yhat'] = here+"/Output/Yhat.csv"
 data['output_outliers'] = here+"/Output/outliers.csv"
+data['raw_analysis_out'] = here+"/Output/out.rds"
 
 os.system("echo "+here)
 #creates a json file

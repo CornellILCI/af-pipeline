@@ -36,7 +36,8 @@ stopifnot(
     "output_outliers" %in% names(jsonInput),
     "fixed" %in% names(jsonInput),
     "random" %in% names(jsonInput),
-    "rcov" %in% names(jsonInput)
+    "rcov" %in% names(jsonInput),
+    "raw_analysis_out" %in% names(jsonInput)
 )
 
 input_phenotypic_data <- if("input_phenotypic_data" %in% names(jsonInput)) jsonInput$input_phenotypic_data else ''
@@ -83,6 +84,10 @@ eval(parse( text=sommerModel ))
 
 
 summary_model <- summary(mix1)
+
+#we should possibly store the results from the whole run:
+saveRDS(mix1, ".rds")
+# mix1 = readRDS("out.rds")
 
 #asr
 variances <- as.data.frame(summary_model$varcomp)
