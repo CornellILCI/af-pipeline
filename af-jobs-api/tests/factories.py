@@ -75,8 +75,8 @@ class AnalysisFactory(CreationModificationBaseFactory):
     exp_loc_pattern_id = factory.Faker("pyint", min_value=1)
     analysis_objective_id = factory.Faker("pyint", min_value=1)
 
-    analysis_request_data = factory.Faker("pydict", nb_elements=2)
-    additional_info = factory.Faker("pydict", nb_elements=2)
+    analysis_request_data = factory.Faker("pydict", nb_elements=2, value_types=[str])
+    additional_info = factory.Faker("pydict", nb_elements=2, value_types=[str])
 
     request = factory.SubFactory(RequestFactory, uuid=factory.SelfAttribute("..request_id"))
 

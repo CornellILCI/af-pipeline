@@ -54,8 +54,8 @@ def get(request_uuid: str):
     """Get the request object identified by the request_uuid url param."""
 
     try:
-        req = service.get_by_id(request_uuid)
-        req_dto = api_models.AnalysisRequestResponse(result=_map_analsysis_request(req))
+        analysis = service.get_by_id(request_uuid)
+        req_dto = api_models.AnalysisRequestResponse(result=_map_analsysis(analysis))
         return json_response(req_dto, HTTPStatus.OK)
     except NoResultFound:
         error_response = api_models.ErrorResponse(errorMsg="AnalysisRequest not found")
@@ -76,6 +76,30 @@ def download_result(request_uuid: str):
         config.get_analysis_request_folder(request_uuid), "result.zip", as_attachment=True, download_name=download_name
     )
 
+
+def _map_analsysis(analysis):
+    """Maps the db result to the Result model."""
+
+    req = analysis.request
+    req_dto = api_models.AnalysisRequest(
+        requestId=req.uuid,
+        crop=req.crop,
+        institute=req.institute,
+        analysisType=req.type,
+        status=req.status,
+        createdOn=req.creation_timestamp,
+        modifiedOn=req.modification_timestamp,
+        requestorId=req.requestor_id,
+    )
+
+    if req.analyses is not None and len(req.analyses) == 1:
+        req_dto.configFormulaProperty = _map_property(analysis.formula)
+        req_dto.configResidualProperty = _map_property(analysis.residual)
+
+    if req.status == Status.DONE:
+        req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
+
+    return req_dto
 
 def _map_analsysis_request(req):
     """Maps the db result to the Result model."""

@@ -5,6 +5,8 @@ from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, St
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+import datetime
+
 # workaround to get pytest to work with sqlite
 if os.getenv("env") == "testing":
     from sqlalchemy import Float as DOUBLE_PRECISION
@@ -20,8 +22,8 @@ class BaseMixin(object):
 
     id = Column(Integer, primary_key=True)
 
-    creation_timestamp = Column(DateTime)
-    modification_timestamp = Column(DateTime)
+    creation_timestamp = Column(DateTime, default=datetime.datetime.now())
+    modification_timestamp = Column(DateTime, default=datetime.datetime.now())
     creator_id = Column(String)
     modifier_id = Column(String)
     is_void = Column(Boolean, default=False)

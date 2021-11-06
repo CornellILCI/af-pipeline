@@ -7,7 +7,7 @@ from af_request.views import af_requests_bp
 
 from api import create_app
 
-from .factories import AnalysisRequestParametersFacotry, BaseFactory, RequestFactory, AnalysisFactory
+from .factories import AnalysisRequestParametersFacotry, BaseFactory, RequestFactory, AnalysisFactory, PropertyFactory
 from .factories import db as _db
 
 TEST_DATABASE_URI = "sqlite://"
@@ -87,10 +87,12 @@ def client(session, app, db):
 
 
 @pytest.fixture
-def af_request(session):
+def analysis(session):
+    AnalysisFactory._meta.sqlalchemy_session = session
     RequestFactory._meta.sqlalchemy_session = session
-    request = RequestFactory()
-    return request
+    PropertyFactory._meta.sqlalchemy_session = session 
+    analysis = AnalysisFactory()
+    return analysis
 
 
 @pytest.fixture

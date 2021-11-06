@@ -13,11 +13,6 @@ def test_query(session, af_requests):
     # Filter by requestor id and expect 1 result
     expected_request = af_requests[0]
 
-    print(expected_request.requestor_id)
-    print(expected_request.uuid)
-    print(af_requests[1].requestor_id)
-    print(af_requests[1].uuid)
-
     query_params = api_models.AnalysisRequestListQueryParameters(requestorId=expected_request.requestor_id)
 
     test_requests = service.query(query_params)
@@ -30,16 +25,24 @@ def test_query(session, af_requests):
     assert len(test_requests) == 0
 
 
-def test_get_by_id(session, af_request):
+def test_get_by_id(session, analysis):
 
     from af_request import service
 
-    print(af_request)
-    test_request = service.get_by_id(af_request.uuid)
+    actual_analysis = service.get_by_id(analysis.request.uuid)
 
-    assert test_request.id == af_request.id
-    assert test_request.uuid == af_request.uuid
+    assert analysis.id == actual_analysis.id
+    assert analysis.request.uuid == actual_analysis.request.uuid
 
+def test_get_by_id_formula_fetched(session, analysis):
+
+    from af_request import service
+
+    actual_analysis = service.get_by_id(analysis.request.uuid)
+
+    assert analysis.formula.id == analysis.formula.id
+    assert analysis.formula.name == analysis.formula.name
+    assert analysis.formula.statement == analysis.formula.statement
 
 def test_submit(session, af_request_parameters, celery_send_task):
 

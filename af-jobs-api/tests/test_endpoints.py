@@ -2,7 +2,7 @@ import json
 import uuid
 
 import pytest
-from af_request.models import Request
+from af_request.models import Request, Analysis
 
 ## fixture area
 # sample request data
@@ -130,7 +130,9 @@ def test_get_analysis_type(client, session):
 def test_get_request_found(client, db, session):
     test_id = str(uuid.uuid4())
     request = Request(uuid=test_id)
-    db.session.add(request)
+
+    analysis = Analysis(request=request)
+    db.session.add(analysis)
     db.session.commit()
 
     resp = client.get(f"/v1/requests/{test_id}")

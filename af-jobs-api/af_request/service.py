@@ -87,6 +87,9 @@ def query(query_params: api_models.AnalysisRequestListQueryParameters):
 
 def get_by_id(request_id: str):
 
-    analysis_request = db_models.Request.query.filter(db_models.Request.uuid == request_id).one()
+    analysis_request = (
+        db_models.Analysis.query.join(db_models.Request)
+            .filter(db_models.Request.uuid == request_id).one()
+        )
 
     return analysis_request

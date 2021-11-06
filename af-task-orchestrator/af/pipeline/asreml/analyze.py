@@ -50,16 +50,16 @@ class AsremlAnalyze(Analyze):
             self.db_session, request_id=self._analysis_request.id, name=analysis_request.requestId
         )
 
-        if not self.analysis:
-            # Create DB record for Analysis
-            self.analysis = Analysis(
-                request_id=self._analysis_request.id,
-                name=analysis_request.requestId,
-                creation_timestamp=datetime.utcnow(),
-                status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
-            )
+        #if not self.analysis:
+        #    # Create DB record for Analysis
+        #    self.analysis = Analysis(
+        #        request_id=self._analysis_request.id,
+        #        name=analysis_request.requestId,
+        #        creation_timestamp=datetime.utcnow(),
+        #        status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
+        #    )
 
-            self.analysis = db_services.add(self.db_session, self.analysis)
+        #    self.analysis = db_services.add(self.db_session, self.analysis)
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
         self.report_file_path = path.join(analysis_request.outputFolder, "report.xlsx")
