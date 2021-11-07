@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from database import db, Property
+from database import Property, db
 from sqlalchemy.sql import func
 
 

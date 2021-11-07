@@ -46,7 +46,7 @@ class StatusReportingTask(celery.Task):
 
         if self.af_task:
             self.af_task.err_msg = str(exc)
-
+            self.af_request.msg = str(exc)
 
 class ResultReportingTask(StatusReportingTask):
     def on_success(self, retval, task_id, args, kwargs):

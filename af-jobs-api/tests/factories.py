@@ -1,14 +1,14 @@
 import uuid
 from datetime import datetime
 
-from af_request import api_models, models
-from database import db
-from database import Property
 import factory
+from af_request import api_models, models
+from database import Property, db
 from factory import Factory, LazyAttribute, Sequence, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyText
 from pytz import UTC
+
 
 class BaseFactory(SQLAlchemyModelFactory):
     """Base Factory"""
@@ -32,8 +32,8 @@ class RequestFactory(CreationModificationBaseFactory):
     uuid = factory.Faker("uuid4")
     type = "ANALYZE"
     institute = factory.Faker("pystr", min_chars=7, max_chars=7)
-    crop = factory.Faker('pystr', min_chars=5, max_chars=5)
-    status = factory.Faker("word", ext_word_list=["PENDING", "IN_PROGRESS", "DONE", "FAILURE"])
+    crop = factory.Faker("pystr", min_chars=5, max_chars=5)
+    status = factory.Faker("word", ext_word_list=["PENDING", "IN-PROGRESS", "DONE", "FAILURE"])
     requestor_id = factory.Faker("pystr", min_chars=7, max_chars=7)
     is_void = False
     engine = factory.Faker("pystr", min_chars=7, max_chars=7)
@@ -65,7 +65,7 @@ class AnalysisFactory(CreationModificationBaseFactory):
     name = factory.Faker("pystr", min_chars=5, max_chars=5)
     description = factory.Faker("text", max_nb_chars=16)
     request_id = factory.Faker("pyint", min_value=1)
-    status = factory.Faker("word", ext_word_list=["PENDING", "IN_PROGRESS", "DONE", "FAILURE"])
+    status = factory.Faker("word", ext_word_list=["PENDING", "IN-PROGRESS", "DONE", "FAILURE"])
 
     prediction_id = factory.Faker("pyint", min_value=1)
     model_id = factory.Faker("pyint", min_value=1)

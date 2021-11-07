@@ -33,11 +33,43 @@ def get_request(db_session, request_id) -> Request:
 
 
 def get_analysis_by_request_and_name(db_session, request_id, name):
-    return db_session.query(Analysis).filter(Analysis.request_id == request_id, Analysis.name == name).first()
+    return (
+        db_session
+            .query(Analysis)
+            .join(Request)
+            .filter(Analysis.request_id == request_id, Analysis.name == name)
+            .first()
+    )
 
 
 def get_job_by_name(db_session, job_name) -> Job:
     return db_session.query(Job).filter(Job.name == job_name).one()
+
+
+def get_new_job(self, job_name: str, status: str, status_message: str) -> Job:
+
+    job_start_time = datetime.utcnow()
+    job = Job(
+        analysis_id=self.analysis.id,
+        name=job_name,
+        time_start=job_start_time,
+        creation_timestamp=job_start_time,
+        status=status,
+        status_message=status_message,
+    )
+
+    job = db_services.add(self.db_session, job)
+
+    return job
+
+def update_job(self, job: Job, status: str, status_message: str):
+
+    job.status = status
+    job.status_message = status_message
+    job.time_end = datetime.utcnow()
+    job.modification_timestamp = datetime.utcnow()
+
+    return job
 
 
 def get_analysis_config_properties(db_session, analysis_config_id: str, property_code: str) -> list[Property]:

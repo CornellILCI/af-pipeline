@@ -1,11 +1,10 @@
 import datetime
 from dataclasses import dataclass
 
-from flask_sqlalchemy import SessionBase, SignallingSession, SQLAlchemy, Model
 import sqlalchemy as sa
-from sqlalchemy.sql import func
-
+from flask_sqlalchemy import Model, SessionBase, SignallingSession, SQLAlchemy
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.sql import func
 
 
 # Base Model

@@ -3,9 +3,9 @@ from http import HTTPStatus
 import config
 from af_request import api_models, service
 from common.api_models import Status
-from common.validators import validate_api_request
 from common.responses import json_response
-from flask import jsonify, request, send_from_directory, make_response
+from common.validators import validate_api_request
+from flask import jsonify, make_response, request, send_from_directory
 from flask.blueprints import Blueprint
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
@@ -19,9 +19,9 @@ def post():
 
     request_data = api_models.AnalysisRequestParameters(**request.json)
 
-    submitted_request = service.submit(request_data)
+    submitted_analysis_request = service.submit(request_data)
 
-    submitted_request_dto = _map_analsysis_request(submitted_request)
+    submitted_request_dto = _map_analsysis(submitted_analysis_request)
 
     return json_response(submitted_request_dto, HTTPStatus.CREATED)
 
@@ -33,17 +33,17 @@ def list():
 
     query_params = api_models.AnalysisRequestListQueryParameters(**request.args)
 
-    analysis_requests = service.query(query_params)
+    analyses = service.query(query_params)
 
     # DTOs for api response
-    _analysis_requests = []
+    analysis_request_dtos = []
 
-    for analysis_request in analysis_requests:
-        _analysis_requests.append(_map_analsysis_request(analysis_request))
+    for analysis in analyses:
+        analysis_request_dtos.append(_map_analsysis(analysis))
 
     response = api_models.AnalysisRequestListResponse(
         metadata=api_models.create_metadata(query_params.page, query_params.pageSize),
-        result=api_models.AnalysisRequestListResponseResult(data=_analysis_requests),
+        result=api_models.AnalysisRequestListResponseResult(data=analysis_request_dtos),
     )
 
     return json_response(response, HTTPStatus.OK)
@@ -90,34 +90,15 @@ def _map_analsysis(analysis):
         createdOn=req.creation_timestamp,
         modifiedOn=req.modification_timestamp,
         requestorId=req.requestor_id,
+        statusMessage=req.msg
     )
 
     if req.analyses is not None and len(req.analyses) == 1:
+        req_dto.analysisObjectiveProperty = _map_property(analysis.analysis_objective)
+        req_dto.analysisConfigProperty = _map_property(analysis.model)
+        req_dto.expLocAnalysisPatternProperty = _map_property(analysis.exp_loc_pattern)
         req_dto.configFormulaProperty = _map_property(analysis.formula)
         req_dto.configResidualProperty = _map_property(analysis.residual)
-
-    if req.status == Status.DONE:
-        req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
-
-    return req_dto
-
-def _map_analsysis_request(req):
-    """Maps the db result to the Result model."""
-
-    req_dto = api_models.AnalysisRequest(
-        requestId=req.uuid,
-        crop=req.crop,
-        institute=req.institute,
-        analysisType=req.type,
-        status=req.status,
-        createdOn=req.creation_timestamp,
-        modifiedOn=req.modification_timestamp,
-        requestorId=req.requestor_id,
-    )
-
-    if req.analyses is not None and len(req.analyses) == 1:
-        req_dto.configFormulaProperty = _map_property(req.analyses[0].formula)
-        req_dto.configResidualProperty = _map_property(req.analyses[0].residual)
 
     if req.status == Status.DONE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)

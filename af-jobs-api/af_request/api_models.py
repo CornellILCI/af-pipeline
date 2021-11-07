@@ -51,6 +51,7 @@ class AnalysisRequest(AfBaseModel):
     institute: Optional[str] = Field(None, description="Name of the institute for which the analysis is submitted.")
     analysisType: Optional[AnalysisType] = None
     status: Optional[Status] = None
+    statusMessage: Optional[str] = None
     createdOn: Optional[datetime] = None
     modifiedOn: Optional[datetime] = None
     resultDownloadRelativeUrl: Optional[str] = None

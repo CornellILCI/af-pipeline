@@ -2,7 +2,7 @@ import json
 import uuid
 
 import pytest
-from af_request.models import Request, Analysis
+from af_request.models import Analysis, Request
 
 ## fixture area
 # sample request data
@@ -127,18 +127,98 @@ def test_get_analysis_type(client, session):
     assert len(respBody["response"]) > 0
 
 
-def test_get_request_found(client, db, session):
-    test_id = str(uuid.uuid4())
-    request = Request(uuid=test_id)
+def test_get_request_found(client, db, session, analysis):
 
-    analysis = Analysis(request=request)
-    db.session.add(analysis)
-    db.session.commit()
-
-    resp = client.get(f"/v1/requests/{test_id}")
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
 
     assert resp.status_code == 200
 
+
+def test_get_by_id_formula_fetched(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content["result"]
+
+    assert "configFormulaProperty" in result
+    assert result.get("configFormulaProperty").get("propertyId") == str(analysis.formula.id)
+
+
+def test_get_by_id_analysis_objective_fetched(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content["result"]
+
+    assert "analysisObjectiveProperty" in result
+    assert result.get("analysisObjectiveProperty").get("propertyId") == str(analysis.analysis_objective.id)
+
+
+def test_get_by_id_analysis_config_fetched(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content["result"]
+
+    assert "analysisConfigProperty" in result
+    assert result.get("analysisConfigProperty").get("propertyId") == str(analysis.model.id)
+
+
+def test_get_by_id_exploc_property_fetched(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content["result"]
+
+    assert "expLocAnalysisPatternProperty" in result
+    assert result.get("expLocAnalysisPatternProperty").get("propertyId") == str(analysis.exp_loc_pattern.id)
+
+
+def test_get_by_id_residual_fetched(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content["result"]
+
+    assert "configResidualProperty" in result
+    assert result.get("configResidualProperty").get("propertyId") == str(analysis.residual.id)
+
+def test_get_by_id_status_message(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content.get("result")
+
+    assert "statusMessage" in result
+
+def test_get_by_id_status_message_mapped(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content.get("result")
+
+    assert result.get("statusMessage") == analysis.request.msg
 
 def test_get_property(client, db, session):
     resp = client.get("/v1/properties")
