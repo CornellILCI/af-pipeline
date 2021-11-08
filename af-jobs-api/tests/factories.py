@@ -59,6 +59,22 @@ class PropertyFactory(CreationModificationBaseFactory):
         model = Property
 
 
+class JobFactory(Factory):
+
+    id = factory.Faker("pyint", min_value=1)
+    name = factory.Faker("pystr", min_chars=5, max_chars=5)
+    time_start = factory.Faker("pystr", min_chars=5, max_chars=5)
+    time_end = factory.Faker("pystr", min_chars=5, max_chars=5)
+    output_path = factory.Faker("pystr", min_chars=5, max_chars=5)
+    analysis_id = factory.Faker("pyint", min_value=1)
+
+    status = factory.Faker("word", ext_word_list=["PENDING", "IN-PROGRESS", "DONE", "FAILURE"])
+    status_message = factory.Faker("text")
+
+    class Meta:
+        model = models.Job
+
+
 class AnalysisFactory(CreationModificationBaseFactory):
 
     id = factory.Faker("pyint", min_value=1)
@@ -79,6 +95,11 @@ class AnalysisFactory(CreationModificationBaseFactory):
     additional_info = factory.Faker("pydict", nb_elements=2, value_types=[str])
 
     request = factory.SubFactory(RequestFactory, uuid=factory.SelfAttribute("..request_id"))
+
+    @factory.post_generation
+    def jobs(obj, create, extracted, **kwargs):
+        obj.jobs.append(JobFactory(analysis_id=obj.id))
+        obj.jobs.append(JobFactory(analysis_id=obj.id))
 
     # map for all relationships to Property
     prediction = factory.SubFactory(PropertyFactory, id=factory.SelfAttribute("..prediction_id"))

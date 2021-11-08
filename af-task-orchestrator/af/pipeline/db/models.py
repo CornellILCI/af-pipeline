@@ -49,6 +49,8 @@ class Request(BaseMixin, Base):
     status = Column(String)
     msg = Column(String)
 
+    analyses = relationship("Analysis", back_populates="request")
+
     # TODO add the other columns here
     tasks = relationship("Task", backref="request")
 
@@ -74,11 +76,13 @@ class Analysis(BaseMixin, Base):
 
     name = Column(String)
     description = Column(String)
-    request_id = Column(Integer)
+    request_id = Column(Integer, ForeignKey(Request.id))
     prediction_id = Column(Integer)
     status = Column(String)
     tenant_id = Column(Integer)
     model_id = Column(Integer)
+    
+    request = relationship(Request, back_populates="analyses")  
     
     jobs = relationship("Job", back_populates="analysis")  
 
@@ -174,13 +178,15 @@ class ModelStat(BaseMixin, Base):
 class PredictionEffect(BaseMixin, Base):
 
     __tablename__ = "prediction_effect"
+    
+    job_id = Column(Integer)
 
     value = Column(Float)
     
     std_error = Column(Float)
     e_code = Column(String)
 
-    factor = Column(JSON)
+    factor = Column(JSON, default={})
 
     effect = Column(Numeric, default=0)
     se_effect = Column(Numeric, default=0)

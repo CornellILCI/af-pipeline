@@ -51,6 +51,11 @@ class Status(str, Enum):
     DONE = "DONE"
     FAILURE = "FAILURE"
 
+    # non standard status, not being used anymore
+    FAILED = "FAILED"
+    COMPLETED = "COMPLETED"
+    SUCCESS = "SUCCESS"
+
 
 class DataSource(str, Enum):
     EBS = "EBS"

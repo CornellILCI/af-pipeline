@@ -32,6 +32,23 @@ def test_get_by_id(session, analysis):
     assert analysis.id == actual_analysis.id
     assert analysis.request.uuid == actual_analysis.request.uuid
 
+def test_get_analysis_by_id_jobs_from_same_analysis(session, analysis):
+
+    from af_request import service
+
+    actual_analysis = service.get_by_id(analysis.request.uuid)
+
+    assert analysis.jobs[0].analysis_id == analysis.id
+
+
+def test_get_analysis_by_id_has_jobs(session, analysis):
+
+    from af_request import service
+
+    actual_analysis = service.get_by_id(analysis.request.uuid)
+
+    assert len(analysis.jobs) > 0
+
 
 def test_submit(session, af_request_parameters, celery_send_task):
 

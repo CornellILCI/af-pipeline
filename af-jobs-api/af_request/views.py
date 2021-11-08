@@ -102,6 +102,19 @@ def _map_analsysis(analysis):
 
     if req.status == Status.DONE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
+    
+    req_dto.jobs = []
+    for job in analysis.jobs:
+        req_dto.jobs.append(
+            api_models.Job(
+                jobId=job.id,
+                jobName=job.name,
+                status=job.status,
+                statusMessage=job.status_message,
+                startTime=job.time_start,
+                endTime=job.time_end
+            )
+        )
 
     return req_dto
 

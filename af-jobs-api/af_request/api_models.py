@@ -44,6 +44,17 @@ class Trait(BaseModel):
     traitName: str
 
 
+class Job(AfBaseModel):
+
+    jobId: str = None
+    jobName: Optional[str] = None
+    status: Optional[Status] = None
+    statusMessage: Optional[str] = None
+    
+    startTime: Optional[str] = None
+    endTime: Optional[str] = None
+    
+
 class AnalysisRequest(AfBaseModel):
     requestId: str = None
     requestorId: Optional[str] = None
@@ -52,6 +63,7 @@ class AnalysisRequest(AfBaseModel):
     analysisType: Optional[AnalysisType] = None
     status: Optional[Status] = None
     statusMessage: Optional[str] = None
+    jobs: Optional[List[Job]] = None
     createdOn: Optional[datetime] = None
     modifiedOn: Optional[datetime] = None
     resultDownloadRelativeUrl: Optional[str] = None
