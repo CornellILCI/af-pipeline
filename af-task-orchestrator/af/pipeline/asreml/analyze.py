@@ -139,7 +139,9 @@ class AsremlAnalyze(Analyze):
             analysis_report.write_predictions(self.report_file_path, asreml_result_content.predictions, metadata_df)
 
             # write model statisics to analysis report
-            analysis_report.write_model_stat(self.report_file_path, asreml_result_content.model_stat, metadata_df)
+            rename_keys = {"log_lik": "LogL"}
+            analysis_report.write_model_stat(
+                self.report_file_path, asreml_result_content.model_stat, metadata_df, rename_keys)
 
             # parse yhat result and save to db
             yhat_file_path = path.join(job_result.job_result_dir, f"{job.name}_yht.txt")
