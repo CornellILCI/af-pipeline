@@ -54,4 +54,4 @@ class ResultReportingTask(StatusReportingTask):
         # TODO:  determine if this task is a terminal task
         # if yes, then set the af_request status to DONE
         if self.af_request:
-            self.afdb_service.update_request_status(self.af_request, "DONE")
+            self.afdb_service.update_request_status(self.af_request, "DONE", "Request completed successfully.")
