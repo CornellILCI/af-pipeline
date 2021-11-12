@@ -1,0 +1,36 @@
+{ 
+   "metadata": { 
+      "id": "22rowcol-sesl-5wsp-idar-1yld00000000_SA_0000", 
+      "category": "Analysis", 
+      "type": "Phenotypic Analysis", 
+      "engine": "ASReml-4", 
+      "timestamp": "", 
+      "requestorId": "", 
+      "organization_code": "IRRI", 
+      "crop": "RICE", 
+      "program": "", 
+      "pipeline": "" 
+   }, 
+   "data": { 
+      "experiment_id": [ 
+         "800216" 
+      ] 
+      "occurrence_id": [ 
+         "10" 
+      ] 
+      "trait_id": [ 
+         "1" 
+      ] 
+   }, 
+   "parameters": { 
+      "analysisObjective": 1, 
+      "trait_analysis_pattern": 1, 
+      "exptloc_analysis_pattern": 1, 
+      "configFile": "config_00005", 
+      "formula": 5, 
+      "residual": 4, 
+      "prediction": [ 
+         1 
+      ] 
+   } 
+}

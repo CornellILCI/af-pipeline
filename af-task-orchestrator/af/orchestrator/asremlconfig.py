@@ -4,6 +4,4 @@ import os
 broker_url = os.getenv("BROKER")
 result_backend = os.getenv("BACKEND")
 
-imports = (
-    "af.orchestrator.processing.analyze.asreml_tasks"
-)
+imports = "af.orchestrator.processing.analyze.asreml_tasks"

@@ -30,30 +30,34 @@ def analyze(request_id: str, request_params):
 
 @app.task(name="pre_process", base=StatusReportingTask)
 def pre_process(request_id, analysis_request):
-    analyze_object = pipeline_analyze.Analyze(analysis_request)
+    analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
     input_files = analyze_object.pre_process()
-    engine = analyze_object.get_engine()
+    # engine = analyze_object.get_engine_script()
 
     results = []  # results initially empty
-    args = request_id, analysis_request, input_files, results, engine
-    app.send_task('run_analyze', args=args, queue="ASREML")
+    args = request_id, analysis_request, input_files, results
+    app.send_task("run_analyze", args=args, queue="ASREML")
 
 
 @app.task(name="post_process", base=StatusReportingTask)
-def post_process(request_id, analysis_request, results):
+def post_process(request_id, analysis_request, results, gathered_objects=None):
+
     result, results = results[0], results[1:]
-    job_name = result["job_name"]
 
-    _ = pipeline_analyze.Analyze(analysis_request).process_job_result(job_name, result)
+    if gathered_objects is None:
+        gathered_objects = {}
 
+    analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
+    gathered_objects = analyze_object.process_job_result(result, gathered_objects)
+    
     # process the results here
     if not results:
-        done_analyze.delay(request_id)
+        done_analyze.delay(request_id, analysis_request, gathered_objects)
     else:
-        post_process.delay(request_id, analysis_request, results)
+        post_process.delay(request_id, analysis_request, results, gathered_objects)
 
 
 @app.task(name="done_analyze", base=ResultReportingTask)
-def done_analyze(request_id):
+def done_analyze(request_id, analysis_request, gathered_objects):
     # this is the terminal task to report DONE in tasks
-    pass  # trigger ResultReportingTask success event handler
+    _ = pipeline_analyze.get_analyze_object(analysis_request).finalize(gathered_objects)

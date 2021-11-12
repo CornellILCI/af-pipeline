@@ -5,7 +5,6 @@ from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, St
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-
 # workaround to get pytest to work with sqlite
 if os.getenv("env") == "testing":
     from sqlalchemy import Float as DOUBLE_PRECISION
@@ -195,10 +194,10 @@ class Variance(Base):
     job_id = Column(Integer)
 
 
+
 class ModelStat(Base):
     __tablename__ = "model_stat"
     __table_args__ = {"schema": "af"}
-
     id = Column(Integer, primary_key=True)
 
     log_lik = Column(DOUBLE_PRECISION)  # double precision,
@@ -214,6 +213,7 @@ class ModelStat(Base):
     job_id = Column(Integer)
     conclusion = Column(String(500))
     is_converged = Column(Boolean, default=False)
+    method_id = Column(Integer)
 
 
 class Prediction(Base):
@@ -224,6 +224,7 @@ class Prediction(Base):
 
     value = Column(Float)
     std_error = Column(Float)
+    trait_value = Column(DOUBLE_PRECISION)
     e_code = Column(String)
     ci95_upper = Column(Float)
     ci95_lower = Column(Float)
@@ -236,6 +237,8 @@ class Prediction(Base):
     job_stat_factor_id = Column(Integer)
 
     additional_info = Column(JSON, nullable=True)
+
+
 
 
 class FittedValues(Base):
@@ -257,7 +260,7 @@ class FittedValues(Base):
     creator_id = Column(Integer, nullable=False)
     modifier_id = Column(Integer)
     is_void = Column(Boolean, nullable=False, default=False)
-    
+
     job_id = Column(Integer)
     additional_info = Column(JSON, nullable=True)
     # TODO add ref to job

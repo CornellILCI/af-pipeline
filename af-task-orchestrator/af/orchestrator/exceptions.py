@@ -1,6 +1,7 @@
 class DataReaderException(Exception):
     pass
 
+
 class DataSourceNotAvailableError(Exception):
     pass
 
@@ -11,6 +12,7 @@ class MissingTaskParameter(Exception):
 
 class DataTypeNotAvailableError(Exception):
     pass
+
 
 class YhatNotAvailableError(Exception):
     pass

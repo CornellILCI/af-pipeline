@@ -19,13 +19,17 @@ def get_brapi_observation_units_response():
 
 
 def get_brapi_observations_response():
-    """ returns a mock brapi response for observation units """
+    """returns a mock brapi response for observation units"""
     return get_json_resource(__file__, "brapi_observations_mock_response.json")
 
 
 def get_brapi_studies_response():
-    """ returns a mock brapi response for studies """
+    """returns a mock brapi response for studies"""
     return get_json_resource(__file__, "brapi_studies_mock_response.json")
+
+def get_brapi_observation_table_response():
+    """returns a mock brapi response for observation units."""
+    return get_json_resource(__file__, "brapi_observations_table_mock_response.json")
 
 
 # def get_search_result_dbid
@@ -70,6 +74,34 @@ class TestPhenotypeDataBrapi(TestCase):
         plots_result_df = plots_result_df[plots_test_df.columns]
 
         assert_frame_equal(plots_result_df, plots_test_df.astype(str))
+
+    @patch("af.pipeline.data_reader.data_reader.requests.get")
+    def test_get_plots_table(self, mock_get):
+
+        mock_get.return_value.status_code = 200
+
+        mock_get.return_value.json = Mock(side_effect=[get_brapi_observation_table_response()])
+
+        germplasm, plots_data, plots_header = PhenotypeDataBrapi(api_base_url="http://test").get_observation_units_table("testid")
+
+        assert isinstance(germplasm, list) 
+        assert isinstance(plots_data, list) 
+        assert isinstance(plots_header, list) 
+
+    @patch("af.pipeline.data_reader.data_reader.requests.get")
+    def test_get_genotype(self, mock_get):
+
+        mock_get.return_value.status_code = 200
+
+        mock_get.return_value.json = Mock(side_effect=[get_brapi_observation_table_response()])
+
+        germplasm, plots_data, plots_header = PhenotypeDataBrapi(api_base_url="http://test").get_observation_units_table("testid")
+
+        assert isinstance(germplasm, list) 
+        assert isinstance(plots_data, list) 
+        assert isinstance(plots_header, list) 
+
+
 
     @patch("af.pipeline.data_reader.data_reader.requests.get")
     def test_get_plots_with_pages(self, mock_get):

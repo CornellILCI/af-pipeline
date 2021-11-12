@@ -10,7 +10,7 @@ services:
     image: postgres:9.6-alpine
     restart: always
     ports:
-      - 5432:5432
+      - "5432:5432"
     volumes:
       - type: volume
         source: afdb_volume
@@ -19,7 +19,8 @@ services:
         source: ./postgres
         target: /docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
 
   rabbitmq:
     hostname: rabbitmq
@@ -28,8 +29,8 @@ services:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=mypass
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - 5672
+      - 15672
   
   api:
     build:
@@ -41,7 +42,7 @@ services:
     environment:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672
-      - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
+      - AFDB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/afdb
       - AFAPI_ALLOWABLE_ORIGINS=*
       - BA_DATA_DIR=/data/
     restart: always
@@ -62,7 +63,7 @@ services:
       - C_FORCE_ROOT=true
       - BROKER=amqp://admin:mypass@rabbitmq:5672
       - BACKEND=rpc://
-      - AFDB_URL=postgresql://postgres:postgres@database:5432/afdb
+      - AFDB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/afdb
       - BA_DATA_DIR=/data/
       - ASREML_ACTIVATION_CODE=${ASREML_ACTIVATION_CODE}
       - ASREML_SEATS=${ASREML_SEATS}
@@ -82,20 +83,7 @@ services:
         source: ./db
         target: /db/
     working_dir: /db/build/liquibase/
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
     command: ./wait_for_postgres_then_init.sh
-      
-
-
-  # beat:
-  #   build:
-  #     context: ./orchestrator
-  #     dockerfile: Dockerfile
-  #   image: *img
-  #   command: [celery, beat, --app=worker.app, --loglevel=INFO]
-  #   depends_on:
-  #     - rabbitmq
-  #   restart: 'no'
-  #   volumes:
-  #     - ./app:/app
-      
-  
