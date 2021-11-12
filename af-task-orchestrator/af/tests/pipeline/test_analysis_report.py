@@ -120,7 +120,7 @@ def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
             [1, "testtrait", 1, "loc1", 1, 1.4],
         ],
     )
-    
+
     assert_frame_equal(output_location_report, expected_location_report, check_dtype=False)
 
     # assert entry x location report

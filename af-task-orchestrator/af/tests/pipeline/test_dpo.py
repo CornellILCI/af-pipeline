@@ -111,11 +111,7 @@ class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_property")
     @patch("af.pipeline.data_reader.DataReaderFactory.get_phenotype_data")
     def test_dpo_seml_filter(
-        self,
-        mock_phenotype_ebs,
-        mock_get_property,
-        mock_get_analysis_fields,
-        mock_get_analysis_config_properties
+        self, mock_phenotype_ebs, mock_get_property, mock_get_analysis_fields, mock_get_analysis_config_properties
     ):
 
         test_request = get_test_analysis_request()
@@ -162,16 +158,24 @@ class TestProcessData(TestCase):
         )
 
         phenotype_data_ebs_instance.get_plots.side_effect = mock_plots
-        
+
         mock_occurrences = [
             Occurrence(
-                occurrence_id=1, occurrence_name="occur_1",
-                experiment_id="1", experiment_name="experiment1",
-                location_id=1, location="loc1"),
+                occurrence_id=1,
+                occurrence_name="occur_1",
+                experiment_id="1",
+                experiment_name="experiment1",
+                location_id=1,
+                location="loc1",
+            ),
             Occurrence(
-                occurrence_id=2, occurrence_name="occur_2",
-                experiment_id="1", experiment_name="experiment1",
-                location_id=1, location="loc1")
+                occurrence_id=2,
+                occurrence_name="occur_2",
+                experiment_id="1",
+                experiment_name="experiment1",
+                location_id=1,
+                location="loc1",
+            ),
         ]
         phenotype_data_ebs_instance.get_occurrence.side_effect = mock_occurrences
 
@@ -199,7 +203,7 @@ class TestProcessData(TestCase):
         phenotype_data_ebs_instance.get_trait.side_effect = mock_traits
 
         mock_phenotype_ebs.return_value = phenotype_data_ebs_instance
-        
+
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         exploc_analysis_pattern.code = "SEML"
 
@@ -239,11 +243,7 @@ class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_property")
     @patch("af.pipeline.data_reader.DataReaderFactory.get_phenotype_data")
     def test_dpo_sesl_filter(
-        self,
-        mock_phenotype_ebs,
-        mock_get_property,
-        mock_get_analysis_fields,
-        mock_get_analysis_config_properties
+        self, mock_phenotype_ebs, mock_get_property, mock_get_analysis_fields, mock_get_analysis_config_properties
     ):
 
         test_request = get_test_analysis_request()
@@ -291,16 +291,24 @@ class TestProcessData(TestCase):
         )
 
         phenotype_data_ebs_instance.get_plots.side_effect = mock_plots
-        
+
         mock_occurrences = [
             Occurrence(
-                occurrence_id=1, occurrence_name="occur_1",
-                experiment_id="1", experiment_name="experiment1",
-                location_id=1, location="loc1"),
+                occurrence_id=1,
+                occurrence_name="occur_1",
+                experiment_id="1",
+                experiment_name="experiment1",
+                location_id=1,
+                location="loc1",
+            ),
             Occurrence(
-                occurrence_id=2, occurrence_name="occur_2",
-                experiment_id="1", experiment_name="experiment1",
-                location_id=1, location="loc1")
+                occurrence_id=2,
+                occurrence_name="occur_2",
+                experiment_id="1",
+                experiment_name="experiment1",
+                location_id=1,
+                location="loc1",
+            ),
         ]
         phenotype_data_ebs_instance.get_occurrence.side_effect = mock_occurrences
 
@@ -368,7 +376,7 @@ class TestProcessData(TestCase):
             get_asreml_option(),
             get_tabulate(),
         ]
-        
+
         dpo_object = dpo.AsremlProcessData(test_request)
         results = dpo_object.run()
 
@@ -390,17 +398,12 @@ class TestProcessData(TestCase):
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_2_contents)
 
-    
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
     @patch("af.pipeline.db.services.get_property")
     @patch("af.pipeline.data_reader.DataReaderFactory.get_phenotype_data")
     def test_dpo_format_filter(
-        self,
-        mock_phenotype_ebs,
-        mock_get_property,
-        mock_get_analysis_fields,
-        mock_get_analysis_config_properties
+        self, mock_phenotype_ebs, mock_get_property, mock_get_analysis_fields, mock_get_analysis_config_properties
     ):
 
         test_request = get_test_analysis_request()
@@ -436,15 +439,17 @@ class TestProcessData(TestCase):
             )
         )
 
-
-
         phenotype_data_ebs_instance.get_plots.side_effect = mock_plots
-        
+
         mock_occurrences = [
             Occurrence(
-                occurrence_id=1, occurrence_name="occur_1",
-                experiment_id="1", experiment_name="experiment1",
-                location_id=1, location="loc1")
+                occurrence_id=1,
+                occurrence_name="occur_1",
+                experiment_id="1",
+                experiment_name="experiment1",
+                location_id=1,
+                location="loc1",
+            )
         ]
         phenotype_data_ebs_instance.get_occurrence.side_effect = mock_occurrences
 
@@ -457,7 +462,7 @@ class TestProcessData(TestCase):
                 columns=plot_measurements_columns,
                 data=[
                     [2909, 1, "B", 6.155850575],
-                ]
+                ],
             )
         )
 
@@ -468,10 +473,7 @@ class TestProcessData(TestCase):
         mock_traits.append(Trait(**test_trait))
         phenotype_data_ebs_instance.get_trait.side_effect = mock_traits
 
-        expected_data_file_1_contents = (
-            "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
-            "1,1,1,2909,1,1,1,NA\n"
-        )
+        expected_data_file_1_contents = "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n" "1,1,1,2909,1,1,1,NA\n"
 
         mock_phenotype_ebs.return_value = phenotype_data_ebs_instance
 
@@ -492,7 +494,7 @@ class TestProcessData(TestCase):
             get_asreml_option(),
             get_tabulate(),
         ]
-        
+
         dpo_object = dpo.AsremlProcessData(test_request)
         results = dpo_object.run()
 

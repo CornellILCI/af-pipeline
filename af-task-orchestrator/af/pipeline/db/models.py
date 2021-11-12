@@ -194,7 +194,6 @@ class Variance(Base):
     job_id = Column(Integer)
 
 
-
 class ModelStat(Base):
     __tablename__ = "model_stat"
     __table_args__ = {"schema": "af"}
@@ -237,8 +236,6 @@ class Prediction(Base):
     job_stat_factor_id = Column(Integer)
 
     additional_info = Column(JSON, nullable=True)
-
-
 
 
 class FittedValues(Base):

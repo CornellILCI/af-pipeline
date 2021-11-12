@@ -8,7 +8,7 @@ app = create_app(
     {
         "SQLALCHEMY_DATABASE_URI": os.getenv("AFDB_URL"),
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-        "SQLALCHEMY_ENGINE_OPTIONS": {"pool_pre_ping" : True}
+        "SQLALCHEMY_ENGINE_OPTIONS": {"pool_pre_ping": True},
     }
 )
 

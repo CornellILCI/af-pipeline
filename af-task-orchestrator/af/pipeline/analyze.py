@@ -35,7 +35,7 @@ class Analyze(abc.ABC):
         should be returned by this method.
 
         TODO:  Assess other analysis (sommeR) if this really needs to be abstract.
-    
+
         """
         pass
 

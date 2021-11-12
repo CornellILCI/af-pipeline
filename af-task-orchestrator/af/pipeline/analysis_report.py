@@ -209,7 +209,7 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     model_stats_df["trait_abbreviation"] = ",".join(metadata_df.trait_abbreviation.drop_duplicates().astype(str))
 
     model_stats_df = model_stats_df.rename(columns=rename_map)
-    
+
     model_stats_df = pandasutil.df_keep_columns(model_stats_df, model_stats_report_columns)
 
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)

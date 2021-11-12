@@ -1,6 +1,7 @@
 import csv
-from af.pipeline.exceptions import FileParseException
+
 from af.pipeline.db.models import ModelStat, Prediction
+from af.pipeline.exceptions import FileParseException
 
 SOMMER_PREDICTION_COLUMNS_TO_DB_COLUMNS = {
     "trait": "trait_value",

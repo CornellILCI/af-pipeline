@@ -196,11 +196,11 @@ class AsremlProcessData(ProcessData):
         plots_and_measurements[["trait_value"]] = plots_and_measurements[["trait_value"]].fillna(
             config.UNIVERSAL_UNKNOWN
         )
-        
+
         trait_qc = plots_and_measurements.trait_qc
-        
-        #rename 
-        plots_and_measurements.loc[trait_qc == 'B','trait_value'] = "NA"
+
+        # rename
+        plots_and_measurements.loc[trait_qc == "B", "trait_value"] = "NA"
 
         # map trait value column to trait name
         input_fields_to_config_fields["trait_value"] = trait.abbreviation
@@ -328,7 +328,8 @@ class AsremlProcessData(ProcessData):
 
     def _get_asreml_option(self):
         asreml_options = services.get_analysis_config_properties(
-            self.db_session, self.analysis_request.analysisConfigPropertyId, "asrmel_options")
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "asrmel_options"
+        )
         if len(asreml_options) > 0:
             return asreml_options[0]
         else:
@@ -336,7 +337,8 @@ class AsremlProcessData(ProcessData):
 
     def _get_tabulate(self):
         tabulate = services.get_analysis_config_properties(
-            self.db_session, self.analysis_request.analysisConfigPropertyId, "tabulate")
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "tabulate"
+        )
         if len(tabulate) > 0:
             return tabulate[0]
         else:
@@ -344,7 +346,8 @@ class AsremlProcessData(ProcessData):
 
     def _get_analysis_field_lines(self):
         analysis_fields = services.get_analysis_config_module_fields(
-            self.db_session, self.analysis_request.analysisConfigPropertyId)
+            self.db_session, self.analysis_request.analysisConfigPropertyId
+        )
         if len(analysis_fields) == 0:
             raise DpoException("No Analysis fields found.")
         for field in analysis_fields:
@@ -358,16 +361,17 @@ class AsremlProcessData(ProcessData):
     def _get_predictions(self):
 
         predictions = []
-        
+
         if len(self.analysis_request.configPredictionPropertyIds) == 0:
             predictions = services.get_analysis_config_properties(
-                self.db_session, self.analysis_request.analysisConfigPropertyId, 'prediction')
+                self.db_session, self.analysis_request.analysisConfigPropertyId, "prediction"
+            )
         else:
             for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
                 predictions.append(services.get_property(self.db_session, prediction_property_id))
-        
+
         return predictions
-    
+
     def run(self):
         """Pre process input data before inputing into analytical engine.
 
