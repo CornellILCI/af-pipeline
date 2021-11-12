@@ -90,7 +90,7 @@ def _map_analsysis(analysis):
         createdOn=req.creation_timestamp,
         modifiedOn=req.modification_timestamp,
         requestorId=req.requestor_id,
-        statusMessage=req.msg
+        statusMessage=req.msg,
     )
 
     if req.analyses is not None and len(req.analyses) == 1:
@@ -102,7 +102,7 @@ def _map_analsysis(analysis):
 
     if req.status == Status.DONE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
-    
+
     req_dto.jobs = []
     for job in analysis.jobs:
         req_dto.jobs.append(
@@ -112,7 +112,7 @@ def _map_analsysis(analysis):
                 status=job.status,
                 statusMessage=job.status_message,
                 startTime=job.time_start,
-                endTime=job.time_end
+                endTime=job.time_end,
             )
         )
 

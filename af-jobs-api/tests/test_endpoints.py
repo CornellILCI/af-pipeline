@@ -198,6 +198,7 @@ def test_get_by_id_residual_fetched(client, session, analysis):
     assert "configResidualProperty" in result
     assert result.get("configResidualProperty").get("propertyId") == str(analysis.residual.id)
 
+
 def test_get_by_id_status_message_mapped(client, session, analysis):
 
     from af_request import service
@@ -208,6 +209,7 @@ def test_get_by_id_status_message_mapped(client, session, analysis):
     result = resp_content.get("result")
 
     assert "statusMessage" in result
+
 
 def test_get_by_id_status_message_content(client, session, analysis):
 
@@ -220,6 +222,7 @@ def test_get_by_id_status_message_content(client, session, analysis):
 
     assert result.get("statusMessage") == analysis.request.msg
 
+
 def test_get_by_id_jobs_found(client, session, analysis):
 
     from af_request import service
@@ -228,8 +231,9 @@ def test_get_by_id_jobs_found(client, session, analysis):
 
     resp_content = resp.get_json()
     result = resp_content.get("result")
-    
+
     assert "jobs" in result
+
 
 def test_get_by_id_jobs_mapped(client, session, analysis):
 
@@ -239,11 +243,12 @@ def test_get_by_id_jobs_mapped(client, session, analysis):
 
     resp_content = resp.get_json()
     result = resp_content.get("result")
-    
+
     jobs = result.get("jobs")
     job1 = jobs[0]
 
     assert str(analysis.jobs[0].id) == job1.get("jobId")
+
 
 def test_get_property(client, db, session):
     resp = client.get("/v1/properties")

@@ -1,8 +1,8 @@
+from datetime import datetime
+
 from af.pipeline.db.models import Analysis, Job, Property, PropertyConfig, PropertyMeta, Request
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
-
-from datetime import datetime
 
 # TODO: Catch database exceptions, mainly NoResultFounException
 

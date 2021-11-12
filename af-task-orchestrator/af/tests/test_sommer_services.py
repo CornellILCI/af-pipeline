@@ -1,7 +1,6 @@
 from tempfile import NamedTemporaryFile
 
-from af.pipeline.sommer.services import get_predictions, get_model_stat
-
+from af.pipeline.sommer.services import get_model_stat, get_predictions
 
 """
 Test get_model_statistics and get_predictions in /af/pipeline/sommer/services.py

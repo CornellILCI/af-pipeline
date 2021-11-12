@@ -52,7 +52,7 @@ class Analysis(db.Model):
     additional_info = db.Column(db.JSON)
 
     request = db.relationship(Request, back_populates="analyses")
-    
+
     jobs = db.relationship("Job", back_populates="analysis")
 
     # map for all relationships to Property
@@ -64,6 +64,7 @@ class Analysis(db.Model):
     exp_loc_pattern = db.relationship(Property, foreign_keys=[exp_loc_pattern_id])
     analysis_objective = db.relationship(Property, foreign_keys=[analysis_objective_id])
 
+
 @dataclass
 class Job(db.Model):
 
@@ -74,9 +75,8 @@ class Job(db.Model):
     time_end = db.Column(db.String)
     output_path = db.Column(db.String)
     status = db.Column(db.String)
-    status_message =  db.Column(db.String)
-    
+    status_message = db.Column(db.String)
+
     analysis_id = db.Column(db.Integer, db.ForeignKey(Analysis.id))
 
-    analysis = db.relationship(Analysis, back_populates="jobs") 
-    
+    analysis = db.relationship(Analysis, back_populates="jobs")

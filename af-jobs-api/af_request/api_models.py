@@ -50,10 +50,10 @@ class Job(AfBaseModel):
     jobName: Optional[str] = None
     status: Optional[Status] = None
     statusMessage: Optional[str] = None
-    
+
     startTime: Optional[str] = None
     endTime: Optional[str] = None
-    
+
 
 class AnalysisRequest(AfBaseModel):
     requestId: str = None

@@ -32,6 +32,7 @@ def test_get_by_id(session, analysis):
     assert analysis.id == actual_analysis.id
     assert analysis.request.uuid == actual_analysis.request.uuid
 
+
 def test_get_analysis_by_id_jobs_from_same_analysis(session, analysis):
 
     from af_request import service

@@ -35,7 +35,7 @@ def get_test_analysis_request():
         experiments=[Experiment(experimentId="1", experimentName="name1")],
         occurrences=[
             Occurrence(occurrenceId="1", occurrenceName="occur1"),
-            Occurrence(occurrenceId="2", occurrenceName="occur2")
+            Occurrence(occurrenceId="2", occurrenceName="occur2"),
         ],
         traits=[Trait(traitId="1", traitName="trait1")],
         analysisObjectivePropertyId="1",
@@ -44,7 +44,7 @@ def get_test_analysis_request():
         configFormulaPropertyId="1",
         configResidualPropertyId="1",
         outputFolder="test",
-        configPredictionPropertyIds=["19"]
+        configPredictionPropertyIds=["19"],
     )
     return analysis_request
 

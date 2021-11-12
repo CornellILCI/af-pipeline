@@ -1,6 +1,7 @@
 from af.pipeline.data_reader.models.enums import DataSource
 from pydantic import BaseModel, conlist
 
+
 class Experiment(BaseModel):
     experimentId: str
     experimentName: str
@@ -14,7 +15,6 @@ class Occurrence(BaseModel):
 class Trait(BaseModel):
     traitId: str
     traitName: str
-
 
 
 class AnalysisRequest(BaseModel):

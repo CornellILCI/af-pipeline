@@ -1,11 +1,10 @@
+import datetime
 import os
 
 from af.pipeline.db.core import Base
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Numeric
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-
-import datetime
 
 # workaround to get pytest to work with sqlite
 if os.getenv("env") == "testing":
@@ -81,10 +80,10 @@ class Analysis(BaseMixin, Base):
     status = Column(String)
     tenant_id = Column(Integer)
     model_id = Column(Integer)
-    
-    request = relationship(Request, back_populates="analyses")  
-    
-    jobs = relationship("Job", back_populates="analysis")  
+
+    request = relationship(Request, back_populates="analyses")
+
+    jobs = relationship("Job", back_populates="analysis")
 
 
 class Job(BaseMixin, Base):
@@ -100,7 +99,7 @@ class Job(BaseMixin, Base):
     status_message = Column(String)
     tenant_id = Column(Integer)
 
-    analysis = relationship(Analysis, back_populates="jobs") 
+    analysis = relationship(Analysis, back_populates="jobs")
 
 
 class Property(BaseMixin, Base):
@@ -179,11 +178,11 @@ class ModelStat(BaseMixin, Base):
 class PredictionEffect(BaseMixin, Base):
 
     __tablename__ = "prediction_effect"
-    
+
     job_id = Column(Integer)
 
     value = Column(Float)
-    
+
     std_error = Column(Float)
     trait_value = Column(DOUBLE_PRECISION)
     e_code = Column(String)
@@ -194,7 +193,7 @@ class PredictionEffect(BaseMixin, Base):
     se_effect = Column(Numeric, default=0)
 
     tenant_id = Column(Integer, nullable=False)
-    
+
     is_void = Column(Boolean, nullable=False, default=False)
 
     additional_info = Column(JSON, nullable=True)

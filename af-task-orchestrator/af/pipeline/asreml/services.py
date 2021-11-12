@@ -43,7 +43,7 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
         model_stat.creation_timestamp = datetime.utcnow()
 
         session.add(model_stat)
-        
+
         # TODO: Tables need to be restructured
         if model_stat.is_converged:
             _save_variances(session, ch.variances)

@@ -25,6 +25,7 @@ def get_brapi_studies_response():
     """returns a mock brapi response for studies"""
     return get_json_resource(__file__, "brapi_studies_mock_response.json")
 
+
 def get_brapi_observation_table_response():
     """returns a mock brapi response for observation units."""
     return get_json_resource(__file__, "brapi_observations_table_mock_response.json")
@@ -69,11 +70,13 @@ class TestPhenotypeDataBrapi(TestCase):
 
         mock_get.return_value.json = Mock(side_effect=[get_brapi_observation_table_response()])
 
-        germplasm, plots_data, plots_header = PhenotypeDataBrapi(api_base_url="http://test").get_observation_units_table("testid")
+        germplasm, plots_data, plots_header = PhenotypeDataBrapi(
+            api_base_url="http://test"
+        ).get_observation_units_table("testid")
 
-        assert isinstance(germplasm, list) 
-        assert isinstance(plots_data, list) 
-        assert isinstance(plots_header, list) 
+        assert isinstance(germplasm, list)
+        assert isinstance(plots_data, list)
+        assert isinstance(plots_header, list)
 
     @patch("af.pipeline.data_reader.data_reader.requests.get")
     def test_get_genotype(self, mock_get):
@@ -82,13 +85,13 @@ class TestPhenotypeDataBrapi(TestCase):
 
         mock_get.return_value.json = Mock(side_effect=[get_brapi_observation_table_response()])
 
-        germplasm, plots_data, plots_header = PhenotypeDataBrapi(api_base_url="http://test").get_observation_units_table("testid")
+        germplasm, plots_data, plots_header = PhenotypeDataBrapi(
+            api_base_url="http://test"
+        ).get_observation_units_table("testid")
 
-        assert isinstance(germplasm, list) 
-        assert isinstance(plots_data, list) 
-        assert isinstance(plots_header, list) 
-
-
+        assert isinstance(germplasm, list)
+        assert isinstance(plots_data, list)
+        assert isinstance(plots_header, list)
 
     @patch("af.pipeline.data_reader.data_reader.requests.get")
     def test_get_plots_with_pages(self, mock_get):
