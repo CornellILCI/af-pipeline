@@ -86,7 +86,7 @@ eval(parse( text=sommerModel ))
 summary_model <- summary(mix1)
 
 #we should possibly store the results from the whole run:
-saveRDS(mix1, ".rds")
+saveRDS(mix1, jsonInput$raw_analysis_out)
 # mix1 = readRDS("out.rds")
 
 #asr
