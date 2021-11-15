@@ -24,7 +24,7 @@ class SommeRProcessData(ProcessData):
         
             for exp_id in experiment_ids:
                 germplasm, plot_data, headers = self.data_reader.get_observation_units_table(
-                    occurence_id=exp_id
+                    occurrence_id=exp_id
                 )
                 if not headers_written:
                     writer.writerow(headers)
@@ -36,5 +36,5 @@ class SommeRProcessData(ProcessData):
 
     def run(self):
         """Preprocess input data for SommeR Analysis"""
-
         return [self.__prepare_inputfile_csv()]
+

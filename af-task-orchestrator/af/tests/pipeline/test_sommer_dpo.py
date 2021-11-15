@@ -37,3 +37,4 @@ def test_sommer_dpo_simple_test(mocker, dbsession, brapi_observation_table_api_r
     assert entry is not None
     assert entry["job_name"] == "test-request-id"
     assert entry["data_file"] == "/tmp/test-request-id/test-request-id.csv"
+

@@ -166,6 +166,11 @@ class AsremlProcessData(ProcessData):
         plots_and_measurements[["trait_value"]] = plots_and_measurements[["trait_value"]].fillna(
             config.UNIVERSAL_UNKNOWN
         )
+        
+        trait_qc = plots_and_measurements.trait_qc
+        
+        #rename 
+        plots_and_measurements.loc[trait_qc == 'B','trait_value'] = "NA"
 
         # map trait value column to trait name
         input_fields_to_config_fields["trait_value"] = trait.abbreviation
@@ -326,6 +331,7 @@ class AsremlProcessData(ProcessData):
     def _get_predictions(self):
 
         predictions = []
+        
         if len(self.analysis_request.configPredictionPropertyIds) == 0:
             predictions = services.get_analysis_config_properties(
                 self.db_session, self.analysis_request.analysisConfigPropertyId, "prediction"
@@ -333,7 +339,7 @@ class AsremlProcessData(ProcessData):
         else:
             for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
                 predictions.append(services.get_property(self.db_session, prediction_property_id))
-
+        
         return predictions
 
     def run(self):
