@@ -10,10 +10,10 @@ data = {}
 
 data['rep'] = 1
 data['grm'] = here+"/Input/GRM.txt"
-data['phenofounders'] = here+"/Input/Phenofounders2.csv"
+data['input_phenotypic_data'] = here+"/Input/Phenofounders2.csv"
 
-data['Phenotype'] = "~rep"
-data['random'] = "~vs(ID, Gu=A)"
+data['fixed'] = "Phenotype~rep" #"{trait_name}~rep" trait_name is the column in the 
+data['random'] = "~ID" #"~vs(ID, Gu=A)"
 data['rcov'] = "~ units"
 
 
@@ -24,6 +24,7 @@ data['output_BV'] = here+"/Output/BVs.csv"
 data['output_pred'] = here+"/Output/pvs.csv"
 data['output_yhat'] = here+"/Output/Yhat.csv"
 data['output_outliers'] = here+"/Output/outliers.csv"
+data['raw_analysis_out'] = here+"/Output/out.rds"
 
 os.system("echo "+here)
 #creates a json file
