@@ -9,5 +9,3 @@ class GenotypeData(ABC, DataReader):
     """Interface for reading phenotype data from different kinds of
     data sources
     """
-
-    

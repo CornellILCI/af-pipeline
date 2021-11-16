@@ -1,21 +1,15 @@
+import json
 from typing import List
 
 import pandas as pd
-import json
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
-
 from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study, TableResponse
-
 from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
 from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
-from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
-
-
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
-from pydantic import ValidationError, BaseModel, parse_obj_as
-
+from pydantic import BaseModel, ValidationError, parse_obj_as
 
 # all urls are set here
 GET_OBSERVATION_UNITS_URL = "/observationunits"
@@ -264,13 +258,12 @@ class PhenotypeDataBrapi(PhenotypeData):
         search_query = {"germplasmDbIds": germplasm_search_ids}
 
         search_germplasm_response = self.post(endpoint="/search/germplasm/", json=search_query)
-        
+
         if not search_germplasm_response.is_success:
             raise DataReaderException(search_germplasm.error)
 
         if search_germplasm_response.body is None:
             raise DataReaderException("Germplasms are not found")
-    
 
         if search_germplasm_response.http_status == 202:
 
@@ -280,11 +273,11 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             get_germplasm = self.get(endpoint=germplasm_url)
             germplasm_list = parse_obj_as(list[Germplasm], get_germplasm.body["result"]["data"])
-            
+
             return germplasm_list
-        
+
         if search_germplasm_response.http_status == 200:
-            
+
             germplasm_list = parse_obj_as(list[Germplasm], search_germplasm_response.body["result"]["data"])
             return germplasm_list
 

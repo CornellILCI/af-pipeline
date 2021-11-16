@@ -1,14 +1,13 @@
 import json
 from unittest import TestCase
 from unittest.mock import Mock, patch
+
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
-
 from af.pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 from pandas._testing import assert_frame_equal
-
 
 from conftest import get_json_resource, get_test_plot_measurements, get_test_plots
 
@@ -86,6 +85,7 @@ class TestPhenotypeDataBrapi(TestCase):
         germplasm, plots_data, plots_header = PhenotypeDataBrapi(
             api_base_url="http://test"
         ).get_observation_units_table("testid")
+
         assert isinstance(germplasm, list)
         assert isinstance(plots_data, list)
         assert isinstance(plots_header, list)
@@ -268,11 +268,10 @@ class TestPhenotypeDataBrapi(TestCase):
 
         mock_post.return_value.status_code = 200
         mock_post.return_value.json.return_value = brapi_post_response
-        
+
         search_query = {
-            "germplasmDbIds": ["bd76c553-3862-11eb-95eb-0242ac140004",
-                               "zg6c553-3862-11eb-95eb-0242ac140004"]
-                               }
+            "germplasmDbIds": ["bd76c553-3862-11eb-95eb-0242ac140004", "zg6c553-3862-11eb-95eb-0242ac140004"]
+        }
 
         germplasm_result = (PhenotypeDataBrapi(api_base_url="http://test")).search_germplasm(
             germplasm_search_ids=search_query.values
@@ -302,9 +301,8 @@ class TestPhenotypeDataBrapi(TestCase):
         mock_get.return_value.json.return_value = brapi_get_response
 
         search_query = {
-            "germplasmDbIds": ["bd76c553-3862-11eb-95eb-0242ac140004",
-                               "zg6c553-3862-11eb-95eb-0242ac140004"]
-                               }
+            "germplasmDbIds": ["bd76c553-3862-11eb-95eb-0242ac140004", "zg6c553-3862-11eb-95eb-0242ac140004"]
+        }
 
         germplasm_result = (PhenotypeDataBrapi(api_base_url="http://test")).search_germplasm(
             germplasm_search_ids=search_query.values

@@ -4,8 +4,8 @@ from unittest.mock import Mock, patch
 
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
-from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.genotype_data_brapi import GenotypeDataBrapi
+from af.pipeline.data_reader.models import Occurrence
 from pandas._testing import assert_frame_equal
 
 from conftest import get_json_resource, get_test_plot_measurements, get_test_plots
@@ -15,17 +15,21 @@ def get_brapi_variantsets_units_response():
     """returns a mock brapi response for observation units."""
     return get_json_resource(__file__, "brapi_variantsets_mock_response.json")
 
+
 def post_brapi_search_callsets_200_response():
     """returns a mock brapi response for observation units."""
     return get_json_resource(__file__, "brapi_search_callsets_200_response.json")
+
 
 def post_brapi_search_callsets_202_response():
     """returns a mock brapi response for observation units."""
     return get_json_resource(__file__, "brapi_search_callsets_202_response.json")
 
+
 def post_brapi_search_callsets_responses_202():
     """returns a mock brapi response for observation units."""
     return 202
+
 
 def post_brapi_search_callsets_responses_200():
     """returns a mock brapi response for observation units."""
@@ -45,7 +49,7 @@ def get_test_occurrence_brapi() -> Occurrence:
 
 
 class TestGenotypeDataBrapi(TestCase):
-    
+
     # @patch("af.pipeline.data_reader.data_reader.requests.get")
     # def test_get_variantsets(self, mock_get):
 
@@ -64,7 +68,6 @@ class TestGenotypeDataBrapi(TestCase):
     #     plots_result_df = plots_result_df[plots_test_df.columns]
 
     #     assert_frame_equal(plots_result_df, plots_test_df.astype(str))
-    
 
     @patch("af.pipeline.data_reader.data_reader.requests.post")
     def test_post_search_callsets(self, mock_post):
@@ -76,7 +79,6 @@ class TestGenotypeDataBrapi(TestCase):
 
         # return False
 
-    
     @patch("af.pipeline.data_reader.data_reader.requests.post")
     @patch("af.pipeline.data_reader.data_reader.requests.get")
     def test_post_search_callsets_with_202(self, mock_get, mock_post):
@@ -85,23 +87,26 @@ class TestGenotypeDataBrapi(TestCase):
         betterResponse.status_code = 200
         betterResponse.json
         mock_post.return_value = response
-        mock_get.side_effect = [response,betterResponse]
+        mock_get.side_effect = [response, betterResponse]
 
         callsets_result = GenotypeDataBrapi(api_base_url="http://test").post_search_callsets(["testid"])
 
         assert len(callsets_result) == 1
 
-
     class mock202Response:
         status_code = 202
+
         def json(self):
             return post_brapi_search_callsets_202_response()
+
         def raise_for_status(self):
             return True
-    
+
     class mock200Response:
         status_code = 200
+
         def json(self):
             return post_brapi_search_callsets_200_response()
+
         def raise_for_status(self):
             return True
