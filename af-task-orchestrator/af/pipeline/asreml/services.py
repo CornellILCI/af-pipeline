@@ -5,7 +5,7 @@ from datetime import datetime
 from af.pipeline.asreml import stupid_asreml_xml_resolver, yhatparser
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
 from af.pipeline.db.core import DBConfig
-from af.pipeline.db.models import FittedValues, ModelStat, Prediction, Variance
+from af.pipeline.db.models import FittedValues, ModelStat, PredictionEffect, Variance
 
 
 def get_file_parser():
@@ -44,10 +44,9 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
 
         session.add(model_stat)
 
-        # TODO: Tables need to be restructured
-        # if model_stat.is_converged:
-        #    _save_variances(session, ch.variances)
-        #    _save_predictions(session, ch.predictions)
+        if model_stat.is_converged:
+            _save_variances(session, ch.variances)
+            _save_predictions(session, ch.predictions)
 
     session.commit()
 
@@ -61,7 +60,7 @@ def _save_variances(session, variances):
 
 def _save_predictions(session, predictions):
     if predictions:
-        session.bulk_insert_mappings(Prediction, predictions)
+        session.bulk_insert_mappings(PredictionEffect, predictions)
 
 
 def process_yhat_result(session, job_id: int, filename_or_stream, *args, **kwargs):

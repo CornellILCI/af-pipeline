@@ -1,6 +1,6 @@
 import csv
 
-from af.pipeline.db.models import ModelStat, Prediction
+from af.pipeline.db.models import ModelStat, PredictionEffect
 from af.pipeline.exceptions import FileParseException
 
 SOMMER_PREDICTION_COLUMNS_TO_DB_COLUMNS = {
@@ -48,7 +48,7 @@ def get_predictions(job_id: int, prediction_result_file_path: str):
 
         for row in prediction_data:
             row = {SOMMER_PREDICTION_COLUMNS_TO_DB_COLUMNS[name]: val for name, val in row.items()}
-            prediction = Prediction(**row)
+            prediction = PredictionEffect(**row)
             prediction_object_list.append(prediction)
         return prediction_object_list
 

@@ -16,16 +16,18 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
+import pathlib
+
 # from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
+from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
+from af.pipeline.db.core import DBConfig
 from af.pipeline.exceptions import InvalidAnalysisRequest
 
-# from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 # from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 # from af.pipeline.db import services
-# from af.pipeline.db.core import DBConfig
 # from af.pipeline.db.models import Property
 # from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 # from af.pipeline.pandasutil import df_keep_columns
@@ -34,24 +36,52 @@ from af.pipeline.exceptions import InvalidAnalysisRequest
 class ProcessData(ABC):
     """Abstract class for ProcessData objects"""
 
-    @abstractmethod
-    def seml(self):
-        pass
+    def __init__(self, analysis_request, *args, **kwargs):
+        """Constructor.
 
-    @abstractmethod
-    def sesl(self):
-        pass
+        Args:
+            analysis_request: Object with all required inputs to run analysis.
+        """
 
-    @abstractmethod
-    def mesl(self):
-        pass
+        self.analysis_request = analysis_request
 
-    @abstractmethod
-    def meml(self):
-        pass
+        factory = DataReaderFactory(analysis_request.dataSource.name)
+        self.data_reader: PhenotypeData = factory.get_phenotype_data(
+            api_base_url=analysis_request.dataSourceUrl, api_bearer_token=analysis_request.dataSourceAccessToken
+        )
+
+        self.experiment_ids = []
+        for experiment in analysis_request.experiments:
+            self.experiment_ids.append(experiment.experimentId)
+
+        self.occurrence_ids = []
+        for occurrence in analysis_request.occurrences:
+            self.occurrence_ids.append(occurrence.occurrenceId)
+
+        self.trait_ids = []
+        for trait in analysis_request.traits:
+            self.trait_ids.append(trait.traitId)
+
+        self.db_session = DBConfig.get_session()
+
+        self.analysis_fields = None
+        self.input_fields_to_config_fields = None
+
+        self.output_folder = analysis_request.outputFolder
+
+    def get_job_folder(self, job_name: str) -> str:
+
+        job_folder = os.path.join(self.output_folder, job_name)
+
+        if not os.path.isdir(job_folder):
+            # create parent directories
+            os.makedirs(pathlib.Path(job_folder))
+
+        return job_folder
 
     @abstractmethod
     def run(self):
+        """This method should return the list of preprocessed input files info"""
         pass
 
 
