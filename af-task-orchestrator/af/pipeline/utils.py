@@ -67,8 +67,9 @@ def remove_empty_worksheets(workbook_file: str):
 
         if sheet.max_row == 1 and sheet.max_column == 1:
             wb.remove_sheet(sheet)
-    
+
     wb.save(workbook_file)
+
 
 def zip_dir(dir_to_zip: str, zip_file_path: str, base_dir: str):
     """Zips the input directory to destination zip file"""

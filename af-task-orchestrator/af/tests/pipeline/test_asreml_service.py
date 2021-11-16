@@ -44,4 +44,3 @@ def test_yhat_parser_service_happy_path(sample_yhat_data_1, dbsession):
     # SQLITE gets the data as string so, we must do a test
     json_data = json.loads(record.additional_info)
     assert json_data.get("RinvRes") == 0.009825
-    
