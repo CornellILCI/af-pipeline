@@ -17,33 +17,7 @@ from af.pipeline.pandasutil import df_keep_columns
 
 class AsremlProcessData(ProcessData):
     def __init__(self, analysis_request: AnalysisRequest):
-        """Constructor.
-
-        Args:
-            analysis_request: Object with all required inputs to run analysis.
-        """
-
-        self.analysis_request = analysis_request
-
-        factory = DataReaderFactory(analysis_request.dataSource.name)
-        self.data_reader: PhenotypeData = factory.get_phenotype_data(
-            api_base_url=analysis_request.dataSourceUrl, api_bearer_token=analysis_request.dataSourceAccessToken
-        )
-
-        self.occurrence_ids = []
-        for occurrence in analysis_request.occurrences:
-            self.occurrence_ids.append(occurrence.occurrenceId)
-
-        self.trait_ids = []
-        for trait in analysis_request.traits:
-            self.trait_ids.append(trait.traitId)
-
-        self.db_session = DBConfig.get_session()
-
-        self.analysis_fields = None
-        self.input_fields_to_config_fields = None
-
-        self.output_folder = analysis_request.outputFolder
+        super().__init__(analysis_request)
 
     def __get_traits(self) -> list[Trait]:
         traits = []
@@ -63,7 +37,7 @@ class AsremlProcessData(ProcessData):
         metadata_df["location_id"] = occurrence.location_id
         metadata_df["trait_abbreviation"] = trait.abbreviation
 
-        job_folder = self.__get_job_folder(job_name)
+        job_folder = self.get_job_folder(job_name)
 
         metadata_file_path = os.path.join(job_folder, "metadata.tsv")
 
@@ -75,16 +49,6 @@ class AsremlProcessData(ProcessData):
         metadata_df.to_csv(metadata_file_path, **to_csv_kwargs)
 
         return metadata_file_path
-
-    def __get_job_folder(self, job_name: str) -> str:
-
-        job_folder = os.path.join(self.output_folder, job_name)
-
-        if not os.path.isdir(job_folder):
-            # create parent directories
-            os.makedirs(pathlib.Path(job_folder))
-
-        return job_folder
 
     def seml(self):
         """For Single Experiment Single Location
@@ -224,7 +188,7 @@ class AsremlProcessData(ProcessData):
         job_file_name = f"{job_data.job_name}.as"
         data_file_name = f"{job_data.job_name}.csv"
 
-        job_folder = self.__get_job_folder(job_data.job_name)
+        job_folder = self.get_job_folder(job_data.job_name)
 
         job_data.job_file = os.path.join(job_folder, job_file_name)
         job_data.data_file = os.path.join(job_folder, data_file_name)
@@ -246,7 +210,7 @@ class AsremlProcessData(ProcessData):
         job_file_name = f"{job_data.job_name}.as"
         data_file_name = f"{job_data.job_name}.csv"
 
-        job_folder = self.__get_job_folder(job_data.job_name)
+        job_folder = self.get_job_folder(job_data.job_name)
 
         job_data.job_file = os.path.join(job_folder, job_file_name)
         job_data.data_file = os.path.join(job_folder, data_file_name)

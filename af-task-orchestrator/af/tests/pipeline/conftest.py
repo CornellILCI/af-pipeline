@@ -4,6 +4,7 @@ import os
 # since core.py directly declares the vars
 import tempfile
 
+import pytest
 from pandas import DataFrame
 
 # fixtures import area
@@ -43,7 +44,7 @@ def get_test_analysis_request():
         expLocAnalysisPatternPropertyId="1",
         configFormulaPropertyId="1",
         configResidualPropertyId="1",
-        outputFolder="test",
+        outputFolder="/tmp/",
         configPredictionPropertyIds=["19"],
     )
     return analysis_request
@@ -80,3 +81,16 @@ def get_test_plot_measurements() -> DataFrame:
         [2910, 1, "G", 6.751358238],
     ]
     return DataFrame(data, columns=columns)
+
+
+@pytest.fixture
+def sommer_analysis_request():
+
+    from af.pipeline.data_reader.models.enums import DataSource
+
+    sommer_analysis_request = get_test_analysis_request()
+    sommer_analysis_request.requestId = "test-request-id"
+
+    sommer_analysis_request.dataSource = DataSource.BRAPI
+
+    return sommer_analysis_request
