@@ -183,7 +183,7 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
 
 
-def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame):
+def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame, rename_map: dict):
 
     # write model statistics
     if len(model_stat) == 0:
@@ -196,7 +196,7 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
         "experiment_name",
         "trait_abbreviation",
         "location_name",
-        "log_lik",
+        "LogL",
         "aic",
         "bic",
         "components",
@@ -207,6 +207,8 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     model_stats_df["experiment_name"] = ",".join(metadata_df.experiment_name.drop_duplicates().astype(str))
     model_stats_df["location_name"] = ",".join(metadata_df.location_name.drop_duplicates().astype(str))
     model_stats_df["trait_abbreviation"] = ",".join(metadata_df.trait_abbreviation.drop_duplicates().astype(str))
+
+    model_stats_df = model_stats_df.rename(columns=rename_map)
 
     model_stats_df = pandasutil.df_keep_columns(model_stats_df, model_stats_report_columns)
 
