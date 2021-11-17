@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 import abc
 import argparse
+import datetime
 import json
 import os
 import sys
 from os import path
+
+from af.pipeline.db.models import Analysis, Job
 
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":
     file_dir = path.dirname(os.path.realpath(__file__))
@@ -24,6 +27,40 @@ class Analyze(abc.ABC):
 
     dpo_cls: ProcessData = None
     engine_script: str = ""
+
+    def __init__(self, analysis_request: AnalysisRequest, *args, **kwargs):
+        """Constructor.
+
+        Constructs analysis db record and other required objects.
+
+        Args:
+            analysis_request: Object with all required inputs to run analysis.
+        """
+
+        self.analysis_request = analysis_request
+
+        self.db_session = DBConfig.get_session()
+
+        # Request source, DB record
+        self._analysis_request = db_services.get_request(self.db_session, analysis_request.requestId)
+
+        # load existing analysis record OR create if it does not exist
+        self.analysis = db_services.get_analysis_by_request_and_name(
+            self.db_session, request_id=self._analysis_request.id, name=analysis_request.requestId
+        )
+
+        if not self.analysis:
+            # Create DB record for Analysis
+            self.analysis = Analysis(
+                request_id=self._analysis_request.id,
+                name=analysis_request.requestId,
+                creation_timestamp=datetime.utcnow(),
+                status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
+            )
+
+            self.analysis = db_services.add(self.db_session, self.analysis)
+
+
 
     def get_process_data(self, analysis_request, *args, **kwargs):
         """Get the associated ProcessData object for this Analyze"""
@@ -57,10 +94,33 @@ class Analyze(abc.ABC):
     # def run(self, *args, **kwargs):
     #     pass  TODO:  maybe this should be a concrete run()
 
-    @abc.abstractmethod
     def get_engine_script(self):
-        """This method should return the script name associated with the analysis."""
-        pass
+        return self.engine_script
+        
+    def _get_new_job(self, job_name: str, status: str, status_message: str) -> Job:
+
+        job_start_time = datetime.utcnow()
+        job = Job(
+            analysis_id=self.analysis.id,
+            name=job_name,
+            time_start=job_start_time,
+            creation_timestamp=job_start_time,
+            status=status,
+            status_message=status_message,
+        )
+
+        job = db_services.add(self.db_session, job)
+
+        return job
+
+    def _update_job(self, job: Job, status: str, status_message: str):
+
+        job.status = status
+        job.status_message = status_message
+        job.time_end = datetime.utcnow()
+        job.modification_timestamp = datetime.utcnow()
+
+        return job
 
 
 def get_analyze_object(analysis_request: AnalysisRequest, session=None):
