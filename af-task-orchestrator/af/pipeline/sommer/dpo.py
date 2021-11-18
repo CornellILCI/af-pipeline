@@ -1,7 +1,16 @@
 import csv
 import os
+import json
+
 
 from af.pipeline.dpo import ProcessData
+from af.pipeline.db import services
+from af.pipeline.db.core import DBConfig
+from af.pipeline.dpo import ProcessData
+
+"""
+# !!! where am i getting the db config, line 59ish
+"""
 
 
 class SommeRProcessData(ProcessData):
@@ -34,7 +43,27 @@ class SommeRProcessData(ProcessData):
 
         return {"job_name": self.__get_job_name(), "data_file": data_file}
 
+    def __prepare_settings_file(self) -> list:
+
+        settings_dict = {}
+        data_file = self.__prepare_inputfile_csv
+        settings_dict["path"] = str(data_file)
+
+        residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
+        settings_dict["rcov"] = residual.statement
+        formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
+        settings_dict["formula"] = formula.statement
+        # formula_statement = formula.statement.format(trait_name=trait.abbreviation)
+        settings_file = json.dumps(settings_dict)
+        loaded_settings = json.loads(settings_file)
+
+        return loaded_settings
+
     def run(self):
         """Preprocess input data for SommeR Analysis"""
-        return [self.__prepare_inputfile_csv()]
+        return [self.__prepare_inputfile_csv(),
+        self.__prepare_settings_file()
+        ]
+
+
 
