@@ -1,6 +1,8 @@
 from http import HTTPStatus
+from typing import List, Optional
 
 import config
+import pydantic
 from af_request import api_models, service
 from common.api_models import Status
 from common.responses import json_response
@@ -8,9 +10,6 @@ from common.validators import validate_api_request
 from flask import jsonify, make_response, request, send_from_directory
 from flask.blueprints import Blueprint
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
-
-import pydantic
-from typing import List, Optional
 
 af_requests_bp = Blueprint("af_requests", __name__, url_prefix="/v1/requests")
 

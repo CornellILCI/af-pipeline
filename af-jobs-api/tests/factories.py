@@ -92,12 +92,14 @@ class AnalysisFactory(CreationModificationBaseFactory):
     analysis_objective_id = factory.Faker("pyint", min_value=1)
 
     analysis_request_data = {
-        "experiments": [{
-            "experimentId": "10",
-            "experimentName": "expt1",
-            "occurrences": [{"occurrenceId": "10", "occurrenceName": "occur1"}]
-        }],
-        "traits": [{"traitId": "1", "traitName": "trait1"}, {"traitId": "2", "traitName": "trait2"}]
+        "experiments": [
+            {
+                "experimentId": "10",
+                "experimentName": "expt1",
+                "occurrences": [{"occurrenceId": "10", "occurrenceName": "occur1"}],
+            }
+        ],
+        "traits": [{"traitId": "1", "traitName": "trait1"}, {"traitId": "2", "traitName": "trait2"}],
     }
     additional_info = factory.Faker("pydict", nb_elements=2, value_types=[str])
 
@@ -132,11 +134,13 @@ class AnalysisRequestParametersFacotry(Factory):
     requestorId = factory.Faker("pystr", min_chars=7, max_chars=7)
     institute = factory.Faker("pystr", min_chars=7, max_chars=7)
     analysisType = "ANALYZE"
-    experiments = [{
-        "experimentId": "10",
-        "experimentName": "expt1",
-        "occurrences": [{"occurrenceId": "10", "occurrenceName": "occur1"}]
-    }]
+    experiments = [
+        {
+            "experimentId": "10",
+            "experimentName": "expt1",
+            "occurrences": [{"occurrenceId": "10", "occurrenceName": "occur1"}],
+        }
+    ]
     traits = [{"traitId": "1", "traitName": "trait1"}, {"traitId": "2", "traitName": "trait2"}]
     analysisObjectivePropertyId = factory.Faker("pystr", min_chars=10, max_chars=10)
     analysisConfigPropertyId = factory.Faker("pystr", min_chars=10, max_chars=10)

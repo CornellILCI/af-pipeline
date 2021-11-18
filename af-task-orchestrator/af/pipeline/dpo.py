@@ -52,7 +52,7 @@ class ProcessData(ABC):
 
         self.experiment_ids = []
         self.occurrence_ids = []
-        
+
         for experiment in analysis_request.experiments:
             self.experiment_ids.append(experiment.experimentId)
             if experiment.occurrences is not None:

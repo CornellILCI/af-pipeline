@@ -1,7 +1,8 @@
+from typing import Optional
+
 from af.pipeline.data_reader.models.enums import DataSource
 from pydantic import BaseModel, conlist
 
-from typing import Optional
 
 class Occurrence(BaseModel):
     occurrenceId: str

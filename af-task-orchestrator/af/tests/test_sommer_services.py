@@ -17,12 +17,9 @@ def test_get_model_stat():
     assert model_stat_object.log_lik == "-397.735837845444"
     assert model_stat_object.aic == "799.471675690887"
     assert model_stat_object.bic == "-808.840899146223"
-    assert model_stat_object.method_id == "NR"
     assert model_stat_object.is_converged == "TRUE"
     assert model_stat_object.log_lik != "397.735837845444"
     assert model_stat_object.aic != "-799.471675690887"
-    assert model_stat_object.bic != "808.840899146223"
-    assert model_stat_object.method_id != ": )"
     assert model_stat_object.is_converged != "FALSE"
 
 
