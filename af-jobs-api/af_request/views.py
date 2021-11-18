@@ -9,6 +9,9 @@ from flask import jsonify, make_response, request, send_from_directory
 from flask.blueprints import Blueprint
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
+import pydantic
+from typing import List, Optional
+
 af_requests_bp = Blueprint("af_requests", __name__, url_prefix="/v1/requests")
 
 
@@ -99,6 +102,12 @@ def _map_analsysis(analysis):
         req_dto.expLocAnalysisPatternProperty = _map_property(analysis.exp_loc_pattern)
         req_dto.configFormulaProperty = _map_property(analysis.formula)
         req_dto.configResidualProperty = _map_property(analysis.residual)
+
+    if analysis.analysis_request_data is not None:
+        req_dto.experiments = pydantic.parse_obj_as(
+            List[api_models.Experiment], analysis.analysis_request_data.get("experiments", [])
+        )
+        req_dto.traits = pydantic.parse_obj_as(List[api_models.Trait], analysis.analysis_request_data.get("traits", []))
 
     if req.status == Status.DONE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)

@@ -1,5 +1,6 @@
 import json
 import os
+
 # hacky importing since we need to declare these before we import Base
 # since core.py directly declares the vars
 import tempfile
@@ -33,10 +34,15 @@ def get_test_analysis_request():
         dataSource="EBS",
         dataSourceUrl="http://test.org",
         dataSourceAccessToken="",
-        experiments=[Experiment(experimentId="1", experimentName="name1")],
-        occurrences=[
-            Occurrence(occurrenceId="1", occurrenceName="occur1"),
-            Occurrence(occurrenceId="2", occurrenceName="occur2"),
+        experiments=[
+            Experiment(
+                experimentId="1",
+                experimentName="name1",
+                occurrences=[
+                    Occurrence(occurrenceId="1", occurrenceName="occur1"),
+                    Occurrence(occurrenceId="2", occurrenceName="occur2"),
+                ],
+            )
         ],
         traits=[Trait(traitId="1", traitName="trait1")],
         analysisObjectivePropertyId="1",
@@ -51,7 +57,7 @@ def get_test_analysis_request():
 
 
 def get_test_plots() -> DataFrame:
-    """ return a mock plots dataframe """
+    """return a mock plots dataframe"""
 
     columns = [
         "plot_id",
@@ -73,7 +79,7 @@ def get_test_plots() -> DataFrame:
 
 
 def get_test_plot_measurements() -> DataFrame:
-    """ return a mock plot measurement dataframe"""
+    """return a mock plot measurement dataframe"""
 
     columns = ["plot_id", "trait_id", "trait_qc", "trait_value"]
     data = [
