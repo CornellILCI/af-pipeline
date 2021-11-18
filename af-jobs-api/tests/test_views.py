@@ -4,6 +4,7 @@ import uuid
 import pytest
 from af_request.models import Analysis, Request
 
+
 @pytest.fixture
 def empty_request():
     return {}
@@ -237,6 +238,7 @@ def test_get_by_id_jobs_mapped(client, session, analysis):
 
     assert str(analysis.jobs[0].id) == job1.get("jobId")
 
+
 def test_get_by_id_experiments_found(client, session, analysis):
 
     from af_request import service
@@ -248,6 +250,7 @@ def test_get_by_id_experiments_found(client, session, analysis):
 
     assert "experiments" in result
 
+
 def test_get_by_id_experiments_found(client, session, analysis):
 
     from af_request import service
@@ -256,8 +259,9 @@ def test_get_by_id_experiments_found(client, session, analysis):
 
     resp_content = resp.get_json()
     result = resp_content.get("result")
-    
+
     assert result.get("experiments") == analysis.analysis_request_data.get("experiments")
+
 
 def test_get_by_id_traits_found(client, session, analysis):
 
@@ -270,6 +274,7 @@ def test_get_by_id_traits_found(client, session, analysis):
 
     assert "traits" in result
 
+
 def test_get_by_id_traits_found(client, session, analysis):
 
     from af_request import service
@@ -278,8 +283,5 @@ def test_get_by_id_traits_found(client, session, analysis):
 
     resp_content = resp.get_json()
     result = resp_content.get("result")
-    
+
     assert result.get("traits") == analysis.analysis_request_data.get("traits")
-
-
-

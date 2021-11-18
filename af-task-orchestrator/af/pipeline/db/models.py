@@ -172,7 +172,6 @@ class ModelStat(BaseMixin, Base):
     job_id = Column(Integer)
     conclusion = Column(String(500))
     is_converged = Column(Boolean, default=False)
-    method_id = Column(Integer)
 
 
 class PredictionEffect(BaseMixin, Base):

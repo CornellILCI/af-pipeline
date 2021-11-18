@@ -1,6 +1,7 @@
+import json
+
 import pytest
 
-import json
 
 def test_get_analysis_type(client, session):
     resp = client.get("/v1/analysis-type")

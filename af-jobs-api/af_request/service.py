@@ -3,15 +3,14 @@ import uuid as uuidlib
 from datetime import datetime
 
 import celery_util
+import pydantic
 from af_request import api_models
 from af_request import models as db_models
 from database import db
 
-import pydantic
-    
 
 class RequestData(pydantic.BaseModel):
-    expeirments: list[api_models.Experiment] = None
+    experiments: list[api_models.Experiment] = None
     traits: list[api_models.Trait] = None
 
 
@@ -30,7 +29,7 @@ def submit(request_params: api_models.AnalysisRequestParameters):
     )
 
     req_data = RequestData(**request_params.dict())
-    
+
     analysis = db_models.Analysis(
         request=req,
         name=analysis_uuid,

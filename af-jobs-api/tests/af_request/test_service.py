@@ -69,3 +69,23 @@ def test_submit(session, af_request_parameters, celery_send_task):
     assert reqid == actual_analysis_request.uuid
     assert content.get("dataSource") == af_request_parameters.dataSource
     assert content.get("crop") == af_request_parameters.crop
+
+
+def test_submit_experiments_are_saved(session, af_request_parameters, celery_send_task):
+
+    from af_request import service
+
+    actual_analysis_submitted = service.submit(af_request_parameters)
+
+    assert actual_analysis_submitted.analysis_request_data.get("experiments") == af_request_parameters.dict().get(
+        "experiments"
+    )
+
+
+def test_submit_traits_are_saved(session, af_request_parameters, celery_send_task):
+
+    from af_request import service
+
+    actual_analysis_submitted = service.submit(af_request_parameters)
+
+    assert actual_analysis_submitted.analysis_request_data.get("traits") == af_request_parameters.dict().get("traits")
