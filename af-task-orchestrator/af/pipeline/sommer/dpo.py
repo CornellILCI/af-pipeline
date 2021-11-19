@@ -30,11 +30,9 @@ class SommeRProcessData(ProcessData):
         headers_written = False
         with open(data_file, "w") as f:
             writer = csv.writer(f)
-        
+
             for exp_id in experiment_ids:
-                germplasm, plot_data, headers = self.data_reader.get_observation_units_table(
-                    occurrence_id=exp_id
-                )
+                germplasm, plot_data, headers = self.data_reader.get_observation_units_table(occurrence_id=exp_id)
                 if not headers_written:
                     writer.writerow(headers)
                     headers_written = True
@@ -43,7 +41,7 @@ class SommeRProcessData(ProcessData):
 
         return {"job_name": self.__get_job_name(), "data_file": data_file}
 
-    def __prepare_settings_file(self) -> list:
+    def __prepare_settings_file(self) -> dict:
 
         settings_dict = {}
         data_file = self.__prepare_inputfile_csv
@@ -59,11 +57,28 @@ class SommeRProcessData(ProcessData):
 
         return loaded_settings
 
+    def __prepare_additional_csvs(self) -> dict:
+
+        job_folder = self.get_job_folder(self.__get_job_name())
+        var_csv = os.path.join(job_folder, "/var.csv")
+        statmodel_csv = os.path.join(job_folder, "/statmodel.csv")
+        BVs_csv = os.path.join(job_folder, "/BVs.csv")
+        pvs_csv = os.path.join(job_folder, "/pvs.csv")
+        Yhat_csv = os.path.join(job_folder, "/Yhat.csv")
+        outliers_csv = os.path.join(job_folder, "/outliers.csv")
+        out_rds = os.path.join(job_folder, "/out.rds")
+
+        return {
+            "job_name": self.__get_job_name(),
+            "var": var_csv,
+            "statmodel": statmodel_csv,
+            "BVs": BVs_csv,
+            "pvs": pvs_csv,
+            "Yhat": Yhat_csv,
+            "outliers": outliers_csv,
+            "out": out_rds,
+        }
+
     def run(self):
         """Preprocess input data for SommeR Analysis"""
-        return [self.__prepare_inputfile_csv(),
-        self.__prepare_settings_file()
-        ]
-
-
-
+        return [self.__prepare_inputfile_csv(), self.__prepare_settings_file(), self.__prepare_additional_csvs()]
