@@ -7,12 +7,9 @@ from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Occurrence, Trait  # noqa: E402; noqa: E402
-# from af.pipeline.data_reader.models import Experiment, Occurrence
-# from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.dpo import ProcessData
-# from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException
 from af.pipeline.job_data import JobData
 from af.pipeline.pandasutil import df_keep_columns
@@ -168,7 +165,9 @@ class AsremlProcessData(ProcessData):
         )
 
         trait_qc = plots_and_measurements.trait_qc
-        plots_and_measurements.loc[trait_qc == 'B','trait_value'] = "NA"
+
+        # rename
+        plots_and_measurements.loc[trait_qc == "B", "trait_value"] = "NA"
 
         # map trait value column to trait name
         input_fields_to_config_fields["trait_value"] = trait.abbreviation
@@ -329,6 +328,7 @@ class AsremlProcessData(ProcessData):
     def _get_predictions(self):
 
         predictions = []
+
         if len(self.analysis_request.configPredictionPropertyIds) == 0:
             predictions = services.get_analysis_config_properties(
                 self.db_session, self.analysis_request.analysisConfigPropertyId, "prediction"

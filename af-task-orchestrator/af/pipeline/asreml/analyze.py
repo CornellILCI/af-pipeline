@@ -42,47 +42,30 @@ class AsremlAnalyze(Analyze):
 
         self.db_session = DBConfig.get_session()
 
-        # Request source, DB record
-        self._analysis_request = db_services.get_request(self.db_session, analysis_request.requestId)
-
         # load existing analysis record OR create if it does not exist
-        self.analysis = db_services.get_analysis_by_request_and_name(
-            self.db_session, request_id=self._analysis_request.id, name=analysis_request.requestId
-        )
-
-        if not self.analysis:
-            # Create DB record for Analysis
-            self.analysis = Analysis(
-                request_id=self._analysis_request.id,
-                name=analysis_request.requestId,
-                creation_timestamp=datetime.utcnow(),
-                status="IN-PROGRESS",  # TODO: Find, What this status and how they are defined
-            )
-
-            self.analysis = db_services.add(self.db_session, self.analysis)
+        self.analysis = db_services.get_analysis_by_request_id(self.db_session, request_id=analysis_request.requestId)
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
         self.report_file_path = path.join(analysis_request.outputFolder, "report.xlsx")
         # the engine script would have been determined from get_analyze_object so just pass it here
 
     def pre_process(self):
-        # Run data pre-processing to get asreml job file and processed data files.
-        job_name = f"{self.analysis_request.requestId}-dpo"
-        job_status = "IN-PROGRESS"
-        status_message = "Running Data Pre-Processing."
 
-        job = self.__get_new_job(job_name, job_status, status_message)
+        self.__update_request_status("IN-PROGRESS", "Data preprocessing in progress")
 
         try:
             job_input_files = self.get_process_data(self.analysis_request).run()
-            self.__update_job(job, "IN-PROGRESS", "Data Pre-Processing completed.")
+            self.__update_request_status("IN-PROGRESS", "Data preprocessing completed. Running jobs.")
             return job_input_files
         except (DataReaderException, DpoException) as e:
-            self.analysis.status = "FAILED"
-            self.__update_job(job, "FAILED", "Failed during Data Pre-Processing.")
+            self.__update_request_status("FAILURE", "Data preprocessing failed.")
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
+
+    def __update_request_status(self, status, message):
+        self.analysis.request.status = "IN-PROGRESS"
+        self.analysis.request.msg = message
 
     def get_engine_script(self):
         return self.engine_script
@@ -94,22 +77,23 @@ class AsremlAnalyze(Analyze):
 
         job_dir = utils.get_parent_dir(job_data.data_file)
 
-        job_status = "IN-PROGRESS"
-        status_message = "Processing the input request"
-
-        job = self.__get_new_job(job_data.job_name, job_status, status_message)
+        job = db_services.create_job(
+            self.db_session, self.analysis.id, job_data.job_name, "IN-PROGRESS", "Processing in the input request"
+        )
 
         try:
             cmd = [analysis_engine, job_data.job_file, job_data.data_file]
             _ = subprocess.run(cmd, capture_output=True)
-            job = self.__update_job(job, "COMPLETED", "Completed the job.")
+            job = db_services.update_job(
+                self.db_session, job, "IN-PROGRESS", "Completed the job. Pending post processing."
+            )
 
             job_data.job_result_dir = job_dir
 
             return job_data
         except Exception as e:
-            self.analysis.status = "FAILED"
-            self.__update_job(job, "FAILED", str(e))
+            self.analysis.status = "FAILURE"
+            db_services.update_job(self.db_session, job, "FAILURE", str(e))
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
@@ -139,7 +123,10 @@ class AsremlAnalyze(Analyze):
             analysis_report.write_predictions(self.report_file_path, asreml_result_content.predictions, metadata_df)
 
             # write model statisics to analysis report
-            analysis_report.write_model_stat(self.report_file_path, asreml_result_content.model_stat, metadata_df)
+            rename_keys = {"log_lik": "LogL"}
+            analysis_report.write_model_stat(
+                self.report_file_path, asreml_result_content.model_stat, metadata_df, rename_keys
+            )
 
             # parse yhat result and save to db
             yhat_file_path = path.join(job_result.job_result_dir, f"{job.name}_yht.txt")
@@ -150,7 +137,7 @@ class AsremlAnalyze(Analyze):
             # zip the result files to be downloaded by the users
             utils.zip_dir(job_result.job_result_dir, self.output_file_path, job.name)
 
-            self.__update_job(job, "SUCCESS", "Asreml analysis completed successfully")
+            db_services.update_job(self.db_session, job, "DONE", "Asreml analysis completed successfully")
 
             # gather occurrences from the jobs, so we don't have to read occurrences again.
             # will not work for parallel jobs. For parallel job, gather will happen in finalize
@@ -164,8 +151,8 @@ class AsremlAnalyze(Analyze):
             return gathered_objects
 
         except Exception as e:
-            self.analysis.status = "FAILED"
-            self.__update_job(job, "FAILED", str(e))
+            self.analysis.status = "FAILURE"
+            db_services.update_job(self.db_session, job, "FAILURE", str(e))
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
@@ -187,28 +174,3 @@ class AsremlAnalyze(Analyze):
             utils.zip_file(self.report_file_path, self.output_file_path)
         else:
             raise AnalysisError("No analysis result report generated by the engine. Analysis failed.")
-
-    def __get_new_job(self, job_name: str, status: str, status_message: str) -> Job:
-
-        job_start_time = datetime.utcnow()
-        job = Job(
-            analysis_id=self.analysis.id,
-            name=job_name,
-            time_start=job_start_time,
-            creation_timestamp=job_start_time,
-            status=status,
-            status_message=status_message,
-        )
-
-        job = db_services.add(self.db_session, job)
-
-        return job
-
-    def __update_job(self, job: Job, status: str, status_message: str):
-
-        job.status = status
-        job.status_message = status_message
-        job.time_end = datetime.utcnow()
-        job.modification_timestamp = datetime.utcnow()
-
-        return job

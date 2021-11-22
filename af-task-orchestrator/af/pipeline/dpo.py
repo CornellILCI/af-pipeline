@@ -50,8 +50,18 @@ class ProcessData(ABC):
             api_base_url=analysis_request.dataSourceUrl, api_bearer_token=analysis_request.dataSourceAccessToken
         )
 
-        self.occurrence_ids = analysis_request.occurrenceIds
-        self.trait_ids = analysis_request.traitIds
+        self.experiment_ids = []
+        for experiment in analysis_request.experiments:
+            self.experiment_ids.append(experiment.experimentId)
+
+        self.occurrence_ids = []
+        for occurrence in analysis_request.occurrences:
+            self.occurrence_ids.append(occurrence.occurrenceId)
+
+        self.trait_ids = []
+        for trait in analysis_request.traits:
+            self.trait_ids.append(trait.traitId)
+
         self.db_session = DBConfig.get_session()
 
         self.analysis_fields = None
