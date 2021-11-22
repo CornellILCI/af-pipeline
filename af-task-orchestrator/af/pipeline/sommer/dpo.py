@@ -51,7 +51,6 @@ class SommeRProcessData(ProcessData):
         settings_dict["rcov"] = residual.statement
         formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
         settings_dict["formula"] = formula.statement
-        # formula_statement = formula.statement.format(trait_name=trait.abbreviation)
         settings_file = json.dumps(settings_dict)
         loaded_settings = json.loads(settings_file)
 
@@ -82,3 +81,5 @@ class SommeRProcessData(ProcessData):
     def run(self):
         """Preprocess input data for SommeR Analysis"""
         return [self.__prepare_inputfile_csv(), self.__prepare_settings_file(), self.__prepare_additional_csvs()]
+
+        # formula_statement = formula.statement.format(trait_name=trait.abbreviation)
