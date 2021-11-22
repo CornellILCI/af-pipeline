@@ -408,8 +408,8 @@ class TestProcessData(TestCase):
 
         test_request = get_test_analysis_request()
         # we need only one occurrence in the request
-        one_occurrence = test_request.occurrences[0]
-        test_request.occurrences = [one_occurrence]
+        one_occurrence = test_request.experiments[0].occurrences[0]
+        test_request.experiments[0].occurrences = [one_occurrence]
         output_folder = TemporaryDirectory()
         test_request.outputFolder = output_folder.name
 

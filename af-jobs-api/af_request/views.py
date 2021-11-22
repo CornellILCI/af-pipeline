@@ -1,6 +1,8 @@
 from http import HTTPStatus
+from typing import List, Optional
 
 import config
+import pydantic
 from af_request import api_models, service
 from common.api_models import Status
 from common.responses import json_response
@@ -99,6 +101,12 @@ def _map_analsysis(analysis):
         req_dto.expLocAnalysisPatternProperty = _map_property(analysis.exp_loc_pattern)
         req_dto.configFormulaProperty = _map_property(analysis.formula)
         req_dto.configResidualProperty = _map_property(analysis.residual)
+
+    if analysis.analysis_request_data is not None:
+        req_dto.experiments = pydantic.parse_obj_as(
+            List[api_models.Experiment], analysis.analysis_request_data.get("experiments", [])
+        )
+        req_dto.traits = pydantic.parse_obj_as(List[api_models.Trait], analysis.analysis_request_data.get("traits", []))
 
     if req.status == Status.DONE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
