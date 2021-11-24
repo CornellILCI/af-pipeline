@@ -13,7 +13,6 @@ SOMMER_MODEL_STAT_COLUMNS_TO_DB_COLUMNS = {
     "logLik": "log_lik",
     "AIC": "aic",
     "BIC": "bic",
-    "Method": "method_id",
     "Converge": "is_converged",
 }
 
@@ -27,10 +26,14 @@ def get_model_stat(job_id: int, model_stat_result_file_path: str):
 
     try:
         prediction_data = csv.DictReader(open(model_stat_result_file_path))
+
         for row in prediction_data:
-            row = {SOMMER_MODEL_STAT_COLUMNS_TO_DB_COLUMNS[name]: val for name, val in row.items()}
-            model_stat_object = ModelStat(**row)
-        return model_stat_object
+            _model_stat = {}
+            for name, val in row.items():
+                if name in SOMMER_MODEL_STAT_COLUMNS_TO_DB_COLUMNS:
+                    _model_stat[SOMMER_MODEL_STAT_COLUMNS_TO_DB_COLUMNS[name]] = val
+            model_stat_object = ModelStat(**_model_stat)
+            return model_stat_object
 
     except Exception as exc:
         raise FileParseException(exc)
