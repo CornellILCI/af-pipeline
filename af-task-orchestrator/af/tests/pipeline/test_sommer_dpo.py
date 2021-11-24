@@ -49,27 +49,14 @@ def test_create_rcov_for_sommer_settings(mocker, dbsession, brapi_observation_ta
     dpo = SommeRProcessData(sommer_analysis_request)
     output_list = dpo.run()
     entry = output_list
+    print("\n\n\n", entry, "\n")
     assert entry[1]["rcov"] == "~ units"
+    assert entry[1]["var_csv"] == "/var.csv"
+
 
 
 def test_create_formula_for_sommer_settings(mocker, dbsession, brapi_observation_table_api_response_1, sommer_analysis_request):
-
-    # mock_analysis_request = AnalysisRequest(
-    #     requestId="test-request-id",
-    #     dataSource="BRAPI",
-    #     dataSourceUrl="http://test",
-    #     dataSourceAccessToken="foo-token-fake",
-    #     outputFolder="/tmp/",
-    #     experimentIds=["foo"],
-    #     occurrenceIds=["foo"],
-    #     traitIds=["foo"],
-    #     analysisObjectivePropertyId="foo",
-    #     analysisConfigPropertyId="foo",
-    #     expLocAnalysisPatternPropertyId="foo",
-    #     configFormulaPropertyId="foo",
-    #     configResidualPropertyId="foo",
-    # )
-
+ 
     mocker.patch(
         "af.pipeline.data_reader.phenotype_data_brapi.PhenotypeDataBrapi.get",
         return_value=brapi_observation_table_api_response_1,
@@ -77,35 +64,11 @@ def test_create_formula_for_sommer_settings(mocker, dbsession, brapi_observation
 
     mock_residual = Property(statement="~ units")
     mock_formula = Property(statement="~ mu rep !r entry !f mv")
-
+    # mock_fixed = Property(statement="<FIXED>")
+    # mock_random = Property(statement="<RANDOM>")
     mocker.patch("af.pipeline.db.services.get_property", return_value=mock_formula)
 
     dpo = SommeRProcessData(sommer_analysis_request)
     output_list = dpo.run()
     entry = output_list
     assert entry[1]["formula"] == "~ mu rep !r entry !f mv"
-
-
-def test_create_csvs(mocker, dbsession, brapi_observation_table_api_response_1, sommer_analysis_request):
-
-
-    mocker.patch(
-        "af.pipeline.data_reader.phenotype_data_brapi.PhenotypeDataBrapi.get",
-        return_value=brapi_observation_table_api_response_1,
-    )
-
-    mock_residual = Property(statement="~ units")
-    mock_formula = Property(statement="~ mu rep !r entry !f mv")
-
-    mocker.patch("af.pipeline.db.services.get_property", return_value=mock_formula)
-
-    dpo = SommeRProcessData(sommer_analysis_request)
-    output_list = dpo.run()
-    entry = output_list
-    assert entry[2]["var"] == "/var.csv"
-    assert entry[2]["statmodel"] == "/statmodel.csv"
-    assert entry[2]["BVs"] == "/BVs.csv"
-    assert entry[2]["pvs"] == "/pvs.csv"
-    assert entry[2]["Yhat"] == "/Yhat.csv"
-    assert entry[2]["outliers"] == "/outliers.csv"
-    assert entry[2]["out"] == "/out.rds"

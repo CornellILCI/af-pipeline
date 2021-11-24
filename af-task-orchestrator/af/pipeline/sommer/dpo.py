@@ -40,45 +40,42 @@ class SommeRProcessData(ProcessData):
 
         return {"job_name": self.__get_job_name(), "data_file": data_file}
 
-    def __prepare_settings_file(self) -> dict:
+    def __prepare_Sommer_settings_file(self) -> dict:
 
         settings_dict = {}
-        data_file = self.__prepare_inputfile_csv
+        data_file = self.__prepare_inputfile_csv()
         settings_dict["path"] = str(data_file)
 
         residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
         settings_dict["rcov"] = residual.statement
         formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
+        
         settings_dict["formula"] = formula.statement
-        settings_file = json.dumps(settings_dict)
-        loaded_settings = json.loads(settings_file)
+        # formula_statement = formula.statement.format(trait_name=trait.abbreviation)
 
-        return loaded_settings
-
-    def __prepare_additional_csvs(self) -> dict:
 
         job_folder = self.get_job_folder(self.__get_job_name())
-        var_csv = os.path.join(job_folder, "/var.csv")
-        statmodel_csv = os.path.join(job_folder, "/statmodel.csv")
-        BVs_csv = os.path.join(job_folder, "/BVs.csv")
-        pvs_csv = os.path.join(job_folder, "/pvs.csv")
-        Yhat_csv = os.path.join(job_folder, "/Yhat.csv")
-        outliers_csv = os.path.join(job_folder, "/outliers.csv")
-        out_rds = os.path.join(job_folder, "/out.rds")
+        settings_dict["var_csv"] = os.path.join(job_folder, "/var.csv")
+        settings_dict["statmodel_csv"] = os.path.join(job_folder, "/statmodel.csv")
+        settings_dict["BVs_csv"] = os.path.join(job_folder, "/BVs.csv")
+        settings_dict["pvs_csv"] = os.path.join(job_folder, "/pvs.csv")
+        settings_dict["Yhat_csv"] = os.path.join(job_folder, "/Yhat.csv")
+        settings_dict["outliers_csv"] = os.path.join(job_folder, "/outliers.csv")
+        settings_dict["out_rds"] = os.path.join(job_folder, "/out.rds")
 
-        return {
-            "job_name": self.__get_job_name(),
-            "var": var_csv,
-            "statmodel": statmodel_csv,
-            "BVs": BVs_csv,
-            "pvs": pvs_csv,
-            "Yhat": Yhat_csv,
-            "outliers": outliers_csv,
-            "out": out_rds,
-        }
+        settings_file = json.dumps(settings_dict)
+        loaded_settings = json.loads(settings_file)
+        # x = os.path.join(job_folder, "/input/data.txt")
+        # with open(x, 'w') as outfile:
+        #     json.dump(settings_dict, outfile)
+        #     loaded_settings = json.loads(settings_file)
+
+        return loaded_settings
+        
 
     def run(self):
         """Preprocess input data for SommeR Analysis"""
-        return [self.__prepare_inputfile_csv(), self.__prepare_settings_file(), self.__prepare_additional_csvs()]
+        return [
+            self.__prepare_inputfile_csv(),
+            self.__prepare_Sommer_settings_file()]
 
-        # formula_statement = formula.statement.format(trait_name=trait.abbreviation)
