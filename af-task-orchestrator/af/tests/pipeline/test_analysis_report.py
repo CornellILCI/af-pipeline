@@ -55,7 +55,7 @@ def model_stat():
 
     return {
         "job_id": 1,
-        "log_lik": "x",
+        "LogL": "x",
         "aic": "x",
         "bic": "x",
         "components": "x",
@@ -120,7 +120,7 @@ def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
             [1, "testtrait", 1, "loc1", 1, 1.4],
         ],
     )
-    
+
     assert_frame_equal(output_location_report, expected_location_report, check_dtype=False)
 
     # assert entry x location report
@@ -207,7 +207,7 @@ def test_write_predictions_location_only(report_file, location_only_predictions_
 
 def test_write_predictions_location_only(report_file, model_stat, metadata_df):
 
-    analysis_report.write_model_stat(report_file, model_stat, metadata_df)
+    analysis_report.write_model_stat(report_file, model_stat, metadata_df, {"log_lik": "LogL"})
 
     assert os.path.isfile(report_file)
 
@@ -219,7 +219,7 @@ def test_write_predictions_location_only(report_file, model_stat, metadata_df):
             "experiment_name",
             "trait_abbreviation",
             "location_name",
-            "log_lik",
+            "LogL",
             "aic",
             "bic",
             "components",

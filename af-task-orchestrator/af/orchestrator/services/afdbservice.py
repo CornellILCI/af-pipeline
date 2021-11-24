@@ -31,8 +31,9 @@ class AFDBService:
         self._session.merge(task)
         self._session.commit()
 
-    def update_request_status(self, request: Request, status):
+    def update_request_status(self, request: Request, status, status_message=""):
         request.status = status
+        request.msg = status_message
         self._session.merge(request)
         self._session.commit()
 

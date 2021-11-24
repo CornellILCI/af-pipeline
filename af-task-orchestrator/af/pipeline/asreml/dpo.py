@@ -7,12 +7,9 @@ from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Occurrence, Trait  # noqa: E402; noqa: E402
-# from af.pipeline.data_reader.models import Experiment, Occurrence
-# from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.dpo import ProcessData
-# from af.pipeline.db.models import Property
 from af.pipeline.exceptions import DpoException
 from af.pipeline.job_data import JobData
 from af.pipeline.pandasutil import df_keep_columns
@@ -20,27 +17,7 @@ from af.pipeline.pandasutil import df_keep_columns
 
 class AsremlProcessData(ProcessData):
     def __init__(self, analysis_request: AnalysisRequest):
-        """Constructor.
-
-        Args:
-            analysis_request: Object with all required inputs to run analysis.
-        """
-
-        self.analysis_request = analysis_request
-
-        factory = DataReaderFactory(analysis_request.dataSource.name)
-        self.data_reader: PhenotypeData = factory.get_phenotype_data(
-            api_base_url=analysis_request.dataSourceUrl, api_bearer_token=analysis_request.dataSourceAccessToken
-        )
-
-        self.occurrence_ids = analysis_request.occurrenceIds
-        self.trait_ids = analysis_request.traitIds
-        self.db_session = DBConfig.get_session()
-
-        self.analysis_fields = None
-        self.input_fields_to_config_fields = None
-
-        self.output_folder = analysis_request.outputFolder
+        super().__init__(analysis_request)
 
     def __get_traits(self) -> list[Trait]:
         traits = []
@@ -60,7 +37,7 @@ class AsremlProcessData(ProcessData):
         metadata_df["location_id"] = occurrence.location_id
         metadata_df["trait_abbreviation"] = trait.abbreviation
 
-        job_folder = self.__get_job_folder(job_name)
+        job_folder = self.get_job_folder(job_name)
 
         metadata_file_path = os.path.join(job_folder, "metadata.tsv")
 
@@ -72,16 +49,6 @@ class AsremlProcessData(ProcessData):
         metadata_df.to_csv(metadata_file_path, **to_csv_kwargs)
 
         return metadata_file_path
-
-    def __get_job_folder(self, job_name: str) -> str:
-
-        job_folder = os.path.join(self.output_folder, job_name)
-
-        if not os.path.isdir(job_folder):
-            # create parent directories
-            os.makedirs(pathlib.Path(job_folder))
-
-        return job_folder
 
     def seml(self):
         """For Single Experiment Single Location
@@ -197,6 +164,11 @@ class AsremlProcessData(ProcessData):
             config.UNIVERSAL_UNKNOWN
         )
 
+        trait_qc = plots_and_measurements.trait_qc
+
+        # rename
+        plots_and_measurements.loc[trait_qc == "B", "trait_value"] = "NA"
+
         # map trait value column to trait name
         input_fields_to_config_fields["trait_value"] = trait.abbreviation
 
@@ -216,7 +188,7 @@ class AsremlProcessData(ProcessData):
         job_file_name = f"{job_data.job_name}.as"
         data_file_name = f"{job_data.job_name}.csv"
 
-        job_folder = self.__get_job_folder(job_data.job_name)
+        job_folder = self.get_job_folder(job_data.job_name)
 
         job_data.job_file = os.path.join(job_folder, job_file_name)
         job_data.data_file = os.path.join(job_folder, data_file_name)
@@ -238,7 +210,7 @@ class AsremlProcessData(ProcessData):
         job_file_name = f"{job_data.job_name}.as"
         data_file_name = f"{job_data.job_name}.csv"
 
-        job_folder = self.__get_job_folder(job_data.job_name)
+        job_folder = self.get_job_folder(job_data.job_name)
 
         job_data.job_file = os.path.join(job_folder, job_file_name)
         job_data.data_file = os.path.join(job_folder, data_file_name)
@@ -323,7 +295,8 @@ class AsremlProcessData(ProcessData):
 
     def _get_asreml_option(self):
         asreml_options = services.get_analysis_config_properties(
-            self.db_session, self.analysis_request.analysisConfigPropertyId, "asrmel_options")
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "asrmel_options"
+        )
         if len(asreml_options) > 0:
             return asreml_options[0]
         else:
@@ -331,7 +304,8 @@ class AsremlProcessData(ProcessData):
 
     def _get_tabulate(self):
         tabulate = services.get_analysis_config_properties(
-            self.db_session, self.analysis_request.analysisConfigPropertyId, "tabulate")
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "tabulate"
+        )
         if len(tabulate) > 0:
             return tabulate[0]
         else:
@@ -339,7 +313,8 @@ class AsremlProcessData(ProcessData):
 
     def _get_analysis_field_lines(self):
         analysis_fields = services.get_analysis_config_module_fields(
-            self.db_session, self.analysis_request.analysisConfigPropertyId)
+            self.db_session, self.analysis_request.analysisConfigPropertyId
+        )
         if len(analysis_fields) == 0:
             raise DpoException("No Analysis fields found.")
         for field in analysis_fields:
@@ -353,15 +328,17 @@ class AsremlProcessData(ProcessData):
     def _get_predictions(self):
 
         predictions = []
+
         if len(self.analysis_request.configPredictionPropertyIds) == 0:
             predictions = services.get_analysis_config_properties(
-                self.db_session, self.analysis_request.analysisConfigPropertyId, 'prediction')
+                self.db_session, self.analysis_request.analysisConfigPropertyId, "prediction"
+            )
         else:
             for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
                 predictions.append(services.get_property(self.db_session, prediction_property_id))
 
         return predictions
-    
+
     def run(self):
         """Pre process input data before inputing into analytical engine.
 

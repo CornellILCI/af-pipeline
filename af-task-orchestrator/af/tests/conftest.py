@@ -6,6 +6,9 @@ from af.pipeline import config
 from af.pipeline.db.core import Base
 from af.tests.fixtures.sample_asremlr_1 import sample_asreml_result_string_1  # noqa: F401
 from af.tests.fixtures.sample_asremlr_2 import sample_asreml_not_converged_result_string  # noqa: F401
+from af.tests.fixtures.sample_brapi_observation_table_response import (  # noqa: F401
+    brapi_observation_table_api_response_1,
+)
 from af.tests.fixtures.sample_yhat_1 import sample_yhat_data_1  # noqa: F401
 from sqlalchemy.engine.create import create_engine
 from sqlalchemy.orm.scoping import scoped_session

@@ -1,4 +1,5 @@
 from af.pipeline.data_reader.exceptions import DataSourceNotAvailableError
+from af.pipeline.data_reader.genotype_data_brapi import GenotypeDataBrapi
 from af.pipeline.data_reader.models.enums import DataSource
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi

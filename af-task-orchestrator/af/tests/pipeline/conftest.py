@@ -4,6 +4,7 @@ import os
 # since core.py directly declares the vars
 import tempfile
 
+import pytest
 from pandas import DataFrame
 
 # fixtures import area
@@ -24,7 +25,7 @@ def get_json_resource(testfile, json_file_name):
 
 
 def get_test_analysis_request():
-    from af.pipeline.analysis_request import AnalysisRequest
+    from af.pipeline.analysis_request import AnalysisRequest, Experiment, Occurrence, Trait
 
     output_folder = tempfile.TemporaryDirectory()
     analysis_request = AnalysisRequest(
@@ -32,16 +33,19 @@ def get_test_analysis_request():
         dataSource="EBS",
         dataSourceUrl="http://test.org",
         dataSourceAccessToken="",
-        experimentIds=[""],
-        occurrenceIds=["1", "2"],
-        traitIds=["1"],
+        experiments=[Experiment(experimentId="1", experimentName="name1")],
+        occurrences=[
+            Occurrence(occurrenceId="1", occurrenceName="occur1"),
+            Occurrence(occurrenceId="2", occurrenceName="occur2"),
+        ],
+        traits=[Trait(traitId="1", traitName="trait1")],
         analysisObjectivePropertyId="1",
         analysisConfigPropertyId="1",
         expLocAnalysisPatternPropertyId="1",
         configFormulaPropertyId="1",
         configResidualPropertyId="1",
-        outputFolder="test",
-        configPredictionPropertyIds=["19"]
+        outputFolder="/tmp/",
+        configPredictionPropertyIds=["19"],
     )
     return analysis_request
 
@@ -77,3 +81,16 @@ def get_test_plot_measurements() -> DataFrame:
         [2910, 1, "G", 6.751358238],
     ]
     return DataFrame(data, columns=columns)
+
+
+@pytest.fixture
+def sommer_analysis_request():
+
+    from af.pipeline.data_reader.models.enums import DataSource
+
+    sommer_analysis_request = get_test_analysis_request()
+    sommer_analysis_request.requestId = "test-request-id"
+
+    sommer_analysis_request.dataSource = DataSource.BRAPI
+
+    return sommer_analysis_request

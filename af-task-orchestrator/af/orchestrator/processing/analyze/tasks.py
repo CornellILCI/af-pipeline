@@ -36,7 +36,12 @@ def pre_process(request_id, analysis_request):
 
     results = []  # results initially empty
     args = request_id, analysis_request, input_files, results
-    app.send_task("run_analyze", args=args, queue="ASREML")
+    # determine if the analyze task
+    engine = analyze_object.get_engine_script()
+    if engine == "asreml":
+        app.send_task("run_asreml_analyze", args=args, queue="ASREML")
+    if engine == "sommer":
+        app.send_task("run_sommer_analyze", args=args)
 
 
 @app.task(name="post_process", base=StatusReportingTask)
@@ -49,7 +54,7 @@ def post_process(request_id, analysis_request, results, gathered_objects=None):
 
     analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
     gathered_objects = analyze_object.process_job_result(result, gathered_objects)
-    
+
     # process the results here
     if not results:
         done_analyze.delay(request_id, analysis_request, gathered_objects)

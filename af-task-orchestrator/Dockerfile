@@ -20,10 +20,12 @@ RUN apt-get install -y -f r-base
 
 # install R packages
 RUN Rscript -e  "install.packages('sommer')"
+RUN Rscript -e  "install.packages('rjson')"
+RUN Rscript -e  "install.packages('gtools')"
 
 # RUN apt-get update && pip3 install  -r requirements.txt
 RUN pip3 install  -r requirements.txt
 
+ENV PATH="/app/scripts:${PATH}"
 
 ENTRYPOINT [ "./start-worker.sh" ]
-

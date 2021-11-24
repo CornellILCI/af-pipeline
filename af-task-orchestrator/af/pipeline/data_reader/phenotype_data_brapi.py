@@ -1,19 +1,24 @@
+import json
 from typing import List
+
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study, TableResponse
+from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
 from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError, parse_obj_as
 
+# all urls are set here
 GET_OBSERVATION_UNITS_URL = "/observationunits"
 
 GET_OBSERVATIONS_URL = "/observations"
 
 GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
+GET_GERMPLASM_BY_DB_ID = "/search/germplasm/{searchResultDbId}"
 GET_OBSERVATION_UNITS_TABLE_URL = "/observationunits/table"
 
 
@@ -40,7 +45,9 @@ class PhenotypeDataBrapi(PhenotypeData):
 
     brapi_list_page_size = 1000
 
-    def get_observation_units_table(self, occurrence_id: str = None, observationLevel: str = None, observationUnitDbId: str = None) -> tuple:
+    def get_observation_units_table(
+        self, occurrence_id: str = None, observationLevel: str = None, observationUnitDbId: str = None
+    ) -> tuple:
         plots_data = []
         germplasm = []
         germplasm_index = -1
@@ -50,7 +57,10 @@ class PhenotypeDataBrapi(PhenotypeData):
         total_pages = 0
 
         observation_units_filters = ObservationUnitQueryParams(
-            studyDbId=occurrence_id, observationLevel=observationLevel, observationUnitDbId=observationUnitDbId, pageSize=self.brapi_list_page_size
+            studyDbId=occurrence_id,
+            observationLevel=observationLevel,
+            observationUnitDbId=observationUnitDbId,
+            pageSize=self.brapi_list_page_size,
         )
 
         while page_num == 0 or page_num < total_pages:
@@ -62,28 +72,27 @@ class PhenotypeDataBrapi(PhenotypeData):
             if not api_response.is_success:
                 raise DataReaderException(api_response.error)
 
-            total_pages = api_response.body['metadata']['pagination']['totalPages']
+            total_pages = api_response.body["metadata"]["pagination"]["totalPages"]
 
             brapi_response = TableResponse(**api_response.body)
             page_num += 1
 
             plots_data.extend(brapi_response.result.data.copy())
-            
-            if plots_header == [] : plots_header = brapi_response.result.headerRow.copy()
+
+            if plots_header == []:
+                plots_header = brapi_response.result.headerRow.copy()
 
             if germplasm_index == -1:
                 try:
-                    germplasm_index = brapi_response.result.headerRow.index('germplasmDbId')
+                    germplasm_index = brapi_response.result.headerRow.index("germplasmDbId")
                 except ValueError:
                     germplasm_index = -1
-                
 
         if germplasm_index != -1:
             for row in plots_data:
                 germplasm.append(row[germplasm_index])
 
         return germplasm, plots_data, plots_header
-
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
 
@@ -243,3 +252,37 @@ class PhenotypeDataBrapi(PhenotypeData):
 
     def get_trait(self, trait_id: int = None):
         raise NotImplementedError
+
+    def search_germplasm(self, germplasm_search_ids: list[str]):
+
+        search_query = {"germplasmDbIds": germplasm_search_ids}
+
+        search_germplasm_response = self.post(endpoint="/search/germplasm/", json=search_query)
+
+        if not search_germplasm_response.is_success:
+            raise DataReaderException(search_germplasm.error)
+
+        if search_germplasm_response.body is None:
+            raise DataReaderException("Germplasms are not found")
+
+        if search_germplasm_response.http_status == 202:
+
+            search_germplasm_dbid = search_germplasm_response.body["result"]["searchResultDbId"]
+
+            germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
+
+            get_germplasm = self.get(endpoint=germplasm_url)
+            germplasm_list = parse_obj_as(list[Germplasm], get_germplasm.body["result"]["data"])
+
+            return germplasm_list
+
+        if search_germplasm_response.http_status == 200:
+
+            germplasm_list = parse_obj_as(list[Germplasm], search_germplasm_response.body["result"]["data"])
+            return germplasm_list
+
+        if not get_germplasm.is_success:
+            raise DataReaderException(search_germplasm.error)
+
+        if get_germplasm.body is None:
+            raise DataReaderException("Germplasms are not found")

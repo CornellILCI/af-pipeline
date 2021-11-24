@@ -1,5 +1,6 @@
 import json
 import uuid as uuidlib
+from datetime import datetime
 
 import celery_util
 from af_request import api_models
@@ -10,8 +11,10 @@ from database import db
 def submit(request_data: api_models.AnalysisRequestParameters):
     """Submits analysis request to pipeline."""
 
+    analysis_uuid = str(uuidlib.uuid4())
+
     req = db_models.Request(
-        uuid=str(uuidlib.uuid4()),
+        uuid=analysis_uuid,
         institute=request_data.institute,
         crop=request_data.crop,
         type=request_data.analysisType,
@@ -19,23 +22,40 @@ def submit(request_data: api_models.AnalysisRequestParameters):
         status="PENDING",
     )
 
-    db.session.add(req)
-    db.session.commit()
+    req_data = {
+        "experiments": [experiment.dict() for experiment in request_data.experiments],
+        "occurrences": [occurrence.dict() for occurrence in request_data.occurrences],
+        "traits": [trait.dict() for trait in request_data.traits],
+    }
 
-    celery_util.send_task(
-        process_name="analyze",
-        args=(
-            req.uuid,
-            json.loads(request_data.json()),
-        ),
+    analysis = db_models.Analysis(
+        request=req,
+        name=analysis_uuid,
+        creation_timestamp=datetime.utcnow(),
+        status="IN-PROGRESS",
+        formula_id=request_data.configFormulaPropertyId,
+        residual_id=request_data.configResidualPropertyId,
+        exp_loc_pattern_id=request_data.expLocAnalysisPatternPropertyId,
+        model_id=request_data.configFormulaPropertyId,
+        analysis_request_data=req_data,
     )
+    with db.session.begin():
+        db.session.add(analysis)
 
-    return req
+        celery_util.send_task(
+            process_name="analyze",
+            args=(
+                req.uuid,
+                json.loads(request_data.json()),
+            ),
+        )
+
+    return analysis
 
 
 def query(query_params: api_models.AnalysisRequestListQueryParameters):
 
-    query = db_models.Request.query
+    query = db_models.Analysis.query.join(db_models.Request)
 
     # filter only analysis requests.
     # Requests submitted by other frameworks have non standardized status fields other than what
@@ -67,6 +87,8 @@ def query(query_params: api_models.AnalysisRequestListQueryParameters):
 
 def get_by_id(request_id: str):
 
-    analysis_request = db_models.Request.query.filter(db_models.Request.uuid == request_id).one()
+    analysis_request = (
+        db_models.Analysis.query.join(db_models.Request).filter(db_models.Request.uuid == request_id).one()
+    )
 
     return analysis_request

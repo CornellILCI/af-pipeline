@@ -10,7 +10,7 @@ SEARCH_PLOTS_ENDPOINT = "/plots-search"
 
 SEARCH_PLOT_DATA_ENDPOINT = "/plot-data-search"
 
-SEARCH_OCCRRENCES_ENDPOINT = "/occurrences-search"
+SEARCH_OCCURRENCES_ENDPOINT = "/occurrences-search"
 
 SEARCH_VARIABLES_ENDPOINT = "/variables-search"
 
@@ -161,7 +161,7 @@ class PhenotypeDataEbs(PhenotypeData):
 
         search_query = {"occurrenceDbId": occurrence_id}
 
-        api_response = self.post(endpoint=SEARCH_OCCRRENCES_ENDPOINT, data=search_query)
+        api_response = self.post(endpoint=SEARCH_OCCURRENCES_ENDPOINT, data=search_query)
 
         if not api_response.is_success:
             raise DataReaderException(api_response.error)
@@ -188,7 +188,7 @@ class PhenotypeDataEbs(PhenotypeData):
             location=_occurrence_ebs.location,
             rep_count=_occurrence_ebs.repCount,
             entry_count=_occurrence_ebs.entryCount,
-            plot_count=_occurrence_ebs.plotCount
+            plot_count=_occurrence_ebs.plotCount,
         )
 
     def get_experiment(self, experiment_id: str = None) -> Experiment:

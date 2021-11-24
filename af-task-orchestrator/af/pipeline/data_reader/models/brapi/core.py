@@ -1429,6 +1429,7 @@ class TableResult(BaseModel):
     data: List[List[str]]
     headerRow: List[str]
 
+
 class TableResponse(BaseModel):
     _context: Optional[Context] = Field(None, alias="@context")
     metadata: Metadata

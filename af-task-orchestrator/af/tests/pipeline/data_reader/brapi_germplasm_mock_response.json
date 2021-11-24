@@ -1,0 +1,82 @@
+
+{
+    "metadata": {
+        "pagination": {
+            "totalCount": 1,
+            "totalPages": 1
+        },
+        "status": [],
+        "datafiles": []
+    },
+    "result": {
+        "data": [
+            {   "commonCropName": "rice",
+                "germplasmPUI":"9",
+                "germplasmDbId": "bd76c553-3862-11eb-95eb-0242ac140004",
+                "defaultDisplayName": "TANGKAI ROTAN",
+                "accessionNumber": "IRGC 31",
+                "germplasmName": "TANGKAI ROTAN",
+                "pedigree": "TR",
+                "synonyms": [{ "synonym": "IRGC 31", "type": "ACCNO"}],
+                "countryOfOriginCode": "IRRI-GRC",
+                "typeOfGermplasmStorageCode": [],
+                "taxonIds": [],
+                "donors": [],
+                "acquisitionDate": "1961-03-27",
+                "breedingMethodDbId": "70",
+                "additionalInfo": {
+                    "TAXNO_AP_text": "2832",
+                    "MLS_DATE_AP_text": "29-JUN-2004",
+                    "COLL_AA_text": "IRGC 31        ;O. SATIVA;;;;;MYS",
+                    "SampStat_AP_text": "T",
+                    "STATUS_ACC_AP_text": "AV",
+                    "ORI_COUN_AP_text": "MALAYSIA",
+                    "SPP_CODE_AP_text": "S",
+                    "IPSTAT_AP_text": "FAO (14/09/1994)",
+                    "VGISO_AA_text": "1" }},
+            {
+                "commonCropName": "rice",
+                "germplasmPUI":"19",
+                "germplasmDbId": "zg76c553-3862-11eb-95eb-0242ac140004",
+                "defaultDisplayName": "TANGKAI BOTAN",
+                "accessionNumber": "IRGC 31",
+                "germplasmName": "TANGKAI BOTAN",
+                "pedigree": "TR",
+                "synonyms": [ {"synonym": "IRGC 31", "type": "ACCNO"}],
+                "countryOfOriginCode": "IRRI-GRC",
+                "typeOfGermplasmStorageCode": [],
+                "taxonIds": [],
+                "donors": [],
+                "acquisitionDate": "1961-03-27",
+                "breedingMethodDbId": "70",
+                "additionalInfo": {
+                    "TAXNO_AP_text": "2832",
+                    "MLS_DATE_AP_text": "29-JUN-2004",
+                    "COLL_AA_text": "IRGC 31        ;O. SATIVA;;;;;MYS",
+                    "SampStat_AP_text": "T",
+                    "STATUS_ACC_AP_text": "AV",
+                    "ORI_COUN_AP_text": "MALAYSIA",
+                    "SPP_CODE_AP_text": "S",
+                    "IPSTAT_AP_text": "FAO (14/09/1994)",
+                    "VGISO_AA_text": "1" }
+            }
+        ]
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
