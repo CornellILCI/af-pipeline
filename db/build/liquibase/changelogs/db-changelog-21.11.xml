@@ -10,4 +10,13 @@
     <!-- BA-795 Fix property_config for the new analysis models -->
     <include file="changesets/21.11/data/template/fix-property_config_for_new_analysis_models.sql"/>
 
+    <!-- BA-803 Update data type and is_catalogue values -->
+    <include file="changesets/21.11/data/template/update_data_type_and_is_catalogue_values.sql"/>
+
+    <!-- DB-850 Change nFieldCol to simple input -->
+    <include file="changesets/21.11/data/template/change_nfieldcol_to_simple_input.sql"/>
+
+    <!-- DB-851 Update is_requiered value in property_config -->
+    <include file="changesets/21.11/data/template/update_is_requiered_value_in_property_config.sql"/>
+
   </databaseChangeLog>
