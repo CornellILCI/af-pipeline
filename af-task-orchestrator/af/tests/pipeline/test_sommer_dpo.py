@@ -37,24 +37,24 @@ def test_sommer_dpo_simple_test(mocker, dbsession, brapi_observation_table_api_r
 
 
 # break this out into unit tests
-# def test_create_rcov_for_sommer_settings(mocker, dbsession, brapi_observation_table_api_response_1, sommer_analysis_request):
+def test_create_rcov_for_sommer_settings(mocker, dbsession, brapi_observation_table_api_response_1, sommer_analysis_request):
 
-#     mocker.patch(
-#         "af.pipeline.data_reader.phenotype_data_brapi.PhenotypeDataBrapi.get",
-#         return_value=brapi_observation_table_api_response_1,
-#     )
+    mocker.patch(
+        "af.pipeline.data_reader.phenotype_data_brapi.PhenotypeDataBrapi.get",
+        return_value=brapi_observation_table_api_response_1,
+    )
 
-#     mock_residual = Property(statement="~ units")
+    mock_residual = Property(statement="~ units")
 
-#     mocker.patch("af.pipeline.db.services.get_property", return_value=mock_residual)
+    mocker.patch("af.pipeline.db.services.get_property", return_value=mock_residual)
 
-#     dpo = SommeRProcessData(sommer_analysis_request)
-#     output_list = dpo.run()
-#     entry = output_list[0]
-#     print("\n\n\n", entry, "\n")
-#     assert entry is not None
-#     assert entry.job_name == "test-request-id"
-#     assert entry.job_file == "/tmp/test-request-id/settings.json"
+    dpo = SommeRProcessData(sommer_analysis_request)
+    output_list = dpo.run()
+    entry = output_list[0]
+    print("\n\n\n", entry, "\n")
+    assert entry is not None
+    assert entry.job_name == "test-request-id"
+    assert entry.job_file == "/tmp/test-request-id/settings.json"
 
 def test_create_formula_for_sommer_settings(mocker, dbsession, brapi_observation_table_api_response_1, sommer_analysis_request):
  

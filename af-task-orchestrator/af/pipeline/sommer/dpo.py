@@ -49,22 +49,23 @@ class SommeRProcessData(ProcessData):
         settings_dict["path"] = str(data_file)
 
         residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
-        settings_dict["rcov"] = residual.statement
         formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
         
-        settings_dict["formula"] = formula.statement
         # formula_statement = formula.statement.format(trait_name=trait.abbreviation)
 
         job_folder = self.get_job_folder(self.__get_job_name())
         settings_file = os.path.join(job_folder, "settings.json")
         settings_dict["input_phenotypic_data"] = data_file
-        settings_dict["var_csv"] = os.path.join(job_folder, "/var.csv")
-        settings_dict["statmodel_csv"] = os.path.join(job_folder, "/statmodel.csv")
-        settings_dict["BVs_csv"] = os.path.join(job_folder, "/BVs.csv")
-        settings_dict["pvs_csv"] = os.path.join(job_folder, "/pvs.csv")
-        settings_dict["Yhat_csv"] = os.path.join(job_folder, "/Yhat.csv")
-        settings_dict["outliers_csv"] = os.path.join(job_folder, "/outliers.csv")
-        settings_dict["out_rds"] = os.path.join(job_folder, "/out.rds")
+        settings_dict["grm"] = os.path.join(job_folder, "/grm.txt")
+        settings_dict["output_var"] = os.path.join(job_folder, "/var.csv")
+        settings_dict["output_statmodel"] = os.path.join(job_folder, "/output_statmodel.csv")
+        settings_dict["output_BV"] = os.path.join(job_folder, "/BVs.csv")
+        settings_dict["output_pred"] = os.path.join(job_folder, "/output_pred.csv")
+        settings_dict["output_yhat"] = os.path.join(job_folder, "/Yhat.csv")
+        settings_dict["output_outliers"] = os.path.join(job_folder, "/outliers.csv")
+        settings_dict["formula"] = formula.statement
+        settings_dict["rcov"] = residual.statement
+        settings_dict["raw_analysis_out"] = os.path.join(job_folder, "/raw_analysis_out.rds")
 
         with open(settings_file, 'w') as f:
             json.dump(settings_dict, f)
