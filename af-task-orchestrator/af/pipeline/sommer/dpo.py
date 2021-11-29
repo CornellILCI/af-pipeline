@@ -56,7 +56,7 @@ class SommeRProcessData(ProcessData):
         job_folder = self.get_job_folder(self.__get_job_name())
         settings_file = os.path.join(job_folder, "settings.json")
         settings_dict["input_phenotypic_data"] = data_file
-        settings_dict["grm"] = os.path.join(job_folder, "/grm.txt")
+        # settings_dict["grm"] = os.path.join(job_folder, "/grm.txt")
         settings_dict["output_var"] = os.path.join(job_folder, "/var.csv")
         settings_dict["output_statmodel"] = os.path.join(job_folder, "/output_statmodel.csv")
         settings_dict["output_BV"] = os.path.join(job_folder, "/BVs.csv")
