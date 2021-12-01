@@ -25,6 +25,13 @@ settings_override = {
 }
 
 
+@pytest.fixture
+def temp_dir():
+
+    import tempfile
+    fp = tempfile.NamedTemporaryFile()
+
+
 @pytest.fixture(scope="session")
 def app(request):
     """Test flask app"""
