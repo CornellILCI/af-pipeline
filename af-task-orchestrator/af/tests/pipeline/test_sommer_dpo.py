@@ -51,7 +51,6 @@ def test_create_rcov_for_sommer_settings(mocker, dbsession, brapi_observation_ta
     dpo = SommeRProcessData(sommer_analysis_request)
     output_list = dpo.run()
     entry = output_list[0]
-    print("\n\n\n", entry, "\n")
     assert entry is not None
     assert entry.job_name == "test-request-id"
     assert entry.job_file == "/tmp/test-request-id/settings.json"
@@ -63,18 +62,20 @@ def test_create_formula_for_sommer_settings(mocker, dbsession, brapi_observation
         return_value=brapi_observation_table_api_response_1,
     )
 
-    mock_residual = Property(statement="~ units")
     mock_formula = Property(statement="~ mu rep !r entry !f mv")
-    # mock_fixed = Property(statement="<FIXED>")
-    # mock_random = Property(statement="<RANDOM>")
+    mock_residual = Property(statement="~ units")
+
     mocker.patch("af.pipeline.db.services.get_property", return_value=mock_formula)
 
     dpo = SommeRProcessData(sommer_analysis_request)
-    job_objects = dpo.run()
-    sf = job_objects[0].job_file
+    test_job_object = dpo.run()
 
-    with open(sf) as json_file:
+    settings_json = test_job_object[0].job_file
+
+    with open(settings_json) as json_file:
         data = json.load(json_file)
-    print(data)
 
-    assert data['formula'] == "~ mu rep !r entry !f mv"
+    # print(data['formula'], "!")
+
+    # change assert to include added trait
+    assert data['formula'] == "trait1 ~ mu rep !r entry !f mv"
