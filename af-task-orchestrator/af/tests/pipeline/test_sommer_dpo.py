@@ -18,7 +18,7 @@ def test_sommer_dpo_simple_test(mocker, dbsession, brapi_observation_table_api_r
     )
     
     mock_residual = Property(statement="~ units")
-    mock_formula = Property(statement="~ mu rep !r entry !f mv")
+    mock_formula = Property(statement="{trait_name} ~ mu rep !r entry !f mv")
 
     mocker.patch("af.pipeline.db.services.get_property", return_value=mock_residual)
     mocker.patch("af.pipeline.db.services.get_property", return_value=mock_formula)
@@ -45,6 +45,7 @@ def test_create_rcov_for_sommer_settings(mocker, dbsession, brapi_observation_ta
     )
 
     mock_residual = Property(statement="~ units")
+    mock_formula = Property(statement="{trait_name} ~ mu rep !r entry !f mv")
 
     mocker.patch("af.pipeline.db.services.get_property", return_value=mock_residual)
 
@@ -62,8 +63,7 @@ def test_create_formula_for_sommer_settings(mocker, dbsession, brapi_observation
         return_value=brapi_observation_table_api_response_1,
     )
 
-    mock_formula = Property(statement="~ mu rep !r entry !f mv")
-    mock_residual = Property(statement="~ units")
+    mock_formula = Property(statement="{trait_name} ~ mu rep !r entry !f mv")
 
     mocker.patch("af.pipeline.db.services.get_property", return_value=mock_formula)
 
@@ -75,7 +75,26 @@ def test_create_formula_for_sommer_settings(mocker, dbsession, brapi_observation
     with open(settings_json) as json_file:
         data = json.load(json_file)
 
-    # print(data['formula'], "!")
+    assert data['formula'] == "trait1 ~ mu rep !r entry !f mv" #vp
 
-    # change assert to include added trait
-    assert data['formula'] == "trait1 ~ mu rep !r entry !f mv"
+
+def test_add_column_for_sommer_settings(mocker, dbsession, brapi_observation_table_api_response_1, sommer_analysis_request):
+ 
+    mocker.patch(
+        "af.pipeline.data_reader.phenotype_data_brapi.PhenotypeDataBrapi.get",
+        return_value=brapi_observation_table_api_response_1,
+    )
+
+    mock_formula2 = Property(statement="{col2} ~ mu rep !r entry !f mv")
+
+    mocker.patch("af.pipeline.db.services.get_property", return_value=mock_formula2)
+
+    dpo = SommeRProcessData(sommer_analysis_request)
+    test_job_object = dpo.run()
+
+    settings_json = test_job_object[0].job_file
+
+    with open(settings_json) as json_file:
+        data = json.load(json_file)
+
+    assert data['formula'] == "studyName ~ mu rep !r entry !f mv" #vp

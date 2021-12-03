@@ -1,7 +1,7 @@
 import csv
 import os
 import json
-
+import pandas as pd
 
 from af.pipeline.dpo import ProcessData
 from af.pipeline.analysis_request import AnalysisRequest
@@ -33,6 +33,13 @@ class SommeRProcessData(ProcessData):
             traits.append(trait)
         return traits
 
+    def __get_traits(self) -> list[Trait]:
+        traits = []
+        for trait_id in self.trait_ids:
+            trait: Trait = self.data_reader.get_trait(trait_id)
+            traits.append(trait)
+        return traits
+
     def __prepare_inputfile_csv(self) -> dict:
 
         # there can be multiple experiments
@@ -46,36 +53,30 @@ class SommeRProcessData(ProcessData):
                 germplasm, plot_data, headers = self.data_reader.get_observation_units_table(occurrence_id=exp_id)
                 if not headers_written:
                     writer.writerow(headers)
+                    # print(headers)
                     headers_written = True
                 for data in plot_data:
                     writer.writerow(data)
-
+        
         return data_file
 
     def __prepare_Sommer_settings_file(self) -> dict:
 
         self.trait_names = []
-        # traits: list[Trait] = self.__get_traits()
         for trait in self.analysis_request.traits:
             self.trait_names.append(trait.traitName)
-        # print(f"\n\nself.analysis_request.traits={self.analysis_request.traits}")
-        # print(f"self.trait_ids={self.trait_ids}\n")
+        
+        name = self.analysis_request.traits[0].traitName
+
 
         settings_dict = {}
         data_file = self.__prepare_inputfile_csv()
+        df = pd.read_csv(data_file)
 
         settings_dict["path"] = str(data_file)
 
         residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
         formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
-
-
-        # HOW IS FORMULA STATEMENT FORMATTED IN ASREML DPO
-        # print(formula_statement)
-        # trait = Trait
-        print("\n",formula.statement,":)\n")
-        # formula_statement = formula.statement.format(trait_name=trait.abbreviation)
-
 
         job_folder = self.get_job_folder(self.__get_job_name())
         settings_file = os.path.join(job_folder, "settings.json")
@@ -87,11 +88,23 @@ class SommeRProcessData(ProcessData):
         settings_dict["output_pred"] = os.path.join(job_folder, "/output_pred.csv")
         settings_dict["output_yhat"] = os.path.join(job_folder, "/Yhat.csv")
         settings_dict["output_outliers"] = os.path.join(job_folder, "/outliers.csv")
-        settings_dict["formula"] = self.trait_names[0]+" "+formula.statement # check w Pedro
+
+        if formula.statement.find('col')==True:
+            col_num = formula.statement.split('col')[1][0]
+            col = "col"+col_num
+            col_name = df.columns[int(col_num)+1]
+            settings_dict["formula"] = formula.statement.format(trait_name=name, col2=col_name)
+
+        else:
+            settings_dict["formula"] = formula.statement.format(trait_name=name)
+
         settings_dict["rcov"] = residual.statement
         settings_dict["raw_analysis_out"] = os.path.join(job_folder, "/raw_analysis_out.rds")
-        # print(f"\nsettings_dict[formula] = {f}")
-        # print(f"settings_dict[formula] = {self.trait_ids[0]+f}\n")
+
+        """
+        If the formula has {col1} the bridge reads the column name for column 1
+        in the input data file and replaces {col1} with the name. 
+         This applies for any column number."""
 
         with open(settings_file, 'w') as f:
             json.dump(settings_dict, f)
@@ -99,7 +112,6 @@ class SommeRProcessData(ProcessData):
         job_data = JobData()
         job_data.job_name = self.__get_job_name()
         job_data.job_file = settings_file
-
         return job_data
         
 
