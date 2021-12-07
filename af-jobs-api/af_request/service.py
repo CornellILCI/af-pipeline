@@ -3,41 +3,43 @@ import uuid as uuidlib
 from datetime import datetime
 
 import celery_util
+import pydantic
 from af_request import api_models
 from af_request import models as db_models
 from database import db
 
 
-def submit(request_data: api_models.AnalysisRequestParameters):
+class RequestData(pydantic.BaseModel):
+    experiments: list[api_models.Experiment] = None
+    traits: list[api_models.Trait] = None
+
+
+def submit(request_params: api_models.AnalysisRequestParameters):
     """Submits analysis request to pipeline."""
 
     analysis_uuid = str(uuidlib.uuid4())
 
     req = db_models.Request(
         uuid=analysis_uuid,
-        institute=request_data.institute,
-        crop=request_data.crop,
-        type=request_data.analysisType,
-        requestor_id=request_data.requestorId,
+        institute=request_params.institute,
+        crop=request_params.crop,
+        type=request_params.analysisType,
+        requestor_id=request_params.requestorId,
         status="PENDING",
     )
 
-    req_data = {
-        "experiments": [experiment.dict() for experiment in request_data.experiments],
-        "occurrences": [occurrence.dict() for occurrence in request_data.occurrences],
-        "traits": [trait.dict() for trait in request_data.traits],
-    }
+    req_data = RequestData(**request_params.dict())
 
     analysis = db_models.Analysis(
         request=req,
         name=analysis_uuid,
         creation_timestamp=datetime.utcnow(),
         status="IN-PROGRESS",
-        formula_id=request_data.configFormulaPropertyId,
-        residual_id=request_data.configResidualPropertyId,
-        exp_loc_pattern_id=request_data.expLocAnalysisPatternPropertyId,
-        model_id=request_data.configFormulaPropertyId,
-        analysis_request_data=req_data,
+        formula_id=request_params.configFormulaPropertyId,
+        residual_id=request_params.configResidualPropertyId,
+        exp_loc_pattern_id=request_params.expLocAnalysisPatternPropertyId,
+        model_id=request_params.configFormulaPropertyId,
+        analysis_request_data=req_data.dict(),
     )
     with db.session.begin():
         db.session.add(analysis)
@@ -46,14 +48,14 @@ def submit(request_data: api_models.AnalysisRequestParameters):
             process_name="analyze",
             args=(
                 req.uuid,
-                json.loads(request_data.json()),
+                json.loads(request_params.json()),
             ),
         )
 
     return analysis
 
 
-def query(query_params: api_models.AnalysisRequestListQueryParameters):
+def query(query_params: api_models.AnalysisRequestListQueryParameters) -> db_models.Analysis:
 
     query = db_models.Analysis.query.join(db_models.Request)
 

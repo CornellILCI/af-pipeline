@@ -13,7 +13,6 @@ class SommeRAnalyze(Analyze):
     def __init__(self, analysis_request: AnalysisRequest, *args, **kwargs):
         super().__init__(analysis_request=analysis_request, *args, **kwargs)
 
-    
     def get_cmd(self, job_data, analysis_engine=None):
         return ["sommer", job_data.settings_file]
 

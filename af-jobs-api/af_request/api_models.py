@@ -37,6 +37,14 @@ class Experiment(BaseModel):
 class Occurrence(BaseModel):
     occurrenceId: str
     occurrenceName: str
+    locationId: Optional[str] = None
+    locationName: Optional[str] = None
+
+
+class Experiment(BaseModel):
+    experimentId: str
+    experimentName: str
+    occurrences: Optional[list[Occurrence]] = None
 
 
 class Trait(BaseModel):
@@ -64,6 +72,8 @@ class AnalysisRequest(AfBaseModel):
     status: Optional[Status] = None
     statusMessage: Optional[str] = None
     jobs: Optional[List[Job]] = None
+    experiments: Optional[list[Experiment]] = None
+    traits: Optional[list[Trait]] = None
     createdOn: Optional[datetime] = None
     modifiedOn: Optional[datetime] = None
     resultDownloadRelativeUrl: Optional[str] = None
