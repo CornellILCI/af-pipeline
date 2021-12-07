@@ -3,28 +3,27 @@
 # Description      : Generate randomization and layout for partially replicated (P-Rep) 
 #                    Design which can be run in the command line with arguments and 
 #                    accepts entry list
-# R Version        : 4.0.3 
+# R Version        : 4.1.0 
 # Note             : with entryList as argument and uses entry_id in the randomization
 # -------------------------------------------------------------------------------------
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2021.01.10
-# Date Modified    : 2021.04.20
+# Date Modified    : 2021.11.25
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 2
+# Script Version   : 3
 # Command          : Rscript randPREPirri.R --entryList "PREP_SD_0001.lst"
-#                    --nTrial 3 --genLayout T --nFieldRow 8 --fieldOrder "CO" --serpentine T
-#                    --topToBottom T -o "Output" -p "D:/Results"
-# Remark           : remove the serpentine and topToBottom as argument for this script
-#                    replace with fieldOrder
+#                    --nTrial 3 --genLayout T --nFieldRow 8 --serpentinePrep "CO" 
+#                    -o "Output" -p "D:/Results"
+# Remark           : replace serpentine parameter as an input file to serpentinePrep
 # -------------------------------------------------------------------------------------
 # Parameters:
 # entryList = a cvs file containing the entry information with entry type and number of replicates
 # nTrial = number of trials (occurrence)
 # genLayout = logical; if TRUE, layout will be generated
 # nFieldRow = number of field rows, required if genLayout is TRUE
-# fieldOrder = character with possible values" 'CO' (default), 'CS', 'RO','RS'
+# serpentinePrep = character with possible values" 'CO' (default), 'CS', 'RO','RS'
 # outputFile = prefix to be used for the names of the output files
 # outputPath = path where output will be saved
 # ---------------------------------------------------------
@@ -42,7 +41,7 @@ optionList <- list(
               help = "Whether layout will be generated or not", metavar = "whether layout will be generated or not"),
   make_option(opt_str = c("--nFieldRow"), type = "integer", default = as.integer(1),
               help = "Number of field rows", metavar = "number of field rows"),
-  make_option(opt_str = c("--serpentine"), type = "character", default = "CO",
+  make_option(opt_str = c("--serpentinePrep"), type = "character", default = "CO",
               help = "Indicates whether plot numbers will be in serpentine arrangement or not written from top-to-bottom or left-to-right", metavar = "Whether plot numbers will be in serpentine arrangement or not"),
   # make_option(opt_str = c("--serpentine"), type = "logical", default = F,
   #             help = "Whether plot numbers will be in serpentine arrangement or not", metavar = "Whether plot numbers will be in serpentine arrangement or not"),
@@ -69,7 +68,7 @@ if (!dir.exists(opt$outputPath)) {
 }
 
 # read fieldOrder
-fieldOrder <- opt$serpentine
+fieldOrder <- opt$serpentinePrep
 serpentine <- F
 topToBottom <- T
 

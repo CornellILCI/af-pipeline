@@ -35,10 +35,11 @@ def submit(request_params: api_models.AnalysisRequestParameters):
         name=analysis_uuid,
         creation_timestamp=datetime.utcnow(),
         status="IN-PROGRESS",
+        analysis_objective_id=request_params.analysisObjectivePropertyId,
         formula_id=request_params.configFormulaPropertyId,
         residual_id=request_params.configResidualPropertyId,
         exp_loc_pattern_id=request_params.expLocAnalysisPatternPropertyId,
-        model_id=request_params.configFormulaPropertyId,
+        model_id=request_params.analysisConfigPropertyId,
         analysis_request_data=req_data.dict(),
     )
     with db.session.begin():
