@@ -26,10 +26,25 @@ settings_override = {
 
 
 @pytest.fixture
-def temp_dir():
+def job_name():
+    return "test_job"
+
+
+@pytest.fixture
+def job_dir():
 
     import tempfile
-    fp = tempfile.NamedTemporaryFile()
+    _dir = tempfile.TemporaryDirectory()
+
+    return _dir
+
+@pytest.fixture
+def job_files(job_dir):
+    
+    job_files = []
+    fp = tempfile.NamedTemporaryFile(dir=job_dir.name)
+    job_files.append(fp)
+    return job_files
 
 
 @pytest.fixture(scope="session")
