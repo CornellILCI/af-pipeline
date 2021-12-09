@@ -68,10 +68,8 @@ class SommeRProcessData(ProcessData):
         
         name = self.analysis_request.traits[0].traitName
 
-
         settings_dict = {}
         data_file = self.__prepare_inputfile_csv()
-        df = pd.read_csv(data_file)
 
         settings_dict["path"] = str(data_file)
 
@@ -88,23 +86,9 @@ class SommeRProcessData(ProcessData):
         settings_dict["output_pred"] = os.path.join(job_folder, "/output_pred.csv")
         settings_dict["output_yhat"] = os.path.join(job_folder, "/Yhat.csv")
         settings_dict["output_outliers"] = os.path.join(job_folder, "/outliers.csv")
-
-        if formula.statement.find('col')==True:
-            col_num = formula.statement.split('col')[1][0]
-            col = "col"+col_num
-            col_name = df.columns[int(col_num)+1]
-            settings_dict["formula"] = formula.statement.format(trait_name=name, col2=col_name)
-
-        else:
-            settings_dict["formula"] = formula.statement.format(trait_name=name)
-
+        settings_dict["formula"] = formula.statement.format(trait_name=name)
         settings_dict["rcov"] = residual.statement
         settings_dict["raw_analysis_out"] = os.path.join(job_folder, "/raw_analysis_out.rds")
-
-        """
-        If the formula has {col1} the bridge reads the column name for column 1
-        in the input data file and replaces {col1} with the name. 
-         This applies for any column number."""
 
         with open(settings_file, 'w') as f:
             json.dump(settings_dict, f)
