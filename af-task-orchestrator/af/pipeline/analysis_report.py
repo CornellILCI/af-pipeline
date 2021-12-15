@@ -134,11 +134,23 @@ def write_entry_predictions(report_file: str, predictions_df: pd.DataFrame, meta
     entry_report = entry_report.drop_duplicates()
 
     pandasutil.append_df_to_excel(report_file, entry_report, sheet_name=ENTRY_SHEET_NAME)
-    # print("\nfor Entry:\n",pd.read_excel(report_file),"\n", pd.read_excel(report_file).dtypes, "\n")
-    # print("\n", load_workbook(report_file),"\n")
-    # print("\n",load_workbook(report_file).sheetnames,"\n")
-    
 
+    # loading excel
+    wb = load_workbook(report_file)
+    sn = wb.sheetnames
+    ws = wb[sn[0]] # worksheet is entry sheet
+
+    # changing column type val
+    val = ws["H"]
+    for x in range(1,len(val)): 
+        val[x].value = (val[x].value)
+        # print((val[x].value))
+
+    # changing column type std.error
+    sd = ws["I"]
+    for x in range(1,len(sd)): 
+        sd[x].value = (sd[x].value)
+        # print((sd[x].value))
 
 
 def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
@@ -198,56 +210,25 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
     # loading excel
     wb = load_workbook(report_file)
     sn = wb.sheetnames
-    print("\nSHEETNAMES: ", sn)
+    ws = wb[sn[2]]
+    print(ws)
 
-    ws = wb[sn[0]]
-    print("\nWorksheet: ",ws)
-    
-    rows = ws.iter_rows(min_row=1, max_row=1) # returns a generator of rows
-    first_row = next(rows) # get the first row
-    headings = [c.value for c in first_row] #
-    print("\nheadings : ", headings)
-    print("std_error index : ",headings.index('std_error'))
+    list_with_values=[]
+    for cell in ws[1]:
+        list_with_values.append(cell.value)
+    print(list_with_values)
 
+    # changing column type val
+    val = ws["G"]
+    for x in range(1,len(val)): 
+        val[x].value = float(val[x].value)
+        print((val[x].value))
 
-    first_column = ws['A']
-    print("\nfirst column of sheet : ",first_column)
-
-    # changing column type
-    # value and std.error
-    print("\n old data types in column ( now reset ) : ")
-    for x in range(len(first_column)): 
-        # to string method :
-        # first_column[x].value = str(first_column[x].value)
-        print(type((first_column[x].value)))
-     
-#     print("\nnew column widths: ")
-#     dims = {}
-#     for row in ws.rows:
-#         for cell in row:
-#             if cell.value:
-#                 dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
-#     for k, v in dims.items():
-#         ws.column_dimensions[k].width = v
-#         print(v)
-
-#     # Removing fill
-#     no_fill = styles.PatternFill(fill_type=None)
-#     side = styles.Side(border_style=None)
-#     no_border = styles.borders.Border(
-#         left=side, 
-#         right=side, 
-#         top=side, 
-#         bottom=side,
-# )
-#     for row in ws.rows:
-#         for cell in row:
-#             if cell.value:
-#                 cell.fill = no_fill
-#                 cell.border = no_border
-
-#     # wb.save('< get the workbook path .xlsx')
-
+    # changing column type std.error
+    sd = ws["H"]
+    for x in range(1,len(sd)): 
+        sd[x].value = float(sd[x].value)
+        print((sd[x].value))
 
 
 
@@ -282,3 +263,26 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
 
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)
     # print("\nfor Model Stats:\n",pd.read_excel(report_file),"\n", pd.read_excel(report_file).dtypes, "\n")
+
+    # in model statistics : store LogL AIC and BIC columns as numbers
+
+    wb = load_workbook(report_file)
+    sn = wb.sheetnames
+    ws = wb[sn[0]]
+
+    list_with_values=[]
+    for cell in ws[1]:
+        list_with_values.append(cell.value)
+
+    # changing column type values
+    logl = ws["E"]
+    for x in range(2,len(logl)): 
+        logl[x].value = float(logl[x].value)
+
+    aic = ws["F"]
+    for x in range(2,len(aic)): 
+        aic[x].value = float(aic[x].value)
+
+    bic = ws["G"]
+    for x in range(2,len(bic)): 
+        bic[x].value = float(bic[x].value)
