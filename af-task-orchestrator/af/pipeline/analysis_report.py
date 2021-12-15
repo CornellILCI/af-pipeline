@@ -1,6 +1,8 @@
 import pandas as pd
 from af.pipeline import pandasutil, utils
 from af.pipeline.db import services as db_services
+from openpyxl import load_workbook, styles
+
 
 REQUEST_INFO_SHEET_NAME = "Request Info"
 ENTRY_SHEET_NAME = "Entry"
@@ -181,6 +183,92 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
     entry_location_report = entry_location_report.drop_duplicates()
 
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
+
+
+def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
+
+    entry_location_report_columns = [
+        "job_id",
+        "trait_abbreviation",
+        "entry_id",
+        "entry_name",
+        "location_id",
+        "location_name",
+        "value",
+        "std_error",
+    ]
+
+    # get entry location only rows
+    entry_location_report = predictions_df[predictions_df.entry.notnull()]
+    entry_location_report = entry_location_report[entry_location_report["loc"].notnull()]
+    entry_location_report = entry_location_report[entry_location_report.num_factors == 2]
+
+    if len(entry_location_report) == 0:
+        return
+
+    entry_location_report = entry_location_report.merge(
+        metadata_df, left_on=["entry", "loc"], right_on=["entry_id", "location_id"]
+    )
+
+    entry_location_report = entry_location_report[entry_location_report_columns]
+
+    entry_location_report = entry_location_report.drop_duplicates()
+
+    pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
+    
+    # loading excel
+    wb = load_workbook(report_file)
+    sn = wb.sheetnames
+    print("\nSHEETNAMES: ", sn)
+
+    ws = wb[sn[0]]
+    print("\nWorksheet: ",ws)
+    
+    rows = ws.iter_rows(min_row=1, max_row=1) # returns a generator of rows
+    first_row = next(rows) # get the first row
+    headings = [c.value for c in first_row] #
+    print("\nheadings : ", headings)
+    print("std_error index : ",headings.index('std_error'))
+
+
+    first_column = ws['A']
+    print("\nfirst column of sheet : ",first_column)
+
+    # # changing column type
+    # # value and std.error
+    # print("\n old data types in column ( now reset ) : ")
+    # for x in range(len(first_column)): 
+    #     # to string method :
+    #     # first_column[x].value = str(first_column[x].value)
+    #     print(type((first_column[x].value)))
+     
+    print("\nnew column widths: ")
+    dims = {}
+    for row in ws.rows:
+        for cell in row:
+            if cell.value:
+                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
+    for k, v in dims.items():
+        ws.column_dimensions[k].width = v
+        print(v)
+
+#     # Removing fill
+#     no_fill = styles.PatternFill(fill_type=None)
+#     side = styles.Side(border_style=None)
+#     no_border = styles.borders.Border(
+#         left=side, 
+#         right=side, 
+#         top=side, 
+#         bottom=side,
+# )
+#     for row in ws.rows:
+#         for cell in row:
+#             if cell.value:
+#                 cell.fill = no_fill
+#                 cell.border = no_border
+
+#     # wb.save('< get the workbook path .xlsx')
+
 
 
 def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame, rename_map: dict):
