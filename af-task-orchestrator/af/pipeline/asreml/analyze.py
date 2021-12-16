@@ -36,6 +36,51 @@ class AsremlAnalyze(Analyze):
         self.report_file_path = path.join(analysis_request.outputFolder, "report.xlsx")
         # the engine script would have been determined from get_analyze_object so just pass it here
 
+    def pre_process(self):
+
+        self._update_request_status("IN-PROGRESS", "Data preprocessing in progress")
+
+        try:
+            job_input_files = self.get_process_data(self.analysis_request).run()
+            self._update_request_status("IN-PROGRESS", "Data preprocessing completed. Running jobs.")
+            return job_input_files
+        except (DataReaderException, DpoException) as e:
+            self._update_request_status("FAILURE", "Data preprocessing failed.")
+            raise AnalysisError(str(e))
+        finally:
+            self.db_session.commit()
+
+    def get_engine_script(self):
+        return self.engine_script
+
+    def run_job(self, job_data, analysis_engine=None):
+
+        if not analysis_engine:
+            analysis_engine = self.get_engine_script()
+
+        job_dir = utils.get_parent_dir(job_data.data_file)
+
+        job = db_services.create_job(
+            self.db_session, self.analysis.id, job_data.job_name, "IN-PROGRESS", "Processing in the input request"
+        )
+
+        try:
+            cmd = [analysis_engine, job_data.job_file, job_data.data_file]
+            _ = subprocess.run(cmd, capture_output=True)
+            job = db_services.update_job(
+                self.db_session, job, "IN-PROGRESS", "Completed the job. Pending post processing."
+            )
+
+            job_data.job_result_dir = job_dir
+
+            return job_data
+        except Exception as e:
+            self.analysis.status = "FAILURE"
+            db_services.update_job(self.db_session, job, "FAILURE", str(e))
+            raise AnalysisError(str(e))
+        finally:
+            self.db_session.commit()
+
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):
         try:
 

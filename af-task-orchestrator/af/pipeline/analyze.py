@@ -141,6 +141,11 @@ class Analyze(abc.ABC):
         return job
 
 
+    def _update_request_status(self, status, message):
+        self.analysis.request.status = status
+        self.analysis.request.msg = message
+
+
 def get_analyze_object(analysis_request: AnalysisRequest, session=None):
     """Returns the configured Analyze object based on engine name"""
     if not session:
