@@ -135,22 +135,18 @@ def write_entry_predictions(report_file: str, predictions_df: pd.DataFrame, meta
 
     pandasutil.append_df_to_excel(report_file, entry_report, sheet_name=ENTRY_SHEET_NAME)
 
-    # loading excel
+    # loading excel, changing column type to numeric
     wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[0]] # worksheet is entry sheet
+    sheets = wb.sheetnames
+    entry_sheet = wb[sheets[0]]
 
-    # changing column type val
-    val = ws["H"]
+    val = entry_sheet["H"]
     for x in range(1,len(val)): 
         val[x].value = (val[x].value)
-        # print((val[x].value))
 
-    # changing column type std.error
-    sd = ws["I"]
+    sd = entry_sheet["I"]
     for x in range(1,len(sd)): 
         sd[x].value = (sd[x].value)
-        # print((sd[x].value))
 
 
 def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
@@ -207,29 +203,22 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
 
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
     
-    # loading excel
+    # loading excel, change column type to numeric
     wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[2]]
-    print(ws)
+    sheets = wb.sheetnames
+    entry_location_sheet = wb[sheets[2]]
 
     list_with_values=[]
-    for cell in ws[1]:
+    for cell in entry_location_sheet[1]:
         list_with_values.append(cell.value)
-    print(list_with_values)
 
-    # changing column type val
-    val = ws["G"]
+    val = entry_location_sheet["G"]
     for x in range(1,len(val)): 
         val[x].value = float(val[x].value)
-        print((val[x].value))
 
-    # changing column type std.error
-    sd = ws["H"]
+    sd = entry_location_sheet["H"]
     for x in range(1,len(sd)): 
         sd[x].value = float(sd[x].value)
-        print((sd[x].value))
-
 
 
 def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame, rename_map: dict):
@@ -260,29 +249,27 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     model_stats_df = model_stats_df.rename(columns=rename_map)
 
     model_stats_df = pandasutil.df_keep_columns(model_stats_df, model_stats_report_columns)
-
+    
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)
-    # print("\nfor Model Stats:\n",pd.read_excel(report_file),"\n", pd.read_excel(report_file).dtypes, "\n")
 
-    # in model statistics : store LogL AIC and BIC columns as numbers
-
+    # loading excel, change column type to numeric
     wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
+    sheets = wb.sheetnames
+    model_stat_sheet = wb[sheets[0]]
 
     list_with_values=[]
-    for cell in ws[1]:
+    for cell in model_stat_sheet[1]:
         list_with_values.append(cell.value)
 
-    # changing column type values
-    logl = ws["E"]
+    logl = model_stat_sheet["E"]
     for x in range(2,len(logl)): 
         logl[x].value = float(logl[x].value)
 
-    aic = ws["F"]
+    aic = model_stat_sheet["F"]
     for x in range(2,len(aic)): 
         aic[x].value = float(aic[x].value)
 
-    bic = ws["G"]
+    bic = model_stat_sheet["G"]
     for x in range(2,len(bic)): 
         bic[x].value = float(bic[x].value)
+
