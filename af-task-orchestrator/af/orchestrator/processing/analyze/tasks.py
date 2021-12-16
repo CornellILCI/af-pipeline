@@ -36,7 +36,7 @@ def pre_process(request_id, analysis_request):
 
     results = []  # results initially empty
     args = request_id, analysis_request, input_files, results
-    # determine if the analyze task
+    
     engine = analyze_object.get_engine_script()
     if engine == "asreml":
         app.send_task("run_asreml_analyze", args=args, queue="ASREML")
@@ -66,3 +66,5 @@ def post_process(request_id, analysis_request, results, gathered_objects=None):
 def done_analyze(request_id, analysis_request, gathered_objects):
     # this is the terminal task to report DONE in tasks
     _ = pipeline_analyze.get_analyze_object(analysis_request).finalize(gathered_objects)
+
+
