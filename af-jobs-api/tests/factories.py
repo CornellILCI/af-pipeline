@@ -3,7 +3,7 @@ from datetime import datetime
 
 import factory
 from af_request import api_models, models
-from database import Property, db
+from database import Property, PropertyConfig, db
 from factory import Factory, LazyAttribute, Sequence, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyText
@@ -43,9 +43,18 @@ class RequestFactory(CreationModificationBaseFactory):
         model = models.Request
 
 
+class PropertyConfigFactory(CreationModificationBaseFactory):
+
+    id = factory.Sequence(lambda n: n)
+
+    class Meta:
+        model = PropertyConfig
+
+
 class PropertyFactory(CreationModificationBaseFactory):
 
-    id = factory.Faker("pyint", min_value=1)
+    id = factory.Sequence(lambda n: n)
+
     code = factory.Faker("pystr", min_chars=5, max_chars=5)
     name = factory.Faker("pystr", min_chars=5, max_chars=5)
     label = factory.Faker("text", max_nb_chars=10)
@@ -57,6 +66,32 @@ class PropertyFactory(CreationModificationBaseFactory):
 
     class Meta:
         model = Property
+
+
+class RandomPropertyFactory(PropertyFactory):
+    @factory.post_generation
+    def property_configs(obj, create, extracted, **kwargs):
+        obj.property_configs.extend(
+            PropertyConfigFactory.create_batch(size=10, property_id=obj.id, config_property_id=obj.id)
+        )
+
+
+class AnalysisConfigsFactory(PropertyFactory):
+
+    code = "analysis_config"
+
+    @factory.post_generation
+    def property_configs(obj, create, extracted, **kwargs):
+        obj.property_configs.extend(PropertyConfigFactory.create_batch(size=10, property_id=obj.id))
+
+        # add analysis configs
+        for property_config in obj.property_configs:
+            config_property = PropertyFactory()
+            property_config.property_config_property = config_property
+            property_config.config_property_id = config_property.id
+
+        # add property config for analysis config itself
+        obj.property_configs.append(PropertyConfigFactory(property_id=obj.id, config_property_id=obj.id))
 
 
 class JobFactory(Factory):

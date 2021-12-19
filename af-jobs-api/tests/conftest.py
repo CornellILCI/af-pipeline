@@ -7,6 +7,8 @@ from af_request.views import af_requests_bp
 
 from api import create_app
 
+from . import factories as model_factory
+
 from .factories import (
     AnalysisFactory,
     AnalysisRequestParametersFacotry,
@@ -112,7 +114,7 @@ def analyses(session):
     PropertyFactory._meta.sqlalchemy_session = session
     JobFactory._meta.sqlalchemy_session = session
 
-    analyses = [AnalysisFactory(), AnalysisFactory()]
+    analyses = AnalysisFactory.create_batch(size=2)
 
     return analyses
 
@@ -121,3 +123,29 @@ def analyses(session):
 def af_request_parameters():
     analysis_request_parameters = AnalysisRequestParametersFacotry()
     return analysis_request_parameters
+
+@pytest.fixture
+def properties(session):
+
+    model_factory.RandomPropertyFactory._meta.sqlalchemy_session = session
+    model_factory.PropertyConfigFactory._meta.sqlalchemy_session = session
+    
+    properties = model_factory.RandomPropertyFactory.create_batch(size=10)
+    
+    return properties
+
+@pytest.fixture
+def analysis_configs(session):
+
+    model_factory.AnalysisConfigsFactory._meta.sqlalchemy_session = session
+    model_factory.PropertyConfigFactory._meta.sqlalchemy_session = session
+    model_factory.PropertyFactory._meta.sqlalchemy_session = session
+
+    base_analysis_config = model_factory.AnalysisConfigsFactory()
+
+    analysis_configs = []
+    for property_config in base_analysis_config.property_configs:
+        if property_config.property_id != property_config.config_property_id:
+            analysis_configs.append(property_config.property_config_property)
+    return analysis_configs
+
