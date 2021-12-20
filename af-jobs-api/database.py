@@ -81,12 +81,12 @@ class Property(db.Model):
 
     property_configs = db.relationship("PropertyConfig", primaryjoin="and_(Property.id==PropertyConfig.property_id)")
 
+    property_metas = db.relationship("PropertyMeta", back_populates="property")
 
 @dataclass
 class PropertyConfig(db.Model):
 
     __tablename__ = "property_config"
-    __table_args__ = {"schema": "af"}
 
     # TODO:  define columns and Foreign key here
     is_required = db.Column(db.Boolean, default=False)
@@ -106,9 +106,22 @@ class PropertyConfig(db.Model):
 
 
 @dataclass
+class PropertyMeta(db.Model):
+
+    __tablename__ = "property_meta"
+
+    property_id = db.Column(db.Integer, db.ForeignKey(Property.id))
+    code = db.Column(db.String)
+    value = db.Column(db.String)
+
+    property = db.relationship(Property, back_populates="property_metas")
+
+
+
+
+@dataclass
 class PropertyUI(db.Model):
     __tablename__ = "property_ui"
-    __table_args__ = {"schema": "af"}
 
     is_visible = db.Column(db.Boolean, default=True)
     minimum = db.Column(db.Integer)

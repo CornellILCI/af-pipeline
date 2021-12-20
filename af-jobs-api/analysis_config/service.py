@@ -1,6 +1,7 @@
 from database import Property, PropertyConfig
 from sqlalchemy import and_
 
+
 def get_analysis_configs():
 
     analysis_config_base_property = Property.query.filter(Property.code == "analysis_config").one()

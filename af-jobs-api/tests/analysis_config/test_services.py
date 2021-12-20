@@ -19,7 +19,7 @@ def test_get_analysis_configs_has_correct_size(session, analysis_configs):
     assert len(analysis_configs_returned) == len(analysis_configs)
 
 
-def test_get_analysis_configs_has_correct_size_with_random_props(session, analysis_configs, properties):
+def test_get_analysis_configs_has_correct_size_with_random_props(session, analysis_configs, random_properties):
 
     from analysis_config import service
 

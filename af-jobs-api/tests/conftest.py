@@ -124,15 +124,17 @@ def af_request_parameters():
     analysis_request_parameters = AnalysisRequestParametersFacotry()
     return analysis_request_parameters
 
+
 @pytest.fixture
-def properties(session):
+def random_properties(session):
 
     model_factory.RandomPropertyFactory._meta.sqlalchemy_session = session
     model_factory.PropertyConfigFactory._meta.sqlalchemy_session = session
-    
+
     properties = model_factory.RandomPropertyFactory.create_batch(size=10)
-    
+
     return properties
+
 
 @pytest.fixture
 def analysis_configs(session):
@@ -148,4 +150,3 @@ def analysis_configs(session):
         if property_config.property_id != property_config.config_property_id:
             analysis_configs.append(property_config.property_config_property)
     return analysis_configs
-
