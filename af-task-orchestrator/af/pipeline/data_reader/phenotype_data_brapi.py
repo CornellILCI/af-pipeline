@@ -20,6 +20,7 @@ GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
 GET_GERMPLASM_BY_DB_ID = "/search/germplasm/{searchResultDbId}"
 GET_OBSERVATION_UNITS_TABLE_URL = "/observationunits/table"
+GET_POST_OBSERVATION_UNITS_URL_BMS_V2 = "/bmsapi/rice/brapi/v2/search/observationunits"
 
 
 class PhenotypeDataBrapi(PhenotypeData):
@@ -93,6 +94,112 @@ class PhenotypeDataBrapi(PhenotypeData):
                 germplasm.append(row[germplasm_index])
 
         return germplasm, plots_data, plots_header
+
+    def get_plots_from_search(self, occurrence_id: str = None) -> pd.DataFrame:
+
+        #first POST to /bmsapi/rice/brapi/v2/search/observationunits
+        observation_units_filters = ObservationUnitQueryParams(
+            studyDbId=occurrence_id, observationLevel="plot"
+        )
+
+        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2, params=observation_units_filters.dict())
+        if not post_response.is_success:
+                raise DataReaderException(post_response.error)
+
+        observation_units_id = post_response.body["result"]["searchResultDbId"]
+
+        plots_data = []
+
+        columns_path = [
+            "observationUnitDbId",
+            "locationDbId",
+            "studyDbId",
+            "trialDbId",
+            "germplasmDbId",
+            ["observationUnitPosition", "positionCoordinateX"],
+            ["observationUnitPosition", "positionCoordinateY"],
+        ]
+        page_num = 0
+        
+        get_more_plots = True
+        #the loop goes here
+
+        while(get_more_plots):
+
+            observation_units_filters = ObservationUnitQueryParams(
+                pageSize=self.brapi_list_page_size, page = page_num
+            )
+            get_response = self.get(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2+"/"+observation_units_id)
+            
+            if not get_response.is_success:
+                raise DataReaderException(get_response.error)
+
+            brapi_response = BaseListResponse(**get_response.body)
+
+            plots_data = brapi_response.result.data
+
+            if len(plots_data) == 0 and page_num == 0:
+                columns = list(self.plots_api_fields_to_local_fields.values())
+                columns.append("plot_qc")
+                return pd.DataFrame(columns=columns)
+
+            # paths to normalize json data to flat columns
+            columns_path = [
+                "observationUnitDbId",
+                "locationDbId",
+                "studyDbId",
+                "trialDbId",
+                "germplasmDbId",
+                ["observationUnitPosition", "positionCoordinateX"],
+                ["observationUnitPosition", "positionCoordinateY"],
+            ]
+
+            # list record path to normalze
+            list_record_path = ["observationUnitPosition", "observationLevelRelationships"]
+
+            # this dataframe will have observation level array as seperate rows
+            plots_unpivoted = pd.json_normalize(
+                plots_data,
+                record_path=list_record_path,
+                meta=columns_path,
+            )
+
+            plots_observation_levels_pivoted = plots_unpivoted.pivot(
+                index="observationUnitDbId", columns="levelName", values="levelCode"
+            )
+
+            plots_observation_levels_droped = (
+                plots_unpivoted.drop(columns=["levelOrder", "levelCode", "levelName"]).drop_duplicates().reset_index()
+            )
+
+            plots_page = plots_observation_levels_droped.join(
+                plots_observation_levels_pivoted, on="observationUnitDbId"
+            )
+
+            # keep only local field columns
+            plots_page = df_keep_columns(plots_page, self.plots_api_fields_to_local_fields.keys())
+
+            # since plot_qc not defined in brapi spec, set default value "G"
+            plots_page["plot_qc"] = "G"
+
+            if page_num == 0:
+                plots = plots_page
+            else:
+                plots = plots.append(plots_page)
+
+            # to get next page
+            page_num += 1
+
+            if page_num < get_response.body["metadata"]["pagination"]["totalPages"]:
+                page_num += 1
+            else:
+                get_more_plots = False
+
+        # rename dataframe column with local field names
+        plots.rename(columns=self.plots_api_fields_to_local_fields, inplace=True)
+
+        return plots.astype(str)
+
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
 

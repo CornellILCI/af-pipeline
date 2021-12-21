@@ -33,7 +33,7 @@ class SommeRProcessData(ProcessData):
             writer = csv.writer(f)
 
             for exp_id in self.experiment_ids:
-                germplasm, plot_data, headers = self.data_reader.get_observation_units_table(occurrence_id=exp_id)
+                germplasm, plot_data, headers = self.data_reader.get_plots_from_search(occurrence_id=exp_id) 
                 if not headers_written:
                     writer.writerow(headers)
                     headers_written = True
