@@ -33,13 +33,6 @@ class SommeRProcessData(ProcessData):
             traits.append(trait)
         return traits
 
-    def __get_traits(self) -> list[Trait]:
-        traits = []
-        for trait_id in self.trait_ids:
-            trait: Trait = self.data_reader.get_trait(trait_id)
-            traits.append(trait)
-        return traits
-
     def __prepare_inputfile_csv(self) -> dict:
 
         # there can be multiple experiments
