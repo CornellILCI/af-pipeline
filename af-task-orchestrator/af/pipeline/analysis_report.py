@@ -135,18 +135,6 @@ def write_entry_predictions(report_file: str, predictions_df: pd.DataFrame, meta
 
     pandasutil.append_df_to_excel(report_file, entry_report, sheet_name=ENTRY_SHEET_NAME)
 
-    # loading excel, changing column type to numeric
-    wb = load_workbook(report_file)
-    sheets = wb.sheetnames
-    entry_sheet = wb[sheets[0]]
-
-    val = entry_sheet["H"]
-    for x in range(1,len(val)): 
-        val[x].value = (val[x].value)
-
-    sd = entry_sheet["I"]
-    for x in range(1,len(sd)): 
-        sd[x].value = (sd[x].value)
 
 
 def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
@@ -203,22 +191,6 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
 
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
     
-    # loading excel, change column type to numeric
-    wb = load_workbook(report_file)
-    sheets = wb.sheetnames
-    entry_location_sheet = wb[sheets[2]]
-
-    list_with_values=[]
-    for cell in entry_location_sheet[1]:
-        list_with_values.append(cell.value)
-
-    val = entry_location_sheet["G"]
-    for x in range(1,len(val)): 
-        val[x].value = float(val[x].value)
-
-    sd = entry_location_sheet["H"]
-    for x in range(1,len(sd)): 
-        sd[x].value = float(sd[x].value)
 
 
 def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame, rename_map: dict):
@@ -252,9 +224,9 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)
 
-    # loading excel, change column type to numeric
     wb = load_workbook(report_file)
     sheets = wb.sheetnames
+    
     model_stat_sheet = wb[sheets[0]]
 
     list_with_values=[]
@@ -272,4 +244,5 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     bic = model_stat_sheet["G"]
     for x in range(2,len(bic)): 
         bic[x].value = float(bic[x].value)
+
 
