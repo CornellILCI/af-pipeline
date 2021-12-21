@@ -41,17 +41,6 @@ def write_request_settings(db_session, report_file, analysis_request):
 
     pandasutil.append_df_to_excel(report_file, request_settings, sheet_name=REQUEST_INFO_SHEET_NAME)
 
-    # loading excel
-    wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
-    dims = {}
-    for row in ws.rows:
-        for cell in row:
-            if cell.value:
-                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
-    for k, v in dims.items():
-        ws.column_dimensions[k].width = v
 
 def write_occurrences(report_file, occurrences):
 
@@ -67,17 +56,6 @@ def write_occurrences(report_file, occurrences):
     occurrence_report = pd.DataFrame(occurrence_report_build)
     pandasutil.append_df_to_excel(report_file, occurrence_report, sheet_name=REQUEST_INFO_SHEET_NAME, header=True)
 
-    # loading excel
-    wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
-    dims = {}
-    for row in ws.rows:
-        for cell in row:
-            if cell.value:
-                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
-    for k, v in dims.items():
-        ws.column_dimensions[k].width = v
 
 def write_predictions(report_file: str, predictions: list[dict], metadata_df: pd.DataFrame):
     """Writes spearate report sheet for predictions of entry, location and entry x location in
@@ -151,17 +129,6 @@ def write_entry_predictions(report_file: str, predictions_df: pd.DataFrame, meta
 
     pandasutil.append_df_to_excel(report_file, entry_report, sheet_name=ENTRY_SHEET_NAME)
 
-    # loading excel
-    wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
-    dims = {}
-    for row in ws.rows:
-        for cell in row:
-            if cell.value:
-                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
-    for k, v in dims.items():
-        ws.column_dimensions[k].width = v
 
 def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
 
@@ -184,18 +151,6 @@ def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, m
     location_report = location_report.drop_duplicates()
 
     pandasutil.append_df_to_excel(report_file, location_report, sheet_name=LOCATION_SHEET_NAME)
-
-    # loading excel
-    wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
-    dims = {}
-    for row in ws.rows:
-        for cell in row:
-            if cell.value:
-                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
-    for k, v in dims.items():
-        ws.column_dimensions[k].width = v
 
 def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
 
@@ -228,17 +183,6 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
 
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
 
-    # loading excel
-    wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
-    dims = {}
-    for row in ws.rows:
-        for cell in row:
-            if cell.value:
-                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
-    for k, v in dims.items():
-        ws.column_dimensions[k].width = v
 
 def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
 
@@ -271,17 +215,6 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
 
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
     
-    # loading excel
-    wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
-    dims = {}
-    for row in ws.rows:
-        for cell in row:
-            if cell.value:
-                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
-    for k, v in dims.items():
-        ws.column_dimensions[k].width = v
 
 
 def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame, rename_map: dict):
@@ -315,14 +248,3 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
 
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)
 
-    # loading excel
-    wb = load_workbook(report_file)
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
-    dims = {}
-    for row in ws.rows:
-        for cell in row:
-            if cell.value:
-                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
-    for k, v in dims.items():
-        ws.column_dimensions[k].width = v
