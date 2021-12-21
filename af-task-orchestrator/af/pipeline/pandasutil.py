@@ -140,10 +140,20 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
         for x in range(1,len(sd)):
             sd[x].value = float(sd[x].value)
 
-    if "Model Statistcs" in sheets:
-        print(True)
-    else:
-        print(False)
+    if "Model Statistics" in sheets:
+        model_stat_sheet = writer.book[sheets[sheets.index("Model ")]]
+        logl = model_stat_sheet["E"]
+        for x in range(2,len(logl)): 
+            logl[x].value = float(logl[x].value)
+
+        aic = model_stat_sheet["F"]
+        for x in range(2,len(aic)): 
+            aic[x].value = float(aic[x].value)
+
+        bic = model_stat_sheet["G"]
+        for x in range(2,len(bic)): 
+            bic[x].value = float(bic[x].value)
+
 
     writer.save()
 

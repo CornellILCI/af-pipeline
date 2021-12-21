@@ -224,25 +224,6 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)
 
-    wb = load_workbook(report_file)
-    sheets = wb.sheetnames
-    
-    model_stat_sheet = wb[sheets[0]]
 
-    list_with_values=[]
-    for cell in model_stat_sheet[1]:
-        list_with_values.append(cell.value)
-
-    logl = model_stat_sheet["E"]
-    for x in range(2,len(logl)): 
-        logl[x].value = float(logl[x].value)
-
-    aic = model_stat_sheet["F"]
-    for x in range(2,len(aic)): 
-        aic[x].value = float(aic[x].value)
-
-    bic = model_stat_sheet["G"]
-    for x in range(2,len(bic)): 
-        bic[x].value = float(bic[x].value)
 
 
