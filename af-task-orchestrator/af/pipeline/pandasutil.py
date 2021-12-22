@@ -101,7 +101,6 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
 
     # copy existing sheets
     writer.sheets = {ws.title: ws for ws in writer.book.worksheets}
-    # print(writer.sheets)
 
     if startrow is None:
         startrow = 0
@@ -109,51 +108,49 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
     if sheet_name in writer.sheets and startrow > 1 and "header" not in to_excel_kwargs:
         to_excel_kwargs["header"] = False
 
-    # write out the new sheet
-    df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
-
-    # save the workbook
-
     # changing entry sheet to numeric
     sheets = writer.book.sheetnames
+
     if "Entry" in sheets:
 
         # entry_sheet = writer.book[)]
         entry_sheet = writer.book[sheets[sheets.index("Entry")]]
-    
+
         val = entry_sheet["H"]
-        for x in range(1,len(val)): 
+        for x in range(1, len(val)):
             val[x].value = float(val[x].value)
- 
+
         sd = entry_sheet["I"]
-        for x in range(1,len(sd)): 
+        for x in range(1, len(sd)):
             sd[x].value = float(sd[x].value)
 
     if "Entry x Location" in sheets:
         entry_location_sheet = writer.book[sheets[sheets.index("Entry x Location")]]
 
         val = entry_location_sheet["G"]
-        for x in range(1,len(val)): 
+        for x in range(1, len(val)):
             val[x].value = float(val[x].value)
 
         sd = entry_location_sheet["H"]
-        for x in range(1,len(sd)):
+        for x in range(1, len(sd)):
             sd[x].value = float(sd[x].value)
 
     if "Model Statistics" in sheets:
         model_stat_sheet = writer.book[sheets[sheets.index("Model ")]]
         logl = model_stat_sheet["E"]
-        for x in range(2,len(logl)): 
+        for x in range(2, len(logl)):
             logl[x].value = float(logl[x].value)
 
         aic = model_stat_sheet["F"]
-        for x in range(2,len(aic)): 
+        for x in range(2, len(aic)):
             aic[x].value = float(aic[x].value)
 
         bic = model_stat_sheet["G"]
-        for x in range(2,len(bic)): 
+        for x in range(2, len(bic)):
             bic[x].value = float(bic[x].value)
 
+    # write out the new sheet
+    df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
 
+    # save the workbook
     writer.save()
-
