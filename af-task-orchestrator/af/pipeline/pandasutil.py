@@ -128,7 +128,6 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
 
     # write out the new sheet
     df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
-    df.to_excel("/Users/vincentparis/Desktop/test.xlsx", sheet_name, startrow=startrow, **to_excel_kwargs)
 
     # save the workbook
     writer.save()
