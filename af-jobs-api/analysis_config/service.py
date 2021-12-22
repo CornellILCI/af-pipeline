@@ -1,8 +1,15 @@
 from database import Property, PropertyConfig, PropertyMeta, db
 from sqlalchemy import and_, func
 
+import json
+
 
 def get_analysis_configs(design=None):
+    
+    query_params = {}
+
+    if design is not None:
+        query_params["design"] = [design]
 
     analysis_config_base_property = Property.query.filter(Property.code == "analysis_config").one()
 
@@ -19,14 +26,19 @@ def get_analysis_configs(design=None):
         )
         .join(PropertyMeta, Property.id == PropertyMeta.property_id)
         .group_by(Property.id, PropertyMeta.code)
+        .subquery()
+    )
+    
+    analysis_config_code_value_agg_q = (
+        db.session
+        .query(analysis_configs_query.c.id)
+        .group_by(analysis_configs_query.c.id)
+        .having(func.jsonb_object_agg(analysis_configs_query.c.code, analysis_configs_query.c.meta_value)
+            .op("@>")(json.dumps(query_params))
+        )
+        .subquery()
     )
 
-    # if design is not None:
-    #    analysis_configs_query = analysis_configs_query.join(
-    #        PropertyMeta,
-    #        and_(Property.id == PropertyMeta.property_id, PropertyMeta.code == "design", PropertyMeta.value == design)
-    #    )
-
-    analysis_configs = analysis_configs_query.all()
+    analysis_configs = db.session.query(Property).filter(Property.id.in_(analysis_config_code_value_agg_q)).all()
 
     return analysis_configs
