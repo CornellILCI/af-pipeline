@@ -110,12 +110,8 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
     if sheet_name in writer.sheets and startrow > 1 and "header" not in to_excel_kwargs:
         to_excel_kwargs["header"] = False
 
-    # write out the new sheet
-    df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
-
-    wb = writer.book
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
+    sn = writer.book.sheetnames
+    ws = writer.book[sn[0]]
     no_fill = styles.PatternFill(fill_type=None)
     side = styles.Side(border_style=None)
     no_border = styles.borders.Border(
@@ -129,5 +125,10 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
             if cell.value:
                 cell.fill = no_fill
                 cell.border = no_border
+
+    # write out the new sheet
+    df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
+    df.to_excel("/Users/vincentparis/Desktop/test.xlsx", sheet_name, startrow=startrow, **to_excel_kwargs)
+
     # save the workbook
     writer.save()
