@@ -20,7 +20,7 @@ GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
 GET_GERMPLASM_BY_DB_ID = "/search/germplasm/{searchResultDbId}"
 GET_OBSERVATION_UNITS_TABLE_URL = "/observationunits/table"
-GET_POST_OBSERVATION_UNITS_URL_BMS_V2 = "/bmsapi/rice/brapi/v2/search/observationunits"
+GET_POST_OBSERVATION_UNITS_URL_BMS_V2 = "/bmsapi/{crop}/brapi/v2/search/observationunits"
 
 
 class PhenotypeDataBrapi(PhenotypeData):
@@ -95,14 +95,14 @@ class PhenotypeDataBrapi(PhenotypeData):
 
         return germplasm, plots_data, plots_header
 
-    def get_plots_from_search(self, occurrence_id: str = None) -> pd.DataFrame:
+    def get_plots_from_search(self, crop: str = None, occurrence_id: str = None) -> pd.DataFrame:
 
         #first POST to /bmsapi/rice/brapi/v2/search/observationunits
         observation_units_filters = ObservationUnitQueryParams(
             studyDbId=occurrence_id, observationLevel="plot"
         )
 
-        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2, params=observation_units_filters.dict())
+        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop), params=observation_units_filters.dict())
         if not post_response.is_success:
                 raise DataReaderException(post_response.error)
 
@@ -129,7 +129,7 @@ class PhenotypeDataBrapi(PhenotypeData):
             observation_units_filters = ObservationUnitQueryParams(
                 pageSize=self.brapi_list_page_size, page = page_num
             )
-            get_response = self.get(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2+"/"+observation_units_id)
+            get_response = self.get(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop)+"/"+observation_units_id)
             
             if not get_response.is_success:
                 raise DataReaderException(get_response.error)
@@ -142,17 +142,6 @@ class PhenotypeDataBrapi(PhenotypeData):
                 columns = list(self.plots_api_fields_to_local_fields.values())
                 columns.append("plot_qc")
                 return pd.DataFrame(columns=columns)
-
-            # paths to normalize json data to flat columns
-            columns_path = [
-                "observationUnitDbId",
-                "locationDbId",
-                "studyDbId",
-                "trialDbId",
-                "germplasmDbId",
-                ["observationUnitPosition", "positionCoordinateX"],
-                ["observationUnitPosition", "positionCoordinateY"],
-            ]
 
             # list record path to normalze
             list_record_path = ["observationUnitPosition", "observationLevelRelationships"]
