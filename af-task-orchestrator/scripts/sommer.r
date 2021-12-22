@@ -57,11 +57,11 @@ library(gtools)
 Phenofounders <- read.csv(input_phenotypic_data, header=T)
 
 head(Phenofounders)
-# A <- read.table('/Users/sb2597/Documents/TestPythonToR/Sommer ILCI code/GRM.txt', header = T)
-A <- read.table(grm, header = T)
-A <- as.matrix(A)
-A[1:10,1:10]
-Phenofounders$ID <- colnames(A) ## this is just to make the ID of the phenotype data and the row/column name on the GRM are the same
+#A <- read.table(grm, header = T)
+#A <- as.matrix(A)
+#A[1:10,1:10]
+#Phenofounders$ID <- colnames(A) ## this is just to make the ID of the phenotype data and the row/column name on the GRM are the same
+
 #Phenofounders$rep <- rep
 
 # mix1 <- mmer(Phenotype~rep,
