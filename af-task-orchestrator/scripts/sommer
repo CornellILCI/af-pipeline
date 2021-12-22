@@ -28,15 +28,15 @@ print(jsonInput)
 # nLoci <- if("nLoci" %in% names(jsonInput)) jsonInput$nLoci else 100                         # number of loci per chromosome
 stopifnot(
     "input_phenotypic_data" %in% names(jsonInput),
-    "grm" %in% names(jsonInput),
+#    "grm" %in% names(jsonInput), -- REMOVED from stopifnot
     "output_var" %in% names(jsonInput),
     "output_statmodel" %in% names(jsonInput),
     "output_BV" %in% names(jsonInput),
     "output_pred" %in% names(jsonInput),
     "output_yhat" %in% names(jsonInput),
     "output_outliers" %in% names(jsonInput),
-    "fixed" %in% names(jsonInput),
-    "random" %in% names(jsonInput),
+#    "fixed" %in% names(jsonInput),
+#    "random" %in% names(jsonInput),
     "rcov" %in% names(jsonInput),
     "raw_analysis_out" %in% names(jsonInput)
 )

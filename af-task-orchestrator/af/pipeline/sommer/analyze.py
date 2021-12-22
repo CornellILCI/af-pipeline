@@ -14,7 +14,7 @@ class SommeRAnalyze(Analyze):
         super().__init__(analysis_request=analysis_request, *args, **kwargs)
 
     def get_cmd(self, job_data, analysis_engine=None):
-        return ["sommer", job_data.settings_file]
+        return ["sommer", job_data.job_file]
 
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):
         pass

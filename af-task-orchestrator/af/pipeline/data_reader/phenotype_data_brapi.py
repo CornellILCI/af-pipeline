@@ -102,9 +102,9 @@ class PhenotypeDataBrapi(PhenotypeData):
             studyDbId=occurrence_id, observationLevel="plot"
         )
 
-        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop), params=observation_units_filters.dict())
+        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop), json=observation_units_filters.dict())
         if not post_response.is_success:
-                raise DataReaderException(post_response.error)
+            raise DataReaderException(post_response.error)
 
         observation_units_id = post_response.body["result"]["searchResultDbId"]
 
@@ -127,7 +127,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         while(get_more_plots):
 
             observation_units_filters = ObservationUnitQueryParams(
-                pageSize=self.brapi_list_page_size, page = page_num
+                pageSize=self.brapi_list_page_size, page=page_num
             )
             get_response = self.get(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop)+"/"+observation_units_id)
             
