@@ -109,10 +109,8 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
         to_excel_kwargs["header"] = False
 
     # write out the new sheet
-    df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
-    wb = writer.book
-    sn = wb.sheetnames
-    ws = wb[sn[0]]
+    sn = writer.book.sheetnames
+    ws = writer.book[sn[0]]
     dims = {}
     for row in ws.rows:
         for cell in row:
@@ -120,6 +118,8 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
                 dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
     for k, v in dims.items():
         ws.column_dimensions[k].width = v
-    
+
+    df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
+
     # save the workbook
     writer.save()
