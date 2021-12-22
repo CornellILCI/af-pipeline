@@ -22,7 +22,7 @@ def get_analysis_engine_script(engine_name: str):
     if engine == "asreml":
         return "asreml"
 
-    if engine == "R - sommer":
+    if engine in ["r - sommer", "sommer"]:
         return "sommer"
 
 

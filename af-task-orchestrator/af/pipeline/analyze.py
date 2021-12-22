@@ -154,9 +154,9 @@ def get_analyze_object(analysis_request: AnalysisRequest, session=None):
     analysis_engine_meta = db_services.get_analysis_config_meta_data(
         session, analysis_request.analysisConfigPropertyId, "engine"
     )
-
-    kls = config.get_analyze_class(analysis_engine_meta.value)
-    return kls(analysis_request, engine_script=config.get_analysis_engine_script(analysis_engine_meta.value))
+    engine_script = config.get_analysis_engine_script(analysis_engine_meta.value)
+    kls = config.get_analyze_class(engine_script)
+    return kls(analysis_request, engine_script=engine_script)
 
 
 if __name__ == "__main__":
