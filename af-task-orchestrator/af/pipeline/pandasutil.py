@@ -119,11 +119,11 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
     no_fill = styles.PatternFill(fill_type=None)
     side = styles.Side(border_style=None)
     no_border = styles.borders.Border(
-        left=side, 
-        right=side, 
-        top=side, 
+        left=side,
+        right=side,
+        top=side,
         bottom=side,
-)
+    )
     for row in ws.rows:
         for cell in row:
             if cell.value:

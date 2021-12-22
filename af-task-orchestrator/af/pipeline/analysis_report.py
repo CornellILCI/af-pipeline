@@ -182,7 +182,7 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
     entry_location_report = entry_location_report.drop_duplicates()
 
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
-    
+
 
 def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame, rename_map: dict):
 
