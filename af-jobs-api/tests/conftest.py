@@ -19,11 +19,15 @@ from .factories import (
 )
 from .factories import db as _db
 
+from pgtest.pgtest import PGTest
+
+pg = PGTest()
+
 TEST_DATABASE_URI = "sqlite://"
 
 settings_override = {
-    "TESTING": True,
-    "SQLALCHEMY_DATABASE_URI": TEST_DATABASE_URI,
+    "SQLALCHEMY_DATABASE_URI": pg.url,
+    "SQLALCHEMY_TRACK_MODIFICATIONS": False,
 }
 
 
@@ -52,14 +56,14 @@ def db(app, request):
         _db.drop_all()
 
     _db.init_app(app)
-    _db.engine.execute("ATTACH DATABASE ':memory:' AS af")
+    _db.engine.execute("CREATE SCHEMA af")
     _db.create_all()
 
     request.addfinalizer(teardown)
     return _db
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(autouse=True, scope="function")
 def session(db, request):
 
     connection = db.engine.connect()
@@ -75,7 +79,7 @@ def session(db, request):
     def teardown():
         transaction.rollback()
         connection.close()
-        session.remove()
+        db.session.remove()
 
     request.addfinalizer(teardown)
     return db.session
@@ -92,6 +96,57 @@ def celery_send_task(mocker):
 def client(session, app, db):
     with app.test_client() as client:
         yield client
+
+
+@pytest.fixture
+def empty_request():
+    return {}
+
+
+@pytest.fixture
+def incorrect_request():
+    return {"foo": "bar"}
+
+
+@pytest.fixture
+def incorrect_request_2():
+    return {
+        "dataSource": "NOT_EBS",
+        "dataSourceUrl": "foo",
+        "dataSourceAccessToken": "test-token",
+        "crop": "rice",
+        "institute": "IRRI",
+        "analysisType": "ANALYZE",
+        "experiments": [],
+        "occurrences": [],
+        "traits": [],
+        "analysisObjectivePropertyId": None,
+        "analysisConfigPropertyId": None,
+        "expLocAnalysisPatternPropertyId": None,
+        "configFormulaPropertyId": None,
+        "configResidualPropertyId": None,
+    }
+
+
+@pytest.fixture
+def correct_request(session):
+
+    return {
+        "dataSource": "EBS",
+        "dataSourceUrl": "foo",
+        "dataSourceAccessToken": "test-token",
+        "crop": "rice",
+        "institute": "IRRI",
+        "analysisType": "ANALYZE",
+        "experiments": [{"experimentId": "10", "experimentName": "expt1"}],
+        "occurrences": [{"occurrenceId": "10", "occurrenceName": "occur1"}],
+        "traits": [{"traitId": "1", "traitName": "trait1"}, {"traitId": "2", "traitName": "trait2"}],
+        "analysisObjectivePropertyId": "1",
+        "analysisConfigPropertyId": "2",
+        "expLocAnalysisPatternPropertyId": "3",
+        "configFormulaPropertyId": "4",
+        "configResidualPropertyId": "5",
+    }
 
 
 @pytest.fixture
@@ -120,16 +175,23 @@ def analyses(session):
 
 
 @pytest.fixture
-def af_request_parameters():
-    analysis_request_parameters = AnalysisRequestParametersFacotry()
+def af_request_parameters(session):
+
+    PropertyFactory._meta.sqlalchemy_session = session
+
+    analysis_request_parameters = AnalysisRequestParametersFacotry(
+        analysisObjectivePropertyId=PropertyFactory().id,
+        analysisConfigPropertyId=PropertyFactory().id,
+        expLocAnalysisPatternPropertyId=PropertyFactory().id,
+        configFormulaPropertyId=PropertyFactory().id,
+        configResidualPropertyId=PropertyFactory().id,
+    )
+    session.commit()
     return analysis_request_parameters
 
 
 @pytest.fixture
 def random_properties(session):
-
-    model_factory.RandomPropertyFactory._meta.sqlalchemy_session = session
-    model_factory.PropertyConfigFactory._meta.sqlalchemy_session = session
 
     properties = model_factory.RandomPropertyFactory.create_batch(size=10)
 
@@ -139,14 +201,36 @@ def random_properties(session):
 @pytest.fixture
 def analysis_configs(session):
 
-    model_factory.AnalysisConfigsFactory._meta.sqlalchemy_session = session
-    model_factory.PropertyConfigFactory._meta.sqlalchemy_session = session
     model_factory.PropertyFactory._meta.sqlalchemy_session = session
 
-    base_analysis_config = model_factory.AnalysisConfigsFactory()
+    base_analysis_config = model_factory.AnalysisConfigsRootFactory()
 
     analysis_configs = []
     for property_config in base_analysis_config.property_configs:
         if property_config.property_id != property_config.config_property_id:
             analysis_configs.append(property_config.property_config_property)
+    return analysis_configs
+
+
+@pytest.fixture
+def analysis_configs_with_design_metadata(session):
+
+    model_factory.PropertyFactory._meta.sqlalchemy_session = session
+
+    base_analysis_config = model_factory.AnalysisConfigsRootFactory()
+
+    # add configs with design
+    design_metadata_property_configs = model_factory.AnalysisConfigsWithDesignPropertyConfigFactory.create_batch(
+        size=10, property_id=base_analysis_config.id
+    )
+
+    base_analysis_config.property_configs.extend(design_metadata_property_configs)
+
+    session.commit()
+
+    analysis_configs = []
+    for property_config in design_metadata_property_configs:
+        if property_config.property_id != property_config.config_property_id:
+            analysis_configs.append(property_config.property_config_property)
+
     return analysis_configs

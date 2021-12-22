@@ -83,6 +83,7 @@ class Property(db.Model):
 
     property_metas = db.relationship("PropertyMeta", back_populates="property")
 
+
 @dataclass
 class PropertyConfig(db.Model):
 
@@ -98,7 +99,9 @@ class PropertyConfig(db.Model):
     is_layout_variable = db.Column(db.Boolean, default=False)
 
     # relationship def one to one?
-    property_ui = db.relationship("PropertyUI", backref=db.backref("property_config", uselist=False), foreign_keys=[property_ui_id])
+    property_ui = db.relationship(
+        "PropertyUI", backref=db.backref("property_config", uselist=False), foreign_keys=[property_ui_id]
+    )
 
     property = db.relationship(Property, foreign_keys=[property_id], overlaps="property_configs")
 
@@ -115,8 +118,6 @@ class PropertyMeta(db.Model):
     value = db.Column(db.String)
 
     property = db.relationship(Property, back_populates="property_metas")
-
-
 
 
 @dataclass

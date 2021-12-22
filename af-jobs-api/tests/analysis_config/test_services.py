@@ -28,3 +28,10 @@ def test_get_analysis_configs_has_correct_size_with_random_props(session, analys
     assert len(analysis_configs_returned) == len(analysis_configs)
 
 
+def test_filter_analysis_config_by_metadata(session, analysis_configs_with_design_metadata):
+
+    from analysis_config import service
+
+    analysis_configs_returned: List[Property] = service.get_analysis_configs(design="test_design")
+
+    assert len(analysis_configs_returned) == len(analysis_configs_with_design_metadata)
