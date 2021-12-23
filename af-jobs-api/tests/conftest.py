@@ -4,11 +4,11 @@ import pytest
 from af_endpoints import af_apis
 from af_request.models import Request
 from af_request.views import af_requests_bp
+from pgtest.pgtest import PGTest
 
 from api import create_app
 
 from . import factories as model_factory
-
 from .factories import (
     AnalysisFactory,
     AnalysisRequestParametersFacotry,
@@ -18,8 +18,6 @@ from .factories import (
     RequestFactory,
 )
 from .factories import db as _db
-
-from pgtest.pgtest import PGTest
 
 pg = PGTest()
 
@@ -211,6 +209,7 @@ def analysis_configs(session):
             analysis_configs.append(property_config.property_config_property)
     return analysis_configs
 
+
 @pytest.fixture
 def analysis_configs_unordered(session):
 
@@ -223,6 +222,7 @@ def analysis_configs_unordered(session):
         if property_config.property_id != property_config.config_property_id:
             analysis_configs.append(property_config.property_config_property)
     return analysis_configs
+
 
 @pytest.fixture
 def analysis_configs_with_design_metadata(session):
@@ -348,4 +348,3 @@ def analysis_configs_with_exp_pattern_metadata(session):
             analysis_configs.append(property_config.property_config_property)
 
     return analysis_configs
-

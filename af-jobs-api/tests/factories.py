@@ -7,10 +7,9 @@ from database import Property, PropertyConfig, PropertyMeta, db
 from factory import Factory, LazyAttribute, Sequence, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyText
-from pytz import UTC
-
 from flask import current_app
 from flask_sqlalchemy import get_state
+from pytz import UTC
 from sqlalchemy.orm import scoped_session
 
 Session = scoped_session(
@@ -54,7 +53,7 @@ class RequestFactory(CreationModificationBaseFactory):
 
 
 class PropertyFactory(CreationModificationBaseFactory):
-    
+
     id = factory.Sequence(lambda n: n)
 
     code = factory.Faker("pystr", min_chars=5, max_chars=5)
@@ -65,7 +64,6 @@ class PropertyFactory(CreationModificationBaseFactory):
     data_type = factory.Faker("pystr", min_chars=5, max_chars=5)
     statement = factory.Faker("text", max_nb_chars=10)
     is_void = False
-
 
     class Meta:
         model = Property
@@ -130,10 +128,11 @@ class AnalysisConfigsRootFactory(PropertyFactory):
         # add property config for analysis config itself
         obj.property_configs.append(PropertyConfigFactory(property_id=obj.id, property_config_property=obj))
 
+
 class AnalysisConfigUnorderedFactory(PropertyFactory):
-    
+
     id = factory.Faker("pyint", min_value=1000)
-    
+
     @factory.post_generation
     def property_metas(obj, create, extracted, **kwargs):
         obj.property_metas.extend(PropertyMetaFactory.create_batch(size=10, property=obj))
@@ -142,6 +141,7 @@ class AnalysisConfigUnorderedFactory(PropertyFactory):
 class AnalysisConfigsUnordredPropertyConfigFactory(PropertyConfigFactory):
 
     property_config_property = factory.SubFactory(AnalysisConfigUnorderedFactory)
+
 
 class AnalysisConfigsRootUnorderedFactory(PropertyFactory):
 
@@ -152,10 +152,12 @@ class AnalysisConfigsRootUnorderedFactory(PropertyFactory):
 
         # add analysis config properties
         obj.property_configs.extend(
-            AnalysisConfigsUnordredPropertyConfigFactory.create_batch(size=10, property_id=obj.id))
+            AnalysisConfigsUnordredPropertyConfigFactory.create_batch(size=10, property_id=obj.id)
+        )
 
         # add property config for analysis config itself
         obj.property_configs.append(PropertyConfigFactory(property_id=obj.id, property_config_property=obj))
+
 
 class AnalysisConfigWithDesignFactory(PropertyFactory):
     @factory.post_generation
@@ -167,6 +169,7 @@ class AnalysisConfigsWithDesignPropertyConfigFactory(PropertyConfigFactory):
 
     property_config_property = factory.SubFactory(AnalysisConfigWithDesignFactory)
 
+
 class AnalysisConfigWithEngineFactory(PropertyFactory):
     @factory.post_generation
     def property_metas(obj, create, extracted, **kwargs):
@@ -176,6 +179,7 @@ class AnalysisConfigWithEngineFactory(PropertyFactory):
 class AnalysisConfigsWithEnginePropertyConfigFactory(PropertyConfigFactory):
 
     property_config_property = factory.SubFactory(AnalysisConfigWithEngineFactory)
+
 
 class AnalysisConfigWithTraitLevelFactory(PropertyFactory):
     @factory.post_generation
@@ -191,8 +195,7 @@ class AnalysisConfigsWithTraitLevelPropertyConfigFactory(PropertyConfigFactory):
 class AnalysisConfigWithAnalysisObjectiveFactory(PropertyFactory):
     @factory.post_generation
     def property_metas(obj, create, extracted, **kwargs):
-        obj.property_metas.append(
-            PropertyMetaFactory(code="analysis_objective", value="test_objective", property=obj))
+        obj.property_metas.append(PropertyMetaFactory(code="analysis_objective", value="test_objective", property=obj))
 
 
 class AnalysisConfigsWithAnalysisObjectivePropertyConfigFactory(PropertyConfigFactory):
@@ -204,7 +207,8 @@ class AnalysisConfigWithExpPatternFactory(PropertyFactory):
     @factory.post_generation
     def property_metas(obj, create, extracted, **kwargs):
         obj.property_metas.append(
-            PropertyMetaFactory(code="exp_analysis_pattern", value="test_exp_pattern", property=obj))
+            PropertyMetaFactory(code="exp_analysis_pattern", value="test_exp_pattern", property=obj)
+        )
 
 
 class AnalysisConfigsWithExpPatternPropertyConfigFactory(PropertyConfigFactory):

@@ -79,8 +79,9 @@ def test_filter_analysis_config_by_order_by_property_id(session, analysis_config
     returned_order = []
     for analysis_config in analysis_configs_returned:
         returned_order.append(analysis_config.id)
-    
+
     assert expected_order == returned_order
+
 
 def test_filter_analysis_configs_by_page(session, analysis_configs_unordered):
 
@@ -98,6 +99,5 @@ def test_filter_analysis_configs_by_page(session, analysis_configs_unordered):
     returned_order = []
     for analysis_config in analysis_configs_returned:
         returned_order.append(analysis_config.id)
-    
-    assert expected_order[5:10] == returned_order
 
+    assert expected_order[5:10] == returned_order

@@ -1,7 +1,7 @@
+import json
+
 from database import Property, PropertyConfig, PropertyMeta, db
 from sqlalchemy import and_, func
-
-import json
 
 
 def get_analysis_configs(page=0, page_size=1000, **kwargs):
@@ -10,7 +10,7 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
 
     # make sure to add only non null query params
     query_params = {k: [v] for k, v in kwargs.items() if v is not None}
-    
+
     analysis_config_base_property = Property.query.filter(Property.code == "analysis_config").one()
 
     # sub query to aggregate metadata code and value
@@ -48,9 +48,8 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
         analysis_configs_q = analysis_configs_q.limit(page_size)
 
     if page is not None:
-        analysis_configs_q = analysis_configs_q.offset(page*page_size)
-    
-    analysis_configs = analysis_configs_q.all()
+        analysis_configs_q = analysis_configs_q.offset(page * page_size)
 
+    analysis_configs = analysis_configs_q.all()
 
     return analysis_configs

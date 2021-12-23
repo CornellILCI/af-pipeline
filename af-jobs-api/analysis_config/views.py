@@ -1,12 +1,11 @@
 from http import HTTPStatus
 
-from flask import request
 from analysis_config import api_models, service
 from common.responses import json_response
 from common.validators import validate_api_request
+from flask import request
 from flask.blueprints import Blueprint
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
-
 
 analysis_configs_bp = Blueprint("analysis_configs", __name__, url_prefix="/v1/analysis-configs")
 

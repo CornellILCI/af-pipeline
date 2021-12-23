@@ -114,4 +114,3 @@ def map_property(_property):
     )
 
     return property_dto
-

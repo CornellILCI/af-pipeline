@@ -10,7 +10,7 @@ from common.api_models import (
     PaginationQueryParameters,
     Status,
     create_metadata,
-    map_property
+    map_property,
 )
 from pydantic import BaseModel, Field
 
