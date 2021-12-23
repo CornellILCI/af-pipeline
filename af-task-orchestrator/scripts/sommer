@@ -35,9 +35,8 @@ stopifnot(
     "output_pred" %in% names(jsonInput),
     "output_yhat" %in% names(jsonInput),
     "output_outliers" %in% names(jsonInput),
-#    "fixed" %in% names(jsonInput),
+    "fixed" %in% names(jsonInput),
 #    "random" %in% names(jsonInput),
-    "formula" %in% names(jsonInput),
     "rcov" %in% names(jsonInput),
     "raw_analysis_out" %in% names(jsonInput)
 )
@@ -76,7 +75,7 @@ head(Phenofounders)
 #              data = Phenofounders)
 
 
-sommerModel <-paste("mix1 <- mmer(",jsonInput$formula, ",\n", 
+sommerModel <-paste("mix1 <- mmer(", jsonInput$fixed, ",\n", 
           "rcov=", jsonInput$rcov, ",\n",
           "data=Phenofounders)",
           sep = "")

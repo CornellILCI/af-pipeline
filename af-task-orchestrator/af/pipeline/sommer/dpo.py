@@ -50,6 +50,8 @@ class SommeRProcessData(ProcessData):
 
     def __prepare_Sommer_settings_file(self) -> dict:
 
+        name = self.analysis_request.traits[0].traitName
+
         settings_dict = {}
         data_file = self.__prepare_inputfile_csv()
         settings_dict["path"] = str(data_file)
@@ -69,7 +71,7 @@ class SommeRProcessData(ProcessData):
         settings_dict["output_pred"] = os.path.join(job_folder, "output_pred.csv")
         settings_dict["output_yhat"] = os.path.join(job_folder, "Yhat.csv")
         settings_dict["output_outliers"] = os.path.join(job_folder, "outliers.csv")
-        settings_dict["formula"] = formula.statement
+        settings_dict["fixed"] = str(formula.statement).format(trait_name=name)
         settings_dict["rcov"] = residual.statement
         settings_dict["raw_analysis_out"] = os.path.join(job_folder, "raw_analysis_out.rds")
 
