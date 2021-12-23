@@ -17,6 +17,17 @@ class AnalysisConfigsFilterParamerters(BaseModel):
     experimentAnalysisPattern: Optional[str] = Field(None, description="Experiment Analysis pattern example: single")
     locationAnalysisPattern: Optional[str] = Field(None, description="Location Analysis pattern example: single")
     traitPattern: Optional[str] = Field(None, description="Trait Pattern example: single")
+    
+    def as_db_filter_params(self):
+        return {
+            "engine": self.engine,
+            "design": self.design,
+            "trait_level": self.traitLevel,
+            "analysis_objective": self.analysisObjective,
+            "exp_analysis_pattern": self.experimentAnalysisPattern,
+            "loc_analysis_pattern": self.locationAnalysisPattern,
+            "trait_pattern": self.traitPattern
+        }
 
 class AnalysisConfigsListQueryParameters(PaginationQueryParameters, AnalysisConfigsFilterParamerters):
     pass

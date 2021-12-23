@@ -17,10 +17,12 @@ def list():
     """Create request object based on body params"""
 
     request_query_params = api_models.AnalysisConfigsListQueryParameters(**request.args)
-    filter_params = api_models.AnalysisConfigsFilterParamerters(**request.args)
+
+    filter_params = request_query_params.as_db_filter_params()
 
     analysis_configs: list[Property] = service.get_analysis_configs(
-        page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params.dict())
+        page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params
+    )
 
     # DTOs for api response
     analysis_config_dtos = []
@@ -34,5 +36,3 @@ def list():
     )
 
     return json_response(response, HTTPStatus.OK)
-
-
