@@ -211,6 +211,18 @@ def analysis_configs(session):
             analysis_configs.append(property_config.property_config_property)
     return analysis_configs
 
+@pytest.fixture
+def analysis_configs_unordered(session):
+
+    model_factory.PropertyFactory._meta.sqlalchemy_session = session
+
+    base_analysis_config = model_factory.AnalysisConfigsRootUnorderedFactory()
+
+    analysis_configs = []
+    for property_config in base_analysis_config.property_configs:
+        if property_config.property_id != property_config.config_property_id:
+            analysis_configs.append(property_config.property_config_property)
+    return analysis_configs
 
 @pytest.fixture
 def analysis_configs_with_design_metadata(session):
@@ -234,3 +246,106 @@ def analysis_configs_with_design_metadata(session):
             analysis_configs.append(property_config.property_config_property)
 
     return analysis_configs
+
+
+@pytest.fixture
+def analysis_configs_with_engine_metadata(session):
+
+    model_factory.PropertyFactory._meta.sqlalchemy_session = session
+
+    base_analysis_config = model_factory.AnalysisConfigsRootFactory()
+
+    # add configs with engine
+    engine_metadata_property_configs = model_factory.AnalysisConfigsWithEnginePropertyConfigFactory.create_batch(
+        size=10, property_id=base_analysis_config.id
+    )
+
+    base_analysis_config.property_configs.extend(engine_metadata_property_configs)
+
+    session.commit()
+
+    analysis_configs = []
+    for property_config in engine_metadata_property_configs:
+        if property_config.property_id != property_config.config_property_id:
+            analysis_configs.append(property_config.property_config_property)
+
+    return analysis_configs
+
+
+@pytest.fixture
+def analysis_configs_with_trait_level_metadata(session):
+
+    model_factory.PropertyFactory._meta.sqlalchemy_session = session
+
+    base_analysis_config = model_factory.AnalysisConfigsRootFactory()
+
+    # add configs with trait level
+    trait_level_metadata_property_configs = (
+        model_factory.AnalysisConfigsWithTraitLevelPropertyConfigFactory.create_batch(
+            size=10, property_id=base_analysis_config.id
+        )
+    )
+
+    base_analysis_config.property_configs.extend(trait_level_metadata_property_configs)
+
+    session.commit()
+
+    analysis_configs = []
+    for property_config in trait_level_metadata_property_configs:
+        if property_config.property_id != property_config.config_property_id:
+            analysis_configs.append(property_config.property_config_property)
+
+    return analysis_configs
+
+
+@pytest.fixture
+def analysis_configs_with_analysis_objective_metadata(session):
+
+    model_factory.PropertyFactory._meta.sqlalchemy_session = session
+
+    base_analysis_config = model_factory.AnalysisConfigsRootFactory()
+
+    # add configs with objective
+    objective_metadata_property_configs = (
+        model_factory.AnalysisConfigsWithAnalysisObjectivePropertyConfigFactory.create_batch(
+            size=10, property_id=base_analysis_config.id
+        )
+    )
+
+    base_analysis_config.property_configs.extend(objective_metadata_property_configs)
+
+    session.commit()
+
+    analysis_configs = []
+    for property_config in objective_metadata_property_configs:
+        if property_config.property_id != property_config.config_property_id:
+            analysis_configs.append(property_config.property_config_property)
+
+    return analysis_configs
+
+
+@pytest.fixture
+def analysis_configs_with_exp_pattern_metadata(session):
+
+    model_factory.PropertyFactory._meta.sqlalchemy_session = session
+
+    base_analysis_config = model_factory.AnalysisConfigsRootFactory()
+
+    # add configs with exp pattern
+    exp_pattern_metadata_property_configs = (
+        model_factory.AnalysisConfigsWithExpPatternPropertyConfigFactory.create_batch(
+            size=10, property_id=base_analysis_config.id
+        )
+    )
+
+    base_analysis_config.property_configs.extend(exp_pattern_metadata_property_configs)
+
+    session.commit()
+
+    analysis_configs = []
+    for property_config in exp_pattern_metadata_property_configs:
+        if property_config.property_id != property_config.config_property_id:
+            analysis_configs.append(property_config.property_config_property)
+
+    return analysis_configs
+

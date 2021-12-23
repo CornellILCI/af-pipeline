@@ -95,3 +95,23 @@ class PropertyListResponse(BaseModel):
 
 def create_metadata(current_page, page_size):
     return Metadata(pagination=Pagination(currentPage=current_page, pageSize=page_size))
+
+
+def map_property(_property):
+
+    if _property is None:
+        return None
+
+    property_dto = Property(
+        propertyId=_property.id,
+        propertyCode=_property.code,
+        propertyName=_property.name,
+        label=_property.label,
+        statement=_property.statement,
+        type=_property.type,
+        createdOn=_property.creation_timestamp,
+        modifiedOn=_property.modification_timestamp,
+    )
+
+    return property_dto
+

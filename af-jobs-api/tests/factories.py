@@ -54,7 +54,7 @@ class RequestFactory(CreationModificationBaseFactory):
 
 
 class PropertyFactory(CreationModificationBaseFactory):
-
+    
     id = factory.Sequence(lambda n: n)
 
     code = factory.Faker("pystr", min_chars=5, max_chars=5)
@@ -65,6 +65,7 @@ class PropertyFactory(CreationModificationBaseFactory):
     data_type = factory.Faker("pystr", min_chars=5, max_chars=5)
     statement = factory.Faker("text", max_nb_chars=10)
     is_void = False
+
 
     class Meta:
         model = Property
@@ -129,6 +130,32 @@ class AnalysisConfigsRootFactory(PropertyFactory):
         # add property config for analysis config itself
         obj.property_configs.append(PropertyConfigFactory(property_id=obj.id, property_config_property=obj))
 
+class AnalysisConfigUnorderedFactory(PropertyFactory):
+    
+    id = factory.Faker("pyint", min_value=1000)
+    
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.extend(PropertyMetaFactory.create_batch(size=10, property=obj))
+
+
+class AnalysisConfigsUnordredPropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigUnorderedFactory)
+
+class AnalysisConfigsRootUnorderedFactory(PropertyFactory):
+
+    code = "analysis_config"
+
+    @factory.post_generation
+    def property_configs(obj, create, extracted, **kwargs):
+
+        # add analysis config properties
+        obj.property_configs.extend(
+            AnalysisConfigsUnordredPropertyConfigFactory.create_batch(size=10, property_id=obj.id))
+
+        # add property config for analysis config itself
+        obj.property_configs.append(PropertyConfigFactory(property_id=obj.id, property_config_property=obj))
 
 class AnalysisConfigWithDesignFactory(PropertyFactory):
     @factory.post_generation
@@ -139,6 +166,50 @@ class AnalysisConfigWithDesignFactory(PropertyFactory):
 class AnalysisConfigsWithDesignPropertyConfigFactory(PropertyConfigFactory):
 
     property_config_property = factory.SubFactory(AnalysisConfigWithDesignFactory)
+
+class AnalysisConfigWithEngineFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.append(PropertyMetaFactory(code="engine", value="test_engine", property=obj))
+
+
+class AnalysisConfigsWithEnginePropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigWithEngineFactory)
+
+class AnalysisConfigWithTraitLevelFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.append(PropertyMetaFactory(code="trait_level", value="test_trait_level", property=obj))
+
+
+class AnalysisConfigsWithTraitLevelPropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigWithTraitLevelFactory)
+
+
+class AnalysisConfigWithAnalysisObjectiveFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.append(
+            PropertyMetaFactory(code="analysis_objective", value="test_objective", property=obj))
+
+
+class AnalysisConfigsWithAnalysisObjectivePropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigWithAnalysisObjectiveFactory)
+
+
+class AnalysisConfigWithExpPatternFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.append(
+            PropertyMetaFactory(code="exp_analysis_pattern", value="test_exp_pattern", property=obj))
+
+
+class AnalysisConfigsWithExpPatternPropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigWithExpPatternFactory)
 
 
 class JobFactory(Factory):

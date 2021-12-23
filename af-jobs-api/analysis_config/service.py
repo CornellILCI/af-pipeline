@@ -4,16 +4,17 @@ from sqlalchemy import and_, func
 import json
 
 
-def get_analysis_configs(design=None):
-    
+def get_analysis_configs(page=0, page_size=1000, **kwargs):
+
     query_params = {}
 
-    if design is not None:
-        query_params["design"] = [design]
-
+    # make sure to add only non null query params
+    query_params = {k: [v] for k, v in kwargs.items() if v is not None}
+    
     analysis_config_base_property = Property.query.filter(Property.code == "analysis_config").one()
 
-    analysis_configs_query = (
+    # sub query to aggregate metadata code and value
+    analysis_configs_sub_q = (
         db.session.query(Property.id, PropertyMeta.code, func.array_agg(PropertyMeta.value).label("meta_value"))
         .select_from(PropertyConfig)
         .join(
@@ -28,17 +29,28 @@ def get_analysis_configs(design=None):
         .group_by(Property.id, PropertyMeta.code)
         .subquery()
     )
-    
-    analysis_config_code_value_agg_q = (
-        db.session
-        .query(analysis_configs_query.c.id)
-        .group_by(analysis_configs_query.c.id)
-        .having(func.jsonb_object_agg(analysis_configs_query.c.code, analysis_configs_query.c.meta_value)
-            .op("@>")(json.dumps(query_params))
+
+    # query aggregated metadata code and value as json object
+    analysis_configs_q = (
+        db.session.query(Property)
+        .select_from(analysis_configs_sub_q)
+        .group_by(analysis_configs_sub_q.c.id, Property)
+        .having(
+            func.jsonb_object_agg(analysis_configs_sub_q.c.code, analysis_configs_sub_q.c.meta_value).op("@>")(
+                json.dumps(query_params)
+            )
         )
-        .subquery()
+        .join(Property, Property.id == analysis_configs_sub_q.c.id)
+        .order_by(Property.id)
     )
 
-    analysis_configs = db.session.query(Property).filter(Property.id.in_(analysis_config_code_value_agg_q)).all()
+    if page_size is not None:
+        analysis_configs_q = analysis_configs_q.limit(page_size)
+
+    if page is not None:
+        analysis_configs_q = analysis_configs_q.offset(page*page_size)
+    
+    analysis_configs = analysis_configs_q.all()
+
 
     return analysis_configs
