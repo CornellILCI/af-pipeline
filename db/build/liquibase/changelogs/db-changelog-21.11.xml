@@ -19,4 +19,10 @@
     <!-- DB-851 Update is_requiered value in property_config -->
     <include file="changesets/21.11/data/template/update_is_requiered_value_in_property_config.sql"/>
 
+    <!-- DB-853 Update is_requiered value in property_config -->
+    <include file="changesets/21.11/data/template/update_is_requiered_value_in_prop_config.sql"/>
+
+    <!-- DB-858 Update notification in af.proeprty_rule -->
+    <include file="changesets/21.11/data/template/update_notification_in_property_rule.sql"/>
+
   </databaseChangeLog>
