@@ -53,14 +53,14 @@ library(sommer)
 library(gtools)
 
 # Phenofounders <- read.csv('/Users/sb2597/Documents/TestPythonToR/Sommer ILCI code/Phenofounders.csv', header=T)
-Phenofounders <- read.csv(input_phenotypic_data, header=T)
+inputData <- read.csv(input_phenotypic_data, header=T)
 
-head(Phenofounders)
+#head(inputData)
 # A <- read.table('/Users/sb2597/Documents/TestPythonToR/Sommer ILCI code/GRM.txt', header = T)
-A <- read.table(grm, header = T)
-A <- as.matrix(A)
-A[1:10,1:10]
-Phenofounders$ID <- colnames(A) ## this is just to make the ID of the phenotype data and the row/column name on the GRM are the same
+#A <- read.table(grm, header = T)
+#A <- as.matrix(A)
+#A[1:10,1:10]
+#Phenofounders$ID <- colnames(A) ## this is just to make the ID of the phenotype data and the row/column name on the GRM are the same
 #Phenofounders$rep <- rep
 
 # mix1 <- mmer(Phenotype~rep,
@@ -77,7 +77,7 @@ Phenofounders$ID <- colnames(A) ## this is just to make the ID of the phenotype 
 sommerModel <-paste("mix1 <- mmer(fixed=", jsonInput$fixed, ",\n", 
           "random=", jsonInput$random, ",\n", 
           "rcov=", jsonInput$rcov, ",\n",
-          "data=Phenofounders)",
+          "data=inputData)",
           sep = "")
 
 eval(parse( text=sommerModel ))
@@ -119,7 +119,7 @@ write.csv(fitted, file=jsonInput$output_yhat, row.names = F, quote=F)
 #outliers
 out <- boxplot.stats(Residuals)$out
 if(length(out)>0){
-  outliers <- Phenofounders[Residuals%in%out,]
+  outliers <- inputData[Residuals%in%out,]
   rownames(outliers)
   write.csv(outliers, file=jsonInput$output_outliers, row.names = F, quote=F)
 }
