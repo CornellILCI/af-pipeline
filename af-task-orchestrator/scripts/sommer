@@ -71,7 +71,7 @@ head(Phenofounders)
 #              data=Phenofounders)
 
 # mix1 <- mmer(fixed = jsonImput$fixed,
-#              random =~vs(ID, Gu=A),	     #ID is the ID of the hybrids
+#              random =~ID,	     #ID is the ID of the hybrids
 #              rcov =~ units,		             #this is for the residuals and its always 'units'
 #              data = Phenofounders)
 
