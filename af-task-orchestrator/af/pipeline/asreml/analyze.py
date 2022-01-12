@@ -11,7 +11,7 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import analysis_report, config, dpo, pandasutil, utils
+from af.pipeline import analysis_report, utils
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services
@@ -19,7 +19,6 @@ from af.pipeline.asreml.dpo import AsremlProcessData
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db import services as db_services
 from af.pipeline.db.core import DBConfig
-from af.pipeline.db.models import Analysis, Job
 from af.pipeline.exceptions import AnalysisError, DpoException
 from af.pipeline.job_data import JobData
 
