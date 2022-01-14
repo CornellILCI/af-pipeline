@@ -1,9 +1,6 @@
 import pandas as pd
 from af.pipeline import pandasutil, utils
 from af.pipeline.db import services as db_services
-from openpyxl import load_workbook, styles
-
-
 
 REQUEST_INFO_SHEET_NAME = "Request Info"
 ENTRY_SHEET_NAME = "Entry"
@@ -19,11 +16,6 @@ REPORT_SHEETS = [
     LOCATION_SHEET_NAME,
     ENTRY_LOCATION_SHEET_NAME,
 ]
-
-def as_text(value):
-    if value is None:
-        return ""
-    return str(value)
 
 
 def write_request_settings(db_session, report_file, analysis_request):
@@ -133,8 +125,9 @@ def write_entry_predictions(report_file: str, predictions_df: pd.DataFrame, meta
 
     entry_report = entry_report.drop_duplicates()
 
-    pandasutil.append_df_to_excel(report_file, entry_report, sheet_name=ENTRY_SHEET_NAME)
+    pandasutil.set_columns_as_numeric(entry_report, ["value", "std_error"])
 
+    pandasutil.append_df_to_excel(report_file, entry_report, sheet_name=ENTRY_SHEET_NAME)
 
 
 def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
@@ -156,6 +149,8 @@ def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, m
     location_report = location_report[location_report_columns]
 
     location_report = location_report.drop_duplicates()
+
+    pandasutil.set_columns_as_numeric(location_report, ["value", "std_error"])
 
     pandasutil.append_df_to_excel(report_file, location_report, sheet_name=LOCATION_SHEET_NAME)
 
@@ -189,8 +184,9 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
 
     entry_location_report = entry_location_report.drop_duplicates()
 
+    pandasutil.set_columns_as_numeric(entry_location_report, ["value", "std_error"])
+
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
-    
 
 
 def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame, rename_map: dict):
@@ -221,9 +217,7 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     model_stats_df = model_stats_df.rename(columns=rename_map)
 
     model_stats_df = pandasutil.df_keep_columns(model_stats_df, model_stats_report_columns)
-    
+
+    pandasutil.set_columns_as_numeric(model_stats_df, ["LogL", "aic", "bic"])
+
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)
-
-
-
-

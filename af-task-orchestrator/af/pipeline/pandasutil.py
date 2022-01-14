@@ -41,6 +41,15 @@ def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.Data
     return df
 
 
+def set_columns_as_numeric(df: pd.DataFrame, columns: list):
+
+    for column in columns:
+        if column in df:
+            df[column] = pd.to_numeric(df[column], errors="ignore")
+
+    return df
+
+
 def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncate_sheet=False, **to_excel_kwargs):
     """
     Append a DataFrame [df] to existing Excel file [filename]
@@ -107,47 +116,6 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
 
     if sheet_name in writer.sheets and startrow > 1 and "header" not in to_excel_kwargs:
         to_excel_kwargs["header"] = False
-
-    # changing entry sheet to numeric
-    sheets = writer.book.sheetnames
-
-    if "Entry" in sheets:
-
-        # entry_sheet = writer.book[)]
-        entry_sheet = writer.book[sheets[sheets.index("Entry")]]
-
-        val = entry_sheet["H"]
-        for x in range(1, len(val)):
-            val[x].value = float(val[x].value)
-
-        sd = entry_sheet["I"]
-        for x in range(1, len(sd)):
-            sd[x].value = float(sd[x].value)
-
-    if "Entry x Location" in sheets:
-        entry_location_sheet = writer.book[sheets[sheets.index("Entry x Location")]]
-
-        val = entry_location_sheet["G"]
-        for x in range(1, len(val)):
-            val[x].value = float(val[x].value)
-
-        sd = entry_location_sheet["H"]
-        for x in range(1, len(sd)):
-            sd[x].value = float(sd[x].value)
-
-    if "Model Statistics" in sheets:
-        model_stat_sheet = writer.book[sheets[sheets.index("Model ")]]
-        logl = model_stat_sheet["E"]
-        for x in range(2, len(logl)):
-            logl[x].value = float(logl[x].value)
-
-        aic = model_stat_sheet["F"]
-        for x in range(2, len(aic)):
-            aic[x].value = float(aic[x].value)
-
-        bic = model_stat_sheet["G"]
-        for x in range(2, len(bic)):
-            bic[x].value = float(bic[x].value)
 
     # write out the new sheet
     df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
