@@ -12,7 +12,7 @@ def get_property(db_session, property_id: str) -> Property:
 
 
 def get_child_properties(db_session, property_root: str, property_name: str) -> list[Property]:
-    child_property_root = db_session.query(Property).filter(Property.code == property_code).one()
+    child_property_root = db_session.query(Property).filter(Property.code == property_root).one()
     properties = (
         db_session.query(Property)
         .select_from(PropertyConfig)
