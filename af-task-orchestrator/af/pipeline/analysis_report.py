@@ -1,8 +1,6 @@
 import pandas as pd
 from af.pipeline import pandasutil, utils
 from af.pipeline.db import services as db_services
-from openpyxl import load_workbook, styles
-
 
 REQUEST_INFO_SHEET_NAME = "Request Info"
 ENTRY_SHEET_NAME = "Entry"
@@ -151,38 +149,6 @@ def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, m
     location_report = location_report.drop_duplicates()
 
     pandasutil.append_df_to_excel(report_file, location_report, sheet_name=LOCATION_SHEET_NAME)
-
-
-def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
-
-    entry_location_report_columns = [
-        "job_id",
-        "trait_abbreviation",
-        "entry_id",
-        "entry_name",
-        "location_id",
-        "location_name",
-        "value",
-        "std_error",
-    ]
-
-    # get entry location only rows
-    entry_location_report = predictions_df[predictions_df.entry.notnull()]
-    entry_location_report = entry_location_report[entry_location_report["loc"].notnull()]
-    entry_location_report = entry_location_report[entry_location_report.num_factors == 2]
-
-    if len(entry_location_report) == 0:
-        return
-
-    entry_location_report = entry_location_report.merge(
-        metadata_df, left_on=["entry", "loc"], right_on=["entry_id", "location_id"]
-    )
-
-    entry_location_report = entry_location_report[entry_location_report_columns]
-
-    entry_location_report = entry_location_report.drop_duplicates()
-
-    pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
 
 
 def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
