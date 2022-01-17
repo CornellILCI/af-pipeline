@@ -2,7 +2,6 @@ import pandas as pd
 from af.pipeline import pandasutil, utils
 from af.pipeline.db import services as db_services
 
-
 REQUEST_INFO_SHEET_NAME = "Request Info"
 ENTRY_SHEET_NAME = "Entry"
 LOCATION_SHEET_NAME = "Location"
@@ -45,7 +44,7 @@ def write_occurrences(report_file, occurrences):
 
     # write a gap for occurrence
     gaps = pd.DataFrame([{"": ""}, {"": ""}])
-    pandasutil.append_df_to_excel(report_file, gaps, sheet_name=REQUEST_INFO_SHEET_NAME, header=True)
+    pandasutil.append_df_to_excel(report_file, gaps, sheet_name=REQUEST_INFO_SHEET_NAME)
 
     # write occurrences
     occurrence_report_build = []  # empty dict for occurrences

@@ -2,8 +2,6 @@ import os
 from typing import Iterable
 
 import openpyxl
-from openpyxl import styles
-from openpyxl.workbook import workbook
 import pandas as pd
 from af.pipeline import exceptions
 
@@ -109,22 +107,6 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
 
     if sheet_name in writer.sheets and startrow > 1 and "header" not in to_excel_kwargs:
         to_excel_kwargs["header"] = False
-
-    sn = writer.book.sheetnames
-    ws = writer.book[sn[0]]
-    no_fill = styles.PatternFill(fill_type=None)
-    side = styles.Side(border_style=None)
-    no_border = styles.borders.Border(
-        left=side,
-        right=side,
-        top=side,
-        bottom=side,
-    )
-    for row in ws.rows:
-        for cell in row:
-            if cell.value:
-                cell.fill = no_fill
-                cell.border = no_border
 
     # write out the new sheet
     df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
