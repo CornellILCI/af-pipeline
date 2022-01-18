@@ -105,8 +105,8 @@ class PhenotypeDataBrapi(PhenotypeData):
         post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop), json=observation_units_filters.dict())
         if not post_response.is_success:
             raise DataReaderException(post_response.error)
-
-        observation_units_id = post_response.body["result"]["searchResultDbId"]
+        #print(post_response.body)
+        observation_units_id = post_response.body["result"]["searchResultsDbId"]
 
         plots_data = []
 

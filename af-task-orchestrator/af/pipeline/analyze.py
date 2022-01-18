@@ -86,6 +86,7 @@ class Analyze(abc.ABC):
 
         try:
             cmd = self.get_cmd(job_data, analysis_engine)
+            print(cmd)
             _ = subprocess.run(cmd, capture_output=True)
             job = db_services.update_job(
                 self.db_session, job, "IN-PROGRESS", "Completed the job. Pending post processing."
