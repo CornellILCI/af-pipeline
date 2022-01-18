@@ -44,7 +44,7 @@ def write_occurrences(report_file, occurrences):
 
     # write a gap for occurrence
     gaps = pd.DataFrame([{"": ""}, {"": ""}])
-    pandasutil.append_df_to_excel(report_file, gaps, sheet_name=REQUEST_INFO_SHEET_NAME, header=True)
+    pandasutil.append_df_to_excel(report_file, gaps, sheet_name=REQUEST_INFO_SHEET_NAME)
 
     # write occurrences
     occurrence_report_build = []  # empty dict for occurrences
