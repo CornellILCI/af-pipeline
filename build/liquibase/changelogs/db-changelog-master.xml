@@ -39,4 +39,8 @@
     
     <!-- 21.12 -->
     <include file="changelogs/db-changelog-21.12.xml"/>
+
+    <!-- 22.01 -->
+    <include file="changelogs/db-changelog-22.01.xml"/>
+
   </databaseChangeLog>
