@@ -228,6 +228,13 @@ class JobFactory(Factory):
     status = factory.Faker("word", ext_word_list=["PENDING", "IN-PROGRESS", "DONE", "FAILURE"])
     status_message = factory.Faker("text")
 
+    job_data = factory.Dict(
+        {
+            "trait_name": factory.Faker("pystr", min_chars=5, max_chars=5),
+            "location_name": factory.Faker("pystr", min_chars=5, max_chars=5),
+        }
+    )
+
     class Meta:
         model = models.Job
 
