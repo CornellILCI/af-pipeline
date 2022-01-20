@@ -1,3 +1,4 @@
+import os
 from http import HTTPStatus
 from typing import List, Optional
 
@@ -71,6 +72,12 @@ def get(request_uuid: str):
 def download_result(request_uuid: str):
     """Download file result of analysis request as zip file"""
 
+    request_file = config.get_analysis_result_file_path(request_uuid)
+
+    if not os.path.exists(request_file):
+        error_response = api_models.ErrorResponse(errorMsg="Analysis Result file not found")
+        return json_response(error_response, HTTPStatus.NOT_FOUND)
+
     request_uuid_without_hyphens = request_uuid.replace("-", "")
     download_name = f"{request_uuid_without_hyphens}.zip"
 
@@ -108,7 +115,7 @@ def _map_analsysis(analysis):
         )
         req_dto.traits = pydantic.parse_obj_as(List[api_models.Trait], analysis.analysis_request_data.get("traits", []))
 
-    if req.status == Status.DONE:
+    if req.status == Status.DONE or req.status == Status.FAILURE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
 
     req_dto.jobs = []
