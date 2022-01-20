@@ -80,6 +80,10 @@ class AsremlProcessData(ProcessData):
             job_name = f"{self.analysis_request.requestId}_{trait.trait_id}"
             job_data.job_name = job_name
 
+            # -- BA-875 --
+            job_data.trait_name = trait.abbreviation
+            job_data.location_name = "Multi Location"
+
             for occurrence_id in self.occurrence_ids:
 
                 plots = plots_by_id[occurrence_id]
@@ -131,6 +135,10 @@ class AsremlProcessData(ProcessData):
 
                 job_data.job_name = job_name
                 job_data.occurrences.append(occurrence)
+
+                # -- BA-875
+                job_data.trait_name = trait.abbreviation
+                job_data.location_name = occurrence.location
 
                 # save metadata in plots
                 job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
