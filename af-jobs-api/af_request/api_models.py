@@ -55,6 +55,9 @@ class Job(AfBaseModel):
     status: Optional[Status] = None
     statusMessage: Optional[str] = None
 
+    traitName: Optional[str] = None
+    locationName: Optional[str] = None
+
     startTime: Optional[str] = None
     endTime: Optional[str] = None
 
