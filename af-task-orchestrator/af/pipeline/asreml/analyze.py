@@ -93,7 +93,7 @@ class AsremlAnalyze(Analyze):
             return job_data
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, "FAILURE", str(e))
+            db_services.update_job(self.db_session, job, "ERROR", str(e))
             utils.zip_dir(job_dir, self.output_file_path, job_data.job_name)
             raise AnalysisError(str(e))
         finally:
@@ -116,7 +116,7 @@ class AsremlAnalyze(Analyze):
 
             if not asreml_result_content.model_stat.get("is_converged"):
                 db_services.update_job(
-                    self.db_session, job, "FAILURE", asreml_result_content.model_stat.get("conclusion"))
+                    self.db_session, job, "FAILED", asreml_result_content.model_stat.get("conclusion"))
                 return gathered_objects
 
             metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
@@ -140,7 +140,7 @@ class AsremlAnalyze(Analyze):
                 raise AnalysisError("Analysis result yhat file not found.")
             asreml_services.process_yhat_result(self.db_session, job.id, yhat_file_path)
 
-            db_services.update_job(self.db_session, job, "DONE", asreml_result_content.model_stat.get("conclusion"))
+            db_services.update_job(self.db_session, job, "FINISHED", asreml_result_content.model_stat.get("conclusion"))
 
             # gather occurrences from the jobs, so we don't have to read occurrences again.
             # will not work for parallel jobs. For parallel job, gather will happen in finalize
@@ -155,7 +155,7 @@ class AsremlAnalyze(Analyze):
 
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, "FAILURE", str(e))
+            db_services.update_job(self.db_session, job, "ERROR", str(e))
             raise AnalysisError(str(e))
         finally:
             # zip the result files to be downloaded by the users
