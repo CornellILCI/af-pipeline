@@ -80,4 +80,4 @@ class Job(db.Model):
     analysis_id = db.Column(db.Integer, db.ForeignKey(Analysis.id))
 
     analysis = db.relationship(Analysis, back_populates="jobs")
-    job_data = db.Column(db.JSON)
+    
