@@ -125,6 +125,8 @@ def write_entry_predictions(report_file: str, predictions_df: pd.DataFrame, meta
 
     entry_report = entry_report.drop_duplicates()
 
+    pandasutil.set_columns_as_numeric(entry_report, ["value", "std_error"])
+
     pandasutil.append_df_to_excel(report_file, entry_report, sheet_name=ENTRY_SHEET_NAME)
 
 
@@ -147,6 +149,8 @@ def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, m
     location_report = location_report[location_report_columns]
 
     location_report = location_report.drop_duplicates()
+
+    pandasutil.set_columns_as_numeric(location_report, ["value", "std_error"])
 
     pandasutil.append_df_to_excel(report_file, location_report, sheet_name=LOCATION_SHEET_NAME)
 
@@ -180,6 +184,8 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
 
     entry_location_report = entry_location_report.drop_duplicates()
 
+    pandasutil.set_columns_as_numeric(entry_location_report, ["value", "std_error"])
+
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
 
 
@@ -211,5 +217,7 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     model_stats_df = model_stats_df.rename(columns=rename_map)
 
     model_stats_df = pandasutil.df_keep_columns(model_stats_df, model_stats_report_columns)
+
+    pandasutil.set_columns_as_numeric(model_stats_df, ["LogL", "aic", "bic"])
 
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)

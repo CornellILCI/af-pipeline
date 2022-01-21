@@ -42,6 +42,15 @@ def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.Data
     return df
 
 
+def set_columns_as_numeric(df: pd.DataFrame, columns: list):
+
+    for column in columns:
+        if column in df:
+            df[column] = pd.to_numeric(df[column], errors="ignore")
+
+    return df
+
+
 def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncate_sheet=False, **to_excel_kwargs):
     """
     Append a DataFrame [df] to existing Excel file [filename]

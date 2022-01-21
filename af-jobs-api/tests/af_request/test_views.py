@@ -239,3 +239,63 @@ def test_get_by_id_traits_found(client, session, analysis):
     result = resp_content.get("result")
 
     assert result.get("traits") == analysis.analysis_request_data.get("traits")
+
+
+def test_get_by_id_job_data_trait_name_field_exist(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content.get("result")
+
+    first_job = result.get("jobs")[0]
+
+    assert "traitName" in first_job
+
+
+def test_get_by_id_job_data_trait_name_field_mapped(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content.get("result")
+
+    expected_value = analysis.jobs[0].job_data.get("trait_name")
+
+    first_job = result.get("jobs")[0]
+
+    assert first_job.get("traitName") == expected_value
+
+
+def test_get_by_id_job_data_location_name_field_exist(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content.get("result")
+
+    first_job = result.get("jobs")[0]
+
+    assert "locationName" in first_job
+
+
+def test_get_by_id_job_data_location_name_field_mapped(client, session, analysis):
+
+    from af_request import service
+
+    resp = client.get(f"/v1/requests/{analysis.request.uuid}")
+
+    resp_content = resp.get_json()
+    result = resp_content.get("result")
+
+    expected_value = analysis.jobs[0].job_data.get("location_name")
+
+    first_job = result.get("jobs")[0]
+
+    assert first_job.get("locationName") == expected_value

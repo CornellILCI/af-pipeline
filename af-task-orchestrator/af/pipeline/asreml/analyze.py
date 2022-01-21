@@ -58,12 +58,13 @@ class AsremlAnalyze(Analyze):
             return job_input_files
         except (DataReaderException, DpoException) as e:
             self.__update_request_status("FAILURE", "Data preprocessing failed.")
+            utils.zip_dir(self.analysis_request.outputFolder, self.output_file_path)
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
 
     def __update_request_status(self, status, message):
-        self.analysis.request.status = "IN-PROGRESS"
+        self.analysis.request.status = status
         self.analysis.request.msg = message
 
     def get_engine_script(self):
@@ -93,6 +94,7 @@ class AsremlAnalyze(Analyze):
         except Exception as e:
             self.analysis.status = "FAILURE"
             db_services.update_job(self.db_session, job, "FAILURE", str(e))
+            utils.zip_dir(job_dir, self.output_file_path, job_data.job_name)
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
@@ -138,9 +140,6 @@ class AsremlAnalyze(Analyze):
                 raise AnalysisError("Analysis result yhat file not found.")
             asreml_services.process_yhat_result(self.db_session, job.id, yhat_file_path)
 
-            # zip the result files to be downloaded by the users
-            utils.zip_dir(job_result.job_result_dir, self.output_file_path, job.name)
-
             db_services.update_job(self.db_session, job, "DONE", asreml_result_content.model_stat.get("conclusion"))
 
             # gather occurrences from the jobs, so we don't have to read occurrences again.
@@ -159,6 +158,9 @@ class AsremlAnalyze(Analyze):
             db_services.update_job(self.db_session, job, "FAILURE", str(e))
             raise AnalysisError(str(e))
         finally:
+            # zip the result files to be downloaded by the users
+            utils.zip_dir(job_result.job_result_dir, self.output_file_path, job.name)
+
             self.db_session.commit()
 
     def finalize(self, gathered_objects):
