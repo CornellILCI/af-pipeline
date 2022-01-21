@@ -119,6 +119,8 @@ def _map_analsysis(analysis):
                 jobName=job.name,
                 status=job.status,
                 statusMessage=job.status_message,
+                traitName=job.job_data.get("trait_name", ""),
+                locationName=job.job_data.get("location_name", ""),
                 startTime=job.time_start,
                 endTime=job.time_end,
             )
