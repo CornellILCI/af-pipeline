@@ -92,7 +92,7 @@ class AsremlAnalyze(Analyze):
             return job_data
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, "FAILURE", str(e))
+            db_services.update_job(self.db_session, job, "ERROR", str(e))
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
@@ -151,7 +151,7 @@ class AsremlAnalyze(Analyze):
 
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, "FAILURE", str(e))
+            db_services.update_job(self.db_session, job, "ERROR", str(e))
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
