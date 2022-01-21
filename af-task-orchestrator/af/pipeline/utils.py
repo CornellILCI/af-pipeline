@@ -71,7 +71,7 @@ def remove_empty_worksheets(workbook_file: str):
     wb.save(workbook_file)
 
 
-def zip_dir(dir_to_zip: str, zip_file_path: str, base_dir: str):
+def zip_dir(dir_to_zip: str, zip_file_path: str, base_dir: str = ""):
     """Zips the input directory to destination zip file"""
 
     files_to_zip = []
@@ -79,9 +79,13 @@ def zip_dir(dir_to_zip: str, zip_file_path: str, base_dir: str):
     for root, directories, files in os.walk(dir_to_zip):
 
         for file_name in files:
-
             file_path = os.path.join(root, file_name)
             files_to_zip.append(file_path)
+
+        if not base_dir:
+            for dir_ in directories:
+                zip_dir(dir_to_zip=os.path.join(dir_to_zip, dir_), zip_file_path=zip_file_path, base_dir=dir_)
+            break
 
     _zip_file = zipfile.ZipFile(zip_file_path, "a")
 
