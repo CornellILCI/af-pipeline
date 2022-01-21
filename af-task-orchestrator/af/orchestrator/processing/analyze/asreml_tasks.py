@@ -1,10 +1,12 @@
 import logging
+
 from af.orchestrator.app import app
 from af.orchestrator.base import StatusReportingTask
 from af.pipeline import analyze as pipeline_analyze
 from af.pipeline.exceptions import AnalysisError
 
 log = logging.getLogger(__name__)
+
 
 @app.task(name="run_analyze", base=StatusReportingTask, queue="ASREML")
 def run_analyze(request_id, analysis_request, input_files, results):

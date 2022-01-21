@@ -77,8 +77,18 @@ class AsremlAnalyze(Analyze):
 
         job_dir = utils.get_parent_dir(job_data.data_file)
 
+        job_detail = {
+            "trait_name": job_data.trait_name,
+            "location_name": job_data.location_name,
+        }
+
         job = db_services.create_job(
-            self.db_session, self.analysis.id, job_data.job_name, "IN-PROGRESS", "Processing in the input request"
+            self.db_session,
+            self.analysis.id,
+            job_data.job_name,
+            "IN-PROGRESS",
+            "Processing in the input request",
+            job_detail,
         )
 
         try:

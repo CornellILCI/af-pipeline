@@ -1,4 +1,5 @@
 import logging
+
 from af.orchestrator import config
 from af.orchestrator.app import app
 from af.orchestrator.base import ResultReportingTask, StatusReportingTask
@@ -7,6 +8,7 @@ from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.exceptions import AnalysisError
 
 log = logging.getLogger(__name__)
+
 
 @app.task(name="analyze", base=StatusReportingTask)
 def analyze(request_id: str, request_params):
