@@ -114,6 +114,11 @@ class AsremlAnalyze(Analyze):
                 self.db_session, job.id, asreml_result_xml_path
             )
 
+            if not asreml_result_content.model_stat.get("is_converged"):
+                db_services.update_job(
+                    self.db_session, job, "FAILURE", asreml_result_content.model_stat.get("conclusion"))
+                return gathered_objects
+
             metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
 
             # initialize the report workbook
@@ -135,7 +140,7 @@ class AsremlAnalyze(Analyze):
                 raise AnalysisError("Analysis result yhat file not found.")
             asreml_services.process_yhat_result(self.db_session, job.id, yhat_file_path)
 
-            db_services.update_job(self.db_session, job, "DONE", "Asreml analysis completed successfully")
+            db_services.update_job(self.db_session, job, "DONE", asreml_result_content.model_stat.get("conclusion"))
 
             # gather occurrences from the jobs, so we don't have to read occurrences again.
             # will not work for parallel jobs. For parallel job, gather will happen in finalize
