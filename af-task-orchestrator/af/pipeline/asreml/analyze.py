@@ -82,7 +82,12 @@ class AsremlAnalyze(Analyze):
         }
 
         job = db_services.create_job(
-            self.db_session, self.analysis.id, job_data.job_name, "IN-PROGRESS", "Processing in the input request", job_detail
+            self.db_session,
+            self.analysis.id,
+            job_data.job_name,
+            "IN-PROGRESS",
+            "Processing in the input request",
+            job_detail,
         )
 
         try:

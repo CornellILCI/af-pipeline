@@ -105,7 +105,6 @@ class Job(BaseMixin, Base):
     job_data = Column(JSON)
 
 
-
 class Property(BaseMixin, Base):
 
     __tablename__ = "property"

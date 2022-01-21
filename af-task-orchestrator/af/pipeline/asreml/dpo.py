@@ -65,6 +65,8 @@ class AsremlProcessData(ProcessData):
 
         traits: list[Trait] = self.__get_traits()
 
+        num_occurrences = len(self.occurrence_ids)
+
         # read once
         for occurrence_id in self.occurrence_ids:
             plots_by_id[occurrence_id]: pd.DataFrame = self.data_reader.get_plots(occurrence_id)
@@ -89,6 +91,9 @@ class AsremlProcessData(ProcessData):
                 plots = plots_by_id[occurrence_id]
                 occurrence = occurrences_by_id[occurrence_id]
                 job_data.occurrences.append(occurrence)
+
+                if num_occurrences == 1:
+                    job_data.location_name = occurrence.location
 
                 # save metadata in plots
                 job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)

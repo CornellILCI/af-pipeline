@@ -16,4 +16,3 @@ class JobData:
     occurrences: list[Occurrence] = field(default_factory=list)
     trait_name: str = ""
     location_name: str = ""
-
