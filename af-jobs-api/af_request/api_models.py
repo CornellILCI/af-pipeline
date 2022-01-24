@@ -52,7 +52,7 @@ class Job(AfBaseModel):
 
     jobId: str = None
     jobName: Optional[str] = None
-    status: Optional[Status] = None
+    status: Optional[str] = None
     statusMessage: Optional[str] = None
 
     traitName: Optional[str] = None
