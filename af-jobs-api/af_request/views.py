@@ -41,7 +41,7 @@ def list():
     analysis_request_dtos = []
 
     for analysis in analyses:
-        analysis_request_dtos.append(_map_analsysis(analysis))
+        analysis_request_dtos.append(_map_analysis(analysis))
 
     response = api_models.AnalysisRequestListResponse(
         metadata=api_models.create_metadata(query_params.page, query_params.pageSize),

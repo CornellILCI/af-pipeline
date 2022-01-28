@@ -23,6 +23,7 @@ GET_OBSERVATION_UNITS_TABLE_URL = "/observationunits/table"
 GET_POST_OBSERVATION_UNITS_URL_BMS_V2 = "/bmsapi/{crop}/brapi/v2/search/observationunits"
 
 
+
 class PhenotypeDataBrapi(PhenotypeData):
     """Reads phenotype data from a brapi ebs data source."""
 
@@ -45,6 +46,23 @@ class PhenotypeDataBrapi(PhenotypeData):
     }
 
     brapi_list_page_size = 1000
+
+    def get_observations(
+        self, occurrence_id: str = None, observationLevel: str = None, observationUnitDbId: str = None
+    ) -> tuple:
+
+        observation_units_filters = ObservationUnitQueryParams(
+            studyDbId=occurrence_id,
+            observationLevel=observationLevel,
+            observationUnitDbId=observationUnitDbId,
+            pageSize=self.brapi_list_page_size,
+        )
+
+        api_response = self.get(endpoint=GET_OBSERVATION_UNITS_TABLE_URL, params=observation_units_filters.dict())
+
+
+
+        pass
 
     def get_observation_units_table(
         self, occurrence_id: str = None, observationLevel: str = None, observationUnitDbId: str = None
@@ -96,8 +114,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         return germplasm, plots_data, plots_header
 
     def get_plots_from_search(self, crop: str = None, occurrence_id: str = None) -> pd.DataFrame:
-
-        #first POST to /bmsapi/rice/brapi/v2/search/observationunits
+        #first POST to /bmsapi/{crop}/brapi/v2/search/observationunits
         observation_units_filters = ObservationUnitQueryParams(
             studyDbId=occurrence_id, observationLevel="plot"
         )
@@ -105,9 +122,8 @@ class PhenotypeDataBrapi(PhenotypeData):
         post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop), json=observation_units_filters.dict())
         if not post_response.is_success:
             raise DataReaderException(post_response.error)
-        #print(post_response.body)
-        observation_units_id = post_response.body["result"]["searchResultsDbId"]
 
+        observation_units_id = post_response.body["result"]["searchResultsDbId"]
         plots_data = []
 
         columns_path = [
@@ -123,6 +139,10 @@ class PhenotypeDataBrapi(PhenotypeData):
         
         get_more_plots = True
         #the loop goes here
+
+        data = []
+
+        dataframes = []
 
         while(get_more_plots):
 
@@ -143,51 +163,46 @@ class PhenotypeDataBrapi(PhenotypeData):
                 columns.append("plot_qc")
                 return pd.DataFrame(columns=columns)
 
-            # list record path to normalze
-            list_record_path = ["observationUnitPosition", "observationLevelRelationships"]
+            #build a json object with all the info
 
-            # this dataframe will have observation level array as seperate rows
-            plots_unpivoted = pd.json_normalize(
-                plots_data,
-                record_path=list_record_path,
-                meta=columns_path,
-            )
+            rows = []
+            for x in get_response.body["result"]["data"]:
+                temp = {}
+                
+                temp["Location"] = x["locationName"]
+                temp["Trial"] = x["trialDbId"]
+                temp["Germplasm"] = x["germplasmDbId"]
 
-            plots_observation_levels_pivoted = plots_unpivoted.pivot(
-                index="observationUnitDbId", columns="levelName", values="levelCode"
-            )
 
-            plots_observation_levels_droped = (
-                plots_unpivoted.drop(columns=["levelOrder", "levelCode", "levelName"]).drop_duplicates().reset_index()
-            )
+                for y in x["observationUnitPosition"]["observationLevelRelationships"]:
+                    if y["levelName"] == "PLOT":
+                        temp["Plot"] = y["levelCode"]
+                    if y["levelName"] == "REP":
+                        temp["Rep"] = y["levelCode"]
 
-            plots_page = plots_observation_levels_droped.join(
-                plots_observation_levels_pivoted, on="observationUnitDbId"
-            )
+                if x["observationUnitPosition"]["positionCoordinateXType"] == "GRID_COL":
+                    temp["Col"] = x["observationUnitPosition"]["positionCoordinateX"]
+                elif x["observationUnitPosition"]["positionCoordinateXType"] == "GRID_ROW":
+                    temp["Row"] = x["observationUnitPosition"]["positionCoordinateX"]
 
-            # keep only local field columns
-            plots_page = df_keep_columns(plots_page, self.plots_api_fields_to_local_fields.keys())
+                if x["observationUnitPosition"]["positionCoordinateYType"] == "GRID_COL":
+                    temp["Col"] = x["observationUnitPosition"]["positionCoordinateY"]
+                elif x["observationUnitPosition"]["positionCoordinateYType"] == "GRID_ROW":
+                    temp["Row"] = x["observationUnitPosition"]["positionCoordinateY"]
 
-            # since plot_qc not defined in brapi spec, set default value "G"
-            plots_page["plot_qc"] = "G"
+                for y in x["observations"]:
+                    temp[y["observationVariableName"]] = y["value"]
 
-            if page_num == 0:
-                plots = plots_page
-            else:
-                plots = plots.append(plots_page)
+                rows.append(temp)
 
-            # to get next page
-            page_num += 1
+            dataframes.append(pd.json_normalize(rows))
 
             if page_num < get_response.body["metadata"]["pagination"]["totalPages"]:
                 page_num += 1
             else:
                 get_more_plots = False
 
-        # rename dataframe column with local field names
-        plots.rename(columns=self.plots_api_fields_to_local_fields, inplace=True)
-
-        return plots.astype(str)
+        return pd.concat(dataframes)
 
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
