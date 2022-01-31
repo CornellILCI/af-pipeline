@@ -87,10 +87,7 @@ def metadata_df():
     )
 
 
-def test_write_predictions_all_sheets(db_session, analysis_request, report_file, predictions_df, metadata_df):
-
-    analysis_report.write_predictions(db_session, analysis_request, report_file, predictions_df, metadata_df)
-
+def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
 
     assert os.path.isfile(report_file)
 
@@ -107,10 +104,11 @@ def test_write_predictions_all_sheets(db_session, analysis_request, report_file,
             "entry_type",
             "value",
             "std_error",
+            "location"
         ],
         data=[
-            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4],
-            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5],
+            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4, 1],
+            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5, 1],
         ],
     )
     assert_frame_equal(output_entry_report, expected_entry_report, check_dtype=False)
@@ -166,10 +164,11 @@ def test_write_predictions_entry_only(report_file, entry_only_predictions_df, me
             "entry_type",
             "value",
             "std_error",
+            "location_id"
         ],
         data=[
-            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4],
-            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5],
+            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4, "3396"],
+            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5, "3396"],
         ],
     )
 
