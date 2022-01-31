@@ -143,6 +143,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         data = []
 
         dataframes = []
+        idCounter = 0
 
         while(get_more_plots):
 
@@ -164,11 +165,13 @@ class PhenotypeDataBrapi(PhenotypeData):
                 return pd.DataFrame(columns=columns)
 
             #build a json object with all the info
-
+            
             rows = []
             for x in get_response.body["result"]["data"]:
                 temp = {}
                 
+                temp["ID"] = idCounter
+                idCounter += 1
                 temp["Location"] = x["locationName"]
                 temp["Trial"] = x["trialDbId"]
                 temp["Germplasm"] = x["germplasmDbId"]
@@ -195,14 +198,17 @@ class PhenotypeDataBrapi(PhenotypeData):
 
                 rows.append(temp)
 
-            dataframes.append(pd.json_normalize(rows))
+            ndf = pd.json_normalize(rows)
+            
+            dataframes.append(ndf)
 
             if page_num < get_response.body["metadata"]["pagination"]["totalPages"]:
                 page_num += 1
             else:
                 get_more_plots = False
-
-        return pd.concat(dataframes)
+        ret = pd.concat(dataframes,ignore_index=True)
+        ret.set_index("ID")
+        return ret
 
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
