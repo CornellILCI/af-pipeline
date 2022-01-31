@@ -30,9 +30,9 @@ def write_request_settings(db_session, report_file, analysis_request):
         {"Request Settings": ""},
         {"": ""},
         {"Request Settings": "Objective", "": prediction.name},
-        {"Request Settings": "Trait Pattern", "": exptloc_analysis_pattern.name},
+        {"Request Settings": "Experiment Location Pattern", "": exptloc_analysis_pattern.name},
         {"Request Settings": "Main Model", "": formula.name},
-        {"Request Settings": "Spatial Objective", "": residual.name},
+        {"Request Settings": "Spatial Adjustment", "": residual.name},
     ]
 
     request_settings = pd.DataFrame(request_settings_build)
