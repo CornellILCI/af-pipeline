@@ -2,8 +2,6 @@ import os
 
 import pandas as pd
 import pytest
-from af.pipeline.db.models import Property
-
 from af.pipeline import analysis_report
 from pandas._testing import assert_frame_equal
 
@@ -89,6 +87,8 @@ def metadata_df():
 
 def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
 
+    analysis_report.write_predictions(report_file, location_only_predictions_df, metadata_df)
+
     assert os.path.isfile(report_file)
 
     # assert entry report
@@ -104,7 +104,7 @@ def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
             "entry_type",
             "value",
             "std_error",
-            "location"
+            "location_id"
         ],
         data=[
             [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4, 1],
@@ -147,7 +147,7 @@ def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
 
 def test_write_predictions_entry_only(report_file, entry_only_predictions_df, metadata_df):
 
-    analysis_report.write_predictions(report_file, entry_only_predictions_df, metadata_df)
+    analysis_report.write_predictions(report_file, location_only_predictions_df, metadata_df)
 
     assert os.path.isfile(report_file)
 
@@ -167,8 +167,8 @@ def test_write_predictions_entry_only(report_file, entry_only_predictions_df, me
             "location_id"
         ],
         data=[
-            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4, "3396"],
-            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5, "3396"],
+            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4, 1],
+            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5, 1],
         ],
     )
 
