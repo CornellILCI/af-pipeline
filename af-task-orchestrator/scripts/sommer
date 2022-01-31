@@ -7,7 +7,7 @@ local({r <- getOption("repos")
 
 #####################################################################################################################
 #JSON Integration
-library("rjson")
+library("RJSONIO")
 #read command line args
 args = commandArgs(trailingOnly=TRUE)
 #confirm that there is exactly 1 arg
@@ -18,7 +18,7 @@ if (length(args)!=1) {
 
 writeLines("Reading args[1]")
 #reads JSON
-jsonInput <- fromJSON(file = args[1])
+jsonInput <- fromJSON(content = args[1])
 #confirm that the file showed up
 
 print(jsonInput)
@@ -28,7 +28,7 @@ print(jsonInput)
 # nLoci <- if("nLoci" %in% names(jsonInput)) jsonInput$nLoci else 100                         # number of loci per chromosome
 stopifnot(
     "input_phenotypic_data" %in% names(jsonInput),
-    "grm" %in% names(jsonInput),
+    # "grm" %in% names(jsonInput),
     "output_var" %in% names(jsonInput),
     "output_statmodel" %in% names(jsonInput),
     "output_BV" %in% names(jsonInput),

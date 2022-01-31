@@ -16,15 +16,10 @@ RUN wget https://downloads.vsni.digital/2bdb06398e7dcf7d9a638092305b5b78fdffacb1
 RUN apt-get install -y ./ASReml-4.2.1.170-Ubuntu-18.04.deb
 RUN apt-get install -y supervisor
 
-RUN add-apt-repository -r 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/'
-RUN add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/'
-RUN apt-get update
-RUN apt-get dist-upgrade
-RUN apt-get install r-base r-base-core r-recommended
-
+RUN apt-get install -y -f r-base
 # install R packages
 RUN Rscript -e  "install.packages('sommer')"
-RUN Rscript -e  "install.packages('rjson')"
+RUN Rscript -e  "install.packages('RJSONIO')"
 RUN Rscript -e  "install.packages('gtools')"
 
 # RUN apt-get update && pip3 install  -r requirements.txt
