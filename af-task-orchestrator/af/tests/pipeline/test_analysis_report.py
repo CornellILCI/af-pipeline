@@ -2,6 +2,8 @@ import os
 
 import pandas as pd
 import pytest
+from af.pipeline.db.models import Property
+
 from af.pipeline import analysis_report
 from pandas._testing import assert_frame_equal
 
@@ -85,9 +87,10 @@ def metadata_df():
     )
 
 
-def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
+def test_write_predictions_all_sheets(db_session, analysis_request, report_file, predictions_df, metadata_df):
 
-    analysis_report.write_predictions(report_file, predictions_df, metadata_df)
+    analysis_report.write_predictions(db_session, analysis_request, report_file, predictions_df, metadata_df)
+
 
     assert os.path.isfile(report_file)
 

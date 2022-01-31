@@ -136,7 +136,9 @@ class AsremlAnalyze(Analyze):
                 utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
 
             # write prediction to the analysis report
-            analysis_report.write_predictions(self.report_file_path, asreml_result_content.predictions, metadata_df)
+            analysis_report.write_predictions(
+                self.db_session, self.analysis_request,
+                self.report_file_path, asreml_result_content.predictions, metadata_df)
 
             # write model statisics to analysis report
             rename_keys = {"log_lik": "LogL"}
