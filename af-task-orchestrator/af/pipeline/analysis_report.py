@@ -99,9 +99,8 @@ def write_predictions(db_session, analysis_request, report_file: str, prediction
 
 
 def write_entry_predictions(db_session, analysis_request, report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
-
     exptloc_analysis_pattern = db_services.get_property(db_session, analysis_request.expLocAnalysisPatternPropertyId)
-    # print("\n\n\n\n\n\n",exptloc_analysis_pattern,"\n\n\n\n\n\n")
+
     if exptloc_analysis_pattern.code == "SESL":
         entry_report_columns = [
             "job_id",
