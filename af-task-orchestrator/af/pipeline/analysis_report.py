@@ -24,15 +24,18 @@ def write_request_settings(db_session, report_file, analysis_request):
     formula = db_services.get_property(db_session, analysis_request.configFormulaPropertyId)
     residual = db_services.get_property(db_session, analysis_request.configResidualPropertyId)
     prediction = db_services.get_property(db_session, analysis_request.analysisObjectivePropertyId)
+    config = db_services.get_property(db_session, analysis_request.analysisConfigPropertyId)
     exptloc_analysis_pattern = db_services.get_property(db_session, analysis_request.expLocAnalysisPatternPropertyId)
 
     request_settings_build = [
         {"Request Settings": ""},
         {"": ""},
         {"Request Settings": "Objective", "": prediction.name},
-        {"Request Settings": "Trait Pattern", "": exptloc_analysis_pattern.name},
+        {"Request Settings": "Trait Pattern", "": "Univariate"},
+        {"Request Settings": "Experiment Location Pattern", "": exptloc_analysis_pattern.name},
+        {"Request Settings": "Analysis Configuration", "": config.name},
         {"Request Settings": "Main Model", "": formula.name},
-        {"Request Settings": "Spatial Objective", "": residual.name},
+        {"Request Settings": "Spatial Adjustment", "": residual.name},
     ]
 
     request_settings = pd.DataFrame(request_settings_build)
@@ -221,3 +224,4 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     pandasutil.set_columns_as_numeric(model_stats_df, ["LogL", "aic", "bic"])
 
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)
+
