@@ -5,6 +5,8 @@ import pytest
 from af.pipeline import analysis_report
 from pandas._testing import assert_frame_equal
 
+from af.pipeline.db.models import Property
+
 
 @pytest.fixture
 def report_file(temp_dir):
@@ -85,9 +87,12 @@ def metadata_df():
     )
 
 
-def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
+def test_write_predictions_all_sheets(mocker, dbsession, analysis_request, report_file, predictions_df, metadata_df):
 
-    analysis_report.write_predictions(report_file, location_only_predictions_df, metadata_df)
+    exp_location_analysis_pattern_stub = Property(code="SEML")
+    mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
+
+    analysis_report.write_predictions(dbsession, analysis_request, report_file, predictions_df, metadata_df)
 
     assert os.path.isfile(report_file)
 
@@ -104,11 +109,10 @@ def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
             "entry_type",
             "value",
             "std_error",
-            "location_id"
         ],
         data=[
-            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4, 1],
-            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5, 1],
+            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4],
+            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5],
         ],
     )
     assert_frame_equal(output_entry_report, expected_entry_report, check_dtype=False)
@@ -145,9 +149,14 @@ def test_write_predictions_all_sheets(report_file, predictions_df, metadata_df):
     assert_frame_equal(output_entry_location_report, expected_entry_location_report, check_dtype=False)
 
 
-def test_write_predictions_entry_only(report_file, entry_only_predictions_df, metadata_df):
+def test_write_predictions_entry_only(
+    mocker, dbsession, analysis_request, report_file, entry_only_predictions_df, metadata_df
+):
 
-    analysis_report.write_predictions(report_file, location_only_predictions_df, metadata_df)
+    exp_location_analysis_pattern_stub = Property(code="SEML")
+    mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
+
+    analysis_report.write_predictions(dbsession, analysis_request, report_file, entry_only_predictions_df, metadata_df)
 
     assert os.path.isfile(report_file)
 
@@ -164,18 +173,62 @@ def test_write_predictions_entry_only(report_file, entry_only_predictions_df, me
             "entry_type",
             "value",
             "std_error",
-            "location_id"
         ],
         data=[
-            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4, 1],
-            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5, 1],
+            [1, 1, "experiment1", "testtrait", 1, "entry1", "test", 1, 1.4],
+            [1, 1, "experiment1", "testtrait", 2, "entry2", "check", 1, 1.5],
         ],
     )
 
     assert_frame_equal(output_entry_report, expected_entry_report, check_dtype=False)
 
     # test append to entry report
-    analysis_report.write_predictions(report_file, entry_only_predictions_df, metadata_df)
+    analysis_report.write_predictions(dbsession, analysis_request, report_file, entry_only_predictions_df, metadata_df)
+
+    output_entry_report = pd.read_excel(report_file, sheet_name=analysis_report.ENTRY_SHEET_NAME)
+    expected_entry_report = pd.concat([expected_entry_report, expected_entry_report], ignore_index=True)
+
+    assert_frame_equal(output_entry_report, expected_entry_report, check_dtype=False)
+
+
+def test_write_predictions_entry_only_sesl(
+    mocker, dbsession, analysis_request, report_file, entry_only_predictions_df, metadata_df
+):
+
+    exp_location_analysis_pattern_stub = Property(code="SESL")
+    mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
+
+    analysis_report.write_predictions(dbsession, analysis_request, report_file, entry_only_predictions_df, metadata_df)
+
+    assert os.path.isfile(report_file)
+
+    # assert entry report
+    output_entry_report = pd.read_excel(report_file, sheet_name=analysis_report.ENTRY_SHEET_NAME)
+    expected_entry_report = pd.DataFrame(
+        columns=[
+            "job_id",
+            "experiment_id",
+            "experiment_name",
+            "location_id",
+            "location_name",
+            "trait_abbreviation",
+            "entry_id",
+            "entry_name",
+            "entry_type",
+            "value",
+            "std_error",
+        ],
+        data=[
+            [1, 1, "experiment1", 1, "loc1", "testtrait", 1, "entry1", "test", 1, 1.4],
+            [1, 1, "experiment1", 1, "loc1", "testtrait", 2, "entry2", "check", 1, 1.5],
+        ],
+    )
+
+    assert_frame_equal(output_entry_report, expected_entry_report, check_dtype=False)
+
+    # test append to entry report
+    analysis_report.write_predictions(dbsession, analysis_request, report_file, entry_only_predictions_df, metadata_df)
+
     output_entry_report = pd.read_excel(report_file, sheet_name=analysis_report.ENTRY_SHEET_NAME)
     expected_entry_report = pd.concat([expected_entry_report, expected_entry_report], ignore_index=True)
 

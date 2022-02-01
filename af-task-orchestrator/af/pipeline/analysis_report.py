@@ -55,7 +55,9 @@ def write_occurrences(report_file, occurrences):
     pandasutil.append_df_to_excel(report_file, occurrence_report, sheet_name=REQUEST_INFO_SHEET_NAME, header=True)
 
 
-def write_predictions(db_session, analysis_request, report_file: str, predictions: list[dict], metadata_df: pd.DataFrame):
+def write_predictions(
+    db_session, analysis_request, report_file: str, predictions: list[dict], metadata_df: pd.DataFrame
+):
     """Writes spearate report sheet for predictions of entry, location and entry x location in
     the report workbook.
     Args:
@@ -98,34 +100,27 @@ def write_predictions(db_session, analysis_request, report_file: str, prediction
         write_entry_location_predictions(report_file, predictions_df, metadata_df)
 
 
-def write_entry_predictions(db_session, analysis_request, report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
+def write_entry_predictions(
+    db_session, analysis_request, report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame
+):
+
+    entry_report_columns = [
+        "job_id",
+        "experiment_id",
+        "experiment_name",
+        "trait_abbreviation",
+        "entry_id",
+        "entry_name",
+        "entry_type",
+        "value",
+        "std_error",
+    ]
+
     exptloc_analysis_pattern = db_services.get_property(db_session, analysis_request.expLocAnalysisPatternPropertyId)
 
     if exptloc_analysis_pattern.code == "SESL":
-        entry_report_columns = [
-            "job_id",
-            "experiment_id",
-            "experiment_name",
-            "trait_abbreviation",
-            "entry_id",
-            "entry_name",
-            "entry_type",
-            "value",
-            "std_error",
-            "location_id"
-        ]
-    if exptloc_analysis_pattern.code == "SEML":
-        entry_report_columns = [
-            "job_id",
-            "experiment_id",
-            "experiment_name",
-            "trait_abbreviation",
-            "entry_id",
-            "entry_name",
-            "entry_type",
-            "value",
-            "std_error"
-        ]
+        pos_to_insert_loc_cols = entry_report_columns.index("experiment_name") + 1
+        entry_report_columns[pos_to_insert_loc_cols:pos_to_insert_loc_cols] = ["location_id", "location_name"]
 
     # get entry only rows
     entry_report = predictions_df[predictions_df.entry.notnull()]
