@@ -9,10 +9,10 @@
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2021.01.10
-# Date Modified    : 2021.11.25
+# Date Modified    : 2022.02.04
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 3
+# Script Version   : 3.1
 # Command          : Rscript randPREPirri.R --entryList "PREP_SD_0001.lst"
 #                    --nTrial 3 --genLayout T --nFieldRow 8 --serpentinePrep "CO" 
 #                    -o "Output" -p "D:/Results"
@@ -143,7 +143,7 @@ if (opt$genLayout) {
     #               FieldRow, FieldColumn) %>% 
     dplyr::select(Trial, PlotNumber, Rep, Entry, entry_type, 
                   FieldRow, FieldColumn) %>% 
-    arrange(Trial, FieldColumn, FieldRow) %>% 
+    arrange(Trial, PlotNumberw) %>% 
     rename("occurrence" = "Trial", "replicate" = "Rep", "entry_id" = "Entry", 
            "plot_number" = "PlotNumber", "field_row" = "FieldRow", "field_col" = "FieldColumn")
   
