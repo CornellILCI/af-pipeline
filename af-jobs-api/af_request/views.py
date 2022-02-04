@@ -36,7 +36,7 @@ def list():
 
     query_params = api_models.AnalysisRequestListQueryParameters(**request.args)
 
-    analyses = service.query(query_params)
+    analyses, total_count = service.query(query_params)
 
     # DTOs for api response
     analysis_request_dtos = []
@@ -45,7 +45,7 @@ def list():
         analysis_request_dtos.append(_map_analsysis(analysis))
 
     response = api_models.AnalysisRequestListResponse(
-        metadata=api_models.create_metadata(query_params.page, query_params.pageSize),
+        metadata=api_models.create_metadata(query_params.page, query_params.pageSize, total_count),
         result=api_models.AnalysisRequestListResponseResult(data=analysis_request_dtos),
     )
 

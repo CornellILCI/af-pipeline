@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import math
+
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
@@ -28,6 +30,22 @@ class Pagination(BaseModel):
             "This should always match the requested page number or the default page (0)."
         ),
         example=0,
+    )
+    totalCount: Optional[int] = Field(
+        None,
+        description=(
+            "The total number of elements that are available on the server and match the requested query parameters."
+        ),
+        example=1000,
+    )
+    totalPages: Optional[int] = Field(
+        None,
+        description=(
+            "The total number of pages of elements available on the server. "
+            "This should be calculated with the following formula. "
+            "\n\ntotalPages = CEILING( totalCount / requested_page_size)"
+        ),
+        example=1,
     )
 
 
@@ -93,8 +111,21 @@ class PropertyListResponse(BaseModel):
     result: Optional[PropertyListResponseResult] = None
 
 
-def create_metadata(current_page, page_size):
-    return Metadata(pagination=Pagination(currentPage=current_page, pageSize=page_size))
+def create_metadata(current_page, page_size, total_count):
+    total_pages = __calculate_total_pages(page_size, total_count)
+    return Metadata(
+        pagination=Pagination(
+            currentPage=current_page, pageSize=page_size, totalCount=total_count, totalPages=total_pages
+        )
+    )
+
+
+def __calculate_total_pages(page_size, total_count):
+
+    if page_size == 0:
+        return 0
+
+    return math.ceil(total_count / page_size)
 
 
 def map_property(_property):
