@@ -143,7 +143,7 @@ if (opt$genLayout) {
     #               FieldRow, FieldColumn) %>% 
     dplyr::select(Trial, PlotNumber, Rep, Entry, entry_type, 
                   FieldRow, FieldColumn) %>% 
-    arrange(Trial, PlotNumberw) %>% 
+    arrange(Trial, PlotNumber) %>% 
     rename("occurrence" = "Trial", "replicate" = "Rep", "entry_id" = "Entry", 
            "plot_number" = "PlotNumber", "field_row" = "FieldRow", "field_col" = "FieldColumn")
   
