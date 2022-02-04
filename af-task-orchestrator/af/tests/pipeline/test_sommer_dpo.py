@@ -30,6 +30,7 @@ def test_sommer_dpo_simple_test(mocker, dbsession, brapi_observation_table_api_r
 
     assert isinstance(output_list, list)
 
+
     entry = output_list[0]
 
     assert entry is not None
@@ -54,7 +55,6 @@ def test_create_rcov_for_sommer_settings(
     dpo = SommeRProcessData(sommer_analysis_request)
     output_list = dpo.run()
     entry = output_list[0]
-    print("\n\n\n", entry, "\n")
     assert entry is not None
     assert entry.job_name == "test-request-id"
     assert entry.job_file == "/tmp/test-request-id/settings.json"
@@ -81,6 +81,5 @@ def test_create_formula_for_sommer_settings(
 
     with open(sf) as json_file:
         data = json.load(json_file)
-    print(data)
 
     assert data["formula"] == "~ mu rep !r entry !f mv"

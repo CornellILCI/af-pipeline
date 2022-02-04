@@ -58,7 +58,9 @@ def write_occurrences(report_file, occurrences):
     pandasutil.append_df_to_excel(report_file, occurrence_report, sheet_name=REQUEST_INFO_SHEET_NAME, header=True)
 
 
-def write_predictions(report_file: str, predictions: list[dict], metadata_df: pd.DataFrame):
+def write_predictions(
+    db_session, analysis_request, report_file: str, predictions: list[dict], metadata_df: pd.DataFrame
+):
     """Writes spearate report sheet for predictions of entry, location and entry x location in
     the report workbook.
     Args:
@@ -90,7 +92,7 @@ def write_predictions(report_file: str, predictions: list[dict], metadata_df: pd
 
     # write entry report
     if "entry" in predictions_df.columns:
-        write_entry_predictions(report_file, predictions_df, metadata_df)
+        write_entry_predictions(db_session, analysis_request, report_file, predictions_df, metadata_df)
 
     # write location report
     if "loc" in predictions_df.columns:
@@ -101,7 +103,9 @@ def write_predictions(report_file: str, predictions: list[dict], metadata_df: pd
         write_entry_location_predictions(report_file, predictions_df, metadata_df)
 
 
-def write_entry_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
+def write_entry_predictions(
+    db_session, analysis_request, report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame
+):
 
     entry_report_columns = [
         "job_id",
@@ -114,6 +118,12 @@ def write_entry_predictions(report_file: str, predictions_df: pd.DataFrame, meta
         "value",
         "std_error",
     ]
+
+    exptloc_analysis_pattern = db_services.get_property(db_session, analysis_request.expLocAnalysisPatternPropertyId)
+
+    if exptloc_analysis_pattern.code == "SESL":
+        pos_to_insert_loc_cols = entry_report_columns.index("experiment_name") + 1
+        entry_report_columns[pos_to_insert_loc_cols:pos_to_insert_loc_cols] = ["location_id", "location_name"]
 
     # get entry only rows
     entry_report = predictions_df[predictions_df.entry.notnull()]
