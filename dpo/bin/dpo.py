@@ -64,7 +64,6 @@ class Dpo(object):
 
         self.cfg = self.conf + self.req["parameters"]["configFile"] + ".cfg"
 
-        print(self.cfg)
         # print("sel ", self.cfg)
         try:
             with open(self.cfg, "r") as cfg:
@@ -129,7 +128,6 @@ class Dpo(object):
                 fdf = fdf[fdf["occid"] == self.occ]
                 fdf = fdf.drop(["occid"], axis=1)
                 fdf = fdf.rename(columns={"trait": f"{self.name}"})
-                print(fdf)
                 dpo.buildCSV(fdf, idx)
                 idx += 1
             idx2 += 1
@@ -144,7 +142,6 @@ class Dpo(object):
             fdf = fdf.drop(["occid"], axis=1)
             fdf = fdf.rename(columns={"trait": f"{self.name}"})
             fdf = fdf.loc[:, fdf.columns.notnull()]
-            print(fdf)
             dpo.buildCSV(fdf, idx)
             idx += 1
 
@@ -157,7 +154,6 @@ class Dpo(object):
         jobL = len(str(idx + 1))
         csv = self.id[:-jobL] + str(idx + 1) + ".csv"
         asr = self.outdir + "/" + self.id[:-jobL] + str(idx + 1) + ".as"
-        print(self.name)
         module = self.cfg["Analysis_Module"]
         title = str(self.id[:-jobL] + str(idx + 1))
         res = self.req["parameters"]["residual"]

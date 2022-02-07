@@ -126,7 +126,8 @@ class AsremlAnalyze(Analyze):
 
             if not asreml_result_content.model_stat.get("is_converged"):
                 db_services.update_job(
-                    self.db_session, job, "FAILED", asreml_result_content.model_stat.get("conclusion"))
+                    self.db_session, job, "FAILED", asreml_result_content.model_stat.get("conclusion")
+                )
                 return gathered_objects
 
             metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
@@ -136,7 +137,13 @@ class AsremlAnalyze(Analyze):
                 utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
 
             # write prediction to the analysis report
-            analysis_report.write_predictions(self.report_file_path, asreml_result_content.predictions, metadata_df)
+            analysis_report.write_predictions(
+                self.db_session,
+                self.analysis_request,
+                self.report_file_path,
+                asreml_result_content.predictions,
+                metadata_df,
+            )
 
             # write model statisics to analysis report
             rename_keys = {"log_lik": "LogL"}
