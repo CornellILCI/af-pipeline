@@ -4,5 +4,8 @@
     <!-- BA-917 Add formulas to config 00007 and config 00008. -->
     <include file="changesets/22.02/data/template/add_formulas_for_config_00007_00008.sql"/>
 
+    <!-- BA-923 Add the entry effect in the formula name of RCBD SEML model -->
+    <include file="changesets/22.02/data/template/modify_formula_rcbd_names_labels.sql"/>
+
 
   </databaseChangeLog>
