@@ -1,3 +1,8 @@
+--liquibase formatted sql
+
+--changeset postgres:add_formulas_for_config_00007_00008 context:template splitStatements:false rollbackSplitStatements:false
+--comment: BA-917 Modify config 0007 and 0008 formula entries
+
 -- add formula to config_00007
 WITH config_formula AS (
 	INSERT INTO af.property(
