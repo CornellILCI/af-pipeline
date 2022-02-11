@@ -10,7 +10,7 @@ SEARCH_PLOTS_ENDPOINT = "/plots-search"
 
 SEARCH_PLOT_DATA_ENDPOINT = "/plot-data-search"
 
-SEARCH_OCCRRENCES_ENDPOINT = "/occurrences-search"
+SEARCH_OCCURRENCES_ENDPOINT = "/occurrences-search"
 
 SEARCH_VARIABLES_ENDPOINT = "/variables-search"
 
@@ -62,7 +62,7 @@ class PhenotypeDataEbs(PhenotypeData):
             "limit": self.list_api_page_size,
         }
 
-        while len(plots_data) >= self.list_api_page_size or page_num == 1:
+        while len(plots_data) == self.list_api_page_size or page_num == 1:
 
             api_page_params["page"] = page_num
 
@@ -102,7 +102,7 @@ class PhenotypeDataEbs(PhenotypeData):
             if occurrence.dict()[column]:
                 plots[column] = occurrence.dict()[column]
             else:
-                plots[column] = confif.UNIVERSAL_UNKNOWN
+                plots[column] = config.UNIVERSAL_UNKNOWN
 
         # rename dataframe column with local field names
         plots.rename(columns=self.plots_api_fields_to_local_fields, inplace=True)
@@ -123,7 +123,7 @@ class PhenotypeDataEbs(PhenotypeData):
             "limit": self.list_api_page_size,
         }
 
-        while len(plot_measurements_data) >= self.list_api_page_size or page_num == 1:
+        while len(plot_measurements_data) == self.list_api_page_size or page_num == 1:
 
             api_page_params["page"] = page_num
 
@@ -161,7 +161,7 @@ class PhenotypeDataEbs(PhenotypeData):
 
         search_query = {"occurrenceDbId": occurrence_id}
 
-        api_response = self.post(endpoint=SEARCH_OCCRRENCES_ENDPOINT, data=search_query)
+        api_response = self.post(endpoint=SEARCH_OCCURRENCES_ENDPOINT, data=search_query)
 
         if not api_response.is_success:
             raise DataReaderException(api_response.error)

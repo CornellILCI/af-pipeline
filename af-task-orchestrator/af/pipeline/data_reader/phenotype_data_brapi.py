@@ -104,7 +104,7 @@ class PhenotypeDataBrapi(PhenotypeData):
             studyDbId=occurrence_id, observationLevel="plot", pageSize=self.brapi_list_page_size
         )
 
-        while len(plots_data) >= self.brapi_list_page_size or page_num == 0:
+        while len(plots_data) == self.brapi_list_page_size or page_num == 0:
 
             observation_units_filters.page = page_num
 
@@ -184,7 +184,7 @@ class PhenotypeDataBrapi(PhenotypeData):
             studyDbId=occurrence_id, observationVariableDbId=trait_id, observationLevel="plot", pageSize=1000
         )
 
-        while len(plot_measurements_data) >= self.brapi_list_page_size or page_num == 0:
+        while len(plot_measurements_data) == self.brapi_list_page_size or page_num == 0:
 
             observations_filters.page = page_num
 
@@ -260,7 +260,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         search_germplasm_response = self.post(endpoint="/search/germplasm/", json=search_query)
 
         if not search_germplasm_response.is_success:
-            raise DataReaderException(search_germplasm.error)
+            raise DataReaderException(search_germplasm_response.error)  
 
         if search_germplasm_response.body is None:
             raise DataReaderException("Germplasms are not found")
@@ -281,8 +281,8 @@ class PhenotypeDataBrapi(PhenotypeData):
             germplasm_list = parse_obj_as(list[Germplasm], search_germplasm_response.body["result"]["data"])
             return germplasm_list
 
-        if not get_germplasm.is_success:
-            raise DataReaderException(search_germplasm.error)
+        if not get_germplasm.is_success:   # TODO:  get_germplasm seems to be unbound var
+            raise DataReaderException(get_germplasm.error)
 
         if get_germplasm.body is None:
             raise DataReaderException("Germplasms are not found")
