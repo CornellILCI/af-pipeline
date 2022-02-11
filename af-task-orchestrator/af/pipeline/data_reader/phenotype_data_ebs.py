@@ -62,7 +62,7 @@ class PhenotypeDataEbs(PhenotypeData):
             "limit": self.list_api_page_size,
         }
 
-        while len(plots_data) == self.list_api_page_size or page_num == 1:
+        while len(plots_data) >= self.list_api_page_size or page_num == 1:
 
             api_page_params["page"] = page_num
 
@@ -73,10 +73,12 @@ class PhenotypeDataEbs(PhenotypeData):
 
             plots_data = api_response.body["result"]["data"]
 
-            if len(plots_data) < 1 and page_num == 1:
-                columns = list(self.plots_api_fields_to_local_fields.values())
-                columns.extend(columns_from_occurrence)
-                return pd.DataFrame(columns=columns)
+            if not len(plots_data):
+                if page_num == 1:
+                    columns = list(self.plots_api_fields_to_local_fields.values())
+                    columns.extend(columns_from_occurrence)
+                    return pd.DataFrame(columns=columns)
+                break
 
             plots_page = pd.DataFrame(plots_data)
 
@@ -123,7 +125,7 @@ class PhenotypeDataEbs(PhenotypeData):
             "limit": self.list_api_page_size,
         }
 
-        while len(plot_measurements_data) == self.list_api_page_size or page_num == 1:
+        while len(plot_measurements_data) >= self.list_api_page_size or page_num == 1:
 
             api_page_params["page"] = page_num
 
@@ -134,10 +136,11 @@ class PhenotypeDataEbs(PhenotypeData):
 
             plot_measurements_data = api_response.body["result"]["data"]
 
-            if len(plot_measurements_data) < 1 and page_num == 1:
-                columns = list(self.plot_data_api_fields_to_local_fields.values())
-                return pd.DataFrame(columns=columns)
-
+            if not len(plot_measurements_data):
+                if page_num == 1:
+                    columns = list(self.plot_data_api_fields_to_local_fields.values())
+                    return pd.DataFrame(columns=columns)
+                break
             plot_measurements_page = pd.DataFrame(plot_measurements_data)
 
             # keep only local field columns
