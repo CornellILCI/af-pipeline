@@ -28,7 +28,7 @@ def get_json_resource(testfile, json_file_name):
 def get_test_analysis_request():
     from af.pipeline.analysis_request import AnalysisRequest, Experiment, Occurrence, Trait
 
-    output_folder = tempfile.TemporaryDirectory()
+    # output_folder = tempfile.TemporaryDirectory()
     analysis_request = AnalysisRequest(
         requestId="test_id",
         dataSource="EBS",
