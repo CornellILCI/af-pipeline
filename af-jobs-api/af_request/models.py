@@ -77,6 +77,9 @@ class Job(db.Model):
     status = db.Column(db.String)
     status_message = db.Column(db.String)
 
+    job_data = db.Column(db.JSON)
+
     analysis_id = db.Column(db.Integer, db.ForeignKey(Analysis.id))
 
     analysis = db.relationship(Analysis, back_populates="jobs")
+    

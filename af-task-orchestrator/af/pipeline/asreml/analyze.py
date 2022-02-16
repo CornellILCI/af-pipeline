@@ -11,15 +11,13 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import analysis_report, config, dpo, pandasutil, utils
+from af.pipeline import analysis_report, utils
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services
 from af.pipeline.asreml.dpo import AsremlProcessData
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db import services as db_services
-from af.pipeline.db.core import DBConfig
-from af.pipeline.db.models import Analysis, Job
 from af.pipeline.exceptions import AnalysisError, DpoException
 from af.pipeline.job_data import JobData
 
@@ -33,7 +31,7 @@ class AsremlAnalyze(Analyze):
         super().__init__(analysis_request=analysis_request, *args, **kwargs)
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
-        self.report_file_path = path.join(analysis_request.outputFolder, "report.xlsx")
+        self.report_file_path = path.join(analysis_request.outputFolder, f"{analysis_request.requestId}_report.xlsx")
         # the engine script would have been determined from get_analyze_object so just pass it here
 
     def pre_process(self):
@@ -46,9 +44,14 @@ class AsremlAnalyze(Analyze):
             return job_input_files
         except (DataReaderException, DpoException) as e:
             self._update_request_status("FAILURE", "Data preprocessing failed.")
+            utils.zip_dir(self.analysis_request.outputFolder, self.output_file_path)
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
+
+    def _update_request_status(self, status, message):
+        self.analysis.request.status = status
+        self.analysis.request.msg = message
 
     def get_engine_script(self):
         return self.engine_script
@@ -60,8 +63,18 @@ class AsremlAnalyze(Analyze):
 
         job_dir = utils.get_parent_dir(job_data.data_file)
 
+        job_detail = {
+            "trait_name": job_data.trait_name,
+            "location_name": job_data.location_name,
+        }
+
         job = db_services.create_job(
-            self.db_session, self.analysis.id, job_data.job_name, "IN-PROGRESS", "Processing in the input request"
+            self.db_session,
+            self.analysis.id,
+            job_data.job_name,
+            "IN-PROGRESS",
+            "Processing in the input request",
+            job_detail,
         )
 
         try:
@@ -76,7 +89,8 @@ class AsremlAnalyze(Analyze):
             return job_data
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, "FAILURE", str(e))
+            db_services.update_job(self.db_session, job, "ERROR", str(e))
+            utils.zip_dir(job_dir, self.output_file_path, job_data.job_name)
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
@@ -96,6 +110,12 @@ class AsremlAnalyze(Analyze):
                 self.db_session, job.id, asreml_result_xml_path
             )
 
+            if not asreml_result_content.model_stat.get("is_converged"):
+                db_services.update_job(
+                    self.db_session, job, "FAILED", asreml_result_content.model_stat.get("conclusion")
+                )
+                return gathered_objects
+
             metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
 
             # initialize the report workbook
@@ -103,7 +123,13 @@ class AsremlAnalyze(Analyze):
                 utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
 
             # write prediction to the analysis report
-            analysis_report.write_predictions(self.report_file_path, asreml_result_content.predictions, metadata_df)
+            analysis_report.write_predictions(
+                self.db_session,
+                self.analysis_request,
+                self.report_file_path,
+                asreml_result_content.predictions,
+                metadata_df,
+            )
 
             # write model statisics to analysis report
             rename_keys = {"log_lik": "LogL"}
@@ -117,10 +143,7 @@ class AsremlAnalyze(Analyze):
                 raise AnalysisError("Analysis result yhat file not found.")
             asreml_services.process_yhat_result(self.db_session, job.id, yhat_file_path)
 
-            # zip the result files to be downloaded by the users
-            utils.zip_dir(job_result.job_result_dir, self.output_file_path, job.name)
-
-            db_services.update_job(self.db_session, job, "DONE", "Asreml analysis completed successfully")
+            db_services.update_job(self.db_session, job, "FINISHED", asreml_result_content.model_stat.get("conclusion"))
 
             # gather occurrences from the jobs, so we don't have to read occurrences again.
             # will not work for parallel jobs. For parallel job, gather will happen in finalize
@@ -135,9 +158,12 @@ class AsremlAnalyze(Analyze):
 
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, "FAILURE", str(e))
+            db_services.update_job(self.db_session, job, "ERROR", str(e))
             raise AnalysisError(str(e))
         finally:
+            # zip the result files to be downloaded by the users
+            utils.zip_dir(job_result.job_result_dir, self.output_file_path, job.name)
+
             self.db_session.commit()
 
     def finalize(self, gathered_objects):

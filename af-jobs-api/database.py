@@ -79,32 +79,50 @@ class Property(db.Model):
     tenant_id = db.Column(db.Integer)
     statement = db.Column(db.String)
 
-    property_configs = db.relationship("PropertyConfig", backref="property", foreign_keys="PropertyConfig.property_id")
+    property_configs = db.relationship("PropertyConfig", primaryjoin="and_(Property.id==PropertyConfig.property_id)")
+
+    property_metas = db.relationship("PropertyMeta", back_populates="property")
 
 
 @dataclass
 class PropertyConfig(db.Model):
 
     __tablename__ = "property_config"
-    __table_args__ = {"schema": "af"}
 
     # TODO:  define columns and Foreign key here
     is_required = db.Column(db.Boolean, default=False)
     order_number = db.Column(db.Integer, default=1)
     tenant_id = db.Column(db.Integer)
-    property_id = db.Column(db.Integer, db.ForeignKey("af.property.id"))
-    config_property_id = db.Column(db.Integer)
+    property_id = db.Column(db.Integer, db.ForeignKey(Property.id))
+    config_property_id = db.Column(db.Integer, db.ForeignKey(Property.id))
     property_ui_id = db.Column(db.Integer, db.ForeignKey("af.property_ui.id"))
     is_layout_variable = db.Column(db.Boolean, default=False)
 
     # relationship def one to one?
-    property_ui = db.relationship("PropertyUI", backref=db.backref("property_config", uselist=False))
+    property_ui = db.relationship(
+        "PropertyUI", backref=db.backref("property_config", uselist=False), foreign_keys=[property_ui_id]
+    )
+
+    property = db.relationship(Property, foreign_keys=[property_id], overlaps="property_configs")
+
+    property_config_property = db.relationship(Property, foreign_keys=[config_property_id])
+
+
+@dataclass
+class PropertyMeta(db.Model):
+
+    __tablename__ = "property_meta"
+
+    property_id = db.Column(db.Integer, db.ForeignKey(Property.id))
+    code = db.Column(db.String)
+    value = db.Column(db.String)
+
+    property = db.relationship(Property, back_populates="property_metas")
 
 
 @dataclass
 class PropertyUI(db.Model):
     __tablename__ = "property_ui"
-    __table_args__ = {"schema": "af"}
 
     is_visible = db.Column(db.Boolean, default=True)
     minimum = db.Column(db.Integer)

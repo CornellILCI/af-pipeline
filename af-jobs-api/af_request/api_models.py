@@ -10,6 +10,7 @@ from common.api_models import (
     PaginationQueryParameters,
     Status,
     create_metadata,
+    map_property,
 )
 from pydantic import BaseModel, Field
 
@@ -56,8 +57,11 @@ class Job(AfBaseModel):
 
     jobId: str = None
     jobName: Optional[str] = None
-    status: Optional[Status] = None
+    status: Optional[str] = None
     statusMessage: Optional[str] = None
+
+    traitName: Optional[str] = None
+    locationName: Optional[str] = None
 
     startTime: Optional[str] = None
     endTime: Optional[str] = None

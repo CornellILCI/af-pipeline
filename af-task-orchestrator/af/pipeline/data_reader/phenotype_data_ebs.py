@@ -73,10 +73,12 @@ class PhenotypeDataEbs(PhenotypeData):
 
             plots_data = api_response.body["result"]["data"]
 
-            if len(plots_data) < 1 and page_num == 1:
-                columns = list(self.plots_api_fields_to_local_fields.values())
-                columns.extend(columns_from_occurrence)
-                return pd.DataFrame(columns=columns)
+            if not len(plots_data):
+                if page_num == 1:
+                    columns = list(self.plots_api_fields_to_local_fields.values())
+                    columns.extend(columns_from_occurrence)
+                    return pd.DataFrame(columns=columns)
+                break
 
             plots_page = pd.DataFrame(plots_data)
 
@@ -102,7 +104,7 @@ class PhenotypeDataEbs(PhenotypeData):
             if occurrence.dict()[column]:
                 plots[column] = occurrence.dict()[column]
             else:
-                plots[column] = confif.UNIVERSAL_UNKNOWN
+                plots[column] = config.UNIVERSAL_UNKNOWN
 
         # rename dataframe column with local field names
         plots.rename(columns=self.plots_api_fields_to_local_fields, inplace=True)
@@ -134,10 +136,11 @@ class PhenotypeDataEbs(PhenotypeData):
 
             plot_measurements_data = api_response.body["result"]["data"]
 
-            if len(plot_measurements_data) < 1 and page_num == 1:
-                columns = list(self.plot_data_api_fields_to_local_fields.values())
-                return pd.DataFrame(columns=columns)
-
+            if not len(plot_measurements_data):
+                if page_num == 1:
+                    columns = list(self.plot_data_api_fields_to_local_fields.values())
+                    return pd.DataFrame(columns=columns)
+                break
             plot_measurements_page = pd.DataFrame(plot_measurements_data)
 
             # keep only local field columns

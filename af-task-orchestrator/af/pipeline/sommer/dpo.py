@@ -1,14 +1,11 @@
 import csv
-import os
 import json
+import os
 
-
-from af.pipeline.dpo import ProcessData
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.dpo import ProcessData
 from af.pipeline.job_data import JobData
-
 
 """
 # !!! where am i getting the db config, line 59ish
@@ -58,7 +55,7 @@ class SommeRProcessData(ProcessData):
 
         residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
         formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
-        
+
         # formula_statement = formula.statement.format(trait_name=trait.abbreviation)
 
         job_folder = self.get_job_folder(self.__get_job_name())
@@ -75,7 +72,7 @@ class SommeRProcessData(ProcessData):
         settings_dict["rcov"] = residual.statement
         settings_dict["raw_analysis_out"] = os.path.join(job_folder, "raw_analysis_out.rds")
 
-        with open(settings_file, 'w') as f:
+        with open(settings_file, "w") as f:
             json.dump(settings_dict, f)
 
         job_data = JobData()
@@ -83,8 +80,7 @@ class SommeRProcessData(ProcessData):
         job_data.job_file = settings_file
 
         return job_data
-        
+
     def run(self):
         """Preprocess input data for SommeR Analysis"""
         return [self.__prepare_Sommer_settings_file()]
-

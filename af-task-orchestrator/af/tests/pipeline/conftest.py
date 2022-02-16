@@ -1,5 +1,6 @@
 import json
 import os
+
 # hacky importing since we need to declare these before we import Base
 # since core.py directly declares the vars
 import tempfile
@@ -27,7 +28,7 @@ def get_json_resource(testfile, json_file_name):
 def get_test_analysis_request():
     from af.pipeline.analysis_request import AnalysisRequest, Experiment, Occurrence, Trait
 
-    output_folder = tempfile.TemporaryDirectory()
+    # output_folder = tempfile.TemporaryDirectory()
     analysis_request = AnalysisRequest(
         requestId="test_id",
         dataSource="EBS",
@@ -99,3 +100,10 @@ def sommer_analysis_request():
     sommer_analysis_request.dataSource = DataSource.BRAPI
 
     return sommer_analysis_request
+
+
+@pytest.fixture
+def analysis_request():
+
+    analysis_request = get_test_analysis_request()
+    return analysis_request

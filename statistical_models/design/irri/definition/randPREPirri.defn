@@ -1,14 +1,14 @@
 {
   "metadata": {
     "Rversion": "4.0.3",
-    "date": "23-Jan-2021",
+    "date": "26-Jan-2022",
     "author": "Alaine Gulles",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randPREPirri.R --entryList "PREP_SD_0001.lst" --nTrial 3 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randPREPirri.R --entryList "PREP_SD_0001.lst" --nTrial 3 --genLayout T --nFieldRow 20 --serpentine 'CO' -o 'Output2' -p 'D:/Results'",
     "engine": "R 4.0.3",
     "method": "randPREPirri",
     "design": "PRep",
-    "modelVersion": 1,
+    "modelVersion": 2,
     "organization_code": "IRRI",
     "note": "Total number of plots per Occurrence should not exceed 1,500."
   },
@@ -145,7 +145,7 @@
         "variable_abbrev": "ROW",
         "is_layout_variable": "T",
       },
-      "serpentine": {
+      "serpentinePrep": {
         "variable_label": "Field Order",
         "description": "Plot arrangement",
         "visible": "T",

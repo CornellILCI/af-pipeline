@@ -4,6 +4,7 @@ from typing import Iterable
 import openpyxl
 import pandas as pd
 from af.pipeline import exceptions
+from openpyxl.utils import get_column_letter
 
 
 def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.DataFrame:
@@ -41,6 +42,15 @@ def df_keep_columns(df: pd.DataFrame, columns_to_keep: Iterable[str]) -> pd.Data
     return df
 
 
+def set_columns_as_numeric(df: pd.DataFrame, columns: list):
+
+    for column in columns:
+        if column in df:
+            df[column] = pd.to_numeric(df[column], errors="ignore")
+
+    return df
+
+
 def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncate_sheet=False, **to_excel_kwargs):
     """
     Append a DataFrame [df] to existing Excel file [filename]
@@ -74,6 +84,12 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
         df.to_excel(
             filename, sheet_name=sheet_name, startrow=startrow if startrow is not None else 0, **to_excel_kwargs
         )
+
+        # set optimal width
+        xl_book = openpyxl.load_workbook(filename)
+        set_optimal_columns_widths(xl_book, sheet_name, df)
+        xl_book.save(filename)
+
         return
 
     # ignore [engine] parameter if it was passed
@@ -108,8 +124,23 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
     if sheet_name in writer.sheets and startrow > 1 and "header" not in to_excel_kwargs:
         to_excel_kwargs["header"] = False
 
-    # write out the new sheet
     df.to_excel(writer, sheet_name, startrow=startrow, **to_excel_kwargs)
+
+    set_optimal_columns_widths(writer.book, sheet_name, df)
 
     # save the workbook
     writer.save()
+
+
+def set_optimal_columns_widths(xl_book, sheet_name, df):
+
+    ws = xl_book[sheet_name]
+    for i, column_name in enumerate(df.columns):
+
+        # add 5 units to give more space
+        optimal_width = max(len(column_name), df[column_name].map(str).map(len).max()) + 5
+
+        # openpyxl column index is 1 based
+        column_letter = get_column_letter(i + 1)
+
+        ws.column_dimensions[column_letter].width = optimal_width
