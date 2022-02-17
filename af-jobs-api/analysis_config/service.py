@@ -2,6 +2,7 @@ import json
 
 from database import Property, PropertyConfig, PropertyMeta, db
 from sqlalchemy import and_, func
+from sqlalchemy.orm import aliased
 
 
 def get_analysis_configs(page=0, page_size=1000, **kwargs):
@@ -65,38 +66,41 @@ def get_formulas(analysis_config_id: int, page=0, page_size=1000, **kwargs):
     # make sure to add only non null query params
     query_params = {k: [v] for k, v in kwargs.items() if v is not None}
 
-    formula_base_property = Property.query.filter(Property.code == "analysis_config").one()
+    # formula_base_property_subq = db.session.query(Property.id).filter(Property.code == "formula").one().subquery()
+    prop_config = aliased(PropertyConfig)
+    formula_configs = aliased(PropertyConfig, name="formula_configs")
+    formula_property = aliased(Property, name="formula_property")
+
+    formula_subq = aliased(Property)
+
 
     # sub query to aggregate metadata code and value
-    formulas_sub_q = (
-        db.session.query(Property.id, func.array_agg(PropertyMeta.value).label("meta_value"))
-        .select_from(PropertyConfig)
+    formulas_query = (
+        db.session.query(formula_property)
+        .select_from(prop_config)
         .join(
-            Property,
+            formula_configs,
             and_(
-                Property.id == PropertyConfig.config_property_id,
-                Property.id != formula_base_property.id,
-                PropertyConfig.property_id == formula_base_property.id,
-
+                formula_configs.config_property_id == prop_config.config_property_id,
+                prop_config.property_id == analysis_config_id,
             ),
         )
-        .join(Property, Property.id == Property.config_property_id)
-        .group_by(Property.id, PropertyMeta.code)
-        .subquery()
+        .join(formula_property, formula_property.id == formula_configs.config_property_id)
+        .join(formula_subq, and_(formula_configs.property_id == formula_subq.id, formula_subq.code == "formula"))
     )
 
-    print(formulas_sub_q)
+    print(formulas_query)
 
     # query aggregated metadata code and value as json object
 
-    total_count = formulas_sub_q.count()
+    total_count = formulas_query.count()
 
     if page_size is not None:
-        formulas_q = formulas_sub_q.limit(page_size)
+        formulas_query = formulas_query.limit(page_size)
 
     if page is not None:
-        formulas_q = formulas_sub_q.offset(page * page_size)
+        formulas_query = formulas_query.offset(page * page_size)
 
-    formulas = formulas_sub_q.all()
+    formulas = formulas_query.all()
 
     return formulas, total_count

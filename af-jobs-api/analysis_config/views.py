@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+
 from analysis_config import api_models, service
 from common.responses import json_response
 from common.validators import validate_api_request
@@ -37,28 +38,28 @@ def list():
     return json_response(response, HTTPStatus.OK)
 
 
-@analysis_configs_bp.route("", methods=["GET"])
-@validate_api_request(query_model=api_models.AnalysisConfigsListQueryParameters)
-def get_formulas():
-    """Create request object based on body params"""
+# @analysis_configs_bp.route("", methods=["GET"])
+# @validate_api_request(query_model=api_models.AnalysisConfigsListQueryParameters)
+# def get_formulas():
+#     """Create request object based on body params"""
 
-    request_query_params = api_models.AnalysisConfigsListQueryParameters(**request.args)
+#     request_query_params = api_models.AnalysisConfigsListQueryParameters(**request.args)
 
-    filter_params = request_query_params.as_db_filter_params()
+#     filter_params = request_query_params.as_db_filter_params()
 
-    formulas: list[Property] = service.get_formulas(
-        page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params
-    )
+#     formulas: list = service.get_formulas(
+#         page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params
+#     )
 
-    # DTOs for api response
-    formula_dtos = []
+#     # DTOs for api response
+#     formula_dtos = []
 
-    for formula in formulas:
-        formula_dtos.append(api_models.map_property(formula))
+#     for formula in formulas:
+#         formula_dtos.append(api_models.map_property(formula))
 
-    response = api_models.AnalysisConfigListResponse(
-        metadata=api_models.create_metadata(request_query_params.page, request_query_params.pageSize),
-        result=api_models.AnalysisConfigListResponseResult(data=formula_dtos),
-    )
+#     response = api_models.AnalysisConfigListResponse(
+#         metadata=api_models.create_metadata(request_query_params.page, request_query_params.pageSize),
+#         result=api_models.AnalysisConfigListResponseResult(data=formula_dtos),
+#     )
 
-    return json_response(response, HTTPStatus.OK)
+#     return json_response(response, HTTPStatus.OK)
