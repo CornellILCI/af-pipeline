@@ -57,6 +57,7 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
     return analysis_configs, total_count
 
 
+
 def get_formulas(analysis_config_id: int, page=0, page_size=1000, **kwargs):
 
     query_params = {}
@@ -68,43 +69,34 @@ def get_formulas(analysis_config_id: int, page=0, page_size=1000, **kwargs):
 
     # sub query to aggregate metadata code and value
     formulas_sub_q = (
-        db.session.query(Property.id, PropertyMeta.code, func.array_agg(PropertyMeta.value).label("meta_value"))
+        db.session.query(Property.id, func.array_agg(PropertyMeta.value).label("meta_value"))
         .select_from(PropertyConfig)
         .join(
             Property,
             and_(
                 Property.id == PropertyConfig.config_property_id,
                 Property.id != formula_base_property.id,
-                PropertyConfig.property_id == analysis_config_base_property.id,
+                PropertyConfig.property_id == formula_base_property.id,
+
             ),
         )
-        .join(PropertyMeta, Property.id == PropertyMeta.property_id)
+        .join(Property, Property.id == Property.config_property_id)
         .group_by(Property.id, PropertyMeta.code)
         .subquery()
     )
 
-    # query aggregated metadata code and value as json object
-    formulas_q = (
-        db.session.query(Property)
-        .select_from(formulas_sub_q)
-        .group_by(formulas_sub_q.c.id, Property)
-        .having(
-            func.jsonb_object_agg(analysis_configs_sub_q.c.code, analysis_configs_sub_q.c.meta_value).op("@>")(
-                json.dumps(query_params)
-            )
-        )
-        .join(Property, Property.id == analysis_configs_sub_q.c.id)
-        .order_by(Property.id)
-    )
+    print(formulas_sub_q)
 
-    total_count = formulas_q.count()
+    # query aggregated metadata code and value as json object
+
+    total_count = formulas_sub_q.count()
 
     if page_size is not None:
-        formulas_q = formulas_q.limit(page_size)
+        formulas_q = formulas_sub_q.limit(page_size)
 
     if page is not None:
-        formulas_q = formulas_q.offset(page * page_size)
+        formulas_q = formulas_sub_q.offset(page * page_size)
 
-    formulas = formulas_q.all()
+    formulas = formulas_sub_q.all()
 
     return formulas, total_count

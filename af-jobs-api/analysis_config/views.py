@@ -36,6 +36,7 @@ def list():
 
     return json_response(response, HTTPStatus.OK)
 
+
 @analysis_configs_bp.route("", methods=["GET"])
 @validate_api_request(query_model=api_models.AnalysisConfigsListQueryParameters)
 def get_formulas():
