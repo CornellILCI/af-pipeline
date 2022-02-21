@@ -17,6 +17,7 @@ from services.afdb_service import (
     select_property_by_code,
 )
 from sqlalchemy import text
+from analysis_config import service
 
 af_apis = Blueprint("af", __name__, url_prefix="/v1")
 
@@ -155,28 +156,31 @@ def get_analysis_config_formulas(analysisConfigId):
     if not pageSize or not isinstance(pageSize, int) or pageSize <= 0:
         pageSize = 1000
 
-    result = select_analysis_configs(analysisConfigId, pageSize, pageSize * page, "formula")
-    count = count_analysis_configs(analysisConfigId, "formula")
+    # result = select_analysis_configs(analysisConfigId, pageSize, pageSize * page, "formula")
+
+    # count = count_analysis_configs(analysisConfigId, "formula")
+
+    result, count = service.get_formulas(analysisConfigId)
 
     ret = []
     for row in result:
-        temp = row.values()
-        ret.append(
-            {
-                "propertyId": str(temp[12]),
-                "propertyName": temp[13],
-                "propertyCode": temp[0],
-                "label": temp[1],
-                "type": temp[3],
-                "createdOn": temp[5],  # "2021-06-09T15:06:31.825Z",
-                "modifiedOn": temp[6],
-                "createdBy": temp[7],
-                "modifiedBy": temp[8],
-                "isActive": not temp[9],
-                "statement": temp[11],
-                "description": temp[2],
-            }
-        )
+        # temp = row.values()
+        ret.append(row)
+        #     {
+        #         "propertyId": str(temp[12]),
+        #         "propertyName": temp[13],
+        #         "propertyCode": temp[0],
+        #         "label": temp[1],
+        #         "type": temp[3],
+        #         "createdOn": temp[5],  # "2021-06-09T15:06:31.825Z",
+        #         "modifiedOn": temp[6],
+        #         "createdBy": temp[7],
+        #         "modifiedBy": temp[8],
+        #         "isActive": not temp[9],
+        #         "statement": temp[11],
+        #         "description": temp[2],
+        #     }
+        # )
 
     return (
         jsonify(
