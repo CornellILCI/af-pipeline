@@ -6,7 +6,7 @@ from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study, TableResponse
 from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
-from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams
+from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams, ObservationUnitsSearchRequestDto
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
 from pydantic import BaseModel, ValidationError, parse_obj_as
@@ -113,11 +113,24 @@ class PhenotypeDataBrapi(PhenotypeData):
 
         return germplasm, plots_data, plots_header
 
-    def get_plots_from_search(self, crop: str = None, occurrence_id: str = None) -> pd.DataFrame:
+    def get_plots_from_search(self, crop: str = None, exp_id: str = None) -> pd.DataFrame:
         #first POST to /bmsapi/{crop}/brapi/v2/search/observationunits
-        observation_units_filters = ObservationUnitQueryParams(
-            studyDbId=occurrence_id, observationLevel="plot"
+        observation_units_filters = ObservationUnitsSearchRequestDto(
+            trialDbIds=[exp_id], observationLevel="PLOT"
         )
+
+        {'page': None, 'pageSize': None, 'additionalInfo': None, 
+        'externalReferences': None, 'germplasmDbId': None, 
+        'germplasmName': None, 'locationDbId': None, 
+        'locationName': None, 'observationUnitName': None, 
+        'observationUnitPUI': None, 'observationUnitPosition': None, 
+        'programDbId': None, 'programName': None, 
+        'seedLotDbId': None, 'studyDbId': None, 
+        'studyName': None, 'treatments': None, 
+        'trialDbId': None, 'trialName': None, 
+        'observationUnitDbId': None, 'observations': None}
+
+        print(observation_units_filters.dict())
 
         post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop), json=observation_units_filters.dict())
         if not post_response.is_success:

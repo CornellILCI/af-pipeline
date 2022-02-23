@@ -57,7 +57,7 @@ def get(request_uuid: str):
 
     try:
         analysis = service.get_by_id(request_uuid)
-        req_dto = api_models.AnalysisRequestResponse(result=_map_analsysis(analysis))
+        req_dto = api_models.AnalysisRequestResponse(result=_map_analysis(analysis))
         return json_response(req_dto, HTTPStatus.OK)
     except NoResultFound:
         error_response = api_models.ErrorResponse(errorMsg="AnalysisRequest not found")

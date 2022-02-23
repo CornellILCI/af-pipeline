@@ -43,7 +43,7 @@ class SommeRProcessData(ProcessData):
         # NOTE: using a loop here because of the structure of experiments but 
         # we assume there is only one experiment in the `experiment_ids``
         for exp_id in self.experiment_ids:
-            plot_df = self.data_reader.get_plots_from_search(occurrence_id=exp_id, crop=self.analysis_request.crop) 
+            plot_df = self.data_reader.get_plots_from_search(exp_id=exp_id, crop=self.analysis_request.crop) 
             plot_df.to_csv(data_file, index=True)
             
         return data_file
