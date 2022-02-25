@@ -5,15 +5,27 @@ ENV PYTHONPATH "${PYTHONPATH}:/app/"
 WORKDIR /app/
 COPY . /app/
 
+# 
+RUN apt-get update
+RUN apt-get install -y dirmngr gnupg apt-transport-https ca-certificates software-properties-common
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7'
+RUN add-apt-repository 'deb http://cloud.r-project.org/bin/linux/debian buster-cran40/' && apt-get update
+
 # RUN apt-get update && pip3 install  -r requirements.txt
 RUN pip3 install  -r requirements.txt
 
 # Install ASReml-4.2.1.158-Ubuntu-18.04
-RUN apt-get update  \
-  && apt-get install -y wget \
+RUN apt-get install -y wget \
   && wget https://downloads.vsni.digital/2bdb06398e7dcf7d9a638092305b5b78fdffacb1/ASReml-4.2.1.170-Ubuntu-18.04.deb \
   && apt-get install -y ./ASReml-4.2.1.170-Ubuntu-18.04.deb \
   && apt-get install -y supervisor
+
+# Install ASREML-R
+RUN apt install -y -t buster-cran40
+RUN apt install -y -f r-base
+RUN Rscript /app/packages/install_asreml.R
+
+
 
 ENTRYPOINT [ "./start-worker.sh" ]
 
