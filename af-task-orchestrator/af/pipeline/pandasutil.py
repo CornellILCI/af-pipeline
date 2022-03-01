@@ -90,6 +90,10 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
         set_optimal_columns_widths(xl_book, sheet_name, df)
         xl_book.save(filename)
 
+        xl_book = openpyxl.load_workbook(filename)
+        remove_blank_line(xl_book, sheet_name)
+        xl_book.save(filename)
+
         return
 
     # ignore [engine] parameter if it was passed
@@ -128,6 +132,8 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
 
     set_optimal_columns_widths(writer.book, sheet_name, df)
 
+    remove_blank_line(writer.book, sheet_name)
+
     # save the workbook
     writer.save()
 
@@ -135,6 +141,7 @@ def append_df_to_excel(filename, df, sheet_name="Sheet1", startrow=None, truncat
 def set_optimal_columns_widths(xl_book, sheet_name, df):
 
     ws = xl_book[sheet_name]
+
     for i, column_name in enumerate(df.columns):
 
         # add 5 units to give more space
@@ -144,3 +151,10 @@ def set_optimal_columns_widths(xl_book, sheet_name, df):
         column_letter = get_column_letter(i + 1)
 
         ws.column_dimensions[column_letter].width = optimal_width
+
+
+def remove_blank_line(xl_book, sheet_name):
+
+    ws = xl_book[sheet_name]
+    ws.delete_rows(0, 1)
+
