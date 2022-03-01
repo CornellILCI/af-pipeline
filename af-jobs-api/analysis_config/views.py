@@ -49,7 +49,10 @@ def get_formulas():
     formulas: list[Property] = service.get_formulas(
         page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params
     )
-
+    #     formulas: list = service.get_formulas(
+    #         page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params
+    #     )
+    
     # DTOs for api response
     formula_dtos = []
 

@@ -66,7 +66,6 @@ def get_formulas(analysis_config_id: int, page=0, page_size=1000, **kwargs):
     # make sure to add only non null query params
     query_params = {k: [v] for k, v in kwargs.items() if v is not None}
 
-    # formula_base_property_subq = db.session.query(Property.id).filter(Property.code == "formula").one().subquery()
     prop_config = aliased(PropertyConfig)
     formula_configs = aliased(PropertyConfig, name="formula_configs")
     formula_property = aliased(Property, name="formula_property")

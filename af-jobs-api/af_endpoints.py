@@ -156,10 +156,6 @@ def get_analysis_config_formulas(analysisConfigId):
     if not pageSize or not isinstance(pageSize, int) or pageSize <= 0:
         pageSize = 1000
 
-    # result = select_analysis_configs(analysisConfigId, pageSize, pageSize * page, "formula")
-
-    # count = count_analysis_configs(analysisConfigId, "formula")
-
     result, count = service.get_formulas(analysisConfigId)
 
     ret = []
