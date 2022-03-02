@@ -55,3 +55,41 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
     analysis_configs = analysis_configs_q.all()
 
     return analysis_configs, total_count
+
+
+def get_formulas(analysis_config_id: int, page=0, page_size=1000, **kwargs):
+
+    prop_config = aliased(PropertyConfig)
+    formula_configs = aliased(PropertyConfig, name="formula_configs")
+    formula_property = aliased(Property, name="formula_property")
+    formula_subq = aliased(Property)
+
+    # sub query to aggregate metadata code and value
+
+    formulas_query = (
+        db.session.query(formula_property)
+            .select_from(prop_config)
+        .join(
+            formula_configs,
+            and_(
+                formula_configs.config_property_id == prop_config.config_property_id,
+                prop_config.property_id == analysis_config_id,
+            ),
+        )
+        .join(formula_property, formula_property.id == formula_configs.config_property_id)
+        .join(formula_subq, and_(formula_configs.property_id == formula_subq.id, formula_subq.code == "formula"))
+    )
+
+    # query aggregated metadata code and value as json object
+
+    total_count = formulas_query.count()
+
+    if page_size is not None:
+        formulas_query = formulas_query.limit(page_size)
+
+    if page is not None:
+        formulas_query = formulas_query.offset(page * page_size)
+
+    formulas = formulas_query.all()
+
+    return formulas, total_count
