@@ -44,6 +44,8 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
         .order_by(Property.id)
     )
 
+    total_count = analysis_configs_q.count()
+
     if page_size is not None:
         analysis_configs_q = analysis_configs_q.limit(page_size)
 
@@ -52,4 +54,4 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
 
     analysis_configs = analysis_configs_q.all()
 
-    return analysis_configs
+    return analysis_configs, total_count

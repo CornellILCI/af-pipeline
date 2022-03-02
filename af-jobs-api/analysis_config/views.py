@@ -19,7 +19,7 @@ def list():
 
     filter_params = request_query_params.as_db_filter_params()
 
-    analysis_configs: list[Property] = service.get_analysis_configs(
+    analysis_configs, total_count = service.get_analysis_configs(
         page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params
     )
 
@@ -30,7 +30,7 @@ def list():
         analysis_config_dtos.append(api_models.map_property(analysis_config))
 
     response = api_models.AnalysisConfigListResponse(
-        metadata=api_models.create_metadata(request_query_params.page, request_query_params.pageSize),
+        metadata=api_models.create_metadata(request_query_params.page, request_query_params.pageSize, total_count),
         result=api_models.AnalysisConfigListResponseResult(data=analysis_config_dtos),
     )
 
