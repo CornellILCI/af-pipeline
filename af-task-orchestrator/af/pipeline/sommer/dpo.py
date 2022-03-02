@@ -74,6 +74,8 @@ class SommeRProcessData(ProcessData):
         settings_dict["formula"] = str(formula.statement).format(trait_name=name)
         settings_dict["rcov"] = residual.statement
         settings_dict["raw_analysis_out"] = os.path.join(job_folder, "raw_analysis_out.rds")
+        settings_dict["trait"] = name
+        settings_dict["rep"] = 1
 
         with open(settings_file, 'w') as f:
             json.dump(settings_dict, f)

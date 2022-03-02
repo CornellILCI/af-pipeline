@@ -4,7 +4,7 @@ local({r <- getOption("repos")
        r["CRAN"] <- "https://cloud.r-project.org" 
        options(repos=r)
 })
-
+install.packages("RJSONIO")
 #####################################################################################################################
 #JSON Integration
 library("RJSONIO")
@@ -35,10 +35,12 @@ stopifnot(
     "output_pred" %in% names(jsonInput),
     "output_yhat" %in% names(jsonInput),
     "output_outliers" %in% names(jsonInput),
-    "fixed" %in% names(jsonInput),
-    "random" %in% names(jsonInput),
+    # "fixed" %in% names(jsonInput),
+    # "random" %in% names(jsonInput),
+    "formula" %in% names(jsonInput),
     "rcov" %in% names(jsonInput),
-    "raw_analysis_out" %in% names(jsonInput)
+    "raw_analysis_out" %in% names(jsonInput),
+    "trait" %in% names(jsonInput)
 )
 
 input_phenotypic_data <- if("input_phenotypic_data" %in% names(jsonInput)) jsonInput$input_phenotypic_data else ''
@@ -56,7 +58,7 @@ library(gtools)
 # Phenofounders <- read.csv('/Users/sb2597/Documents/TestPythonToR/Sommer ILCI code/Phenofounders.csv', header=T)
 inputData <- read.csv(input_phenotypic_data, header=T)
 
-#head(inputData)
+head(inputData)
 # A <- read.table('/Users/sb2597/Documents/TestPythonToR/Sommer ILCI code/GRM.txt', header = T)
 #A <- read.table(grm, header = T)
 #A <- as.matrix(A)
@@ -75,8 +77,13 @@ inputData <- read.csv(input_phenotypic_data, header=T)
 #              data = Phenofounders)
 
 
-sommerModel <-paste("mix1 <- mmer(fixed=", jsonInput$fixed, ",\n", 
-          "random=", jsonInput$random, ",\n", 
+# sommerModel <-paste("mix1 <- mmer(fixed=", jsonInput$fixed, ",\n", 
+#           "random=", jsonInput$random, ",\n", 
+#           "rcov=", jsonInput$rcov, ",\n",
+#           "data=inputData)",
+#           sep = "")
+jsonInput$formula <- gsub("%trait%", jsonInput$trait, jsonInput$formula)
+sommerModel <-paste("mix1 <- mmer(", jsonInput$formula, ",\n", 
           "rcov=", jsonInput$rcov, ",\n",
           "data=inputData)",
           sep = "")
@@ -103,11 +110,12 @@ predictions <- predSommer$pvals
 write.csv(predictions, file=jsonInput$output_pred, row.names = F, quote=F)
 
 #sln
-BVs <- as.data.frame(mix1$U$`u:ID`$Phenotype) # $EBS effects asreml sln
+BVs <- as.data.frame(mix1[["U"]][["ID"]][[jsonInput$trait]])
 colnames(BVs) <- "breeding.value"
-BVs.std.error <- sqrt(diag((mix1$PevU$`u:ID`$Phenotype)))
+BVs.std.error <- sqrt(diag((mix1[["PevU"]][["ID"]][[jsonInput$trait]])))
 BVs <- data.frame(ID = rownames(BVs),BVs,std.error = BVs.std.error)
 write.csv(BVs, file=jsonInput$output_BV, row.names = F, quote=F)
+
 
 #yhat
 Yhat <- mix1$fitted

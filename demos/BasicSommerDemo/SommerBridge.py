@@ -36,10 +36,13 @@ with open(unique_filename, 'w') as outfile:
 
 os.system("echo PYTHON CONSOLE TEST 1")
 # ret = os.system("rscript "+here+"/SommerCalculationFull.R "+unique_filename)
-ret = os.system("rscript "+here+"/SommerTest.R "+unique_filename)
+
+# ret = os.system("rscript "+here+"/SommerTest.R "+unique_filename)
+
+ret = os.system("rscript "+here+"/SommerTest.R "+here+"/Input/testSettings.json")
 
 os.system("echo R script ended with code: "+str(ret))
 
 os.system("echo Removing created file "+unique_filename)
 
-os.system("rm "+os.getcwd()+"/"+unique_filename)
+# os.system("rm "+os.getcwd()+"/"+unique_filename)

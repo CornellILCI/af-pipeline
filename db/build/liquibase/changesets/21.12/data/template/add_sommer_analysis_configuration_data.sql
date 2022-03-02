@@ -341,7 +341,7 @@ WITH config_formula AS (
 		'catalog_item', 'character varying', 'formula_opt1', 
 		'Univariate. Replicate as fixed and genotype as random effect', 
 		'Univariate. Replicate as fixed and genotype as random effect', 
-		'fixed = {trait_name} ~ rep, random = ~ ID'
+		'fixed = {trait_name} ~ Rep, random = ~ ID'
 	) RETURNING id
 ),
 config_formula_property_config_link AS (
@@ -376,7 +376,7 @@ WITH config_formula AS (
 		'catalog_item', 'character varying', 'formula_opt2', 
 		'GBLUP univariate. Replicate as fixed effect.', 
 		'GBLUP univariate. Replicate as fixed effect.', 
-		'fixed = {trait_name} ~ rep, random = ~ vs(ID, Gu=A)'
+		'fixed = {trait_name} ~ Rep, random = ~ vs(ID, Gu=A)'
 	) RETURNING id
 ),
 config_formula_property_config_link AS (
