@@ -37,22 +37,21 @@ def list():
     return json_response(response, HTTPStatus.OK)
 
 
-@analysis_configs_bp.route("", methods=["GET"])
+@analysis_configs_bp.route("/analysis-configs/<analysisConfigId>/formulas", methods=["GET"])
 @validate_api_request(query_model=api_models.AnalysisConfigsListQueryParameters)
-def get_formulas():
+def get_formulas(analysisConfigId):
     """Create request object based on body params"""
 
     request_query_params = api_models.AnalysisConfigsListQueryParameters(**request.args)
 
     filter_params = request_query_params.as_db_filter_params()
 
-    formulas: list[Property] = service.get_formulas(
-        page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params
+    formulas, count = service.get_formulas(
+        analysis_config_id=analysisConfigId,
+        page=request_query_params.page,
+        page_size=request_query_params.pageSize, **filter_params
     )
-    #     formulas: list = service.get_formulas(
-    #         page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params
-    #     )
-    
+
     # DTOs for api response
     formula_dtos = []
 

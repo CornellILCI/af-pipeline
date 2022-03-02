@@ -58,13 +58,7 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
     return analysis_configs, total_count
 
 
-
 def get_formulas(analysis_config_id: int, page=0, page_size=1000, **kwargs):
-
-    query_params = {}
-
-    # make sure to add only non null query params
-    query_params = {k: [v] for k, v in kwargs.items() if v is not None}
 
     prop_config = aliased(PropertyConfig)
     formula_configs = aliased(PropertyConfig, name="formula_configs")
