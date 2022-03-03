@@ -11,8 +11,6 @@ RUN apt-get install -y dirmngr gnupg apt-transport-https ca-certificates softwar
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7'
 RUN add-apt-repository 'deb http://cloud.r-project.org/bin/linux/debian buster-cran40/' && apt-get update
 
-# RUN apt-get update && pip3 install  -r requirements.txt
-RUN pip3 install  -r requirements.txt
 
 # Install ASReml-4.2.1.158-Ubuntu-18.04
 RUN apt-get install -y wget \
@@ -25,7 +23,9 @@ RUN apt install -y -t buster-cran40
 RUN apt install -y -f r-base
 RUN Rscript /app/packages/install_asreml.R
 
-
+# RUN apt-get update && pip3 install  -r requirements.txt
+RUN pip3 install --upgrade setuptools
+RUN pip3 install  -r requirements.txt
 
 ENTRYPOINT [ "./start-worker.sh" ]
 
