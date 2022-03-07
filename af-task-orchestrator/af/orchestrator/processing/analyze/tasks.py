@@ -1,8 +1,13 @@
+import logging
+
 from af.orchestrator import config
 from af.orchestrator.app import app
 from af.orchestrator.base import ResultReportingTask, StatusReportingTask
 from af.pipeline import analyze as pipeline_analyze
 from af.pipeline.analysis_request import AnalysisRequest
+from af.pipeline.exceptions import AnalysisError
+
+log = logging.getLogger(__name__)
 
 
 @app.task(name="analyze", base=StatusReportingTask)
@@ -51,15 +56,17 @@ def post_process(request_id, analysis_request, results, gathered_objects=None):
 
     if gathered_objects is None:
         gathered_objects = {}
-
-    analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
-    gathered_objects = analyze_object.process_job_result(result, gathered_objects)
-
-    # process the results here
-    if not results:
-        done_analyze.delay(request_id, analysis_request, gathered_objects)
-    else:
-        post_process.delay(request_id, analysis_request, results, gathered_objects)
+    try:
+        analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
+        gathered_objects = analyze_object.process_job_result(result, gathered_objects)
+    except AnalysisError as ae:
+        log.error("Encountered error: %s", str(ae))
+    finally:
+        # process the results here
+        if not results:
+            done_analyze.delay(request_id, analysis_request, gathered_objects)
+        else:
+            post_process.delay(request_id, analysis_request, results, gathered_objects)
 
 
 @app.task(name="done_analyze", base=ResultReportingTask)

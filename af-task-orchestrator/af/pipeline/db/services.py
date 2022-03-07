@@ -12,7 +12,7 @@ def get_property(db_session, property_id: str) -> Property:
 
 
 def get_child_properties(db_session, property_root: str, property_name: str) -> list[Property]:
-    child_property_root = db_session.query(Property).filter(Property.code == property_code).one()
+    child_property_root = db_session.query(Property).filter(Property.code == property_root).one()
     properties = (
         db_session.query(Property)
         .select_from(PropertyConfig)
@@ -42,7 +42,9 @@ def get_job_by_name(db_session, job_name) -> Job:
     return db_session.query(Job).filter(Job.name == job_name).one()
 
 
-def create_job(db_session, analysis_id: int, job_name: str, status: str, status_message: str) -> Job:
+def create_job(
+    db_session, analysis_id: int, job_name: str, status: str, status_message: str, job_data: dict = None
+) -> Job:
 
     job_start_time = datetime.utcnow()
     job = Job(
@@ -52,6 +54,7 @@ def create_job(db_session, analysis_id: int, job_name: str, status: str, status_
         creation_timestamp=job_start_time,
         status=status,
         status_message=status_message,
+        job_data=job_data,
     )
 
     job = add(db_session, job)

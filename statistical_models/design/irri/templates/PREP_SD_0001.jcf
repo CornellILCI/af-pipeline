@@ -19,7 +19,6 @@
 	    "nTrial": 3,
 	    "genLayout": "T",
 	    "nFieldRow": 20,
-	    "serpentine": "T",
-		"topToBottom": "F"
+	    "serpentinePrep": "CO"
 	}
 }

@@ -60,7 +60,7 @@ def submit(request_params: api_models.AnalysisRequestParameters):
     return analysis
 
 
-def query(query_params: api_models.AnalysisRequestListQueryParameters) -> db_models.Analysis:
+def __query(query_params: api_models.AnalysisRequestListQueryParameters):
 
     query = db_models.Analysis.query.join(db_models.Request)
 
@@ -81,6 +81,15 @@ def query(query_params: api_models.AnalysisRequestListQueryParameters) -> db_mod
     if query_params.status:
         query = query.filter(db_models.Request.status == query_params.status)
 
+    return query
+
+
+def query(query_params: api_models.AnalysisRequestListQueryParameters) -> list[db_models.Analysis]:
+
+    query = __query(query_params)
+
+    total_count = query.count()
+
     # Get latest requests first
     query = query.order_by(db_models.Request.creation_timestamp.desc())
 
@@ -89,7 +98,7 @@ def query(query_params: api_models.AnalysisRequestListQueryParameters) -> db_mod
 
     analysis_requests = query.all()
 
-    return analysis_requests
+    return analysis_requests, total_count
 
 
 def get_by_id(request_id: str):

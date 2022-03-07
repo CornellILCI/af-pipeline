@@ -101,6 +101,9 @@ class Job(BaseMixin, Base):
 
     analysis = relationship(Analysis, back_populates="jobs")
 
+    # job_data
+    job_data = Column(JSON)
+
 
 class Property(BaseMixin, Base):
 

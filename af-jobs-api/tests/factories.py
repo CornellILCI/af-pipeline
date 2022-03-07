@@ -3,11 +3,19 @@ from datetime import datetime
 
 import factory
 from af_request import api_models, models
-from database import Property, db
+from database import Property, PropertyConfig, PropertyMeta, db
 from factory import Factory, LazyAttribute, Sequence, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyText
+from flask import current_app
+from flask_sqlalchemy import get_state
 from pytz import UTC
+from sqlalchemy.orm import scoped_session
+
+Session = scoped_session(
+    lambda: get_state(current_app).db.session,
+    scopefunc=lambda: get_state(current_app).db.session,
+)
 
 
 class BaseFactory(SQLAlchemyModelFactory):
@@ -16,6 +24,7 @@ class BaseFactory(SQLAlchemyModelFactory):
     class Meta:
 
         abstract = True
+        sqlalchemy_session = Session
 
 
 class CreationModificationBaseFactory(BaseFactory):
@@ -45,7 +54,8 @@ class RequestFactory(CreationModificationBaseFactory):
 
 class PropertyFactory(CreationModificationBaseFactory):
 
-    id = factory.Faker("pyint", min_value=1)
+    id = factory.Sequence(lambda n: n)
+
     code = factory.Faker("pystr", min_chars=5, max_chars=5)
     name = factory.Faker("pystr", min_chars=5, max_chars=5)
     label = factory.Faker("text", max_nb_chars=10)
@@ -59,9 +69,156 @@ class PropertyFactory(CreationModificationBaseFactory):
         model = Property
 
 
+class PropertyConfigFactory(CreationModificationBaseFactory):
+
+    id = factory.Sequence(lambda n: n)
+    config_property_id = factory.LazyAttribute(lambda obj: obj.property_config_property.id)
+
+    property_config_property = factory.SubFactory(PropertyFactory)
+
+    class Meta:
+        model = PropertyConfig
+
+
+class PropertyMetaFactory(CreationModificationBaseFactory):
+
+    id = factory.Sequence(lambda n: n)
+
+    code = factory.Faker("pystr", min_chars=5, max_chars=5)
+    value = factory.Faker("pystr", min_chars=5, max_chars=5)
+
+    property_id = factory.LazyAttribute(lambda obj: obj.property.id)
+
+    property = factory.SubFactory(PropertyFactory)
+
+    class Meta:
+        model = PropertyMeta
+
+
+class RandomPropertyFactory(PropertyFactory):
+    @factory.post_generation
+    def property_configs(obj, create, extracted, **kwargs):
+        obj.property_configs.extend(PropertyConfigFactory.create_batch(size=10, property_id=obj.id))
+
+        # add property config for analysis config itself
+        obj.property_configs.append(PropertyConfigFactory(property_id=obj.id, property_config_property=obj))
+
+
+class AnalysisConfigFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.extend(PropertyMetaFactory.create_batch(size=10, property=obj))
+
+
+class AnalysisConfigsPropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigFactory)
+
+
+class AnalysisConfigsRootFactory(PropertyFactory):
+
+    code = "analysis_config"
+
+    @factory.post_generation
+    def property_configs(obj, create, extracted, **kwargs):
+
+        # add analysis config properties
+        obj.property_configs.extend(AnalysisConfigsPropertyConfigFactory.create_batch(size=10, property_id=obj.id))
+
+        # add property config for analysis config itself
+        obj.property_configs.append(PropertyConfigFactory(property_id=obj.id, property_config_property=obj))
+
+
+class AnalysisConfigUnorderedFactory(PropertyFactory):
+
+    id = factory.Faker("pyint", min_value=1000)
+
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.extend(PropertyMetaFactory.create_batch(size=10, property=obj))
+
+
+class AnalysisConfigsUnordredPropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigUnorderedFactory)
+
+
+class AnalysisConfigsRootUnorderedFactory(PropertyFactory):
+
+    code = "analysis_config"
+
+    @factory.post_generation
+    def property_configs(obj, create, extracted, **kwargs):
+
+        # add analysis config properties
+        obj.property_configs.extend(
+            AnalysisConfigsUnordredPropertyConfigFactory.create_batch(size=10, property_id=obj.id)
+        )
+
+        # add property config for analysis config itself
+        obj.property_configs.append(PropertyConfigFactory(property_id=obj.id, property_config_property=obj))
+
+
+class AnalysisConfigWithDesignFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.append(PropertyMetaFactory(code="design", value="test_design", property=obj))
+
+
+class AnalysisConfigsWithDesignPropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigWithDesignFactory)
+
+
+class AnalysisConfigWithEngineFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.append(PropertyMetaFactory(code="engine", value="test_engine", property=obj))
+
+
+class AnalysisConfigsWithEnginePropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigWithEngineFactory)
+
+
+class AnalysisConfigWithTraitLevelFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.append(PropertyMetaFactory(code="trait_level", value="test_trait_level", property=obj))
+
+
+class AnalysisConfigsWithTraitLevelPropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigWithTraitLevelFactory)
+
+
+class AnalysisConfigWithAnalysisObjectiveFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.append(PropertyMetaFactory(code="analysis_objective", value="test_objective", property=obj))
+
+
+class AnalysisConfigsWithAnalysisObjectivePropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigWithAnalysisObjectiveFactory)
+
+
+class AnalysisConfigWithExpPatternFactory(PropertyFactory):
+    @factory.post_generation
+    def property_metas(obj, create, extracted, **kwargs):
+        obj.property_metas.append(
+            PropertyMetaFactory(code="exp_analysis_pattern", value="test_exp_pattern", property=obj)
+        )
+
+
+class AnalysisConfigsWithExpPatternPropertyConfigFactory(PropertyConfigFactory):
+
+    property_config_property = factory.SubFactory(AnalysisConfigWithExpPatternFactory)
+
+
 class JobFactory(Factory):
 
-    id = factory.Faker("pyint", min_value=1)
+    id = factory.Sequence(lambda n: n)
     name = factory.Faker("pystr", min_chars=5, max_chars=5)
     time_start = factory.Faker("pystr", min_chars=5, max_chars=5)
     time_end = factory.Faker("pystr", min_chars=5, max_chars=5)
@@ -70,6 +227,13 @@ class JobFactory(Factory):
 
     status = factory.Faker("word", ext_word_list=["PENDING", "IN-PROGRESS", "DONE", "FAILURE"])
     status_message = factory.Faker("text")
+
+    job_data = factory.Dict(
+        {
+            "trait_name": factory.Faker("pystr", min_chars=5, max_chars=5),
+            "location_name": factory.Faker("pystr", min_chars=5, max_chars=5),
+        }
+    )
 
     class Meta:
         model = models.Job
@@ -80,16 +244,16 @@ class AnalysisFactory(CreationModificationBaseFactory):
     id = factory.Faker("pyint", min_value=1)
     name = factory.Faker("pystr", min_chars=5, max_chars=5)
     description = factory.Faker("text", max_nb_chars=16)
-    request_id = factory.Faker("pyint", min_value=1)
+    request_id = factory.Faker("pystr", min_chars=5, max_chars=5)
     status = factory.Faker("word", ext_word_list=["PENDING", "IN-PROGRESS", "DONE", "FAILURE"])
 
-    prediction_id = factory.Faker("pyint", min_value=1)
-    model_id = factory.Faker("pyint", min_value=1)
-    formula_id = factory.Faker("pyint", min_value=1)
-    residual_id = factory.Faker("pyint", min_value=1)
-    trait_analysis_pattern_id = factory.Faker("pyint", min_value=1)
-    exp_loc_pattern_id = factory.Faker("pyint", min_value=1)
-    analysis_objective_id = factory.Faker("pyint", min_value=1)
+    prediction_id = factory.LazyAttribute(lambda obj: obj.prediction.id)
+    model_id = factory.LazyAttribute(lambda obj: obj.model.id)
+    formula_id = factory.LazyAttribute(lambda obj: obj.formula.id)
+    residual_id = factory.LazyAttribute(lambda obj: obj.residual.id)
+    trait_analysis_pattern_id = factory.LazyAttribute(lambda obj: obj.trait_analysis_pattern.id)
+    exp_loc_pattern_id = factory.LazyAttribute(lambda obj: obj.exp_loc_pattern.id)
+    analysis_objective_id = factory.LazyAttribute(lambda obj: obj.analysis_objective.id)
 
     analysis_request_data = {
         "experiments": [
@@ -111,15 +275,13 @@ class AnalysisFactory(CreationModificationBaseFactory):
         obj.jobs.append(JobFactory(analysis_id=obj.id))
 
     # map for all relationships to Property
-    prediction = factory.SubFactory(PropertyFactory, id=factory.SelfAttribute("..prediction_id"))
-    model = factory.SubFactory(PropertyFactory, id=factory.SelfAttribute("..model_id"))
-    formula = factory.SubFactory(PropertyFactory, id=factory.SelfAttribute("..formula_id"))
-    residual = factory.SubFactory(PropertyFactory, id=factory.SelfAttribute("..residual_id"))
-    trait_analysis_pattern = factory.SubFactory(
-        PropertyFactory, id=factory.SelfAttribute("..trait_analysis_pattern_id")
-    )
-    exp_loc_pattern = factory.SubFactory(PropertyFactory, id=factory.SelfAttribute("..exp_loc_pattern_id"))
-    analysis_objective = factory.SubFactory(PropertyFactory, id=factory.SelfAttribute("..analysis_objective_id"))
+    prediction = factory.SubFactory(PropertyFactory)
+    model = factory.SubFactory(PropertyFactory)
+    formula = factory.SubFactory(PropertyFactory)
+    residual = factory.SubFactory(PropertyFactory)
+    trait_analysis_pattern = factory.SubFactory(PropertyFactory)
+    exp_loc_pattern = factory.SubFactory(PropertyFactory)
+    analysis_objective = factory.SubFactory(PropertyFactory)
 
     class Meta:
         model = models.Analysis
@@ -142,11 +304,11 @@ class AnalysisRequestParametersFacotry(Factory):
         }
     ]
     traits = [{"traitId": "1", "traitName": "trait1"}, {"traitId": "2", "traitName": "trait2"}]
-    analysisObjectivePropertyId = factory.Faker("pystr", min_chars=10, max_chars=10)
-    analysisConfigPropertyId = factory.Faker("pystr", min_chars=10, max_chars=10)
-    expLocAnalysisPatternPropertyId = factory.Faker("pystr", min_chars=10, max_chars=10)
-    configFormulaPropertyId = factory.Faker("pystr", min_chars=10, max_chars=10)
-    configResidualPropertyId = factory.Faker("pystr", min_chars=10, max_chars=10)
+    analysisObjectivePropertyId = factory.Faker("pyint", min_value=1)
+    analysisConfigPropertyId = factory.Faker("pyint", min_value=1)
+    expLocAnalysisPatternPropertyId = factory.Faker("pyint", min_value=1)
+    configFormulaPropertyId = factory.Faker("pyint", min_value=1)
+    configResidualPropertyId = factory.Faker("pyint", min_value=1)
 
     class Meta:
         model = api_models.AnalysisRequestParameters

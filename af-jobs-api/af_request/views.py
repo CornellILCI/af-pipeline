@@ -1,3 +1,4 @@
+import os
 from http import HTTPStatus
 from typing import List, Optional
 
@@ -35,7 +36,7 @@ def list():
 
     query_params = api_models.AnalysisRequestListQueryParameters(**request.args)
 
-    analyses = service.query(query_params)
+    analyses, total_count = service.query(query_params)
 
     # DTOs for api response
     analysis_request_dtos = []
@@ -44,7 +45,7 @@ def list():
         analysis_request_dtos.append(_map_analysis(analysis))
 
     response = api_models.AnalysisRequestListResponse(
-        metadata=api_models.create_metadata(query_params.page, query_params.pageSize),
+        metadata=api_models.create_metadata(query_params.page, query_params.pageSize, total_count),
         result=api_models.AnalysisRequestListResponseResult(data=analysis_request_dtos),
     )
 
@@ -71,6 +72,12 @@ def get(request_uuid: str):
 def download_result(request_uuid: str):
     """Download file result of analysis request as zip file"""
 
+    request_file = config.get_analysis_result_file_path(request_uuid)
+
+    if not os.path.exists(request_file):
+        error_response = api_models.ErrorResponse(errorMsg="Analysis Result file not found")
+        return json_response(error_response, HTTPStatus.NOT_FOUND)
+
     request_uuid_without_hyphens = request_uuid.replace("-", "")
     download_name = f"{request_uuid_without_hyphens}.zip"
 
@@ -96,11 +103,11 @@ def _map_analysis(analysis):
     )
 
     if req.analyses is not None and len(req.analyses) == 1:
-        req_dto.analysisObjectiveProperty = _map_property(analysis.analysis_objective)
-        req_dto.analysisConfigProperty = _map_property(analysis.model)
-        req_dto.expLocAnalysisPatternProperty = _map_property(analysis.exp_loc_pattern)
-        req_dto.configFormulaProperty = _map_property(analysis.formula)
-        req_dto.configResidualProperty = _map_property(analysis.residual)
+        req_dto.analysisObjectiveProperty = api_models.map_property(analysis.analysis_objective)
+        req_dto.analysisConfigProperty = api_models.map_property(analysis.model)
+        req_dto.expLocAnalysisPatternProperty = api_models.map_property(analysis.exp_loc_pattern)
+        req_dto.configFormulaProperty = api_models.map_property(analysis.formula)
+        req_dto.configResidualProperty = api_models.map_property(analysis.residual)
 
     if analysis.analysis_request_data is not None:
         req_dto.experiments = pydantic.parse_obj_as(
@@ -108,39 +115,30 @@ def _map_analysis(analysis):
         )
         req_dto.traits = pydantic.parse_obj_as(List[api_models.Trait], analysis.analysis_request_data.get("traits", []))
 
-    if req.status == Status.DONE:
+    if req.status == Status.DONE or req.status == Status.FAILURE:
         req_dto.resultDownloadRelativeUrl = config.get_result_download_url(req.uuid)
 
     req_dto.jobs = []
     for job in analysis.jobs:
+        
+        trait_name = None
+        location_name = None
+
+        if job.job_data is not None:
+            trait_name = job.job_data.get("trait_name", "")
+            location_name = job.job_data.get("location_name", "") 
+
         req_dto.jobs.append(
             api_models.Job(
                 jobId=job.id,
                 jobName=job.name,
                 status=job.status,
                 statusMessage=job.status_message,
+                traitName=trait_name,
+                locationName=location_name,
                 startTime=job.time_start,
                 endTime=job.time_end,
             )
         )
 
     return req_dto
-
-
-def _map_property(_property):
-
-    if _property is None:
-        return None
-
-    property_dto = api_models.Property(
-        propertyId=_property.id,
-        propertyCode=_property.code,
-        propertyName=_property.name,
-        label=_property.label,
-        statement=_property.statement,
-        type=_property.type,
-        createdOn=_property.creation_timestamp,
-        modifiedOn=_property.modification_timestamp,
-    )
-
-    return property_dto
