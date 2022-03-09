@@ -11,7 +11,7 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import analysis_report, utils
+from af.pipeline import analysis_report, utils, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services
@@ -193,6 +193,8 @@ class AsremlAnalyze(Analyze):
                 analysis_report.write_occurrences(self.report_file_path, gathered_objects["occurrences"])
 
             utils.remove_empty_worksheets(self.report_file_path)
+
+            pandasutil.remove_blank_line(self.report_file_path)
 
             utils.zip_file(self.report_file_path, self.output_file_path)
         else:

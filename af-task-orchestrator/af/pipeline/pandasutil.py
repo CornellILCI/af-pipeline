@@ -165,7 +165,12 @@ def remove_blank_line(filename):
 
         for cell in ws[1]:
             if cell.value is None:
-                ws.delete_rows(1,1)
+                ws.delete_rows(1)
+                break
+
+        for cell in ws[3]:
+            if cell.value is None:
+                ws.delete_rows(3)
                 break
 
     writer.save()

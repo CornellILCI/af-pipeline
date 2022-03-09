@@ -41,7 +41,6 @@ def write_request_settings(db_session, report_file, analysis_request):
     request_settings = pd.DataFrame(request_settings_build)
 
     pandasutil.append_df_to_excel(report_file, request_settings, sheet_name=REQUEST_INFO_SHEET_NAME)
-    pandasutil.remove_blank_line(report_file)
 
 
 def write_occurrences(report_file, occurrences):
@@ -234,5 +233,4 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     pandasutil.set_columns_as_numeric(model_stats_df, ["LogL", "aic", "bic"])
 
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)
-    pandasutil.remove_blank_line(report_file)
 
