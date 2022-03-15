@@ -35,12 +35,18 @@
 
     <!-- 21.11 -->
     <include file="changelogs/db-changelog-21.11.xml"/>
-    <!--include file="changesets/21.11/tag/dev-tag.xml"/-->
+    <include file="changesets/21.11/tag/dev-tag.xml"/>
     
     <!-- 21.12 -->
     <include file="changelogs/db-changelog-21.12.xml"/>
+    <include file="changesets/21.12/tag/dev-tag.xml"/>
 
     <!-- 22.01 -->
     <include file="changelogs/db-changelog-22.01.xml"/>
+    <include file="changesets/22.01/tag/dev-tag.xml"/>
+
+    <!-- 22.02 -->
+    <include file="changelogs/db-changelog-22.02.xml"/>
+    <include file="changesets/22.02/tag/dev-tag.xml"/>
 
   </databaseChangeLog>
