@@ -8,6 +8,8 @@ import tempfile
 import pytest
 from pandas import DataFrame
 
+from af.pipeline.db.models import Property
+
 # fixtures import area
 
 
@@ -26,6 +28,7 @@ def get_json_resource(testfile, json_file_name):
 
 
 def get_test_analysis_request():
+    
     from af.pipeline.analysis_request import AnalysisRequest, Experiment, Occurrence, Trait
 
     # output_folder = tempfile.TemporaryDirectory()
@@ -87,6 +90,57 @@ def get_test_plot_measurements() -> DataFrame:
         [2910, 1, "G", 6.751358238],
     ]
     return DataFrame(data, columns=columns)
+
+
+@pytest.fixture(scope="class")
+def analysis_fields():
+    return [
+        type(
+            "PropertyResult",
+            (object,),
+            {
+                "Property": Property(code="loc", data_type="!A"),
+                "property_meta": {"definition": "loc_id", "condition": "!SORTALL !PRUNEALL"},
+            },
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {
+                "Property": Property(code="expt", data_type="!A"),
+                "property_meta": {"definition": "expt_id", "condition": "!LL 32"},
+            },
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="entry", data_type="!A"), "property_meta": {"definition": "entry_id"}},
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="plot", data_type="!A"), "property_meta": {"definition": "plot_id"}},
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="col", data_type="!I"), "property_meta": {"definition": "pa_x"}},
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="row", data_type="!I"), "property_meta": {"definition": "pa_y"}},
+        ),
+        type(
+            "PropertyResult",
+            (object,),
+            {"Property": Property(code="rep", data_type="!A"), "property_meta": {"definition": "rep_factor"}},
+        ),
+    ]
+
+@pytest.fixture(scope="class")
+def analysis_fields_class(request, analysis_fields):
+    request.cls.analysis_fields = analysis_fields
 
 
 @pytest.fixture
