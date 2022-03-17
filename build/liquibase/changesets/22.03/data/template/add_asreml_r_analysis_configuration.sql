@@ -203,7 +203,7 @@ stat_factor_config_20001_link AS (
 		(SELECT id FROM af.property WHERE code = 'config_20001.cfg'),
 		(SELECT id FROM stat_factor), false
 	)
-),
+)
 SELECT id AS stat_factor_id FROM stat_factor;
 
 
@@ -866,7 +866,7 @@ config_prediction_config_20001_link AS (
 		(SELECT id FROM config_prediction), false
 	)
 
-),
+)
 SELECT * FROM config_prediction;
 
 
