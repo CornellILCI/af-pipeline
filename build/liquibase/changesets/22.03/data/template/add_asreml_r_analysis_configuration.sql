@@ -653,7 +653,7 @@ config_residual_config_20001_link AS (
 		(SELECT id FROM config_residual), false
 	)
 ),
-config_residual_config_20001_link AS (
+config_residual_config_20020_link AS (
 	INSERT INTO af.property_config(
 		order_number, creation_timestamp, creator_id,
 		is_void, property_id, config_property_id, is_layout_variable
@@ -663,7 +663,7 @@ config_residual_config_20001_link AS (
 		(SELECT id FROM config_residual), false
 	)
 ),
-config_residual_config_20001_link AS (
+config_residual_config_20021_link AS (
 	INSERT INTO af.property_config(
 		order_number, creation_timestamp, creator_id,
 		is_void, property_id, config_property_id, is_layout_variable
