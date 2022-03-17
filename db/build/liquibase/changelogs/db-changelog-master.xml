@@ -48,6 +48,10 @@
     <!-- 22.02 -->
     <include file="changelogs/db-changelog-22.02.xml"/>
     <include file="changesets/22.02/tag/dev-tag.xml"/>
+    
+    <!-- 22.03 -->
+    <include file="changelogs/db-changelog-22.03.xml"/>
+    <include file="changesets/22.03/tag/dev-tag.xml"/>
 
     <!-- 22.02 -->
     <include file="changelogs/db-changelog-22.02.xml"/>
