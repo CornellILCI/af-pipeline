@@ -35,3 +35,30 @@ def list():
     )
 
     return json_response(response, HTTPStatus.OK)
+
+
+@af_requests_bp.route("", methods=["POST"])
+@validate_api_request(body_model=api_models.AnalysisRequestParameters)
+def post_analysis_config():
+    """Create request object based on body params"""
+
+    request_query_params = api_models.AnalysisConfigsListQueryParameters(**request.args)
+
+    filter_params = request_query_params.as_db_filter_params()
+
+    analysis_configs, total_count = service.get_analysis_configs(
+        page=request_query_params.page, page_size=request_query_params.pageSize, **filter_params
+    )
+
+    # DTOs for api response
+    analysis_config_dtos = []
+
+    for analysis_config in analysis_configs:
+        analysis_config_dtos.append(api_models.map_property(analysis_config))
+
+    response = api_models.AnalysisConfigListResponse(
+        metadata=api_models.create_metadata(request_query_params.page, request_query_params.pageSize, total_count),
+        result=api_models.AnalysisConfigListResponseResult(data=analysis_config_dtos),
+    )
+
+    return json_response(response, HTTPStatus.OK)

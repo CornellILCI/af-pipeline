@@ -43,3 +43,31 @@ class AnalysisConfigListResponseResult(BaseModel):
 class AnalysisConfigListResponse(BaseModel):
     metadata: Optional[Metadata] = None
     result: Optional[AnalysisConfigListResponseResult] = None
+
+
+class AnalysisConfig(AfBaseModel):
+    code: str = Field(None, description="Organization code")
+    configName: str = Field(None, description="config name")
+    description: str = Field(None, description="Description")
+
+
+class AnalysisConfigMeta(AfBaseModel):
+    configId: str = Field(None, description="config id")
+    configVersion: str = Field(None, description="config version")
+    createdOn: datetime = None
+    author: str = Field(None, description="author")
+    email: str = Field(None, description="email")
+    engine: str = Field(None, description="Name of the analysis engine")
+    experimentInfo: str = Field(None, description="experiment info")
+    breedingProgramId: str = Field(None, description="breeding program id")
+    pipelineId: str = Field(None, description="Description")
+    stageId: str = Field(None, description="stage id")
+    design: str = Field(None, description="Design type")
+    traitLevel: str = Field(None, description="Trait level, example: plot")
+    analysisInfo: str = Field(None, description="analysis info")
+    analysisObjective: str = Field(None, description="Analysis objective example: prediction")
+    experimentAnalysisPattern: str = Field(None, description="Experiment Analysis pattern example: single")
+    locationAnalysisPattern: str = Field(None, description="Location Analysis pattern example: single")
+    yearAnalysisPattern: str = Field(None, description="Description")
+    traitPattern: str = Field(None, description="Trait Pattern example: single")
+    # are some of these supposed to be Property objects instead of strings?
