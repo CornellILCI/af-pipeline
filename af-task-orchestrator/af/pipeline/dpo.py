@@ -29,7 +29,7 @@ from af.pipeline.exceptions import InvalidAnalysisRequest
 # from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
-# from af.pipeline.db import services
+from af.pipeline.db import services
 # from af.pipeline.db.models import Property
 # from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 # from af.pipeline.pandasutil import df_keep_columns
@@ -83,9 +83,64 @@ class ProcessData(ABC):
         return job_folder
 
     @abstractmethod
-    def run(self):
-        """This method should return the list of preprocessed input files info"""
+    def sesl(self):
         pass
+
+    @abstractmethod
+    def seml(self):
+        pass
+
+    @abstractmethod
+    def mesl(self):
+        pass
+
+    @abstractmethod
+    def mesl(self):
+        pass
+
+    def run(self):
+        """Pre process input data before inputing into analytical engine.
+
+        Extracts plots and plot measurements from api source.
+        Prepares the extracted data to feed into analytical engine.
+
+        Returns:
+            List of object with following args,
+                job_name: Name of the job
+                data_file: File with input data
+                asrml_job_file: File with job configuration specific to input request
+            example:
+                [
+                    {
+                        "job_name": "job1"
+                        "data_file": "/test/test.csv",
+                        "asreml_job_file": "/test/test.as"
+                    }
+                ]
+
+        Raises:
+            DpoException, DataReaderException
+        """
+        
+        exptloc_analysis_pattern = services.get_property(
+            self.db_session, self.analysis_request.expLocAnalysisPatternPropertyId
+        )
+
+        job_inputs = []
+
+        if exptloc_analysis_pattern.code == "SESL":
+            job_inputs_gen = self.sesl()
+        elif exptloc_analysis_pattern.code == "SEML":
+            job_inputs_gen = self.seml()
+        elif exptloc_analysis_pattern.code == "MESL":
+            job_inputs_gen = self.mesl()
+        else:
+            raise DpoException(f"Analysis pattern value: {exptloc_analysis_pattern} is invalid")
+
+        for job_input in job_inputs_gen:
+            job_inputs.append(job_input)
+
+        return job_inputs
 
 
 if __name__ == "__main__":

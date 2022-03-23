@@ -160,10 +160,10 @@ class AsremlProcessData(ProcessData):
                     yield job_data
 
     def mesl(self):
-        pass
+        raise NotImplementedError("MESL analysis pattern is not implemented")
 
     def meml(self):
-        pass
+        raise NotImplementedError("MEML analysis pattern is not implemented")
 
     def _format_result_data(self, plots_and_measurements, trait):
 
@@ -351,45 +351,3 @@ class AsremlProcessData(ProcessData):
                 predictions.append(services.get_property(self.db_session, prediction_property_id))
 
         return predictions
-
-    def run(self):
-        """Pre process input data before inputing into analytical engine.
-
-        Extracts plots and plot measurements from api source.
-        Prepares the extracted data to feed into analytical engine.
-
-        Returns:
-            List of object with following args,
-                job_name: Name of the job
-                data_file: File with input data
-                asrml_job_file: File with job configuration specific to input request
-            example:
-                [
-                    {
-                        "job_name": "job1"
-                        "data_file": "/test/test.csv",
-                        "asreml_job_file": "/test/test.as"
-                    }
-                ]
-
-        Raises:
-            DpoException, DataReaderException
-        """
-
-        exptloc_analysis_pattern = services.get_property(
-            self.db_session, self.analysis_request.expLocAnalysisPatternPropertyId
-        )
-
-        job_inputs = []
-
-        if exptloc_analysis_pattern.code == "SESL":
-            job_inputs_gen = self.sesl()
-        elif exptloc_analysis_pattern.code == "SEML":
-            job_inputs_gen = self.seml()
-        else:
-            raise DpoException(f"Analysis pattern value: {exptloc_analysis_pattern} is invalid")
-
-        for job_input in job_inputs_gen:
-            job_inputs.append(job_input)
-
-        return job_inputs
