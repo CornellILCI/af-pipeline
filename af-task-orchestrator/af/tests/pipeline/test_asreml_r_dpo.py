@@ -41,4 +41,9 @@ def test_dpo_run_for_mesl_method_called(mocker, analysis_request):
     mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
     
     asreml_r_dpo = dpo.AsremlRProcessData(analysis_request)
+    
+    mocker.patch('af.pipeline.asreml_r.dpo.AsremlRProcessData.mesl')
+
     jobs = asreml_r_dpo.run()
+
+    asreml_r_dpo.mesl.assert_called_once()
