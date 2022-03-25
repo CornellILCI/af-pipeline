@@ -8,4 +8,10 @@ class AsremlRProcessData(AsremlProcessData):
 
     def mesl(self):
 
-        return [JobData()]
+        jobs = []
+
+        for trait in self.trait_ids:
+            for location in self.location_ids:
+                jobs.append(JobData())
+
+        return jobs

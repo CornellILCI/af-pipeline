@@ -42,8 +42,8 @@ def get_test_analysis_request():
                 experimentId="1",
                 experimentName="name1",
                 occurrences=[
-                    Occurrence(occurrenceId="1", occurrenceName="occur1"),
-                    Occurrence(occurrenceId="2", occurrenceName="occur2"),
+                    Occurrence(occurrenceId="1", occurrenceName="occur1", locationId="1", locationName="loc1"),
+                    Occurrence(occurrenceId="2", occurrenceName="occur2", locationId="2", locationName="loc2"),
                 ],
             )
         ],
@@ -162,4 +162,18 @@ def analysis_request():
     analysis_request = get_test_analysis_request()
     return analysis_request
 
-
+@pytest.fixture
+def mesl_analysis_request(analysis_request):
+    from af.pipeline.analysis_request import Experiment, Occurrence
+    
+    analysis_request.experiments.append(
+        Experiment(
+            experimentId="1",
+            experimentName="name2",
+            occurrences=[
+                Occurrence(occurrenceId="3", occurrenceName="occur3", locationId="1", locationName="loc1"),
+                Occurrence(occurrenceId="4", occurrenceName="occur4", locationId="2", locationName="loc2"),
+            ],
+        )
+    )
+    return analysis_request

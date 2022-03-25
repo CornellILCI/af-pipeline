@@ -55,11 +55,14 @@ class ProcessData(ABC):
         self.experiment_ids = []
         self.occurrence_ids = []
 
+        self.location_ids = set()
+
         for experiment in analysis_request.experiments:
             self.experiment_ids.append(experiment.experimentId)
             if experiment.occurrences is not None:
                 for occurrence in experiment.occurrences:
                     self.occurrence_ids.append(occurrence.occurrenceId)
+                    self.location_ids.add(occurrence.locationId)
 
         self.trait_ids = []
         for trait in analysis_request.traits:
