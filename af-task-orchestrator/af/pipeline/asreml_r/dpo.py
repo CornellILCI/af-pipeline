@@ -13,7 +13,7 @@ class AsremlRProcessData(AsremlProcessData):
         for occurr_id in self.occurrence_ids:
             plots = self.data_reader.get_plots(occurrence_id=occurr_id)
             for trait_id in self.trait_ids:
-                plot_measurements = self.data_reader.get_plot_measurements()
+                plot_measurements = self.data_reader.get_plot_measurements(occurrence_id=occurr_id, trait_id=trait_id)
 
 
         for trait in self.trait_ids:

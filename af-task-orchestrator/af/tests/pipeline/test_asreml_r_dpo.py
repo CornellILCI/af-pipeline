@@ -64,19 +64,22 @@ def test_dpo_run_for_mesl_num_jobs(mocker, mesl_analysis_request):
     assert len(jobs) == 4
 
 
-def test_job_name_for_frist_job(mocker, mesl_analysis_request):
+def test_job_names(mocker, mesl_analysis_request):
 
     mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plots")
     mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plot_measurements") 
-
-    # combination of location id and trait id
-    expected_job_name_1 = f"{mesl_analysis_request.requestId}_mesl_1_1"
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
     jobs = asreml_r_dpo.mesl()
 
-    assert jobs[0].job_name == expected_job_name_1
+    expected_job_names = {"test_id_mesl_1_1", "test_id_mesl_2_1", "test_id_mesl_1_2", "test_id_mesl_2_2"}
+    actual_job_names = set()
+    for job in jobs:
+        actual_job_names.add(job.job_name)
+
+    assert expected_job_names == actual_job_names
+        
 
 
 def test_job_name_for_second_job(mocker, mesl_analysis_request):
@@ -129,7 +132,7 @@ def test_plot_measurements_are_extracted_for_each_trait(mocker, mesl_analysis_re
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    plots_mock_method = mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plots")
+    mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plots")
 
     mock_method = mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plot_measurements") 
     
@@ -138,7 +141,30 @@ def test_plot_measurements_are_extracted_for_each_trait(mocker, mesl_analysis_re
     assert mock_method.call_count == 8
 
 
-
-
+def test_plot_measurements_are_extracted_with_right_parameters(mocker, mesl_analysis_request):
     
 
+    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+
+    mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plots")
+    mock_method = mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plot_measurements") 
+
+    asreml_r_dpo.mesl()
+    
+    # 4 occurrences in the mesl analysis request
+    mock_method.assert_has_calls(
+        calls=[
+            call(occurrence_id="1", trait_id="1"),
+            call(occurrence_id="2", trait_id="1"),
+            call(occurrence_id="3", trait_id="1"),
+            call(occurrence_id="4", trait_id="1"),
+            call(occurrence_id="1", trait_id="2"),
+            call(occurrence_id="2", trait_id="2"),
+            call(occurrence_id="3", trait_id="2"),
+            call(occurrence_id="4", trait_id="2")
+        ], any_order=True
+    )
+
+
+def test_mesl_job_data_file(mocker, mesl_analysis_request):
+    pass
