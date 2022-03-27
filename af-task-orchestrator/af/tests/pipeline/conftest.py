@@ -162,13 +162,14 @@ def analysis_request():
     analysis_request = get_test_analysis_request()
     return analysis_request
 
+
 @pytest.fixture
 def mesl_analysis_request(analysis_request):
-    from af.pipeline.analysis_request import Experiment, Occurrence
+    from af.pipeline.analysis_request import Experiment, Occurrence, Trait
     
     analysis_request.experiments.append(
         Experiment(
-            experimentId="1",
+            experimentId="2",
             experimentName="name2",
             occurrences=[
                 Occurrence(occurrenceId="3", occurrenceName="occur3", locationId="1", locationName="loc1"),
@@ -176,4 +177,7 @@ def mesl_analysis_request(analysis_request):
             ],
         )
     )
+
+    analysis_request.traits.append(Trait(traitId="2", traitName="trait2"))
     return analysis_request
+

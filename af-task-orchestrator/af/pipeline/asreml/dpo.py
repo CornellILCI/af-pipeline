@@ -85,7 +85,7 @@ class AsremlProcessData(ProcessData):
             # -- BA-875 --
             job_data.trait_name = trait.abbreviation
             job_data.location_name = "Multi Location"
-
+            
             for occurrence_id in self.occurrence_ids:
 
                 plots = plots_by_id[occurrence_id]
