@@ -37,6 +37,16 @@ class AsremlProcessData(ProcessData):
         metadata_df["location_id"] = occurrence.location_id
         metadata_df["trait_abbreviation"] = trait.abbreviation
 
+        unique_observations = metadata_df.groupby(
+            ['entry_id', 'location_id']
+        ).trait_abbreviation.nunique()
+
+        print(unique_observations)
+
+        metadata_df.set_index(['entry_id', 'location_id']).assign(
+            obs_count=unique_observations
+        ).reset_index()
+
         job_folder = self.get_job_folder(job_name)
 
         metadata_file_path = os.path.join(job_folder, "metadata.tsv")

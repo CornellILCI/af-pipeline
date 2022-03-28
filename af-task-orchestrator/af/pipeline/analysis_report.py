@@ -20,7 +20,7 @@ REPORT_SHEETS = [
 
 def write_request_settings(db_session, report_file, analysis_request):
 
-    # write request settings report
+    # write request settings report"entry_count"
     formula = db_services.get_property(db_session, analysis_request.configFormulaPropertyId)
     residual = db_services.get_property(db_session, analysis_request.configResidualPropertyId)
     prediction = db_services.get_property(db_session, analysis_request.analysisObjectivePropertyId)
@@ -55,6 +55,9 @@ def write_occurrences(report_file, occurrences):
         occurrence_report_build.append(occurrences[occurrence_id].dict())
 
     occurrence_report = pd.DataFrame(occurrence_report_build)
+    if "rep_count" in occurrence_report.columns:
+        del occurrence_report["rep_count"]
+
     pandasutil.append_df_to_excel(report_file, occurrence_report, sheet_name=REQUEST_INFO_SHEET_NAME, header=True)
 
 
@@ -116,7 +119,9 @@ def write_entry_predictions(
         "entry_name",
         "entry_type",
         "value",
-        "std_error",
+        "std_error"
+        # "obs_count"
+
     ]
 
     exptloc_analysis_pattern = db_services.get_property(db_session, analysis_request.expLocAnalysisPatternPropertyId)
