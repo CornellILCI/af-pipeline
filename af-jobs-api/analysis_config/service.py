@@ -61,30 +61,32 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
     return analysis_configs, total_count
 
 
-def submit_analysis_config(request_params: api_models.AnalysisConfig):
+def submit_analysis_config(request_params_meta: api_models.AnalysisConfigMeta,
+                           request_params: api_models.AnalysisConfig):
+
     """Submits analysis config to pipeline."""
 
     analysis_uuid = str(uuidlib.uuid4())
 
     analysis_config_meta = db_models.AnalysisConfigMeta(
-        config_id=request_params.configId,
-        config_version=request_params.configVersion,
+        config_id=request_params_meta.configId,
+        config_version=request_params_meta.configVersion,
         createdOn=datetime.utcnow(),
-        author=request_params.author,
-        email=request_params.email,
-        engine=request_params.engine,
-        experiment_info=request_params.experimentInfo,
-        breeding_program_id=request_params.breedingProgramId,
-        pipeline_id=request_params.pipelineId,
-        stage_id=request_params.stageId,
-        design=request_params.design,
-        trait_level=request_params.traitLevel,
-        analysis_info=request_params.analysisInfo,
-        analysis_objective=request_params.analysisObjective,
-        exp_analysis_pattern=request_params.experimentAnalysisPattern,
-        loc_analysis_pattern=request_params.locationAnalysisPattern,
-        year_analysis_pattern=request_params.yearAnalysisPattern,
-        trait_pattern=request_params.traitPattern,
+        author=request_params_meta.author,
+        email=request_params_meta.email,
+        engine=request_params_meta.engine,
+        experiment_info=request_params_meta.experimentInfo,
+        breeding_program_id=request_params_meta.breedingProgramId,
+        pipeline_id=request_params_meta.pipelineId,
+        stage_id=request_params_meta.stageId,
+        design=request_params_meta.design,
+        trait_level=request_params_meta.traitLevel,
+        analysis_info=request_params_meta.analysisInfo,
+        analysis_objective=request_params_meta.analysisObjective,
+        exp_analysis_pattern=request_params_meta.experimentAnalysisPattern,
+        loc_analysis_pattern=request_params_meta.locationAnalysisPattern,
+        year_analysis_pattern=request_params_meta.yearAnalysisPattern,
+        trait_pattern=request_params_meta.traitPattern,
     )
 
     analysis_config = db_models.AnalysisConfig(
@@ -94,7 +96,7 @@ def submit_analysis_config(request_params: api_models.AnalysisConfig):
     )
 
     with db.session.begin():
-        #i may need to add multiple analysis config metas,
+        # i may need to add multiple analysis config metas,
         db.session.add(analysis_config_meta)
         db.session.add(analysis_config)
 
