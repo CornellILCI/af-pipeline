@@ -10,6 +10,8 @@ class AsremlRProcessData(AsremlProcessData):
 
         jobs = []
 
+        plot_measurements = None
+
         for occurr_id in self.occurrence_ids:
             plots = self.data_reader.get_plots(occurrence_id=occurr_id)
             for trait_id in self.trait_ids:
@@ -18,6 +20,11 @@ class AsremlRProcessData(AsremlProcessData):
 
         for trait in self.trait_ids:
             for location in self.location_ids:
-                jobs.append(JobData(job_name=f"{self.analysis_request.requestId}_mesl_{location}_{trait}"))
+                job_data = JobData(job_name=f"{self.analysis_request.requestId}_mesl_{location}_{trait}")
+                self._write_job_data(job_data, plot_measurements, trait)
+                jobs.append(job_data)
 
         return jobs
+
+    def _set_job_params(self, job_data, trait):
+        pass

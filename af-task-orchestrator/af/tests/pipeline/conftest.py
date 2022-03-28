@@ -164,9 +164,12 @@ def analysis_request():
 
 
 @pytest.fixture
-def mesl_analysis_request(analysis_request):
+def mesl_analysis_request(mocker, analysis_request):
     from af.pipeline.analysis_request import Experiment, Occurrence, Trait
     
+    plot_mock = mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plots")
+    plot_data_mock = mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plot_measurements")
+
     analysis_request.experiments.append(
         Experiment(
             experimentId="2",
@@ -179,5 +182,6 @@ def mesl_analysis_request(analysis_request):
     )
 
     analysis_request.traits.append(Trait(traitId="2", traitName="trait2"))
-    return analysis_request
+
+    return analysis_request, plot_mock, plot_data_mock
 

@@ -26,7 +26,7 @@ class AsremlProcessData(ProcessData):
             traits.append(trait)
         return traits
 
-    def __save_metadata(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait: Trait):
+    def _save_metadata(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait: Trait):
 
         metadata_columns = ["entry_id", "entry_name", "entry_type"]
         metadata_df = plots.loc[:, metadata_columns]  # get a copy, not a view
@@ -96,7 +96,7 @@ class AsremlProcessData(ProcessData):
                     job_data.location_name = occurrence.location
 
                 # save metadata in plots
-                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
+                job_data.metadata_file = self._save_metadata(job_name, plots, occurrence, trait)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
@@ -146,7 +146,7 @@ class AsremlProcessData(ProcessData):
                 job_data.location_name = occurrence.location
 
                 # save metadata in plots
-                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
+                job_data.metadata_file = self._save_metadata(job_name, plots, occurrence, trait)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
@@ -196,47 +196,31 @@ class AsremlProcessData(ProcessData):
 
         return plots_and_measurements
 
-    def _write_job_input_files(self, job_id, job_data, trait):
-
-        job_file_name = f"{job_data.job_name}.as"
-        data_file_name = f"{job_data.job_name}.csv"
-
-        job_folder = self.get_job_folder(job_data.job_name)
-
-        job_data.job_file = os.path.join(job_folder, job_file_name)
-        job_data.data_file = os.path.join(job_folder, data_file_name)
-
-        plots_and_measurements.to_csv(job_data.data_file, index=False)
-
-        job_file_lines = self._get_asreml_job_file_lines(job_data, job_data.data_file, trait)
-
-        with open(job_data.job_file, "w") as j_f:
-            for line in job_file_lines:
-                j_f.write("{}\n".format(line))
-
-        return job_data
-
     def _write_job_data(self, job_data, plots_and_measurements, trait):
 
-        request_id = self.analysis_request.requestId
-
-        job_file_name = f"{job_data.job_name}.as"
         data_file_name = f"{job_data.job_name}.csv"
 
-        job_folder = self.get_job_folder(job_data.job_name)
+        job_data.job_result_dir = self.get_job_folder(job_data.job_name)
 
-        job_data.job_file = os.path.join(job_folder, job_file_name)
-        job_data.data_file = os.path.join(job_folder, data_file_name)
+        job_data.data_file = os.path.join(job_data.job_result_dir, data_file_name)
 
         plots_and_measurements.to_csv(job_data.data_file, index=False)
 
-        job_file_lines = self._get_asreml_job_file_lines(job_data, trait)
+        self._set_job_params(job_data, trait)
 
+        return job_data
+
+    def _set_job_params(self, job_data, trait):
+        
+        job_file_name = f"{job_data.job_name}.as"
+        
+        job_data.job_file = os.path.join(job_data.job_result_dir, job_file_name)
+        
+        job_file_lines = self._get_asreml_job_file_lines(job_data, trait)
+        
         with open(job_data.job_file, "w") as j_f:
             for line in job_file_lines:
                 j_f.write("{}\n".format(line))
-
-        return job_data
 
     def _get_analysis_fields(self):
         if not self.analysis_fields:
