@@ -174,3 +174,20 @@ def test_mesl_job_data_file(mesl_analysis_request):
             expected_data_file_content = expected_job_data_files[i]
 
             assert file_content == expected_data_file_content
+
+
+def test_mesl_formula_added_to_job_params(analysis_formula, mesl_analysis_request):
+
+    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+
+    jobs = asreml_r_dpo.mesl()
+
+    expected_analysis_formuals = [
+        "trait_abbrev_1 ~ mu rep !r entry !f mv",
+        "trait_abbrev_2 ~ mu rep !r entry !f mv",
+        "trait_abbrev_1 ~ mu rep !r entry !f mv",
+        "trait_abbrev_2 ~ mu rep !r entry !f mv",
+    ]
+
+    for i in range(len(jobs)):
+        assert jobs[i].job_params.formula == expected_analysis_formuals[i]

@@ -49,9 +49,6 @@ def get_tabulate():
     return [Property(statement="{trait_name} ~ entry")]
 
 
-def get_formula():
-    return Property(statement="{trait_name} ~ mu rep !r entry !f mv")
-
 
 def get_residual():
     return Property(statement="ar1(row).ar1(col)")
@@ -61,7 +58,7 @@ def get_prediction():
     return Property(statement="entry !PRESENT entry !SED !TDIFF")
 
 
-@pytest.mark.usefixtures("analysis_fields_class")
+@pytest.mark.usefixtures("analysis_fields_class", "analysis_formula_class")
 class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
@@ -164,7 +161,7 @@ class TestProcessData(TestCase):
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         exploc_analysis_pattern.code = "SEML"
 
-        mock_get_property.side_effect = [exploc_analysis_pattern, get_formula(), get_residual(), get_prediction()]
+        mock_get_property.side_effect = [exploc_analysis_pattern, self.analysis_formula, get_residual(), get_prediction()]
         mock_get_analysis_fields.return_value = self.analysis_fields
         mock_get_analysis_config_properties.side_effect = [get_asreml_option(), get_tabulate()]
 
@@ -319,10 +316,10 @@ class TestProcessData(TestCase):
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         mock_get_property.side_effect = [
             exploc_analysis_pattern,
-            get_formula(),
+            self.analysis_formula,
             get_residual(),
             get_prediction(),
-            get_formula(),
+            self.analysis_formula,
             get_residual(),
             get_prediction(),
         ]
@@ -439,10 +436,10 @@ class TestProcessData(TestCase):
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         mock_get_property.side_effect = [
             exploc_analysis_pattern,
-            get_formula(),
+            self.analysis_formula,
             get_residual(),
             get_prediction(),
-            get_formula(),
+            self.analysis_formula,
             get_residual(),
             get_prediction(),
         ]

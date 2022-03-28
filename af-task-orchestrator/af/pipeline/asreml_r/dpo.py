@@ -1,4 +1,4 @@
-from af.pipeline.job_data import JobData
+from af.pipeline.job_data import JobData, JobParams
 from af.pipeline.asreml.dpo import AsremlProcessData
 
 from collections import defaultdict
@@ -58,4 +58,7 @@ class AsremlRProcessData(AsremlProcessData):
         return data_by_trait_location
 
     def _set_job_params(self, job_data, trait):
-        pass
+        
+        job_params = JobParams(formula = self._get_formuala(trait))
+
+        job_data.job_params = job_params

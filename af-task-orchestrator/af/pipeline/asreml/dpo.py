@@ -274,9 +274,7 @@ class AsremlProcessData(ProcessData):
         job_file_lines.append(tabulate_line)
 
         # 7: adding formula
-        formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
-        formula_statement = formula.statement.format(trait_name=trait.abbreviation)
-        job_file_lines.append(formula_statement)
+        job_file_lines.append(self._get_formuala(trait))
 
         # 8: adding residual
         residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
@@ -298,6 +296,12 @@ class AsremlProcessData(ProcessData):
             return asreml_options[0]
         else:
             raise DpoException("No ASREML engine options found.")
+
+    def _get_formuala(self, trait):
+        formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
+        formula_statement = formula.statement.format(trait_name=trait.abbreviation)
+        return formula_statement
+
 
     def _get_tabulate(self):
         tabulate = services.get_analysis_config_properties(

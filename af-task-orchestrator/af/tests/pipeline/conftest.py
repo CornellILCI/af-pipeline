@@ -143,6 +143,14 @@ def analysis_fields():
 def analysis_fields_class(request, analysis_fields):
     request.cls.analysis_fields = analysis_fields
 
+@pytest.fixture(scope="class")
+def analysis_formula():
+    analysis_formula = Property(statement="{trait_name} ~ mu rep !r entry !f mv")
+    return analysis_formula
+
+@pytest.fixture(scope="class")
+def analysis_formula_class(request, analysis_formula):
+    request.cls.analysis_formula = analysis_formula
 
 @pytest.fixture
 def sommer_analysis_request():
@@ -372,6 +380,7 @@ def mesl_analysis_request(
     mesl_occurrence_mock,
     mesl_trait_mock,
     analysis_fields,
+    analysis_formula
 ):
 
     from af.pipeline.analysis_request import Experiment, Occurrence, Trait
@@ -390,5 +399,7 @@ def mesl_analysis_request(
     analysis_request.traits.append(Trait(traitId="2", traitName="trait2"))
 
     mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
+    
+    mocker.patch("af.pipeline.db.services.get_property", return_value=analysis_formula)
 
     return analysis_request
