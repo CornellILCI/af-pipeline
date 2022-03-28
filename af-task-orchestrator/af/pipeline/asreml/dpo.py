@@ -85,7 +85,7 @@ class AsremlProcessData(ProcessData):
             # -- BA-875 --
             job_data.trait_name = trait.abbreviation
             job_data.location_name = "Multi Location"
-            
+
             for occurrence_id in self.occurrence_ids:
 
                 plots = plots_by_id[occurrence_id]
@@ -211,13 +211,13 @@ class AsremlProcessData(ProcessData):
         return job_data
 
     def _set_job_params(self, job_data, trait):
-        
+
         job_file_name = f"{job_data.job_name}.as"
-        
+
         job_data.job_file = os.path.join(job_data.job_result_dir, job_file_name)
-        
+
         job_file_lines = self._get_asreml_job_file_lines(job_data, trait)
-        
+
         with open(job_data.job_file, "w") as j_f:
             for line in job_file_lines:
                 j_f.write("{}\n".format(line))

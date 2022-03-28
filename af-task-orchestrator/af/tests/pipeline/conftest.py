@@ -28,7 +28,7 @@ def get_json_resource(testfile, json_file_name):
 
 
 def get_test_analysis_request():
-    
+
     from af.pipeline.analysis_request import AnalysisRequest, Experiment, Occurrence, Trait
 
     # output_folder = tempfile.TemporaryDirectory()
@@ -138,6 +138,7 @@ def analysis_fields():
         ),
     ]
 
+
 @pytest.fixture(scope="class")
 def analysis_fields_class(request, analysis_fields):
     request.cls.analysis_fields = analysis_fields
@@ -164,11 +165,216 @@ def analysis_request():
 
 
 @pytest.fixture
-def mesl_analysis_request(mocker, analysis_request):
+def plot_columns():
+
+    return [
+        "plot_id",
+        "expt_id",
+        "loc_id",
+        "occurr_id",
+        "entry_id",
+        "entry_name",
+        "entry_type",
+        "pa_x",
+        "pa_y",
+        "rep_factor",
+        "blk",
+        "plot_qc",
+    ]
+
+
+@pytest.fixture
+def plot_measurements_columns():
+    return ["plot_id", "trait_id", "trait_qc", "trait_value"]
+
+
+@pytest.fixture
+def mesl_plots_mock(mocker, plot_columns):
+
+    import pandas as pd
+
+    plots_stub = [
+        pd.DataFrame(
+            columns=plot_columns,
+            data=[
+                [2909, 1, 1, 1, 1, "entry_name1", "entry_type", 1, 1, 1, 1, "G"],
+                [2910, 1, 1, 1, 2, "entry_name2", "entry_type", 1, 2, 1, 1, "G"],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_columns,
+            data=[
+                [2911, 1, 2, 2, 3, "entry_name3", "entry_type", 1, 1, 1, 1, "G"],
+                [2912, 1, 2, 2, 4, "entry_nam4", "entry_type", 1, 2, 1, 1, "G"],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_columns,
+            data=[
+                [2913, 2, 1, 3, 5, "entry_name5", "entry_type", 1, 1, 1, 1, "G"],
+                [2914, 2, 1, 3, 6, "entry_name6", "entry_type", 1, 2, 1, 1, "G"],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_columns,
+            data=[
+                [2915, 2, 2, 4, 7, "entry_name7", "entry_type", 1, 1, 1, 1, "G"],
+                [2916, 2, 2, 4, 8, "entry_name8", "entry_type", 1, 2, 1, 1, "G"],
+            ],
+        ),
+    ]
+
+    plots_mock = mocker.patch(
+        "af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plots", side_effect=plots_stub
+    )
+
+    return plots_mock
+
+
+@pytest.fixture
+def mesl_plot_measurements_mock(mocker, plot_measurements_columns):
+
+    import pandas as pd
+
+    plot_measurements_stub = [
+        pd.DataFrame(
+            columns=plot_measurements_columns,
+            data=[
+                [2909, 1, "G", 6.155850575],
+                [2910, 1, "G", 6.751358238],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_measurements_columns,
+            data=[
+                [2909, 2, "G", 6.155850575],
+                [2910, 2, "G", 6.751358238],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_measurements_columns,
+            data=[
+                [2911, 1, "G", 6.155850575],
+                [2912, 1, "G", 6.751358238],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_measurements_columns,
+            data=[
+                [2911, 2, "G", 6.155850575],
+                [2912, 2, "G", 6.751358238],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_measurements_columns,
+            data=[
+                [2913, 1, "G", 6.155850575],
+                [2914, 1, "G", 6.751358238],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_measurements_columns,
+            data=[
+                [2913, 2, "G", 6.155850575],
+                [2914, 2, "G", 6.751358238],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_measurements_columns,
+            data=[
+                [2915, 1, "G", 6.155850575],
+                [2916, 1, "G", 6.751358238],
+            ],
+        ),
+        pd.DataFrame(
+            columns=plot_measurements_columns,
+            data=[
+                [2915, 2, "G", 6.155850575],
+                [2916, 2, "G", 6.751358238],
+            ],
+        ),
+    ]
+    plot_data_mock = mocker.patch(
+        "af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plot_measurements",
+        side_effect=plot_measurements_stub,
+    )
+    return plot_data_mock
+
+
+@pytest.fixture
+def mesl_occurrence_mock(mocker):
+
+    from af.pipeline.data_reader import models as dr_models
+
+    occurrence_mock = mocker.patch(
+        "af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_occurrence",
+        side_effect=[
+            dr_models.Occurrence(
+                occurrence_id=1,
+                occurrence_name="occur1",
+                experiment_id=1,
+                experiment_name="name1",
+                location_id=1,
+                location="loc1",
+            ),
+            dr_models.Occurrence(
+                occurrence_id=2,
+                occurrence_name="occur2",
+                experiment_id=1,
+                experiment_name="name1",
+                location_id=2,
+                location="loc2",
+            ),
+            dr_models.Occurrence(
+                occurrence_id=3,
+                occurrence_name="occur3",
+                experiment_id=2,
+                experiment_name="name2",
+                location_id=1,
+                location="loc1",
+            ),
+            dr_models.Occurrence(
+                occurrence_id=4,
+                occurrence_name="occur4",
+                experiment_id=2,
+                experiment_name="name2",
+                location_id=2,
+                location="loc2",
+            ),
+        ],
+    )
+
+    return occurrence_mock
+
+
+@pytest.fixture
+def mesl_trait_mock(mocker):
+
+    from af.pipeline.data_reader import models as dr_models
+
+    trait_mock = mocker.patch(
+        "af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_trait",
+        side_effect=[
+            dr_models.Trait(trait_id=1, trait_name="trait1", abbreviation="trait_abbrev_1"),
+            dr_models.Trait(trait_id=2, trait_name="trait2", abbreviation="trait_abbrev_2"),
+        ],
+    )
+
+    return mesl_trait_mock
+
+
+@pytest.fixture
+def mesl_analysis_request(
+    mocker,
+    analysis_request,
+    mesl_plots_mock,
+    mesl_plot_measurements_mock,
+    mesl_occurrence_mock,
+    mesl_trait_mock,
+    analysis_fields,
+):
+
     from af.pipeline.analysis_request import Experiment, Occurrence, Trait
-    
-    plot_mock = mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plots")
-    plot_data_mock = mocker.patch("af.pipeline.data_reader.phenotype_data_ebs.PhenotypeDataEbs.get_plot_measurements")
 
     analysis_request.experiments.append(
         Experiment(
@@ -183,5 +389,6 @@ def mesl_analysis_request(mocker, analysis_request):
 
     analysis_request.traits.append(Trait(traitId="2", traitName="trait2"))
 
-    return analysis_request, plot_mock, plot_data_mock
+    mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
 
+    return analysis_request

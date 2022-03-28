@@ -12,7 +12,6 @@ import pytest
 from conftest import get_json_resource, get_test_analysis_request
 
 
-
 def get_job_file_template():
     return (
         "!XML\n"
@@ -61,9 +60,9 @@ def get_residual():
 def get_prediction():
     return Property(statement="entry !PRESENT entry !SED !TDIFF")
 
+
 @pytest.mark.usefixtures("analysis_fields_class")
 class TestProcessData(TestCase):
-
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
     @patch("af.pipeline.db.services.get_property")

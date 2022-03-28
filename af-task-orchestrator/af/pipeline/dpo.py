@@ -26,10 +26,12 @@ from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.db.core import DBConfig
 from af.pipeline.exceptions import InvalidAnalysisRequest
 
-# from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
+
 # from af.pipeline.db.models import Property
 # from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 # from af.pipeline.pandasutil import df_keep_columns
@@ -55,7 +57,7 @@ class ProcessData(ABC):
         self.experiment_ids = []
         self.occurrence_ids = []
         self.location_ids = []
-        
+
         # extract ids from the experiment, occurrence and location ids from analysis request.
         _location_ids = set()
         for experiment in analysis_request.experiments:
@@ -67,6 +69,7 @@ class ProcessData(ABC):
         self.location_ids = sorted(_location_ids)
 
         self.trait_ids = []
+        self.trait_by_id = {}
         for trait in analysis_request.traits:
             self.trait_ids.append(trait.traitId)
 
@@ -86,6 +89,13 @@ class ProcessData(ABC):
             os.makedirs(pathlib.Path(job_folder))
 
         return job_folder
+
+    def get_trait_by_id(self, trait_id: str) -> Trait:
+
+        if trait_id not in self.trait_by_id:
+            self.trait_by_id[trait_id] = self.data_reader.get_trait(trait_id)
+
+        return self.trait_by_id[trait_id]
 
     @abstractmethod
     def sesl(self):
@@ -126,7 +136,7 @@ class ProcessData(ABC):
         Raises:
             DpoException, DataReaderException
         """
-        
+
         exptloc_analysis_pattern = services.get_property(
             self.db_session, self.analysis_request.expLocAnalysisPatternPropertyId
         )

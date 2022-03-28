@@ -10,9 +10,9 @@ from af.pipeline.sommer.dpo import SommeRProcessData
 
 # import csv
 
+
 def test_sommer_dpo_simple_test(mocker, dbsession, brapi_observation_table_api_response_1, sommer_analysis_request):
 
-    
     mocker.patch(
         "af.pipeline.data_reader.phenotype_data_brapi.PhenotypeDataBrapi.get",
         return_value=brapi_observation_table_api_response_1,
@@ -21,7 +21,7 @@ def test_sommer_dpo_simple_test(mocker, dbsession, brapi_observation_table_api_r
     mock_residual = Property(statement="~ units")
     mock_formula = Property(statement="~ mu rep !r entry !f mv")
     exp_location_analysis_pattern_stub = Property(code="SESL")
-    
+
     mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
 
     dpo = SommeRProcessData(sommer_analysis_request)
@@ -29,7 +29,6 @@ def test_sommer_dpo_simple_test(mocker, dbsession, brapi_observation_table_api_r
     output_list = dpo.run()
 
     assert isinstance(output_list, list)
-
 
     entry = output_list[0]
 
@@ -43,7 +42,6 @@ def test_create_rcov_for_sommer_settings(
     mocker, dbsession, brapi_observation_table_api_response_1, sommer_analysis_request
 ):
 
-    
     mocker.patch(
         "af.pipeline.data_reader.phenotype_data_brapi.PhenotypeDataBrapi.get",
         return_value=brapi_observation_table_api_response_1,
@@ -51,9 +49,9 @@ def test_create_rcov_for_sommer_settings(
 
     exp_location_analysis_pattern_stub = Property(code="SESL")
     mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
-    #mock_residual = Property(statement="~ units")
+    # mock_residual = Property(statement="~ units")
 
-    #mocker.patch("af.pipeline.db.services.get_property", return_value=mock_residual)
+    # mocker.patch("af.pipeline.db.services.get_property", return_value=mock_residual)
 
     dpo = SommeRProcessData(sommer_analysis_request)
     output_list = dpo.run()
@@ -69,22 +67,24 @@ def test_create_formula_for_sommer_settings(
 
     exp_location_analysis_pattern_stub = Property(code="SESL")
     mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
-    
+
     mocker.patch(
         "af.pipeline.data_reader.phenotype_data_brapi.PhenotypeDataBrapi.get",
         return_value=brapi_observation_table_api_response_1,
     )
 
-
     exp_location_analysis_pattern_stub = Property(code="SESL")
-    #mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
-    
+    # mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
+
     mock_residual = Property(statement="~ units")
     mock_formula = Property(statement="~ mu rep !r entry !f mv")
     # mock_fixed = Property(statement="<FIXED>")
     # mock_random = Property(statement="<RANDOM>")
-    mocker.patch("af.pipeline.db.services.get_property", side_effect=[exp_location_analysis_pattern_stub, mock_residual, mock_formula])
-    
+    mocker.patch(
+        "af.pipeline.db.services.get_property",
+        side_effect=[exp_location_analysis_pattern_stub, mock_residual, mock_formula],
+    )
+
     dpo = SommeRProcessData(sommer_analysis_request)
     job_objects = dpo.run()
     sf = job_objects[0].job_file

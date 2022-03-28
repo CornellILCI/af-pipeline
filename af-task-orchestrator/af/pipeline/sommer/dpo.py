@@ -82,7 +82,6 @@ class SommeRProcessData(ProcessData):
 
     def mesl(self):
         raise NotImplementedError
-    
+
     def meml(self):
         raise NotImplementedError
-
