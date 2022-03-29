@@ -277,9 +277,8 @@ class AsremlProcessData(ProcessData):
         job_file_lines.append(self._get_formuala(trait))
 
         # 8: adding residual
-        residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
-        residual_statement = residual.statement
-        job_file_lines.append(f"residual {residual.statement}")
+        residual = self._get_residual()
+        job_file_lines.append(f"residual {residual}")
 
         # 9: adding all the predictions if prediction not defined by the user.
         predictions = self._get_predictions()
@@ -302,6 +301,9 @@ class AsremlProcessData(ProcessData):
         formula_statement = formula.statement.format(trait_name=trait.abbreviation)
         return formula_statement
 
+    def _get_residual(self):
+        residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
+        return residual.statement
 
     def _get_tabulate(self):
         tabulate = services.get_analysis_config_properties(

@@ -152,6 +152,10 @@ def analysis_formula():
 def analysis_formula_class(request, analysis_formula):
     request.cls.analysis_formula = analysis_formula
 
+@pytest.fixture(scope="class")
+def analysis_residual():
+    return Property(statement="ar1(row).ar1(col)")
+
 @pytest.fixture
 def sommer_analysis_request():
 
@@ -380,7 +384,8 @@ def mesl_analysis_request(
     mesl_occurrence_mock,
     mesl_trait_mock,
     analysis_fields,
-    analysis_formula
+    analysis_formula,
+    analysis_residual
 ):
 
     from af.pipeline.analysis_request import Experiment, Occurrence, Trait
@@ -400,6 +405,7 @@ def mesl_analysis_request(
 
     mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
     
-    mocker.patch("af.pipeline.db.services.get_property", return_value=analysis_formula)
+    get_property_stubs = [analysis_formula, analysis_residual]*4
+    mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
 
     return analysis_request

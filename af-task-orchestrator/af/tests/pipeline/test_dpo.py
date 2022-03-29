@@ -457,3 +457,4 @@ class TestProcessData(TestCase):
         with open(results[0].data_file) as data_f_:
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_1_contents)
+

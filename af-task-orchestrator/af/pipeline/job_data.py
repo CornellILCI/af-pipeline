@@ -6,6 +6,7 @@ from af.pipeline.data_reader.models import Occurrence  # noqa: E402; noqa: E402
 class JobParams:
 
     formula: str = None
+    residual:str = None
 
 @dataclass
 class JobData:

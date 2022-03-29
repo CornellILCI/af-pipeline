@@ -2,6 +2,7 @@ from af.pipeline.job_data import JobData
 from af.pipeline.db.models import Property
 
 from af.pipeline.asreml_r import dpo
+from af.pipeline.db.models import Property
 
 import pytest
 from unittest.mock import call
@@ -176,7 +177,7 @@ def test_mesl_job_data_file(mesl_analysis_request):
             assert file_content == expected_data_file_content
 
 
-def test_mesl_formula_added_to_job_params(analysis_formula, mesl_analysis_request):
+def test_mesl_formula_added_to_job_params(mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
@@ -191,3 +192,13 @@ def test_mesl_formula_added_to_job_params(analysis_formula, mesl_analysis_reques
 
     for i in range(len(jobs)):
         assert jobs[i].job_params.formula == expected_analysis_formuals[i]
+
+
+def test_mesl_residual_added_to_job_params(mocker, mesl_analysis_request):
+
+    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    
+    jobs = asreml_r_dpo.mesl()
+
+    for job in jobs:
+        assert job.job_params.residual == "ar1(row).ar1(col)"
