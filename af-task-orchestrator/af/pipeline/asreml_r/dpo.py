@@ -1,9 +1,8 @@
-from af.pipeline.job_data import JobData, JobParams
-from af.pipeline.asreml.dpo import AsremlProcessData
-
 from collections import defaultdict
 
 import pandas as pd
+from af.pipeline.asreml.dpo import AsremlProcessData
+from af.pipeline.job_data import JobData, JobParams
 
 
 class AsremlRProcessData(AsremlProcessData):
@@ -11,7 +10,7 @@ class AsremlRProcessData(AsremlProcessData):
         super().__init__(analysis_request)
 
     def mesl(self):
-        
+
         jobs = []
 
         # read plot for each occurrence and plot measurements for occurrence and trait
@@ -21,7 +20,7 @@ class AsremlRProcessData(AsremlProcessData):
 
             for trait_id in self.trait_ids:
 
-                job_name = self.__get_job_name(location_id, trait_id) 
+                job_name = self.__get_job_name(location_id, trait_id)
 
                 job_data = JobData(job_name=job_name, metadata_file=self.get_meta_data_file_path(job_name))
 
@@ -48,9 +47,9 @@ class AsremlRProcessData(AsremlProcessData):
             occurrence = self.data_reader.get_occurrence(occurr_id)
 
             for trait_id in self.trait_ids:
-                
+
                 job_name = self.__get_job_name(occurrence.location_id, trait_id)
-                
+
                 trait = self.get_trait_by_id(trait_id)
                 self._save_metadata(job_name, plots, occurrence, trait)
 
@@ -70,7 +69,7 @@ class AsremlRProcessData(AsremlProcessData):
     def _set_job_params(self, job_data, trait):
 
         job_params = JobParams(formula=self._get_formuala(trait), residual=self._get_residual(), predictions=[])
-        
+
         predictions = self._get_predictions()
 
         for prediction in predictions:

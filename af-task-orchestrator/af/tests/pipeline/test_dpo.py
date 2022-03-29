@@ -2,12 +2,11 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+import pytest
 from af.pipeline.asreml import dpo
 from af.pipeline.data_reader.models import Occurrence, Trait
 from af.pipeline.db.models import Property
 from pandas import DataFrame
-
-import pytest
 
 from conftest import get_json_resource, get_test_analysis_request
 
@@ -44,12 +43,14 @@ def get_asreml_option():
         )
     ]
 
+
 def get_tabulate():
     return [Property(statement="{trait_name} ~ entry")]
 
 
-
-@pytest.mark.usefixtures("analysis_fields_class", "analysis_formula_class", "analysis_residual_class", "analysis_prediction_class")
+@pytest.mark.usefixtures(
+    "analysis_fields_class", "analysis_formula_class", "analysis_residual_class", "analysis_prediction_class"
+)
 class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
@@ -152,7 +153,12 @@ class TestProcessData(TestCase):
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         exploc_analysis_pattern.code = "SEML"
 
-        mock_get_property.side_effect = [exploc_analysis_pattern, self.analysis_formula, self.analysis_residual, self.analysis_prediction]
+        mock_get_property.side_effect = [
+            exploc_analysis_pattern,
+            self.analysis_formula,
+            self.analysis_residual,
+            self.analysis_prediction,
+        ]
         mock_get_analysis_fields.return_value = self.analysis_fields
         mock_get_analysis_config_properties.side_effect = [get_asreml_option(), get_tabulate()]
 
@@ -448,4 +454,3 @@ class TestProcessData(TestCase):
         with open(results[0].data_file) as data_f_:
             data_file_contents = data_f_.read()
             self.assertEqual(data_file_contents, expected_data_file_1_contents)
-

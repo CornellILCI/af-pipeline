@@ -3,11 +3,9 @@
 import argparse
 import json
 import os
-
 # import pathlib
 import sys
 from abc import ABC, abstractmethod
-
 # from collections import OrderedDict
 from os import path
 
@@ -23,14 +21,12 @@ import pathlib
 # from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
-from af.pipeline.db.core import DBConfig
-from af.pipeline.exceptions import InvalidAnalysisRequest
-
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
-
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
+from af.pipeline.db.core import DBConfig
+from af.pipeline.exceptions import InvalidAnalysisRequest
 
 # from af.pipeline.db.models import Property
 # from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
@@ -95,7 +91,6 @@ class ProcessData(ABC):
         job_folder = self.get_job_folder(job_name)
 
         return os.path.join(job_folder, "metadata.tsv")
-        
 
     def get_trait_by_id(self, trait_id: str) -> Trait:
 

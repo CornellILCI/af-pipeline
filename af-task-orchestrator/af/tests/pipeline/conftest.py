@@ -1,14 +1,12 @@
 import json
 import os
-
 # hacky importing since we need to declare these before we import Base
 # since core.py directly declares the vars
 import tempfile
 
 import pytest
-from pandas import DataFrame
-
 from af.pipeline.db.models import Property
+from pandas import DataFrame
 
 # fixtures import area
 
@@ -91,11 +89,13 @@ def get_test_plot_measurements() -> DataFrame:
     ]
     return DataFrame(data, columns=columns)
 
+
 @pytest.fixture
 def result_dir(tmpdir_factory):
 
     result_dir = tmpdir_factory.mktemp("data")
     return str(result_dir)
+
 
 @pytest.fixture(scope="class")
 def analysis_fields():
@@ -148,30 +148,37 @@ def analysis_fields():
 def analysis_fields_class(request, analysis_fields):
     request.cls.analysis_fields = analysis_fields
 
+
 @pytest.fixture(scope="class")
 def analysis_formula():
     analysis_formula = Property(statement="{trait_name} ~ mu rep !r entry !f mv")
     return analysis_formula
 
+
 @pytest.fixture(scope="class")
 def analysis_formula_class(request, analysis_formula):
     request.cls.analysis_formula = analysis_formula
+
 
 @pytest.fixture(scope="class")
 def analysis_residual():
     return Property(statement="ar1(row).ar1(col)")
 
+
 @pytest.fixture(scope="class")
 def analysis_residual_class(request, analysis_residual):
     request.cls.analysis_residual = analysis_residual
+
 
 @pytest.fixture(scope="class")
 def analysis_prediction():
     return Property(statement="entry !PRESENT entry !SED !TDIFF")
 
+
 @pytest.fixture(scope="class")
 def analysis_prediction_class(request, analysis_prediction):
     request.cls.analysis_prediction = analysis_prediction
+
 
 @pytest.fixture
 def sommer_analysis_request():
@@ -404,7 +411,7 @@ def mesl_analysis_request(
     analysis_formula,
     analysis_residual,
     analysis_prediction,
-    result_dir
+    result_dir,
 ):
 
     from af.pipeline.analysis_request import Experiment, Occurrence, Trait
@@ -426,8 +433,7 @@ def mesl_analysis_request(
 
     mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
 
-    get_property_stubs = [analysis_formula, analysis_residual, analysis_prediction]*4
+    get_property_stubs = [analysis_formula, analysis_residual, analysis_prediction] * 4
     mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
-
 
     return analysis_request

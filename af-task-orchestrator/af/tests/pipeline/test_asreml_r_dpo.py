@@ -1,13 +1,10 @@
-from af.pipeline.job_data import JobData
-from af.pipeline.db.models import Property
-
-from af.pipeline.asreml_r import dpo
-from af.pipeline.db.models import Property
-
-import pytest
 from unittest.mock import call
 
 import pandas as pd
+import pytest
+from af.pipeline.asreml_r import dpo
+from af.pipeline.db.models import Property
+from af.pipeline.job_data import JobData
 
 
 def test_dpo_run_for_mesl_method_called(mocker, analysis_request):
@@ -213,6 +210,7 @@ def test_mesl_prediction_added_to_job_params(analysis_prediction, mesl_analysis_
     for job in jobs:
         assert analysis_prediction.statement in job.job_params.predictions
 
+
 def test_mesl_metadata_file_created(mesl_analysis_request):
 
     import os
@@ -222,6 +220,7 @@ def test_mesl_metadata_file_created(mesl_analysis_request):
     jobs = asreml_r_dpo.mesl()
     for job in jobs:
         assert os.path.isfile(job.metadata_file)
+
 
 def test_mesl_metadata_file(mesl_analysis_request):
 
@@ -267,4 +266,3 @@ def test_mesl_metadata_file(mesl_analysis_request):
             file_content = data_f_.read()
 
             assert file_content == expected_metadata[i]
-
