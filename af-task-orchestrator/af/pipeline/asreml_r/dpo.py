@@ -21,7 +21,9 @@ class AsremlRProcessData(AsremlProcessData):
 
             for trait_id in self.trait_ids:
 
-                job_data = JobData(job_name=f"{self.analysis_request.requestId}_mesl_{location_id}_{trait_id}")
+                job_name = self.__get_job_name(location_id, trait_id) 
+
+                job_data = JobData(job_name=job_name, metadata_file=self.get_meta_data_file_path(job_name))
 
                 trait = self.get_trait_by_id(trait_id)
 
@@ -46,6 +48,11 @@ class AsremlRProcessData(AsremlProcessData):
             occurrence = self.data_reader.get_occurrence(occurr_id)
 
             for trait_id in self.trait_ids:
+                
+                job_name = self.__get_job_name(occurrence.location_id, trait_id)
+                
+                trait = self.get_trait_by_id(trait_id)
+                self._save_metadata(job_name, plots, occurrence, trait)
 
                 plot_measurements = self.data_reader.get_plot_measurements(occurrence_id=occurr_id, trait_id=trait_id)
 
@@ -56,6 +63,9 @@ class AsremlRProcessData(AsremlProcessData):
                 ].append(_data)
 
         return data_by_trait_location
+
+    def __get_job_name(self, location_id, trait_id):
+        return f"{self.analysis_request.requestId}_mesl_{location_id}_{trait_id}"
 
     def _set_job_params(self, job_data, trait):
 

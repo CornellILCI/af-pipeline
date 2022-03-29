@@ -90,6 +90,13 @@ class ProcessData(ABC):
 
         return job_folder
 
+    def get_meta_data_file_path(self, job_name: str) -> str:
+
+        job_folder = self.get_job_folder(job_name)
+
+        return os.path.join(job_folder, "metadata.tsv")
+        
+
     def get_trait_by_id(self, trait_id: str) -> Trait:
 
         if trait_id not in self.trait_by_id:

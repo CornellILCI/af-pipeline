@@ -91,7 +91,7 @@ def get_test_plot_measurements() -> DataFrame:
     ]
     return DataFrame(data, columns=columns)
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def result_dir(tmpdir_factory):
 
     result_dir = tmpdir_factory.mktemp("data")
@@ -234,7 +234,7 @@ def mesl_plots_mock(mocker, plot_columns):
             columns=plot_columns,
             data=[
                 [2911, 1, 2, 2, 3, "entry_name3", "entry_type", 1, 1, 1, 1, "G"],
-                [2912, 1, 2, 2, 4, "entry_nam4", "entry_type", 1, 2, 1, 1, "G"],
+                [2912, 1, 2, 2, 4, "entry_name4", "entry_type", 1, 2, 1, 1, "G"],
             ],
         ),
         pd.DataFrame(

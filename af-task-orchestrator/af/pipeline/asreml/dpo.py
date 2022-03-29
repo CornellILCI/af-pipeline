@@ -37,9 +37,7 @@ class AsremlProcessData(ProcessData):
         metadata_df["location_id"] = occurrence.location_id
         metadata_df["trait_abbreviation"] = trait.abbreviation
 
-        job_folder = self.get_job_folder(job_name)
-
-        metadata_file_path = os.path.join(job_folder, "metadata.tsv")
+        metadata_file_path = self.get_meta_data_file_path(job_name)
 
         to_csv_kwargs = {"sep": "\t", "index": False}
 
