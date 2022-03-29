@@ -91,6 +91,11 @@ def get_test_plot_measurements() -> DataFrame:
     ]
     return DataFrame(data, columns=columns)
 
+@pytest.fixture(scope="session")
+def result_dir(tmpdir_factory):
+
+    result_dir = tmpdir_factory.mktemp("data")
+    return str(result_dir)
 
 @pytest.fixture(scope="class")
 def analysis_fields():
@@ -155,6 +160,18 @@ def analysis_formula_class(request, analysis_formula):
 @pytest.fixture(scope="class")
 def analysis_residual():
     return Property(statement="ar1(row).ar1(col)")
+
+@pytest.fixture(scope="class")
+def analysis_residual_class(request, analysis_residual):
+    request.cls.analysis_residual = analysis_residual
+
+@pytest.fixture(scope="class")
+def analysis_prediction():
+    return Property(statement="entry !PRESENT entry !SED !TDIFF")
+
+@pytest.fixture(scope="class")
+def analysis_prediction_class(request, analysis_prediction):
+    request.cls.analysis_prediction = analysis_prediction
 
 @pytest.fixture
 def sommer_analysis_request():
@@ -385,7 +402,9 @@ def mesl_analysis_request(
     mesl_trait_mock,
     analysis_fields,
     analysis_formula,
-    analysis_residual
+    analysis_residual,
+    analysis_prediction,
+    result_dir
 ):
 
     from af.pipeline.analysis_request import Experiment, Occurrence, Trait
@@ -403,9 +422,12 @@ def mesl_analysis_request(
 
     analysis_request.traits.append(Trait(traitId="2", traitName="trait2"))
 
+    analysis_request.outputFolder = result_dir
+
     mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
-    
-    get_property_stubs = [analysis_formula, analysis_residual]*4
+
+    get_property_stubs = [analysis_formula, analysis_residual, analysis_prediction]*4
     mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
+
 
     return analysis_request

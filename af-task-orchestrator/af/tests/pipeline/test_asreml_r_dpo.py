@@ -194,11 +194,21 @@ def test_mesl_formula_added_to_job_params(mesl_analysis_request):
         assert jobs[i].job_params.formula == expected_analysis_formuals[i]
 
 
-def test_mesl_residual_added_to_job_params(mocker, mesl_analysis_request):
+def test_mesl_residual_added_to_job_params(analysis_residual, mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
-    
+
     jobs = asreml_r_dpo.mesl()
 
     for job in jobs:
-        assert job.job_params.residual == "ar1(row).ar1(col)"
+        assert job.job_params.residual == analysis_residual.statement
+
+
+def test_mesl_prediction_added_to_job_params(analysis_prediction, mesl_analysis_request):
+
+    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+
+    jobs = asreml_r_dpo.mesl()
+
+    for job in jobs:
+        assert analysis_prediction.statement in job.job_params.predictions

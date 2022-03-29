@@ -11,7 +11,7 @@ class AsremlRProcessData(AsremlProcessData):
         super().__init__(analysis_request)
 
     def mesl(self):
-
+        
         jobs = []
 
         # read plot for each occurrence and plot measurements for occurrence and trait
@@ -59,6 +59,11 @@ class AsremlRProcessData(AsremlProcessData):
 
     def _set_job_params(self, job_data, trait):
 
-        job_params = JobParams(formula=self._get_formuala(trait), residual=self._get_residual())
+        job_params = JobParams(formula=self._get_formuala(trait), residual=self._get_residual(), predictions=[])
+        
+        predictions = self._get_predictions()
+
+        for prediction in predictions:
+            job_params.predictions.append(prediction.statement)
 
         job_data.job_params = job_params

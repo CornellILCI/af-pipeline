@@ -44,21 +44,12 @@ def get_asreml_option():
         )
     ]
 
-
 def get_tabulate():
     return [Property(statement="{trait_name} ~ entry")]
 
 
 
-def get_residual():
-    return Property(statement="ar1(row).ar1(col)")
-
-
-def get_prediction():
-    return Property(statement="entry !PRESENT entry !SED !TDIFF")
-
-
-@pytest.mark.usefixtures("analysis_fields_class", "analysis_formula_class")
+@pytest.mark.usefixtures("analysis_fields_class", "analysis_formula_class", "analysis_residual_class", "analysis_prediction_class")
 class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
@@ -161,7 +152,7 @@ class TestProcessData(TestCase):
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         exploc_analysis_pattern.code = "SEML"
 
-        mock_get_property.side_effect = [exploc_analysis_pattern, self.analysis_formula, get_residual(), get_prediction()]
+        mock_get_property.side_effect = [exploc_analysis_pattern, self.analysis_formula, self.analysis_residual, self.analysis_prediction]
         mock_get_analysis_fields.return_value = self.analysis_fields
         mock_get_analysis_config_properties.side_effect = [get_asreml_option(), get_tabulate()]
 
@@ -317,11 +308,11 @@ class TestProcessData(TestCase):
         mock_get_property.side_effect = [
             exploc_analysis_pattern,
             self.analysis_formula,
-            get_residual(),
-            get_prediction(),
+            self.analysis_residual,
+            self.analysis_prediction,
             self.analysis_formula,
-            get_residual(),
-            get_prediction(),
+            self.analysis_residual,
+            self.analysis_prediction,
         ]
         mock_get_analysis_fields.return_value = self.analysis_fields
         mock_get_analysis_config_properties.side_effect = [
@@ -437,11 +428,11 @@ class TestProcessData(TestCase):
         mock_get_property.side_effect = [
             exploc_analysis_pattern,
             self.analysis_formula,
-            get_residual(),
-            get_prediction(),
+            self.analysis_residual,
+            self.analysis_prediction,
             self.analysis_formula,
-            get_residual(),
-            get_prediction(),
+            self.analysis_residual,
+            self.analysis_prediction,
         ]
         mock_get_analysis_fields.return_value = self.analysis_fields
         mock_get_analysis_config_properties.side_effect = [

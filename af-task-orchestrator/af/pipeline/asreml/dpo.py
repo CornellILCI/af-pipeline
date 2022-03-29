@@ -263,7 +263,7 @@ class AsremlProcessData(ProcessData):
         # 4: adding trait name
         job_file_lines.append(trait.abbreviation)
 
-        # 5: adding otpions
+        # 5: adding options
         asreml_option = self._get_asreml_option()
         options_line = f"{job_data.data_file} {asreml_option.statement}"
         job_file_lines.append(options_line)
