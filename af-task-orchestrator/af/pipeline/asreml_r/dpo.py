@@ -35,6 +35,13 @@ class AsremlRProcessData(AsremlProcessData):
                 jobs.append(job_data)
 
         return jobs
+    
+    def meml(self):
+
+        jobs = [JobData()]
+        
+        return jobs
+        
 
     def __get_data_by_trait_and_location(self):
 

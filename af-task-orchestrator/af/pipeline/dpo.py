@@ -151,6 +151,8 @@ class ProcessData(ABC):
             job_inputs_gen = self.seml()
         elif exptloc_analysis_pattern.code == "MESL":
             job_inputs_gen = self.mesl()
+        elif exptloc_analysis_pattern.code == "MEML":
+            job_inputs_gen = self.meml()
         else:
             raise DpoException(f"Analysis pattern value: {exptloc_analysis_pattern} is invalid")
 

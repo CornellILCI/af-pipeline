@@ -201,6 +201,21 @@ def analysis_request():
 
 
 @pytest.fixture
+def mesl_analysis_pattern(mocker):
+    exp_location_analysis_pattern_stub = Property(code="MESL")
+    _mock = mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
+    return _mock
+
+@pytest.fixture
+def meml_analysis_pattern(mocker):
+
+    exp_location_analysis_pattern_stub = Property(code="MEML")
+    _mock = mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
+    return _mock
+
+    
+
+@pytest.fixture
 def plot_columns():
 
     return [
@@ -398,21 +413,8 @@ def mesl_trait_mock(mocker):
 
     return mesl_trait_mock
 
-
 @pytest.fixture
-def mesl_analysis_request(
-    mocker,
-    analysis_request,
-    mesl_plots_mock,
-    mesl_plot_measurements_mock,
-    mesl_occurrence_mock,
-    mesl_trait_mock,
-    analysis_fields,
-    analysis_formula,
-    analysis_residual,
-    analysis_prediction,
-    result_dir,
-):
+def me_analysis_request(analysis_request, result_dir):
 
     from af.pipeline.analysis_request import Experiment, Occurrence, Trait
 
@@ -431,9 +433,38 @@ def mesl_analysis_request(
 
     analysis_request.outputFolder = result_dir
 
+    return analysis_request
+
+
+@pytest.fixture
+def mesl_analysis_request(
+    mocker,
+    me_analysis_request,
+    mesl_plots_mock,
+    mesl_plot_measurements_mock,
+    mesl_occurrence_mock,
+    mesl_trait_mock,
+    analysis_fields,
+    analysis_formula,
+    analysis_residual,
+    analysis_prediction,
+):
+
     mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
 
-    get_property_stubs = [analysis_formula, analysis_residual, analysis_prediction] * 4
+    get_property_stubs = [Property(code="MESL")]
+    get_property_stubs.extend([analysis_formula, analysis_residual, analysis_prediction] * 4)
     mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
 
-    return analysis_request
+    return me_analysis_request
+
+@pytest.fixture
+def meml_analysis_request(
+    mocker,
+    me_analysis_request):
+    
+    get_property_stubs = [Property(code="MEML")]
+    mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
+    
+    return me_analysis_request
+

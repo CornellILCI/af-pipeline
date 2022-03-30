@@ -7,31 +7,39 @@ from af.pipeline.db.models import Property
 from af.pipeline.job_data import JobData
 
 
-def test_dpo_run_for_mesl_method_called(mocker, analysis_request):
-
-    exp_location_analysis_pattern_stub = Property(code="MESL")
-    mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
+@pytest.mark.parametrize(
+    "pattern, method_to_run",
+    [
+        (pytest.lazy_fixture("mesl_analysis_pattern"), "af.pipeline.asreml_r.dpo.AsremlRProcessData.mesl"),
+        (pytest.lazy_fixture("meml_analysis_pattern"), "af.pipeline.asreml_r.dpo.AsremlRProcessData.meml"),
+    ],
+)
+def test_dpo_run_correct_analysis_pattern_called(mocker, analysis_request, pattern, method_to_run):
 
     asreml_r_dpo = dpo.AsremlRProcessData(analysis_request)
 
-    mocker.patch("af.pipeline.asreml_r.dpo.AsremlRProcessData.mesl")
+    _mock = mocker.patch(method_to_run)
 
     jobs = asreml_r_dpo.run()
 
-    asreml_r_dpo.mesl.assert_called_once()
+    _mock.assert_called_once()
 
 
-def test_dpo_run_returns_jobs(mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request",
+    [pytest.lazy_fixture("mesl_analysis_request"), pytest.lazy_fixture("meml_analysis_request")],
+)
+def test_dpo_returns_jobs(_analysis_request):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
-    jobs = asreml_r_dpo.mesl()
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
+    jobs = asreml_r_dpo.run()
     assert len(jobs) > 0
 
 
 def test_dpo_run_returns_job_list(mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
     for job in jobs:
         assert type(job) is JobData
 
@@ -40,7 +48,7 @@ def test_dpo_run_for_mesl_num_jobs(mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
 
     # expected_num_jobs = num_locations * num_traits
     assert len(jobs) == 4
@@ -50,7 +58,7 @@ def test_job_names(mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
 
     expected_job_names = ["test_id_mesl_1_1", "test_id_mesl_1_2", "test_id_mesl_2_1", "test_id_mesl_2_2"]
 
@@ -62,7 +70,7 @@ def test_plots_are_extracted_for_each_occurrence(mesl_plots_mock, mesl_analysis_
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    asreml_r_dpo.mesl()
+    asreml_r_dpo.run()
 
     assert mesl_plots_mock.call_count == 4
 
@@ -71,7 +79,7 @@ def test_plots_are_extracted_with_right_parameters(mesl_plots_mock, mesl_analysi
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    asreml_r_dpo.mesl()
+    asreml_r_dpo.run()
 
     # 4 occurrences in the mesl analysis request
     mesl_plots_mock.assert_has_calls(
@@ -88,7 +96,7 @@ def test_plot_measurements_are_extracted_for_each_trait(mesl_plot_measurements_m
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    asreml_r_dpo.mesl()
+    asreml_r_dpo.run()
 
     assert mesl_plot_measurements_mock.call_count == 8
 
@@ -97,7 +105,7 @@ def test_plot_measurements_are_extracted_with_right_parameters(mesl_plot_measure
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    asreml_r_dpo.mesl()
+    asreml_r_dpo.run()
 
     # 4 occurrences in the mesl analysis request
     mesl_plot_measurements_mock.assert_has_calls(
@@ -121,7 +129,7 @@ def test_data_file_exisits(mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
     for job in jobs:
         assert os.path.isfile(job.data_file)
 
@@ -161,7 +169,7 @@ def test_mesl_job_data_file(mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
 
     for i in range(len(jobs)):
 
@@ -178,7 +186,7 @@ def test_mesl_formula_added_to_job_params(mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
 
     expected_analysis_formuals = [
         "trait_abbrev_1 ~ mu rep !r entry !f mv",
@@ -195,7 +203,7 @@ def test_mesl_residual_added_to_job_params(analysis_residual, mesl_analysis_requ
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
 
     for job in jobs:
         assert job.job_params.residual == analysis_residual.statement
@@ -205,7 +213,7 @@ def test_mesl_prediction_added_to_job_params(analysis_prediction, mesl_analysis_
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
 
     for job in jobs:
         assert analysis_prediction.statement in job.job_params.predictions
@@ -217,7 +225,7 @@ def test_mesl_metadata_file_created(mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
     for job in jobs:
         assert os.path.isfile(job.metadata_file)
 
@@ -257,7 +265,7 @@ def test_mesl_metadata_file(mesl_analysis_request):
 
     asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
 
-    jobs = asreml_r_dpo.mesl()
+    jobs = asreml_r_dpo.run()
 
     for i in range(len(jobs)):
 
