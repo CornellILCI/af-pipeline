@@ -14,10 +14,14 @@ class AsremlRProcessData(AsremlProcessData):
         jobs = []
 
         data_by_location_trait = collections.defaultdict(pd.DataFrame)
+        metadata_by_location_trait = collections.defaultdict(pd.DataFrame)
 
-        for data, occurrence, trait in self.__get_analysis_data():
+        for data, metadata, occurrence, trait in self.__get_analysis_data():
+
             location_trait = (str(occurrence.location_id), str(trait.trait_id))
+
             data_by_location_trait[location_trait] = data_by_location_trait[location_trait].append(data)
+            metadata_by_location_trait[location_trait] = metadata_by_location_trait[location_trait].append(metadata)
 
         for location_id in self.location_ids:
 
@@ -25,7 +29,10 @@ class AsremlRProcessData(AsremlProcessData):
 
                 job_name = self.__get_mesl_job_name(location_id, trait_id)
 
-                job_data = JobData(job_name=job_name, metadata_file=self.get_meta_data_file_path(job_name))
+                job_data = JobData(job_name=job_name)
+
+                metadata = metadata_by_location_trait[(location_id, trait_id)]
+                job_data.metadata_file = self._save_metadata(job_name, metadata)
 
                 trait = self.get_trait_by_id(trait_id)
 
@@ -44,15 +51,20 @@ class AsremlRProcessData(AsremlProcessData):
         jobs = []
 
         data_by_trait = collections.defaultdict(pd.DataFrame)
+        metadata_by_trait = collections.defaultdict(pd.DataFrame)
 
-        for data, occurrence, trait in self.__get_analysis_data():
+        for data, metadata, occurrence, trait in self.__get_analysis_data():
             data_by_trait[str(trait.trait_id)] = data_by_trait[str(trait.trait_id)].append(data)
+            metadata_by_trait[str(trait.trait_id)] = metadata_by_trait[str(trait.trait_id)].append(metadata)
 
         for trait_id in self.trait_ids:
 
             job_name = self.__get_meml_job_name(trait_id)
 
-            job_data = JobData(job_name=self.__get_meml_job_name(trait_id))
+            job_data = JobData(job_name=job_name)
+
+            metadata = metadata_by_trait[trait_id]
+            job_data.metadata_file = self._save_metadata(job_name, metadata)
 
             trait = self.get_trait_by_id(trait_id)
 
@@ -79,13 +91,13 @@ class AsremlRProcessData(AsremlProcessData):
                 job_name = self.__get_mesl_job_name(occurrence.location_id, trait_id)
 
                 trait = self.get_trait_by_id(trait_id)
-                self._save_metadata(job_name, plots, occurrence, trait)
+                metadata = self._generate_metadata(plots, occurrence, trait)
 
                 plot_measurements = self.data_reader.get_plot_measurements(occurrence_id=occurr_id, trait_id=trait_id)
 
-                _data = plots.merge(plot_measurements, on="plot_id", how="left")
+                data = plots.merge(plot_measurements, on="plot_id", how="left")
 
-                yield _data, occurrence, trait
+                yield data, metadata, occurrence, trait
 
     def __get_mesl_job_name(self, location_id, trait_id):
         return f"{self.analysis_request.requestId}_mesl_{location_id}_{trait_id}"

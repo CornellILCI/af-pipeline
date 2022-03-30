@@ -26,16 +26,7 @@ class AsremlProcessData(ProcessData):
             traits.append(trait)
         return traits
 
-    def _save_metadata(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait: Trait):
-
-        metadata_columns = ["entry_id", "entry_name", "entry_type"]
-        metadata_df = plots.loc[:, metadata_columns]  # get a copy, not a view
-
-        metadata_df["experiment_id"] = occurrence.experiment_id
-        metadata_df["experiment_name"] = occurrence.experiment_name
-        metadata_df["location_name"] = occurrence.location
-        metadata_df["location_id"] = occurrence.location_id
-        metadata_df["trait_abbreviation"] = trait.abbreviation
+    def _save_metadata(self, job_name, metadata):
 
         metadata_file_path = self.get_meta_data_file_path(job_name)
 
@@ -44,9 +35,22 @@ class AsremlProcessData(ProcessData):
         if os.path.isfile(metadata_file_path):
             to_csv_kwargs.update({"header": False, "mode": "a"})
 
-        metadata_df.to_csv(metadata_file_path, **to_csv_kwargs)
+        metadata.to_csv(metadata_file_path, **to_csv_kwargs)
 
         return metadata_file_path
+
+    def _generate_metadata(self, plots, occurrence, trait):
+
+        metadata_columns = ["entry_id", "entry_name", "entry_type"]
+        metadata = plots.loc[:, metadata_columns]  # get a copy, not a view
+
+        metadata["experiment_id"] = occurrence.experiment_id
+        metadata["experiment_name"] = occurrence.experiment_name
+        metadata["location_name"] = occurrence.location
+        metadata["location_id"] = occurrence.location_id
+        metadata["trait_abbreviation"] = trait.abbreviation
+
+        return metadata
 
     def seml(self):
         """For Single Experiment Single Location
@@ -94,7 +98,8 @@ class AsremlProcessData(ProcessData):
                     job_data.location_name = occurrence.location
 
                 # save metadata in plots
-                job_data.metadata_file = self._save_metadata(job_name, plots, occurrence, trait)
+                metadata = self._generate_metadata(plots, occurrence, trait)
+                job_data.metadata_file = self._save_metadata(job_name, metadata)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
@@ -144,7 +149,8 @@ class AsremlProcessData(ProcessData):
                 job_data.location_name = occurrence.location
 
                 # save metadata in plots
-                job_data.metadata_file = self._save_metadata(job_name, plots, occurrence, trait)
+                metadata = self._generate_metadata(plots, occurrence, trait)
+                job_data.metadata_file = self._save_metadata(job_name, metadata)
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 

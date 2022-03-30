@@ -300,9 +300,16 @@ def test_residual_added_to_job_params(_analysis_request, analysis_residual):
         assert job.job_params.residual == analysis_residual.statement
 
 
-def test_mesl_prediction_added_to_job_params(analysis_prediction, mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request",
+    [
+        pytest.lazy_fixture("mesl_analysis_request"),
+        pytest.lazy_fixture("meml_analysis_request"),
+    ],
+)
+def test_mesl_prediction_added_to_job_params(_analysis_request, analysis_prediction):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     jobs = asreml_r_dpo.run()
 
@@ -310,51 +317,93 @@ def test_mesl_prediction_added_to_job_params(analysis_prediction, mesl_analysis_
         assert analysis_prediction.statement in job.job_params.predictions
 
 
-def test_mesl_metadata_file_created(mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request",
+    [
+        pytest.lazy_fixture("mesl_analysis_request"),
+        pytest.lazy_fixture("meml_analysis_request"),
+    ],
+)
+def test_mesl_metadata_file_created(_analysis_request):
 
     import os
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     jobs = asreml_r_dpo.run()
+
     for job in jobs:
         assert os.path.isfile(job.metadata_file)
 
 
-def test_mesl_metadata_file(mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request, expected_metadata",
+    [
+        (
+            pytest.lazy_fixture("mesl_analysis_request"),
+            [
+                (
+                    "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
+                    "1\tentry_name1\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_1\n"
+                    "2\tentry_name2\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_1\n"
+                    "5\tentry_name5\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_1\n"
+                    "6\tentry_name6\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_1\n"
+                ),
+                (
+                    "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
+                    "1\tentry_name1\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_2\n"
+                    "2\tentry_name2\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_2\n"
+                    "5\tentry_name5\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_2\n"
+                    "6\tentry_name6\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_2\n"
+                ),
+                (
+                    "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
+                    "3\tentry_name3\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_1\n"
+                    "4\tentry_name4\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_1\n"
+                    "7\tentry_name7\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_1\n"
+                    "8\tentry_name8\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_1\n"
+                ),
+                (
+                    "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
+                    "3\tentry_name3\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_2\n"
+                    "4\tentry_name4\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_2\n"
+                    "7\tentry_name7\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_2\n"
+                    "8\tentry_name8\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_2\n"
+                ),
+            ],
+        ),
+        (
+            pytest.lazy_fixture("meml_analysis_request"),
+            [
+                (
+                    "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
+                    "1\tentry_name1\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_1\n"
+                    "2\tentry_name2\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_1\n"
+                    "3\tentry_name3\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_1\n"
+                    "4\tentry_name4\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_1\n"
+                    "5\tentry_name5\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_1\n"
+                    "6\tentry_name6\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_1\n"
+                    "7\tentry_name7\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_1\n"
+                    "8\tentry_name8\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_1\n"
+                ),
+                (
+                    "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
+                    "1\tentry_name1\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_2\n"
+                    "2\tentry_name2\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_2\n"
+                    "3\tentry_name3\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_2\n"
+                    "4\tentry_name4\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_2\n"
+                    "5\tentry_name5\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_2\n"
+                    "6\tentry_name6\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_2\n"
+                    "7\tentry_name7\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_2\n"
+                    "8\tentry_name8\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_2\n"
+                ),
+            ],
+        ),
+    ],
+)
+def test_mesl_metadata_file(_analysis_request, expected_metadata):
 
-    expected_metadata = [
-        (
-            "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
-            "1\tentry_name1\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_1\n"
-            "2\tentry_name2\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_1\n"
-            "5\tentry_name5\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_1\n"
-            "6\tentry_name6\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_1\n"
-        ),
-        (
-            "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
-            "1\tentry_name1\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_2\n"
-            "2\tentry_name2\tentry_type\t1\tname1\tloc1\t1\ttrait_abbrev_2\n"
-            "5\tentry_name5\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_2\n"
-            "6\tentry_name6\tentry_type\t2\tname2\tloc1\t1\ttrait_abbrev_2\n"
-        ),
-        (
-            "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
-            "3\tentry_name3\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_1\n"
-            "4\tentry_name4\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_1\n"
-            "7\tentry_name7\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_1\n"
-            "8\tentry_name8\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_1\n"
-        ),
-        (
-            "entry_id\tentry_name\tentry_type\texperiment_id\texperiment_name\tlocation_name\tlocation_id\ttrait_abbreviation\n"
-            "3\tentry_name3\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_2\n"
-            "4\tentry_name4\tentry_type\t1\tname1\tloc2\t2\ttrait_abbrev_2\n"
-            "7\tentry_name7\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_2\n"
-            "8\tentry_name8\tentry_type\t2\tname2\tloc2\t2\ttrait_abbrev_2\n"
-        ),
-    ]
-
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     jobs = asreml_r_dpo.run()
 
@@ -363,5 +412,7 @@ def test_mesl_metadata_file(mesl_analysis_request):
         with open(jobs[i].metadata_file) as data_f_:
 
             file_content = data_f_.read()
+
+            print(file_content)
 
             assert file_content == expected_metadata[i]
