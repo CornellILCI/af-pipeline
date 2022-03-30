@@ -237,7 +237,7 @@ def test_data_file_exisits(_analysis_request):
         ),
     ],
 )
-def test_mesl_job_data_file(_analysis_request, expected_job_data):
+def test_job_data_file(_analysis_request, expected_job_data):
 
     asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
@@ -252,26 +252,47 @@ def test_mesl_job_data_file(_analysis_request, expected_job_data):
             assert file_content == expected_job_data[i]
 
 
-def test_mesl_formula_added_to_job_params(mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request, expected_job_formulas",
+    [
+        (
+            pytest.lazy_fixture("mesl_analysis_request"),
+            [
+                "trait_abbrev_1 ~ mu rep !r entry !f mv",
+                "trait_abbrev_2 ~ mu rep !r entry !f mv",
+                "trait_abbrev_1 ~ mu rep !r entry !f mv",
+                "trait_abbrev_2 ~ mu rep !r entry !f mv",
+            ],
+        ),
+        (
+            pytest.lazy_fixture("meml_analysis_request"),
+            [
+                "trait_abbrev_1 ~ mu rep !r entry !f mv",
+                "trait_abbrev_2 ~ mu rep !r entry !f mv",
+            ],
+        ),
+    ],
+)
+def test_formula_added_to_job_params(_analysis_request, expected_job_formulas):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     jobs = asreml_r_dpo.run()
 
-    expected_analysis_formuals = [
-        "trait_abbrev_1 ~ mu rep !r entry !f mv",
-        "trait_abbrev_2 ~ mu rep !r entry !f mv",
-        "trait_abbrev_1 ~ mu rep !r entry !f mv",
-        "trait_abbrev_2 ~ mu rep !r entry !f mv",
-    ]
-
     for i in range(len(jobs)):
-        assert jobs[i].job_params.formula == expected_analysis_formuals[i]
+        assert jobs[i].job_params.formula == expected_job_formulas[i]
 
 
-def test_mesl_residual_added_to_job_params(analysis_residual, mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request",
+    [
+        pytest.lazy_fixture("mesl_analysis_request"),
+        pytest.lazy_fixture("meml_analysis_request"),
+    ],
+)
+def test_residual_added_to_job_params(_analysis_request, analysis_residual):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     jobs = asreml_r_dpo.run()
 
