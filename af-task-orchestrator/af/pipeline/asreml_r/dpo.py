@@ -1,4 +1,4 @@
-from collections import defaultdict
+import collections
 
 import pandas as pd
 from af.pipeline.asreml.dpo import AsremlProcessData
@@ -13,20 +13,23 @@ class AsremlRProcessData(AsremlProcessData):
 
         jobs = []
 
-        # read plot for each occurrence and plot measurements for occurrence and trait
-        data_by_trait_location = self.__get_data_by_trait_and_location()
+        data_by_location_trait = collections.defaultdict(pd.DataFrame)
+
+        for data, occurrence, trait in self.__get_analysis_data():
+            location_trait = (str(occurrence.location_id), str(trait.trait_id))
+            data_by_location_trait[location_trait] = data_by_location_trait[location_trait].append(data)
 
         for location_id in self.location_ids:
 
             for trait_id in self.trait_ids:
 
-                job_name = self.__get_job_name(location_id, trait_id)
+                job_name = self.__get_mesl_job_name(location_id, trait_id)
 
                 job_data = JobData(job_name=job_name, metadata_file=self.get_meta_data_file_path(job_name))
 
                 trait = self.get_trait_by_id(trait_id)
 
-                analysis_data = data_by_trait_location[(location_id, trait_id)]
+                analysis_data = data_by_location_trait[(location_id, trait_id)]
 
                 analysis_data = self._format_result_data(analysis_data, trait)
 
@@ -35,17 +38,35 @@ class AsremlRProcessData(AsremlProcessData):
                 jobs.append(job_data)
 
         return jobs
-    
+
     def meml(self):
 
-        jobs = [JobData()]
-        
+        jobs = []
+
+        data_by_trait = collections.defaultdict(pd.DataFrame)
+
+        for data, occurrence, trait in self.__get_analysis_data():
+            data_by_trait[str(trait.trait_id)] = data_by_trait[str(trait.trait_id)].append(data)
+
+        for trait_id in self.trait_ids:
+
+            job_name = self.__get_meml_job_name(trait_id)
+
+            job_data = JobData(job_name=self.__get_meml_job_name(trait_id))
+
+            trait = self.get_trait_by_id(trait_id)
+
+            analysis_data = data_by_trait[trait_id]
+
+            analysis_data = self._format_result_data(analysis_data, trait)
+
+            self._write_job_data(job_data, analysis_data, trait)
+
+            jobs.append(job_data)
+
         return jobs
-        
 
-    def __get_data_by_trait_and_location(self):
-
-        data_by_trait_location = defaultdict(pd.DataFrame)
+    def __get_analysis_data(self):
 
         for occurr_id in self.occurrence_ids:
 
@@ -55,7 +76,7 @@ class AsremlRProcessData(AsremlProcessData):
 
             for trait_id in self.trait_ids:
 
-                job_name = self.__get_job_name(occurrence.location_id, trait_id)
+                job_name = self.__get_mesl_job_name(occurrence.location_id, trait_id)
 
                 trait = self.get_trait_by_id(trait_id)
                 self._save_metadata(job_name, plots, occurrence, trait)
@@ -64,14 +85,13 @@ class AsremlRProcessData(AsremlProcessData):
 
                 _data = plots.merge(plot_measurements, on="plot_id", how="left")
 
-                data_by_trait_location[(str(occurrence.location_id), trait_id)] = data_by_trait_location[
-                    (str(occurrence.location_id), trait_id)
-                ].append(_data)
+                yield _data, occurrence, trait
 
-        return data_by_trait_location
-
-    def __get_job_name(self, location_id, trait_id):
+    def __get_mesl_job_name(self, location_id, trait_id):
         return f"{self.analysis_request.requestId}_mesl_{location_id}_{trait_id}"
+
+    def __get_meml_job_name(self, trait_id):
+        return f"{self.analysis_request.requestId}_meml_{trait_id}"
 
     def _set_job_params(self, job_data, trait):
 
@@ -79,7 +99,6 @@ class AsremlRProcessData(AsremlProcessData):
 
         predictions = self._get_predictions()
 
-        for prediction in predictions:
-            job_params.predictions.append(prediction.statement)
+        job_params.predictions = [prediction.statement for prediction in predictions]
 
         job_data.job_params = job_params

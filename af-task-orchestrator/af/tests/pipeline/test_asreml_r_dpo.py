@@ -36,53 +36,79 @@ def test_dpo_returns_jobs(_analysis_request):
     assert len(jobs) > 0
 
 
-def test_dpo_run_returns_job_list(mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request",
+    [pytest.lazy_fixture("mesl_analysis_request"), pytest.lazy_fixture("meml_analysis_request")],
+)
+def test_dpo_run_returns_job_list(_analysis_request):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
     jobs = asreml_r_dpo.run()
     for job in jobs:
         assert type(job) is JobData
 
 
-def test_dpo_run_for_mesl_num_jobs(mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request, expected_num_jobs",
+    [(pytest.lazy_fixture("mesl_analysis_request"), 4), (pytest.lazy_fixture("meml_analysis_request"), 2)],
+)
+def test_dpo_run_for_num_jobs(_analysis_request, expected_num_jobs):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
-
-    jobs = asreml_r_dpo.run()
-
-    # expected_num_jobs = num_locations * num_traits
-    assert len(jobs) == 4
-
-
-def test_job_names(mesl_analysis_request):
-
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     jobs = asreml_r_dpo.run()
 
-    expected_job_names = ["test_id_mesl_1_1", "test_id_mesl_1_2", "test_id_mesl_2_1", "test_id_mesl_2_2"]
+    assert len(jobs) == expected_num_jobs
+
+
+@pytest.mark.parametrize(
+    "_analysis_request, expected_job_names",
+    [
+        (
+            pytest.lazy_fixture("mesl_analysis_request"),
+            ["test_id_mesl_1_1", "test_id_mesl_1_2", "test_id_mesl_2_1", "test_id_mesl_2_2"],
+        ),
+        (pytest.lazy_fixture("meml_analysis_request"), ["test_id_meml_1", "test_id_meml_2"]),
+    ],
+)
+def test_job_names(_analysis_request, expected_job_names):
+
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
+
+    jobs = asreml_r_dpo.run()
 
     for i in range(len(jobs)):
         assert expected_job_names[i] == jobs[i].job_name
 
 
-def test_plots_are_extracted_for_each_occurrence(mesl_plots_mock, mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request, expected_num_plots_extraction",
+    [(pytest.lazy_fixture("mesl_analysis_request"), 4), (pytest.lazy_fixture("meml_analysis_request"), 4)],
+)
+def test_plots_are_extracted_for_each_occurrence(_analysis_request, expected_num_plots_extraction, me_plots_mock):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     asreml_r_dpo.run()
 
-    assert mesl_plots_mock.call_count == 4
+    assert me_plots_mock.call_count == expected_num_plots_extraction
 
 
-def test_plots_are_extracted_with_right_parameters(mesl_plots_mock, mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request",
+    [pytest.lazy_fixture("mesl_analysis_request"), pytest.lazy_fixture("meml_analysis_request")],
+)
+def test_plots_are_extracted_with_right_parameters(
+    _analysis_request,
+    me_plots_mock,
+):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     asreml_r_dpo.run()
 
     # 4 occurrences in the mesl analysis request
-    mesl_plots_mock.assert_has_calls(
+    me_plots_mock.assert_has_calls(
         calls=[
             call(occurrence_id="1"),
             call(occurrence_id="2"),
@@ -92,23 +118,31 @@ def test_plots_are_extracted_with_right_parameters(mesl_plots_mock, mesl_analysi
     )
 
 
-def test_plot_measurements_are_extracted_for_each_trait(mesl_plot_measurements_mock, mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request",
+    [pytest.lazy_fixture("mesl_analysis_request"), pytest.lazy_fixture("meml_analysis_request")],
+)
+def test_plot_measurements_are_extracted_for_each_occurrence_trait(_analysis_request, me_plot_measurements_mock):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     asreml_r_dpo.run()
 
-    assert mesl_plot_measurements_mock.call_count == 8
+    assert me_plot_measurements_mock.call_count == 8
 
 
-def test_plot_measurements_are_extracted_with_right_parameters(mesl_plot_measurements_mock, mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request",
+    [pytest.lazy_fixture("mesl_analysis_request"), pytest.lazy_fixture("meml_analysis_request")],
+)
+def test_plot_measurements_are_extracted_with_right_parameters(_analysis_request, me_plot_measurements_mock):
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     asreml_r_dpo.run()
 
     # 4 occurrences in the mesl analysis request
-    mesl_plot_measurements_mock.assert_has_calls(
+    me_plot_measurements_mock.assert_has_calls(
         calls=[
             call(occurrence_id="1", trait_id="1"),
             call(occurrence_id="2", trait_id="1"),
@@ -123,51 +157,89 @@ def test_plot_measurements_are_extracted_with_right_parameters(mesl_plot_measure
     )
 
 
-def test_data_file_exisits(mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request",
+    [pytest.lazy_fixture("mesl_analysis_request"), pytest.lazy_fixture("meml_analysis_request")],
+)
+def test_data_file_exisits(_analysis_request):
 
     import os
 
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     jobs = asreml_r_dpo.run()
     for job in jobs:
         assert os.path.isfile(job.data_file)
 
 
-def test_mesl_job_data_file(mesl_analysis_request):
+@pytest.mark.parametrize(
+    "_analysis_request, expected_job_data",
+    [
+        (
+            pytest.lazy_fixture("mesl_analysis_request"),
+            [
+                (
+                    "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
+                    "1,1,1,2909,1,1,1,6.155850575\n"
+                    "1,1,2,2910,1,2,1,6.751358238\n"
+                    "1,2,5,2913,1,1,1,6.155850575\n"
+                    "1,2,6,2914,1,2,1,6.751358238\n"
+                ),
+                (
+                    "loc,expt,entry,plot,col,row,rep,trait_abbrev_2\n"
+                    "1,1,1,2909,1,1,1,6.155850575\n"
+                    "1,1,2,2910,1,2,1,6.751358238\n"
+                    "1,2,5,2913,1,1,1,6.155850575\n"
+                    "1,2,6,2914,1,2,1,6.751358238\n"
+                ),
+                (
+                    "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
+                    "2,1,3,2911,1,1,1,6.155850575\n"
+                    "2,1,4,2912,1,2,1,6.751358238\n"
+                    "2,2,7,2915,1,1,1,6.155850575\n"
+                    "2,2,8,2916,1,2,1,6.751358238\n"
+                ),
+                (
+                    "loc,expt,entry,plot,col,row,rep,trait_abbrev_2\n"
+                    "2,1,3,2911,1,1,1,6.155850575\n"
+                    "2,1,4,2912,1,2,1,6.751358238\n"
+                    "2,2,7,2915,1,1,1,6.155850575\n"
+                    "2,2,8,2916,1,2,1,6.751358238\n"
+                ),
+            ],
+        ),
+        (
+            pytest.lazy_fixture("meml_analysis_request"),
+            [
+                (
+                    "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
+                    "1,1,1,2909,1,1,1,6.155850575\n"
+                    "1,1,2,2910,1,2,1,6.751358238\n"
+                    "2,1,3,2911,1,1,1,6.155850575\n"
+                    "2,1,4,2912,1,2,1,6.751358238\n"
+                    "1,2,5,2913,1,1,1,6.155850575\n"
+                    "1,2,6,2914,1,2,1,6.751358238\n"
+                    "2,2,7,2915,1,1,1,6.155850575\n"
+                    "2,2,8,2916,1,2,1,6.751358238\n"
+                ),
+                (
+                    "loc,expt,entry,plot,col,row,rep,trait_abbrev_2\n"
+                    "1,1,1,2909,1,1,1,6.155850575\n"
+                    "1,1,2,2910,1,2,1,6.751358238\n"
+                    "2,1,3,2911,1,1,1,6.155850575\n"
+                    "2,1,4,2912,1,2,1,6.751358238\n"
+                    "1,2,5,2913,1,1,1,6.155850575\n"
+                    "1,2,6,2914,1,2,1,6.751358238\n"
+                    "2,2,7,2915,1,1,1,6.155850575\n"
+                    "2,2,8,2916,1,2,1,6.751358238\n"
+                ),
+            ],
+        ),
+    ],
+)
+def test_mesl_job_data_file(_analysis_request, expected_job_data):
 
-    expected_job_data_files = [
-        (
-            "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
-            "1,1,1,2909,1,1,1,6.155850575\n"
-            "1,1,2,2910,1,2,1,6.751358238\n"
-            "1,2,5,2913,1,1,1,6.155850575\n"
-            "1,2,6,2914,1,2,1,6.751358238\n"
-        ),
-        (
-            "loc,expt,entry,plot,col,row,rep,trait_abbrev_2\n"
-            "1,1,1,2909,1,1,1,6.155850575\n"
-            "1,1,2,2910,1,2,1,6.751358238\n"
-            "1,2,5,2913,1,1,1,6.155850575\n"
-            "1,2,6,2914,1,2,1,6.751358238\n"
-        ),
-        (
-            "loc,expt,entry,plot,col,row,rep,trait_abbrev_1\n"
-            "2,1,3,2911,1,1,1,6.155850575\n"
-            "2,1,4,2912,1,2,1,6.751358238\n"
-            "2,2,7,2915,1,1,1,6.155850575\n"
-            "2,2,8,2916,1,2,1,6.751358238\n"
-        ),
-        (
-            "loc,expt,entry,plot,col,row,rep,trait_abbrev_2\n"
-            "2,1,3,2911,1,1,1,6.155850575\n"
-            "2,1,4,2912,1,2,1,6.751358238\n"
-            "2,2,7,2915,1,1,1,6.155850575\n"
-            "2,2,8,2916,1,2,1,6.751358238\n"
-        ),
-    ]
-
-    asreml_r_dpo = dpo.AsremlRProcessData(mesl_analysis_request)
+    asreml_r_dpo = dpo.AsremlRProcessData(_analysis_request)
 
     jobs = asreml_r_dpo.run()
 
@@ -177,9 +249,7 @@ def test_mesl_job_data_file(mesl_analysis_request):
 
             file_content = data_f_.read()
 
-            expected_data_file_content = expected_job_data_files[i]
-
-            assert file_content == expected_data_file_content
+            assert file_content == expected_job_data[i]
 
 
 def test_mesl_formula_added_to_job_params(mesl_analysis_request):

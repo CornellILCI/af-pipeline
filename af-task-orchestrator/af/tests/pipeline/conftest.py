@@ -4,9 +4,9 @@ import os
 # since core.py directly declares the vars
 import tempfile
 
+import pandas as pd
 import pytest
 from af.pipeline.db.models import Property
-from pandas import DataFrame
 
 # fixtures import area
 
@@ -57,7 +57,7 @@ def get_test_analysis_request():
     return analysis_request
 
 
-def get_test_plots() -> DataFrame:
+def get_test_plots() -> pd.DataFrame:
     """return a mock plots dataframe"""
 
     columns = [
@@ -76,10 +76,10 @@ def get_test_plots() -> DataFrame:
         [2909, 4, 6, 7, 180, 3, 5, 1, 1, "G"],
         [2910, 4, 6, 7, 103, 4, 5, 1, 1, "G"],
     ]
-    return DataFrame(data, columns=columns)
+    return pd.DataFrame(data, columns=columns)
 
 
-def get_test_plot_measurements() -> DataFrame:
+def get_test_plot_measurements() -> pd.DataFrame:
     """return a mock plot measurement dataframe"""
 
     columns = ["plot_id", "trait_id", "trait_qc", "trait_value"]
@@ -87,7 +87,7 @@ def get_test_plot_measurements() -> DataFrame:
         [2909, 1, "G", 6.155850575],
         [2910, 1, "G", 6.751358238],
     ]
-    return DataFrame(data, columns=columns)
+    return pd.DataFrame(data, columns=columns)
 
 
 @pytest.fixture
@@ -206,6 +206,7 @@ def mesl_analysis_pattern(mocker):
     _mock = mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
     return _mock
 
+
 @pytest.fixture
 def meml_analysis_pattern(mocker):
 
@@ -213,7 +214,6 @@ def meml_analysis_pattern(mocker):
     _mock = mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
     return _mock
 
-    
 
 @pytest.fixture
 def plot_columns():
@@ -240,9 +240,7 @@ def plot_measurements_columns():
 
 
 @pytest.fixture
-def mesl_plots_mock(mocker, plot_columns):
-
-    import pandas as pd
+def me_plots_mock(mocker, plot_columns):
 
     plots_stub = [
         pd.DataFrame(
@@ -283,7 +281,7 @@ def mesl_plots_mock(mocker, plot_columns):
 
 
 @pytest.fixture
-def mesl_plot_measurements_mock(mocker, plot_measurements_columns):
+def me_plot_measurements_mock(mocker, plot_measurements_columns):
 
     import pandas as pd
 
@@ -353,7 +351,7 @@ def mesl_plot_measurements_mock(mocker, plot_measurements_columns):
 
 
 @pytest.fixture
-def mesl_occurrence_mock(mocker):
+def me_occurrence_mock(mocker):
 
     from af.pipeline.data_reader import models as dr_models
 
@@ -399,7 +397,7 @@ def mesl_occurrence_mock(mocker):
 
 
 @pytest.fixture
-def mesl_trait_mock(mocker):
+def me_trait_mock(mocker):
 
     from af.pipeline.data_reader import models as dr_models
 
@@ -411,7 +409,8 @@ def mesl_trait_mock(mocker):
         ],
     )
 
-    return mesl_trait_mock
+    return trait_mock
+
 
 @pytest.fixture
 def me_analysis_request(analysis_request, result_dir):
@@ -440,10 +439,10 @@ def me_analysis_request(analysis_request, result_dir):
 def mesl_analysis_request(
     mocker,
     me_analysis_request,
-    mesl_plots_mock,
-    mesl_plot_measurements_mock,
-    mesl_occurrence_mock,
-    mesl_trait_mock,
+    me_plots_mock,
+    me_plot_measurements_mock,
+    me_occurrence_mock,
+    me_trait_mock,
     analysis_fields,
     analysis_formula,
     analysis_residual,
@@ -458,13 +457,25 @@ def mesl_analysis_request(
 
     return me_analysis_request
 
+
 @pytest.fixture
 def meml_analysis_request(
     mocker,
-    me_analysis_request):
-    
-    get_property_stubs = [Property(code="MEML")]
-    mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
-    
-    return me_analysis_request
+    me_analysis_request,
+    me_plots_mock,
+    me_plot_measurements_mock,
+    me_occurrence_mock,
+    me_trait_mock,
+    analysis_fields,
+    analysis_formula,
+    analysis_residual,
+    analysis_prediction,
+):
 
+    mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
+
+    get_property_stubs = [Property(code="MEML")]
+    get_property_stubs.extend([analysis_formula, analysis_residual, analysis_prediction] * 4)
+    mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
+
+    return me_analysis_request
