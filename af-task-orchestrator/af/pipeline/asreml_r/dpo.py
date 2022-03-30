@@ -68,7 +68,7 @@ class AsremlRProcessData(AsremlProcessData):
 
     def _set_job_params(self, job_data, trait):
 
-        job_params = JobParams(formula=self._get_formuala(trait), residual=self._get_residual(), predictions=[])
+        job_params = JobParams(formula=self._get_formula(trait), residual=self._get_residual(), predictions=[])
 
         predictions = self._get_predictions()
 
