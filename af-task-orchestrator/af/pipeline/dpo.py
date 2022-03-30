@@ -3,9 +3,11 @@
 import argparse
 import json
 import os
+
 # import pathlib
 import sys
 from abc import ABC, abstractmethod
+
 # from collections import OrderedDict
 from os import path
 
@@ -22,6 +24,7 @@ import pathlib
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
@@ -122,17 +125,24 @@ class ProcessData(ABC):
         Prepares the extracted data to feed into analytical engine.
 
         Returns:
-            List of object with following args,
-                job_name: Name of the job
-                data_file: File with input data
-                asrml_job_file: File with job configuration specific to input request
+            List of JobData
             example:
                 [
-                    {
-                        "job_name": "job1"
-                        "data_file": "/test/test.csv",
-                        "asreml_job_file": "/test/test.as"
-                    }
+                    JobData(
+                        job_name: str = "",
+                        job_result_dir: str = "",
+                        data_file: str = "",
+                        job_file: str = "",
+                        job_params: JobParams = JobParams(
+                            formula: str = None,
+                            residual: str = None,
+                            predictions: list[str] = None,
+                        )
+                        metadata_file: str = "",
+                        occurrences: list[Occurrence] = field(default_factory=list),
+                        trait_name: str = "",
+                        location_name: str = ""
+                    )
                 ]
 
         Raises:
