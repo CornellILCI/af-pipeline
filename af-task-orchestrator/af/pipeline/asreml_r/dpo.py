@@ -28,21 +28,10 @@ class AsremlRProcessData(AsremlProcessData):
             for trait_id in self.trait_ids:
 
                 job_name = self.__get_mesl_job_name(location_id, trait_id)
-
-                job_data = JobData(job_name=job_name)
-
+                data = data_by_location_trait[(location_id, trait_id)]
                 metadata = metadata_by_location_trait[(location_id, trait_id)]
-                job_data.metadata_file = self._save_metadata(job_name, metadata)
 
-                trait = self.get_trait_by_id(trait_id)
-
-                analysis_data = data_by_location_trait[(location_id, trait_id)]
-
-                analysis_data = self._format_result_data(analysis_data, trait)
-
-                self._write_job_data(job_data, analysis_data, trait)
-
-                jobs.append(job_data)
+                jobs.append(self.__generate_job_object(job_name, data, metadata, trait_id))
 
         return jobs
 
@@ -60,23 +49,26 @@ class AsremlRProcessData(AsremlProcessData):
         for trait_id in self.trait_ids:
 
             job_name = self.__get_meml_job_name(trait_id)
-
-            job_data = JobData(job_name=job_name)
-
+            data = data_by_trait[trait_id]
             metadata = metadata_by_trait[trait_id]
-            job_data.metadata_file = self._save_metadata(job_name, metadata)
 
-            trait = self.get_trait_by_id(trait_id)
-
-            analysis_data = data_by_trait[trait_id]
-
-            analysis_data = self._format_result_data(analysis_data, trait)
-
-            self._write_job_data(job_data, analysis_data, trait)
-
-            jobs.append(job_data)
+            jobs.append(self.__generate_job_object(job_name, data, metadata, trait_id))
 
         return jobs
+
+    def __generate_job_object(self, job_name, data, metadata, trait_id):
+
+        job = JobData(job_name=job_name)
+
+        job.metadata_file = self._save_metadata(job_name, metadata)
+
+        trait = self.get_trait_by_id(trait_id)
+
+        data = self._format_result_data(data, trait)
+
+        self._write_job_data(job, data, trait)
+
+        return job
 
     def __get_analysis_data(self):
 
