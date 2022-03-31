@@ -37,15 +37,15 @@ class AsremlProcessData(ProcessData):
         metadata_df["location_id"] = occurrence.location_id
         metadata_df["trait_abbreviation"] = trait.abbreviation
 
-        unique_observations = metadata_df.groupby(
-            ['entry_id', 'location_id']
-        ).trait_abbreviation.nunique()
+        metadata_df['obs_count'] = metadata_df.groupby(['entry_id', 'location_id'])['trait_abbreviation'].transform('nunique')
+        print(metadata_df)
 
-        print(unique_observations)
-
-        metadata_df.set_index(['entry_id', 'location_id']).assign(
-            obs_count=unique_observations
-        ).reset_index()
+        # unique_observations = metadata_df.groupby(
+        #     ['entry_id', 'location_id']
+        # ).trait_abbreviation.nunique()
+        # metadata_df=metadata_df.set_index(['entry_id', 'location_id']).assign(
+        #     obs_count=unique_observations
+        # ).reset_index()
 
         job_folder = self.get_job_folder(job_name)
 

@@ -119,8 +119,8 @@ def write_entry_predictions(
         "entry_name",
         "entry_type",
         "value",
-        "std_error"
-        # "obs_count"
+        "std_error",
+        "obs_count"
 
     ]
 
