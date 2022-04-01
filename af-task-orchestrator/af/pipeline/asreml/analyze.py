@@ -45,7 +45,7 @@ class AsremlAnalyze(Analyze):
         self.analysis = db_services.get_analysis_by_request_id(self.db_session, request_id=analysis_request.requestId)
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
-        self.report_file_path = path.join(analysis_request.outputFolder, "report.xlsx")
+        self.report_file_path = path.join(analysis_request.outputFolder, f"{analysis_request.requestId}_report.xlsx")
         # the engine script would have been determined from get_analyze_object so just pass it here
 
     def pre_process(self):
@@ -126,7 +126,8 @@ class AsremlAnalyze(Analyze):
 
             if not asreml_result_content.model_stat.get("is_converged"):
                 db_services.update_job(
-                    self.db_session, job, "FAILED", asreml_result_content.model_stat.get("conclusion"))
+                    self.db_session, job, "FAILED", asreml_result_content.model_stat.get("conclusion")
+                )
                 return gathered_objects
 
             metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
@@ -136,7 +137,13 @@ class AsremlAnalyze(Analyze):
                 utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
 
             # write prediction to the analysis report
-            analysis_report.write_predictions(self.report_file_path, asreml_result_content.predictions, metadata_df)
+            analysis_report.write_predictions(
+                self.db_session,
+                self.analysis_request,
+                self.report_file_path,
+                asreml_result_content.predictions,
+                metadata_df,
+            )
 
             # write model statisics to analysis report
             rename_keys = {"log_lik": "LogL"}
