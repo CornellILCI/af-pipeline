@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "Rversion": "4.0.3",
-    "date": "09-Jul-2021",
+    "Rversion": "4.1.0",
+    "date": "28-Mar-2022",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout F -o 'Output1' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine F -o 'Output2' -p 'D:/Results'" | "Rscript randALPHALATTICEirri.R --entryList "ALPHALATTICE_SD_0001.lst" --nTrial 3 --nRep 4 --nBlk 4 --genLayout T --nRowPerBlk 2 --nRowPerRep 4 --nFieldRow 8 --serpentine T -o 'Output3' -p 'D:/Results'",
-    "engine": "R 4.0.3",
+    "engine": "R 4.1.0",
     "method": "randALPHALATTICEirri",
     "design": "Alpha-Lattice",
     "modelVersion": 4,
@@ -74,20 +74,7 @@
         "data_type": "integer",
         "order_number": 3,
         "variable_abbrev": "REP_COUNT",
-<<<<<<< HEAD
         "is_layout_variable": "F"
-=======
-        "is_layout_variable": "F",
-        "rule": [
-          {
-            "order_number": 1,
-            "type": "validation-design",
-            "expression": "value<=(1500/totalEntries)",
-            "notification": "Total number of experimental units should not exceed 1,500.",
-            "action": "error"
-          }
-        ]
->>>>>>> 8ba5f7e06da69ac3cd8511fdafda642aaec7fa9b
       },
       "nBlk": {
         "variable_label": "No. of Blocks per Rep",
@@ -226,16 +213,11 @@
         "minimum": null,
         "maximum": null,
         "unit": null,
-        "values": {
-          "CS": "Column Serpentine",
-          "C0": "Column Order",
-          "RS": "Row Serpentine",
-          "RO": "Row Order"
-        },
-        "default": "null",
-        "disabled": "F",
+        "values": null,
+        "default": "F",
+        "disabled": "T",
         "required": "T",
-        "data_type": "character",
+        "data_type": "boolean",
         "order_number": 9,
         "variable_abbrev": "FLD_ORDER",
         "is_layout_variable": "T"
