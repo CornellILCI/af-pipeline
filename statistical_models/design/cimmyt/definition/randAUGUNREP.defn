@@ -7,8 +7,8 @@
       "syntax": "Rscript randAugUnrep.R --entryList 'AugUnrep_SD_0001.lst' --nTrial 3 --pCheck 10 --nFieldCol 20",
       "engine": "R 4.0.2", 
       "method": "randAUGUNREP",
-      "design": "Augmented Design diagonal checks",
-      "modelVersion": 1,
+      "design": "P-rep CRD w/ diagonal systematic checks",
+      "modelVersion": 2,
       "organization_code" : "CIMMYT", 
       "note": null
     },

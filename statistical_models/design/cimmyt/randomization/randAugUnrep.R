@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------------------
 # Name             : randAugUnrep
-# Description      : Generate randomization and layout for Augmented-Unrep design with diagonal checks 
+# Description      : Generate randomization and layout for P-rep CRD w/ diagonal systematic checks
 # R Version        : 4.0.3 
 # -------------------------------------------------------------------------------------
 # Author           : Pedro A M Barbosa | Alaine A. Gulles | Rose Imee Zhella A. Morantte
@@ -96,7 +96,7 @@ if(all(class(temp) == "try-error" | !is.list(temp))) {
   msg <- trials[[1]]$parameters
   #for(i in (1:opt$nTrial)){
     #cat("\nOccurrence",i,"\n")
-    #cat("Design: Augmented design with repeated checks in diagonal pattern","\n")
+    #cat("Design: P-rep CRD w/ diagonal systematic checks","\n")
   #}
   #cat("\nEXPERIMENT PARAMETERS:\n")
   #cat("Number of Occurrences:",opt$nTrial,"\n")
