@@ -287,3 +287,7 @@ def test_write_predictions_location_only(report_file, model_stat, metadata_df):
     )
 
     assert_frame_equal(output_modelstat_report, expected_modelstat_report, check_dtype=False)
+
+
+def test_get_genetic_variance():
+    pass
