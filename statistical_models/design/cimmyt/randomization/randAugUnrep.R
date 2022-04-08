@@ -52,7 +52,7 @@ optionList <- list(
               help = "Path where output will be saved", metavar = "path where output will be saved")
 )
 
-# create an instance of a parser object
+## create an instance of a parser object
 opt_parser = OptionParser(option_list = optionList)
 opt = parse_args(opt_parser)
 
