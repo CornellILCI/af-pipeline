@@ -6,7 +6,7 @@ UNIVERSAL_UNKNOWN = "NA"
 
 ANALYZE_IMPLEMENTATIONS = {
     "asreml": "af.pipeline.asreml.analyze.AsremlAnalyze",
-    "asreml-r": "af.pipeline.asreml.analyze.AsremlRAnalyze",
+    "asreml-r": "af.pipeline.asreml_r.analyze.AsremlRAnalyze",
     "sommer": "af.pipeline.sommer.analyze.SommeRAnalyze",
 }
 
