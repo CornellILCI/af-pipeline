@@ -14,9 +14,15 @@ def test_get_h2_cullis_return_correct_output():
 
     assert calculation_engine.get_h2_cullis(variance, average_standard_error) == expected_output
 
-def test_zero_division():
+def test_zero_genetic_variance_returns_zero():
 
-    with pytest.raises(ZeroDivisionError):
-        genetic_variance = 0
-        average_standard_error = 10
-        calculation_engine.get_h2_cullis(genetic_variance, average_standard_error)
+    genetic_variance = 0
+    average_standard_error = 10
+    assert calculation_engine.get_h2_cullis(genetic_variance, average_standard_error) == 0
+
+def test_negetive_h2_return_zero():
+
+    genetic_variance = 2
+    average_standard_error = 10
+    assert calculation_engine.get_h2_cullis(genetic_variance, average_standard_error) == 0
+
