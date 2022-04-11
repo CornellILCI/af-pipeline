@@ -41,7 +41,7 @@ def run_asreml_1():
 
     user_script = script.format(datafile=datafile, fixed_formula=fixed_formula, random_formula=random_formula, residual_formula=residual_formula, result1=result1)
 
-    robjects.r(user_script)  # quickest way to implement...
+    robjects.r(user_script)  # quickest way to implement, but might be hard to get error desc....
 
 
 
@@ -76,7 +76,7 @@ def run_asreml_2():
     asr = asremlr.asreml(fixed=fixed, random=random, residual=residual, data=data)
 
     # This one produces an error i cannot decode, 
-    # pr = asremlr.predict_asreml(asr, classify="entry")
+    # pr = asremlr.predict_asreml(asr, classify="entry") 
 
     #but if i run it this way it will be successful
     robjects.globalenv['asr'] = asr
