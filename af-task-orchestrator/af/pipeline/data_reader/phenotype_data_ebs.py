@@ -46,7 +46,7 @@ class PhenotypeDataEbs(PhenotypeData):
 
     list_api_page_size = 100
 
-    def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
+    def get_plots(self, experiment_id=None, occurrence_id: str = None, location_id=None) -> pd.DataFrame:
 
         columns_from_occurrence = {"experiment_id", "occurrence_id", "location_id"}
 
