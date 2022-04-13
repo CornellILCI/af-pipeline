@@ -260,7 +260,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         search_germplasm_response = self.post(endpoint="/search/germplasm/", json=search_query)
 
         if not search_germplasm_response.is_success:
-            raise DataReaderException(search_germplasm.error)  #TODO: search_germplasm is undefined here
+            raise DataReaderException(search_germplasm.error)  # TODO: search_germplasm is undefined here
 
         if search_germplasm_response.body is None:
             raise DataReaderException("Germplasms are not found")
@@ -282,7 +282,7 @@ class PhenotypeDataBrapi(PhenotypeData):
             return germplasm_list
 
         if not get_germplasm.is_success:
-            raise DataReaderException(search_germplasm.error)  #TODO: search_germplasm is undefined here
+            raise DataReaderException(search_germplasm.error)  # TODO: search_germplasm is undefined here
 
         if get_germplasm.body is None:
             raise DataReaderException("Germplasms are not found")
