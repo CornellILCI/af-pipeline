@@ -1,5 +1,7 @@
 from af.pipeline import calculation_engine
+from af.pipeline.exceptions import InvalidVariance, InvalidAverageStandardError 
 import pytest
+
 
 def test_get_h2_cullis():
     assert calculation_engine.get_h2_cullis(2, 2) is not None
@@ -14,15 +16,34 @@ def test_get_h2_cullis_return_correct_output():
 
     assert calculation_engine.get_h2_cullis(variance, average_standard_error) == expected_output
 
+
 def test_zero_genetic_variance_returns_zero():
 
     genetic_variance = 0
     average_standard_error = 10
     assert calculation_engine.get_h2_cullis(genetic_variance, average_standard_error) == 0
 
+
 def test_negetive_h2_return_zero():
 
     genetic_variance = 2
     average_standard_error = 10
     assert calculation_engine.get_h2_cullis(genetic_variance, average_standard_error) == 0
+
+
+def test_h2_invalid_input_variance():
+
+    genetic_variance = -2
+    average_standard_error = 10
+
+    with pytest.raises(InvalidVariance):
+        calculation_engine.get_h2_cullis(genetic_variance, average_standard_error)
+
+def test_h2_invalid_average_standard_error():
+
+    average_standard_error = -10
+    genetic_variance = 2
+
+    with pytest.raises(InvalidAverageStandardError):
+        calculation_engine.get_h2_cullis(genetic_variance, average_standard_error)
 
