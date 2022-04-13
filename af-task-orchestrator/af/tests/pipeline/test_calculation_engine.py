@@ -39,6 +39,7 @@ def test_h2_invalid_input_variance():
     with pytest.raises(InvalidVariance):
         calculation_engine.get_h2_cullis(genetic_variance, average_standard_error)
 
+
 def test_h2_invalid_average_standard_error():
 
     average_standard_error = -10
