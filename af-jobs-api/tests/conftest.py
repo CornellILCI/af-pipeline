@@ -168,7 +168,7 @@ def analyses(session):
     JobFactory._meta.sqlalchemy_session = session
 
     analyses = AnalysisFactory.create_batch(size=2)
-
+    session.commit()
     return analyses
 
 
