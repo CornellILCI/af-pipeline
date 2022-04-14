@@ -1,4 +1,5 @@
 from uuid import uuid4
+
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.asreml.analyze import AsremlAnalyze
 from af.pipeline.db.core import DBConfig

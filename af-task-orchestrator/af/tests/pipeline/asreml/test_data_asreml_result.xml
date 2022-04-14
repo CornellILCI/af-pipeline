@@ -1,0 +1,109 @@
+ ASReml 4.2 [01 Jan 2016] ce2de12b-7af0-4774-ad5b-d16dadf8da59_3397_397
+   Build ne [21 Jun 2021]   64 bit  Linux (x64)
+ 13 Sep 2021 00:15:15.398    2.0 Gbyte  774-ad5b-d16dadf8da59_3397_397
+ Licensed to: International Maize & Wheat Improveme... - VS3AL1:[VOF16160]    2022-06-30          
+ *****************************************************************
+ * Contact support@asreml.co.uk for licensing and support        *
+ *********************************************************** ARG *
+ Folder: /app
+ loc !A !SORTALL !PRUNEALL
+ expt !A !LL 32
+ entry !A
+ plot !A
+ col !I
+ row !I
+ rep !A
+ QUALIFIERS: !CSV !SKIP 1 !AKAIKE !NODISPLAY 1 !MVINCLUDE !MAXIT 250 !EXTRA 10 !TXTFORM 1 !FCON !SUM !OUTLIER 
+ Reading /data/analysis/ce2de12b-7af0-4774-ad5b-d16dadf8da59/ce2de12b-7af0-4774-ad5b-d16dadf8da59_3397_397/ce2de12b-7af0-4774-ad5b-d16dadf8da59_3397_397.csv  FREE FORMAT skipping     1 lines
+
+ Univariate analysis of AYLD_CONT                                       
+ Summary of 180 records retained of 180 read
+
+  Model term          Size #miss #zero   MinNon0    Mean      MaxNon0  StndDevn
+   1 loc                 1     0     0      1     1.0000          1
+   2 expt                1     0     0      1     1.0000          1
+   3 entry              60     0     0      1    30.5000         60
+   4 plot              180     0     0      1    90.5000        180
+   5 col                18     0     0      1     9.5000         18
+   6 row                10     0     0      1     5.5000         10
+   7 rep                 3     0     0      1     2.0000          3
+   8 AYLD_CONT      Variate    0     0  8.582      12.09      16.33      1.603    
+   9 mu                          1
+  10 entry.loc                  60  3 entry     :  60   1 loc            :    1
+  11 loc.rep                     3  1 loc       :   1   7 rep            :    3
+  12 mv_estimates                0
+
+  Notice: XML output structures Variable and VPredict have been updated.
+
+ Notice: In expanding at(loc), loc is assumed to have 2 levels. If
+         more, specify the number in the variable definition for loc
+ idv(row) in sat(loc,1).idv(row).ar1(col) has size 10, parameters:   9   9
+ ar1(col) in sat(loc,1).idv(row).ar1(col) has size 18, parameters:  10  10
+  sat(loc,1).idv(row).ar1(col)     [  8: 10] initialized.
+ idv(row) in sat(loc,2).idv(row).ar1(col) has size 10, parameters:  12  12
+ ar1(col) in sat(loc,2).idv(row).ar1(col) has size 18, parameters:  13  13
+  sat(loc,2).idv(row).ar1(col)     [ 11: 13] initialized.
+
+ Note: col is defined as a labelled factor (probably with !I or !A).
+       It may not sort the data correctly as labels are not sorted. Define it as
+       a  *  factor to use the variable values directly as plot position coordinates.
+
+ Note: row is defined as a labelled factor (probably with !I or !A).
+       It may not sort the data correctly as labels are not sorted. Define it as
+       a  *  factor to use the variable values directly as plot position coordinates.
+ Sorting Section  1:     10 rows by  18 columns
+ Forming      128 equations:   5 dense.
+ Initial updates will be shrunk by factor    0.316
+
+ Warning: Fewer sections of data than expected
+ * This job uses all of the 8 processor threads. *
+ * Notice: The code for generating a PREDICT .. !PRESENT .. design matrix   *
+ *         was altered in July 2019 to make it faster in very SPARSE cases. *
+ *         The labels may not match the values in complex situations.       *
+ *         Be wary and report suspicious results to VSN.                    *
+ Notice: 2 singularities detected in design matrix.
+   1 LogL= -196.349     S2=  1.0000        177 df 
+ Notice: 2 singularities appeared in Average Information matrix
+          This could be a problem of scale or a problem with the model.
+          It is preferable to revise the model to remove the singularity.
+          Specify !AISING qualifier to force the job to continue.
+ Notice: Predicted values are not formed because iteration is aborted.
+
+          - - - Results from analysis of AYLD_CONT - - -
+ Akaike Information Criterion      402.70 (assuming 5 parameters).
+ Bayesian Information Criterion    418.58
+ Warning:  1 singularities in AI matrix.
+
+ Model_Term                             Sigma         Sigma   Sigma/SE   % C
+ loc.rep                 IDV_V    3  0.178976      0.178976       0.00   0 S
+ entry                   IDV_V   60  0.119617      0.119617       0.97 -48 P
+ entry.loc               IDV_V   60  0.178976      0.178976       0.00   0 S
+ sat(loc,1).idv(row).ar1(col)   180 effects
+ row                      ID_V    1   1.06551       1.06551      14.48 231 P
+ col                      AR_R    1  0.103030      0.103030       1.61   4 P
+ Warning: Code B - fixed at a boundary (!GP)       F - fixed by user
+               ? - liable to change from P to B    P - positive definite
+               C - Constrained by user (!VCC)      U - unbounded 
+               S - Singular Information matrix
+ S means there is no information in the data for this parameter.
+ Very small components with Comp/SE ratios of zero sometimes indicate poor
+           scaling.  Consider rescaling the design matrix in such cases.
+
+                                   Wald F statistics
+     Source of Variation           NumDF              F-inc  
+   9 mu                                1            2041.84                 
+   7 rep                               2               3.22                 
+
+                     Solution       Standard Error    T-value     T-prev
+   7 rep                           
+ 2                      0.178567       0.626400          0.29
+ 3                       1.45852       0.626951          2.33      2.04
+   9 mu                            
+                    1    11.5476       0.450005         25.66
+  11 loc.rep                               3 effects fitted (       3 are zero)
+   3 entry                                60 effects fitted
+  10 entry.loc                            60 effects fitted
+ * This job used at least .1 of the 2.0 Gbyte of primary workspace. * 
+ SLOPES FOR LOG(ABS(RES)) on LOG(PV) for Section   1
+   2.68
+ Finished: 13 Sep 2021 00:15:15.691   Iteration aborted because of singularities in AI matrix

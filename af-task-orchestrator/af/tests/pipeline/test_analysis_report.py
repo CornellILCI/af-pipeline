@@ -3,9 +3,8 @@ import os
 import pandas as pd
 import pytest
 from af.pipeline import analysis_report
-from pandas._testing import assert_frame_equal
-
 from af.pipeline.db.models import Property
+from pandas._testing import assert_frame_equal
 
 
 @pytest.fixture
