@@ -2,6 +2,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+import pytest
 from af.pipeline.asreml import dpo
 from af.pipeline.data_reader.models import Occurrence, Trait
 from af.pipeline.db.models import Property
@@ -35,52 +36,6 @@ def get_exploc_analysis_pattern():
     return Property(code="SESL")
 
 
-def get_analysis_fields():
-    return [
-        type(
-            "PropertyResult",
-            (object,),
-            {
-                "Property": Property(code="loc", data_type="!A"),
-                "property_meta": {"definition": "loc_id", "condition": "!SORTALL !PRUNEALL"},
-            },
-        ),
-        type(
-            "PropertyResult",
-            (object,),
-            {
-                "Property": Property(code="expt", data_type="!A"),
-                "property_meta": {"definition": "expt_id", "condition": "!LL 32"},
-            },
-        ),
-        type(
-            "PropertyResult",
-            (object,),
-            {"Property": Property(code="entry", data_type="!A"), "property_meta": {"definition": "entry_id"}},
-        ),
-        type(
-            "PropertyResult",
-            (object,),
-            {"Property": Property(code="plot", data_type="!A"), "property_meta": {"definition": "plot_id"}},
-        ),
-        type(
-            "PropertyResult",
-            (object,),
-            {"Property": Property(code="col", data_type="!I"), "property_meta": {"definition": "pa_x"}},
-        ),
-        type(
-            "PropertyResult",
-            (object,),
-            {"Property": Property(code="row", data_type="!I"), "property_meta": {"definition": "pa_y"}},
-        ),
-        type(
-            "PropertyResult",
-            (object,),
-            {"Property": Property(code="rep", data_type="!A"), "property_meta": {"definition": "rep_factor"}},
-        ),
-    ]
-
-
 def get_asreml_option():
     return [
         Property(
@@ -93,18 +48,9 @@ def get_tabulate():
     return [Property(statement="{trait_name} ~ entry")]
 
 
-def get_formula():
-    return Property(statement="{trait_name} ~ mu rep !r entry !f mv")
-
-
-def get_residual():
-    return Property(statement="ar1(row).ar1(col)")
-
-
-def get_prediction():
-    return Property(statement="entry !PRESENT entry !SED !TDIFF")
-
-
+@pytest.mark.usefixtures(
+    "analysis_fields_class", "analysis_formula_class", "analysis_residual_class", "analysis_prediction_class"
+)
 class TestProcessData(TestCase):
     @patch("af.pipeline.db.services.get_analysis_config_properties")
     @patch("af.pipeline.db.services.get_analysis_config_module_fields")
@@ -207,8 +153,13 @@ class TestProcessData(TestCase):
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         exploc_analysis_pattern.code = "SEML"
 
-        mock_get_property.side_effect = [exploc_analysis_pattern, get_formula(), get_residual(), get_prediction()]
-        mock_get_analysis_fields.return_value = get_analysis_fields()
+        mock_get_property.side_effect = [
+            exploc_analysis_pattern,
+            self.analysis_formula,
+            self.analysis_residual,
+            self.analysis_prediction,
+        ]
+        mock_get_analysis_fields.return_value = self.analysis_fields
         mock_get_analysis_config_properties.side_effect = [get_asreml_option(), get_tabulate()]
 
         expected_data_file_contents = (
@@ -362,14 +313,14 @@ class TestProcessData(TestCase):
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         mock_get_property.side_effect = [
             exploc_analysis_pattern,
-            get_formula(),
-            get_residual(),
-            get_prediction(),
-            get_formula(),
-            get_residual(),
-            get_prediction(),
+            self.analysis_formula,
+            self.analysis_residual,
+            self.analysis_prediction,
+            self.analysis_formula,
+            self.analysis_residual,
+            self.analysis_prediction,
         ]
-        mock_get_analysis_fields.return_value = get_analysis_fields()
+        mock_get_analysis_fields.return_value = self.analysis_fields
         mock_get_analysis_config_properties.side_effect = [
             get_asreml_option(),
             get_tabulate(),
@@ -482,14 +433,14 @@ class TestProcessData(TestCase):
         exploc_analysis_pattern = get_exploc_analysis_pattern()
         mock_get_property.side_effect = [
             exploc_analysis_pattern,
-            get_formula(),
-            get_residual(),
-            get_prediction(),
-            get_formula(),
-            get_residual(),
-            get_prediction(),
+            self.analysis_formula,
+            self.analysis_residual,
+            self.analysis_prediction,
+            self.analysis_formula,
+            self.analysis_residual,
+            self.analysis_prediction,
         ]
-        mock_get_analysis_fields.return_value = get_analysis_fields()
+        mock_get_analysis_fields.return_value = self.analysis_fields
         mock_get_analysis_config_properties.side_effect = [
             get_asreml_option(),
             get_tabulate(),

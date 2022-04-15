@@ -120,13 +120,13 @@ def _map_analysis(analysis):
 
     req_dto.jobs = []
     for job in analysis.jobs:
-        
+
         trait_name = None
         location_name = None
 
         if job.job_data is not None:
             trait_name = job.job_data.get("trait_name", "")
-            location_name = job.job_data.get("location_name", "") 
+            location_name = job.job_data.get("location_name", "")
 
         req_dto.jobs.append(
             api_models.Job(

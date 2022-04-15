@@ -23,13 +23,14 @@ import pathlib
 # from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
+from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+
+# from af.pipeline.data_reader.models import Experiment, Occurrence
+# from af.pipeline.data_reader.models.enums import DataSource, DataType
+from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.exceptions import InvalidAnalysisRequest
 
-# from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
-# from af.pipeline.data_reader.models import Experiment, Occurrence
-# from af.pipeline.data_reader.models.enums import DataSource, DataType
-# from af.pipeline.db import services
 # from af.pipeline.db.models import Property
 # from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 # from af.pipeline.pandasutil import df_keep_columns
@@ -54,14 +55,20 @@ class ProcessData(ABC):
 
         self.experiment_ids = []
         self.occurrence_ids = []
+        self.location_ids = []
 
+        # extract ids from the experiment, occurrence and location ids from analysis request.
+        _location_ids = set()
         for experiment in analysis_request.experiments:
             self.experiment_ids.append(experiment.experimentId)
             if experiment.occurrences is not None:
                 for occurrence in experiment.occurrences:
                     self.occurrence_ids.append(occurrence.occurrenceId)
+                    _location_ids.add(occurrence.locationId)
+        self.location_ids = sorted(_location_ids)
 
         self.trait_ids = []
+        self.trait_by_id = {}
         for trait in analysis_request.traits:
             self.trait_ids.append(trait.traitId)
 
@@ -82,10 +89,87 @@ class ProcessData(ABC):
 
         return job_folder
 
+    def get_meta_data_file_path(self, job_name: str) -> str:
+
+        job_folder = self.get_job_folder(job_name)
+
+        return os.path.join(job_folder, "metadata.tsv")
+
+    def get_trait_by_id(self, trait_id: str) -> Trait:
+
+        if trait_id not in self.trait_by_id:
+            self.trait_by_id[trait_id] = self.data_reader.get_trait(trait_id)
+
+        return self.trait_by_id[trait_id]
+
     @abstractmethod
-    def run(self):
-        """This method should return the list of preprocessed input files info"""
+    def sesl(self):
         pass
+
+    @abstractmethod
+    def seml(self):
+        pass
+
+    @abstractmethod
+    def mesl(self):
+        pass
+
+    @abstractmethod
+    def mesl(self):
+        pass
+
+    def run(self):
+        """Pre process input data before inputing into analytical engine.
+
+        Extracts plots and plot measurements from api source.
+        Prepares the extracted data to feed into analytical engine.
+
+        Returns:
+            List of JobData
+            example:
+                [
+                    JobData(
+                        job_name: str = "",
+                        job_result_dir: str = "",
+                        data_file: str = "",
+                        job_file: str = "",
+                        job_params: JobParams = JobParams(
+                            formula: str = None,
+                            residual: str = None,
+                            predictions: list[str] = None,
+                        )
+                        metadata_file: str = "",
+                        occurrences: list[Occurrence] = field(default_factory=list),
+                        trait_name: str = "",
+                        location_name: str = ""
+                    )
+                ]
+
+        Raises:
+            DpoException, DataReaderException
+        """
+
+        exptloc_analysis_pattern = services.get_property(
+            self.db_session, self.analysis_request.expLocAnalysisPatternPropertyId
+        )
+
+        job_inputs = []
+
+        if exptloc_analysis_pattern.code == "SESL":
+            job_inputs_gen = self.sesl()
+        elif exptloc_analysis_pattern.code == "SEML":
+            job_inputs_gen = self.seml()
+        elif exptloc_analysis_pattern.code == "MESL":
+            job_inputs_gen = self.mesl()
+        elif exptloc_analysis_pattern.code == "MEML":
+            job_inputs_gen = self.meml()
+        else:
+            raise DpoException(f"Analysis pattern value: {exptloc_analysis_pattern} is invalid")
+
+        for job_input in job_inputs_gen:
+            job_inputs.append(job_input)
+
+        return job_inputs
 
 
 if __name__ == "__main__":

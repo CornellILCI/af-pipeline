@@ -6,21 +6,21 @@ def test_query(session, analyses):
     from af_request import service
 
     query_params = api_models.AnalysisRequestListQueryParameters()
-    actual_analyses = service.query(query_params)
+    actual_analyses, total_count = service.query(query_params)
 
-    assert len(analyses) == len(actual_analyses)
+    assert len(analyses) == total_count
 
     expected_request = analyses[0].request
     query_params = api_models.AnalysisRequestListQueryParameters(requestorId=expected_request.requestor_id)
 
-    actual_analyses = service.query(query_params)
-    assert len(actual_analyses) == 1
+    actual_analyses, total_count = service.query(query_params)
+    assert total_count == 1
     assert actual_analyses[0].request.uuid == expected_request.uuid
 
     # Filter to get empty result
     query_params = api_models.AnalysisRequestListQueryParameters(requestorId="noExistentId")
-    actual_analyses = service.query(query_params)
-    assert len(actual_analyses) == 0
+    actual_analyses, total_count = service.query(query_params)
+    assert total_count == 0
 
 
 def test_get_by_id(session, analysis):
