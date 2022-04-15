@@ -9,11 +9,12 @@ from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
 
 
+# TODO: This is a ME script ,  Pedro will provide script for single run
 SCRIPT = '''
 library(asreml)
 # the input object just emulates a reqeuest and its data
 input <- list(
-  "request" = "{request_id}",
+  "request" = "{job_name}",
   "trait" = "AYLD_CONT",
   "formula_1job" = "{fixed_formula}",
   "formula_2job" = "fixed = {trait_name} ~ rep, random = ~ ge",
@@ -35,7 +36,7 @@ data$col <- as.factor(data$col)
 data$ge <- as.factor(data$ge)
 
 # the multi-experiment should run, in the first stage, the analysis per occurrence
-for(i in levels(data$occurrence)){
+for(i in levels(data$occurrence)){{
   data_occ <- data[data$occurrence==i,]
   data_occ <- droplevels(data_occ)
   
@@ -54,10 +55,10 @@ for(i in levels(data$occurrence)){
   
   # cicles until model gets converged
   tries <- 0
-  while(!asr$converge & tries<6){
+  while(!asr$converge & tries<6){{
     tries <- tries+1
     asr<-update.asreml(asr)
-  }
+  }}
   
   #asreml generates many results, stored in the object we called asr, lets consider that we want the predictions
   
@@ -77,37 +78,9 @@ for(i in levels(data$occurrence)){
   # predict.asreml(asr, classify="ge", only="ge", sed=TRUE)$sed^2 # obtain squared s.e.d. matrix 
   # vdBLUP.avg <- mean(vdBLUP.mat[upper.tri(vdBLUP.mat, diag=FALSE)]) # take mean of upper triangle
   # vdBLUP.avg
-  }
-​
+  }}​
 '''
-script = '''
-library(asreml)
 
-# just using the example data
-data <- read.csv("{datafile}",h=T)
-
-# Some cata modification required by asreml (do not care with this now)
-data <- data[with(data, order(row,col)),]
-data$rep <- as.factor(data$rep)
-data$row <- as.factor(data$row)
-data$col <- as.factor(data$col)
-data$entry <- as.factor(data$entry)
-
-# stat model (the pipeline will provide this from the ba)
-# here is where asreml is really executed
-asr <- asreml(fixed = {fixed_formula},
-              random = {random_formula},
-              residual = {residual_formula},
-              data = data)
-
-#requested result
-#asreml generates many results, stored in the object we called asr, lets consider that we want the predictions 
-pred<-predict(asr,classify="entry")$pvals
-
-#printing the results in a csv (we may not do this way in our pipeline)
-write.csv(pred, file = "{result1}",quote=F,row.names=F)
-
-'''
 
 
 def run_asremlr(job_dir, job_data: JobData):
