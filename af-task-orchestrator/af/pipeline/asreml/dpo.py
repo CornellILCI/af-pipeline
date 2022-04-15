@@ -26,7 +26,8 @@ class AsremlProcessData(ProcessData):
             traits.append(trait)
         return traits
 
-    def __save_metadata(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait: Trait):
+    # def __save_metadata(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait: Trait):
+    def __save_metadata(self, job_name, plots: pd.DataFrame, occurrence: Occurrence, trait: Trait, observations):
 
         metadata_columns = ["entry_id", "entry_name", "entry_type"]
         metadata_df = plots.loc[:, metadata_columns]  # get a copy, not a view
@@ -36,16 +37,7 @@ class AsremlProcessData(ProcessData):
         metadata_df["location_name"] = occurrence.location
         metadata_df["location_id"] = occurrence.location_id
         metadata_df["trait_abbreviation"] = trait.abbreviation
-
-        metadata_df['obs_count'] = metadata_df.groupby(['entry_id', 'location_id'])['trait_abbreviation'].transform('nunique')
-        print(metadata_df)
-
-        # unique_observations = metadata_df.groupby(
-        #     ['entry_id', 'location_id']
-        # ).trait_abbreviation.nunique()
-        # metadata_df=metadata_df.set_index(['entry_id', 'location_id']).assign(
-        #     obs_count=unique_observations
-        # ).reset_index()
+        metadata_df["obs_count"] = observations
 
         job_folder = self.get_job_folder(job_name)
 
@@ -105,19 +97,25 @@ class AsremlProcessData(ProcessData):
                 if num_occurrences == 1:
                     job_data.location_name = occurrence.location
 
-                # save metadata in plots
-                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
-
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
                 _plots_and_measurements = plots.merge(plot_measurements_, on="plot_id", how="left")
+                _formatted = self._format_result_data(_plots_and_measurements, trait)
 
                 if plots_and_measurements is None:
-                    plots_and_measurements = _plots_and_measurements
+                    plots_and_measurements = _formatted
                 else:
-                    plots_and_measurements = plots_and_measurements.append(_plots_and_measurements)
+                    plots_and_measurements = plots_and_measurements.append(_formatted)
 
-            plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
+                observations = plots_and_measurements.groupby(['entry']).transform('count')
+                observations = observations.iloc[:, -1]
+                print(observations)
+
+                # save metadata in plots
+                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait, observations)
+                # job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
+
+            # plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
 
             if not plots_and_measurements.empty:
                 self._write_job_data(job_data, plots_and_measurements, trait)
@@ -154,16 +152,20 @@ class AsremlProcessData(ProcessData):
                 # -- BA-875
                 job_data.trait_name = trait.abbreviation
                 job_data.location_name = occurrence.location
+                # print("\n!!!!!!!!!!!",job_data.trait_name)
 
                 # save metadata in plots
-                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait)
-
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
 
                 # default is inner join
                 plots_and_measurements = plots.merge(plot_measurements_, on="plot_id", how="left")
 
                 plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
+
+                # add observations
+                observations = plots_and_measurements.groupby(['entry']).transform('count')
+                observations = observations.iloc[:, -1]
+                job_data.metadata_file = self.__save_metadata(job_name, plots, occurrence, trait, observations)
 
                 if not plots_and_measurements.empty:
                     self._write_job_data(job_data, plots_and_measurements, trait)
@@ -176,7 +178,6 @@ class AsremlProcessData(ProcessData):
         pass
 
     def _format_result_data(self, plots_and_measurements, trait):
-
         input_fields_to_config_fields = self._get_input_fields_config_fields()
 
         # drop trait id
