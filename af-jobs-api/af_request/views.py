@@ -36,7 +36,7 @@ def list():
 
     query_params = api_models.AnalysisRequestListQueryParameters(**request.args)
 
-    analyses = service.query(query_params)
+    analyses, total_count = service.query(query_params)
 
     # DTOs for api response
     analysis_request_dtos = []
@@ -45,7 +45,7 @@ def list():
         analysis_request_dtos.append(_map_analsysis(analysis))
 
     response = api_models.AnalysisRequestListResponse(
-        metadata=api_models.create_metadata(query_params.page, query_params.pageSize),
+        metadata=api_models.create_metadata(query_params.page, query_params.pageSize, total_count),
         result=api_models.AnalysisRequestListResponseResult(data=analysis_request_dtos),
     )
 
@@ -120,13 +120,13 @@ def _map_analsysis(analysis):
 
     req_dto.jobs = []
     for job in analysis.jobs:
-        
+
         trait_name = None
         location_name = None
 
         if job.job_data is not None:
             trait_name = job.job_data.get("trait_name", "")
-            location_name = job.job_data.get("location_name", "") 
+            location_name = job.job_data.get("location_name", "")
 
         req_dto.jobs.append(
             api_models.Job(

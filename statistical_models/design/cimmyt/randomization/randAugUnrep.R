@@ -94,15 +94,15 @@ if(all(class(temp) == "try-error" | !is.list(temp))) {
   cat("Error in randCRAND: ", msg, sep = "")
 } else{
   msg <- trials[[1]]$parameters
-  for(i in (1:opt$nTrial)){
-    cat("\nOccurrence",i,"\n")
-    cat("Design: Augmented design with repeated checks in diagonal pattern","\n")
-  }
-  cat("\nEXPERIMENT PARAMETERS:\n")
-  cat("Number of Occurrences:",opt$nTrial,"\n")
-  cat("Number of no-spatial entries:",nNonSptCheck,"\n")
-  cat("Number of spatial Checks:",nSptCheck,"\n")
-  cat("Percentage of checks",opt$pCheck,"%","\n")
+  #for(i in (1:opt$nTrial)){
+    #cat("\nOccurrence",i,"\n")
+    #cat("Design: Augmented design with repeated checks in diagonal pattern","\n")
+  #}
+  #cat("\nEXPERIMENT PARAMETERS:\n")
+  #cat("Number of Occurrences:",opt$nTrial,"\n")
+  #cat("Number of no-spatial entries:",nNonSptCheck,"\n")
+  #cat("Number of spatial Checks:",nSptCheck,"\n")
+  #cat("Percentage of checks",opt$pCheck,"%","\n")
   if(length(trials)>0)
     names(trials) <- trialsName
 }

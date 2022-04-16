@@ -239,4 +239,3 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
     pandasutil.set_columns_as_numeric(model_stats_df, ["LogL", "aic", "bic"])
 
     pandasutil.append_df_to_excel(report_file, model_stats_df, sheet_name=MODEL_STAT_SHEET_NAME)
-

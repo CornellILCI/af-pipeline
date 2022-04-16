@@ -6,27 +6,36 @@ def test_get_analysis_configs(session, analysis_configs):
 
     from analysis_config import service
 
-    analysis_configs_returned: List[Property] = service.get_analysis_configs()
+    analysis_configs_returned, total_count = service.get_analysis_configs()
 
-    assert len(analysis_configs_returned) > 0
+    assert total_count > 0
+
+
+def test_get_analysis_configs_total_count_valid(session, analysis_configs):
+
+    from analysis_config import service
+
+    analysis_configs_returned, total_count = service.get_analysis_configs()
+
+    assert total_count == len(analysis_configs_returned)
 
 
 def test_get_analysis_configs_has_correct_size(session, analysis_configs):
 
     from analysis_config import service
 
-    analysis_configs_returned: List[Property] = service.get_analysis_configs()
+    analysis_configs_returned, total_count = service.get_analysis_configs()
 
-    assert len(analysis_configs_returned) == len(analysis_configs)
+    assert total_count == len(analysis_configs)
 
 
 def test_get_analysis_configs_has_correct_size_with_random_props(session, analysis_configs, random_properties):
 
     from analysis_config import service
 
-    analysis_configs_returned: List[Property] = service.get_analysis_configs()
+    analysis_configs_returned, total_count = service.get_analysis_configs()
 
-    assert len(analysis_configs_returned) == len(analysis_configs)
+    assert total_count == len(analysis_configs)
 
 
 @pytest.mark.parametrize(
@@ -49,18 +58,18 @@ def test_filter_analysis_config_by_exp_pattern(session, filter_param, filter_val
 
     query_params = {filter_param: filter_value}
 
-    analysis_configs_returned: List[Property] = service.get_analysis_configs(**query_params)
+    analysis_configs_returned, total_count = service.get_analysis_configs(**query_params)
 
-    assert len(analysis_configs_returned) == len(expected)
+    assert total_count == len(expected)
 
 
 def test_filter_analysis_config_by_page_size(session, analysis_configs):
 
     from analysis_config import service
 
-    analysis_configs_returned: List[Property] = service.get_analysis_configs(page_size=5)
+    analysis_configs_returned, total_count = service.get_analysis_configs(page_size=5)
 
-    assert len(analysis_configs_returned) == 5
+    assert total_count == 5
 
 
 def test_filter_analysis_config_by_order_by_property_id(session, analysis_configs_unordered):
@@ -74,7 +83,7 @@ def test_filter_analysis_config_by_order_by_property_id(session, analysis_config
 
     expected_order.sort()
 
-    analysis_configs_returned: List[Property] = service.get_analysis_configs()
+    analysis_configs_returned, total_count = service.get_analysis_configs()
 
     returned_order = []
     for analysis_config in analysis_configs_returned:
@@ -94,7 +103,7 @@ def test_filter_analysis_configs_by_page(session, analysis_configs_unordered):
 
     expected_order.sort()
 
-    analysis_configs_returned: List[Property] = service.get_analysis_configs(page=1, page_size=5)
+    analysis_configs_returned, total_count = service.get_analysis_configs(page=1, page_size=5)
 
     returned_order = []
     for analysis_config in analysis_configs_returned:

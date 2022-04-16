@@ -45,7 +45,7 @@ class AsremlAnalyze(Analyze):
         self.analysis = db_services.get_analysis_by_request_id(self.db_session, request_id=analysis_request.requestId)
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
-        self.report_file_path = path.join(analysis_request.outputFolder, "report.xlsx")
+        self.report_file_path = path.join(analysis_request.outputFolder, f"{analysis_request.requestId}_report.xlsx")
         # the engine script would have been determined from get_analyze_object so just pass it here
 
     def pre_process(self):

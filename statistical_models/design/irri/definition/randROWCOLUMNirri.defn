@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "Rversion": "4.0.3",
-    "date": "23-Jan-2021",
+    "Rversion": "4.1.0",
+    "date": "28-Mar-2022",
     "author": "Alaine Gulles | Rose Imee Zhella Morantte",
     "email": "a.gulles@irri.org",
     "syntax": "Rscript randROWCOLUMNirri.R --entryList "ROWCOLUMN_SD_0001.lst" --nTrial 3 --nRep 4 --nRowBlk 4 --genLayout F -o "Output1" -p 'D:/Results'" | "Rscript randROWCOLUMNirri.R --entryList "ROWCOLUMN_SD_0001.lst" --nTrial 3 --nRep 4 --nRowBlk 4 --genLayout T --nFieldRow 8 --serpentine F -o "Output2" -p 'D:/Results'" | "Rscript randROWCOLUMNirri.R --entryList "ROWCOLUMN_SD_0001.lst" --nTrial 3 --nRep 4 --nRowBlk 4 --genLayout T --nFieldRow 8 --serpentine T -o "Output3" -p 'D:/Results'",
-    "engine": "R 4.0.3",
+    "engine": "R 4.1.0",
     "method": "randROWCOLUMNirri",
     "design": "Row-Column",
-    "modelVersion": 3,
+    "modelVersion": 4,
     "organization_code": "IRRI",
     "note": "Total number of plots per occurrence should not exceed 1,500.",
     "note": "Total number of entries should not be a prime number."
@@ -173,16 +173,11 @@
         "minimum": null,
         "maximum": null,
         "unit": null,
-        "values": {
-          "CS": "Column Serpentine",
-          "C0": "Column Order",
-          "RS": "Row Serpentine",
-          "RO": "Row Order"
-        },
-        "default": "null",
-        "disabled": "F",
+        "values": null,
+        "default": "F",
+        "disabled": "T",
         "required": "T",
-        "data_type": "character",
+        "data_type": "boolean",
         "order_number": 7,
         "variable_abbrev": "FLD_ORDER",
         "is_layout_variable": "T"

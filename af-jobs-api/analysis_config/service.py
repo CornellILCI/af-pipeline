@@ -51,5 +51,6 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
         analysis_configs_q = analysis_configs_q.offset(page * page_size)
 
     analysis_configs = analysis_configs_q.all()
+    total_count = analysis_configs_q.count()
 
-    return analysis_configs
+    return analysis_configs, total_count
