@@ -244,9 +244,9 @@ def test_write_predictions_location_only(report_file, location_only_predictions_
     assert_frame_equal(output_entry_report, expected_entry_report, check_dtype=False)
 
 
-def test_write_predictions_location_only(report_file, model_stat, metadata_df):
+def test_write_model_stat_only(report_file, model_stat, metadata_df):
 
-    analysis_report.write_model_stat(report_file, model_stat, metadata_df, {"log_lik": "LogL"})
+    analysis_report.write_model_stat(report_file, model_stat, 1.0, metadata_df, {"log_lik": "LogL"})
 
     assert os.path.isfile(report_file)
 
@@ -264,9 +264,10 @@ def test_write_predictions_location_only(report_file, model_stat, metadata_df):
             "components",
             "conclusion",
             "is_converged",
+            "h2_cullis"
         ],
         data=[
-            [1, "experiment1", "testtrait", "loc1", "x", "x", "x", "x", "y", False],
+            [1, "experiment1", "testtrait", "loc1", "x", "x", "x", "x", "y", False, 1.0],
         ],
     )
 
