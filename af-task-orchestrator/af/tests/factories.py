@@ -10,8 +10,6 @@ from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyText
 from sqlalchemy import orm
 from pytz import UTC
 
-from af.tests import common
-
 class BaseFactory(SQLAlchemyModelFactory):
     """Base Factory"""
 

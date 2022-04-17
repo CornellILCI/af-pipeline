@@ -14,8 +14,6 @@ from sqlalchemy.engine.create import create_engine
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy.orm.session import Session, sessionmaker  # noqa: F401
 
-from af.tests import common
-
 from pgtest.pgtest import PGTest
 from sqlalchemy import create_engine
 

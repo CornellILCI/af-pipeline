@@ -491,6 +491,12 @@ def job(dbsession):
     dbsession.commit()
     return job
 
+@pytest.fixture
+def jobs(dbsession):
+
+    model_factory.JobFactory._meta.sqlalchemy_session = dbsession
+    jobs = model_factory.JobFactory.create_batch(size=2)
+    return jobs
 
 @pytest.fixture
 def variance(dbsession, job):
@@ -500,3 +506,16 @@ def variance(dbsession, job):
     variance = model_factory.VarianceFactory(job=job)
     
     return variance
+
+
+@pytest.fixture
+def variances(dbsession, jobs):
+
+    model_factory.VarianceFactory._meta.sqlalchemy_session = dbsession
+    
+    variance_1 = model_factory.VarianceFactory(job=jobs[0], source="source1")
+    variance_2 = model_factory.VarianceFactory(job=jobs[1], source="source1")
+    variance_3 = model_factory.VarianceFactory(job=jobs[1], source="source2")
+    
+    return [variance_1, variance_2, variance_3]
+
