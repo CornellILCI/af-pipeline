@@ -2,6 +2,7 @@ import os
 import pathlib
 from collections import OrderedDict
 
+import numpy as np
 import pandas as pd
 from af.pipeline import config, pandasutil
 from af.pipeline.analysis_request import AnalysisRequest
@@ -49,7 +50,10 @@ class AsremlProcessData(ProcessData):
         metadata["location_name"] = occurrence.location
         metadata["location_id"] = occurrence.location_id
         metadata["trait_abbreviation"] = trait.abbreviation
-        metadata = metadata.merge(observations, on="entry_id")
+        if observations is not None:
+            metadata = metadata.merge(observations, on="entry_id")
+        
+        metadata = metadata.drop_duplicates()
 
         return metadata
 
@@ -89,6 +93,8 @@ class AsremlProcessData(ProcessData):
             job_data.trait_name = trait.abbreviation
             job_data.location_name = "Multi Location"
 
+            metadata = pd.DataFrame()
+
             for occurrence_id in self.occurrence_ids:
 
                 plots = plots_by_id[occurrence_id]
@@ -99,21 +105,31 @@ class AsremlProcessData(ProcessData):
                     job_data.location_name = occurrence.location
 
                 plot_measurements_ = self.data_reader.get_plot_measurements(occurrence_id, trait.trait_id)
-                
+
                 _plots_and_measurements = plots.merge(plot_measurements_, on="plot_id", how="left")
-                
+
                 observations = (
-                    _plots_and_measurements.groupby(["entry_id"]).count()
+                    _plots_and_measurements.replace("NA", np.nan)
+                    .groupby(["entry_id"])["entry_id"]
+                    .count()
+                    .reset_index(name="observations")
                 )
-                print(observations)
-                
+
                 # save metadata in plots
-                metadata = self._generate_metadata(plots, occurrence, trait, observations)
-                job_data.metadata_file = self._save_metadata(job_name, metadata)
+                metadata = metadata.append(self._generate_metadata(plots, occurrence, trait, observations))
 
                 _plots_and_measurements = self._format_result_data(_plots_and_measurements, trait)
 
                 plots_and_measurements = plots_and_measurements.append(_plots_and_measurements)
+
+            if not metadata.empty:
+                metadata = metadata.merge(
+                    metadata.groupby(["entry_id"], as_index=False)["observations"]
+                    .sum()
+                    .rename(columns={"observations": "observations_by_entry"}),
+                    on="entry_id",
+                )
+                job_data.metadata_file = self._save_metadata(job_name, metadata)
 
             if not plots_and_measurements.empty:
                 self._write_job_data(job_data, plots_and_measurements, trait)
@@ -158,16 +174,16 @@ class AsremlProcessData(ProcessData):
 
                 # add observations
                 observations = (
-                    plots_and_measurements.groupby(["entry_id"])["entry_id"].count().reset_index(name="observations")
+                    plots_and_measurements.replace("NA", np.nan)
+                    .groupby(["entry_id"])["entry_id"]
+                    .count()
+                    .reset_index(name="observations")
                 )
 
-
-                 
                 # save metadata in plots
                 metadata = self._generate_metadata(plots, occurrence, trait, observations)
                 job_data.metadata_file = self._save_metadata(job_name, metadata)
 
-                
                 plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
 
                 if not plots_and_measurements.empty:

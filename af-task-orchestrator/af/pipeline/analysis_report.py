@@ -120,8 +120,6 @@ def write_entry_predictions(
         "entry_type",
         "value",
         "std_error",
-        "obs_count"
-
     ]
 
     exptloc_analysis_pattern = db_services.get_property(db_session, analysis_request.expLocAnalysisPatternPropertyId)
@@ -129,6 +127,9 @@ def write_entry_predictions(
     if exptloc_analysis_pattern.code == "SESL":
         pos_to_insert_loc_cols = entry_report_columns.index("experiment_name") + 1
         entry_report_columns[pos_to_insert_loc_cols:pos_to_insert_loc_cols] = ["location_id", "location_name"]
+        entry_report_columns.append("observations")
+    elif exptloc_analysis_pattern.code == "SEML":
+        entry_report_columns.append("observations_by_entry")
 
     # get entry only rows
     entry_report = predictions_df[predictions_df.entry.notnull()]
@@ -142,6 +143,9 @@ def write_entry_predictions(
     entry_report = entry_report[entry_report_columns]
 
     entry_report = entry_report.drop_duplicates()
+    
+    if exptloc_analysis_pattern.code == "SEML":
+        entry_report = entry_report.rename(columns={"observations_by_entry": "observations"})
 
     pandasutil.set_columns_as_numeric(entry_report, ["value", "std_error"])
 
@@ -184,6 +188,7 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
         "location_name",
         "value",
         "std_error",
+        "observations",
     ]
 
     # get entry location only rows
