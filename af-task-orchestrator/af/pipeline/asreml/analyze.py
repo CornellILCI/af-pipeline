@@ -130,7 +130,7 @@ class AsremlAnalyze(Analyze):
                 )
                 return gathered_objects
 
-            metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
+            metadata_df = utils.get_metadata(job_result.metadata_file)
 
             # initialize the report workbook
             if not os.path.isfile(self.report_file_path):

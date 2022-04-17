@@ -1,6 +1,6 @@
-from af.pipeline import calculation_engine
-from af.pipeline.exceptions import InvalidVariance, InvalidAverageStandardError 
 import pytest
+from af.pipeline import calculation_engine
+from af.pipeline.exceptions import InvalidAverageStandardError, InvalidVariance
 
 
 def test_get_h2_cullis():
@@ -47,4 +47,3 @@ def test_h2_invalid_average_standard_error():
 
     with pytest.raises(InvalidAverageStandardError):
         calculation_engine.get_h2_cullis(genetic_variance, average_standard_error)
-

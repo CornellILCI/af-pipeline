@@ -8,13 +8,6 @@ from af.pipeline.db.core import DBConfig
 from af.pipeline.db.models import FittedValues, ModelStat, PredictionEffect, Variance
 
 
-class AsremlResult:
-
-    def __init__(self, asreml_content):
-        self.asreml_content = asreml_content
-
-
-
 def get_file_parser():
     parser = xml.sax.make_parser()
     parser.setFeature(xml.sax.handler.feature_namespaces, 0)

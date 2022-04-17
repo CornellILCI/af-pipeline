@@ -5,11 +5,10 @@ from af.pipeline.asreml.services import process_asreml_result, process_yhat_resu
 from af.pipeline.db.models import FittedValues, ModelStat, PredictionEffect, Variance
 
 
-def test_simple_test_1(dbsession, sample_asreml_result_string_1):
+def test_simple_test_1(dbsession, sample_asreml_result_string_1, job):
     # create test stream from sample_asreml_result_string_1
     sample_stream = io.StringIO(sample_asreml_result_string_1)
-    sample_job_id = 123
-
+    sample_job_id = job.id
     process_asreml_result(dbsession, sample_job_id, sample_stream)
 
     # check objects saved

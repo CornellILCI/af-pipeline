@@ -1,5 +1,6 @@
 import json
 import os
+
 # hacky importing since we need to declare these before we import Base
 # since core.py directly declares the vars
 import tempfile
@@ -9,6 +10,7 @@ import pytest
 from af.pipeline.db.models import Property
 
 # fixtures import area
+from af.tests import factories as model_factory
 
 
 def get_test_resource_path(testfile, resource_name):
@@ -479,3 +481,22 @@ def meml_analysis_request(
     mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
 
     return me_analysis_request
+
+
+@pytest.fixture
+def job(dbsession):
+
+    model_factory.JobFactory._meta.sqlalchemy_session = dbsession
+    job = model_factory.JobFactory()
+    dbsession.commit()
+    return job
+
+
+@pytest.fixture
+def variance(dbsession, job):
+
+    model_factory.VarianceFactory._meta.sqlalchemy_session = dbsession
+    
+    variance = model_factory.VarianceFactory(job=job)
+    
+    return variance
