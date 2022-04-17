@@ -14,21 +14,6 @@ def report_file(temp_dir):
 
 
 @pytest.fixture
-def predictions_df():
-
-    return pd.DataFrame(
-        columns=["job_id", "entry", "loc", "value", "std_error", "e_code", "num_factors"],
-        data=[
-            [1, 1, None, 1, 1.4, "E", 1],
-            [1, 2, None, 1, 1.5, "E", 1],
-            [1, None, 1, 1, 1.4, "E", 1],
-            [1, 1, 1, 1, 1.5, "E", 2],
-            [1, 2, 1, 1, 1.5, "E", 2],
-        ],
-    )
-
-
-@pytest.fixture
 def entry_only_predictions_df():
 
     return pd.DataFrame(

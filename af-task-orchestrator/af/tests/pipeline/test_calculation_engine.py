@@ -47,3 +47,15 @@ def test_h2_invalid_average_standard_error():
 
     with pytest.raises(InvalidAverageStandardError):
         calculation_engine.get_h2_cullis(genetic_variance, average_standard_error)
+
+
+def test_get_average_standard_error_is_not_none(predictions_df):
+
+    assert calculation_engine.get_average_std_error(predictions_df) is not None
+
+def test_get_average_standard_error(predictions_df):
+   
+    # from predictions_df fixture
+    expected_average_std_error = 1.46
+
+    assert calculation_engine.get_average_std_error(predictions_df) == expected_average_std_error

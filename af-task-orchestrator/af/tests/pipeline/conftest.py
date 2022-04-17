@@ -519,3 +519,19 @@ def variances(dbsession, jobs):
     
     return [variance_1, variance_2, variance_3]
 
+@pytest.fixture
+def predictions_df():
+
+    return pd.DataFrame(
+        columns=["job_id", "entry", "loc", "value", "std_error", "e_code", "num_factors"],
+        data=[
+            [1, 1, None, 1, 1.4, "E", 1],
+            [1, 2, None, 1, 1.5, "E", 1],
+            [1, None, 1, 1, 1.4, "E", 1],
+            [1, 1, 1, 1, 1.5, "E", 2],
+            [1, 2, 1, 1, 1.5, "E", 2],
+        ],
+    )
+
+
+
