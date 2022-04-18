@@ -51,7 +51,7 @@ def create_workbook(workbook_file: str, sheet_names: list[str]):
 
 
 def get_metadata(metadata_file: str):
-    metadta = pd.read_csv(metadata_file, sep="\t", dtype=str)
+    metadata = pd.read_csv(metadata_file, sep="\t", dtype=str)
     return metadata
 
 

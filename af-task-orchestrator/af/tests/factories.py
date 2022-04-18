@@ -10,6 +10,7 @@ from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyText
 from sqlalchemy import orm
 from pytz import UTC
 
+
 class BaseFactory(SQLAlchemyModelFactory):
     """Base Factory"""
 
@@ -42,8 +43,7 @@ class VarianceFactory(CreationModificationBaseFactory):
 
     job_id = factory.LazyAttribute(lambda obj: obj.job.id)
 
-    job = factory.SubFactory(JobFactory) 
+    job = factory.SubFactory(JobFactory)
 
     class Meta:
         model = db.models.Variance
-

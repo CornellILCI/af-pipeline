@@ -2,6 +2,7 @@ from af.pipeline.exceptions import InvalidAverageStandardError, InvalidVariance
 
 import pandas as pd
 
+
 def get_h2_cullis(genetic_variance: float, average_standard_error: float) -> float:
     """Return Heritability using Cullis method.
 
@@ -33,11 +34,11 @@ def get_h2_cullis(genetic_variance: float, average_standard_error: float) -> flo
 
 
 def get_average_std_error(predictions_df: pd.DataFrame) -> float:
-    """ Returns average standard error for predictions.
+    """Returns average standard error for predictions.
 
     Args:
         predictions_df: Dataframe with predictions.
-        
+
         example,
             job_id, entry, loc,  value, std_error, e_code, num_factors
             1,      1,     None, 1,     1.4,       E,       1
@@ -53,6 +54,6 @@ def get_average_std_error(predictions_df: pd.DataFrame) -> float:
 
     if predictions_df.empty:
         return 0
-    
+
+    predictions_df["std_error"] = predictions_df["std_error"].apply(pd.to_numeric)
     return predictions_df["std_error"].mean()
-    

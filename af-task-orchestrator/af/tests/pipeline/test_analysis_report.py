@@ -219,9 +219,16 @@ def test_write_predictions_entry_only_sesl(
     assert_frame_equal(output_entry_report, expected_entry_report, check_dtype=False)
 
 
-def test_write_predictions_location_only(report_file, location_only_predictions_df, metadata_df):
+def test_write_predictions_location_only(
+    mocker, dbsession, analysis_request, report_file, location_only_predictions_df, metadata_df
+):
 
-    analysis_report.write_predictions(report_file, location_only_predictions_df, metadata_df)
+    exp_location_analysis_pattern_stub = Property(code="SESL")
+    mocker.patch("af.pipeline.db.services.get_property", return_value=exp_location_analysis_pattern_stub)
+
+    analysis_report.write_predictions(
+        dbsession, analysis_request, report_file, location_only_predictions_df, metadata_df
+    )
 
     assert os.path.isfile(report_file)
 
@@ -244,9 +251,9 @@ def test_write_predictions_location_only(report_file, location_only_predictions_
     assert_frame_equal(output_entry_report, expected_entry_report, check_dtype=False)
 
 
-def test_write_model_stat_only(report_file, model_stat, metadata_df):
+def test_write_model_stat(report_file, model_stat, metadata_df):
 
-    analysis_report.write_model_stat(report_file, model_stat, 1.0, metadata_df, {"log_lik": "LogL"})
+    analysis_report.write_model_stat(report_file, model_stat, metadata_df, {"log_lik": "LogL"}, h2_cullis=1.0)
 
     assert os.path.isfile(report_file)
 
@@ -264,7 +271,7 @@ def test_write_model_stat_only(report_file, model_stat, metadata_df):
             "components",
             "conclusion",
             "is_converged",
-            "h2_cullis"
+            "h2_cullis",
         ],
         data=[
             [1, "experiment1", "testtrait", "loc1", "x", "x", "x", "x", "y", False, 1.0],

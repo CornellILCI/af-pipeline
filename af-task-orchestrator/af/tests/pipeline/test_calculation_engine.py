@@ -53,8 +53,9 @@ def test_get_average_standard_error_is_not_none(predictions_df):
 
     assert calculation_engine.get_average_std_error(predictions_df) is not None
 
+
 def test_get_average_standard_error(predictions_df):
-   
+
     # from predictions_df fixture
     expected_average_std_error = 1.46
 
