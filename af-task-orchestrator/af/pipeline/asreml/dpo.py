@@ -71,7 +71,7 @@ class AsremlProcessData(ProcessData):
 
         # read once
         for occurrence_id in self.occurrence_ids:
-            plots_by_id[occurrence_id]: pd.DataFrame = self.data_reader.get_plots(occurrence_id)
+            plots_by_id[occurrence_id]: pd.DataFrame = self.data_reader.get_plots(occurrence_id=occurrence_id)
             occurrences_by_id[occurrence_id]: Occurrence = self.data_reader.get_occurrence(occurrence_id)
 
         for trait in traits:
@@ -131,7 +131,7 @@ class AsremlProcessData(ProcessData):
 
         for occurrence_id in self.occurrence_ids:
 
-            plots = self.data_reader.get_plots(occurrence_id)
+            plots = self.data_reader.get_plots(occurrence_id=occurrence_id)
             occurrence: Occurrence = self.data_reader.get_occurrence(occurrence_id)
 
             for trait in traits:

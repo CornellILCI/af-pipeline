@@ -131,8 +131,6 @@ class AnalysisConfigsRootFactory(PropertyFactory):
 
 class AnalysisConfigUnorderedFactory(PropertyFactory):
 
-    id = factory.Faker("pyint", min_value=1000)
-
     @factory.post_generation
     def property_metas(obj, create, extracted, **kwargs):
         obj.property_metas.extend(PropertyMetaFactory.create_batch(size=10, property=obj))
