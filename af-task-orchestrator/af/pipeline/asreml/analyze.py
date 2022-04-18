@@ -11,7 +11,7 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import analysis_report, utils
+from af.pipeline import analysis_report, utils, calculation_engine
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services
@@ -115,6 +115,10 @@ class AsremlAnalyze(Analyze):
             job = db_services.get_job_by_name(self.db_session, job_result.job_name)
             asr_file_path = path.join(job_result.job_result_dir, f"{job.name}.asr")
 
+            exptloc_analysis_pattern = db_services.get_property(
+                self.db_session, self.analysis_request.expLocAnalysisPatternPropertyId
+            )
+
             if not path.exists(asr_file_path):
                 raise AnalysisError("Analysis result asr file not found.")
 
@@ -130,25 +134,49 @@ class AsremlAnalyze(Analyze):
                 )
                 return gathered_objects
 
-            metadata_df = pd.read_csv(job_result.metadata_file, sep="\t", dtype=str)
+            metadata_df = utils.get_metadata(job_result.metadata_file)
 
             # initialize the report workbook
             if not os.path.isfile(self.report_file_path):
                 utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
+
+            predictions_df = pd.DataFrame(asreml_result_content.predictions)
 
             # write prediction to the analysis report
             analysis_report.write_predictions(
                 self.db_session,
                 self.analysis_request,
                 self.report_file_path,
-                asreml_result_content.predictions,
+                predictions_df,
                 metadata_df,
             )
+
+            h2_cullis = None
+
+            if exptloc_analysis_pattern.code == "SESL":
+                # get h2 cullis
+                entry_variances = db_services.query_variance(self.db_session, job.id, "entry")
+                h2_cullis = "Value Error"
+                if len(entry_variances) == 1:
+                    try:
+                        genetic_variance = entry_variances[0].component
+                        if "entry" in predictions_df.columns:
+                            entry_predictions = predictions_df[predictions_df["entry"] != None]
+                            if "loc" in predictions_df.columns:
+                                entry_predictions = entry_predictions[entry_predictions["loc"] == None]
+
+                            avg_std_error = calculation_engine.get_average_std_error(entry_predictions)
+
+                            h2_cullis = calculation_engine.get_h2_cullis(genetic_variance, avg_std_error)
+                        else:
+                            h2_cullis = None
+                    except ValueError as ve:
+                        h2_cullis = str(ve)
 
             # write model statisics to analysis report
             rename_keys = {"log_lik": "LogL"}
             analysis_report.write_model_stat(
-                self.report_file_path, asreml_result_content.model_stat, metadata_df, rename_keys
+                self.report_file_path, asreml_result_content.model_stat, metadata_df, rename_keys, h2_cullis=h2_cullis
             )
 
             # parse yhat result and save to db

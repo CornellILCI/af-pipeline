@@ -53,10 +53,6 @@ class Analyze(abc.ABC):
         """
         pass
 
-    # @abc.abstractmethod
-    # def run(self, *args, **kwargs):
-    #     pass  TODO:  maybe this should be a concrete run()
-
     @abc.abstractmethod
     def get_engine_script(self):
         """This method should return the script name associated with the analysis."""

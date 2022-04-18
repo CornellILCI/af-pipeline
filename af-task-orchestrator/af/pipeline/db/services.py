@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from af.pipeline import db
 from af.pipeline.db.models import Analysis, Job, Property, PropertyConfig, PropertyMeta, Request
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
@@ -149,6 +150,31 @@ def get_analysis_config_module_fields(db_session, analysis_config_id: str):
     )
 
     return module_fields
+
+
+def query_variance(db_session, job_id: int = None, source: str = None):
+    """Get Variance for given source type for given job.
+
+    Source type examples are, rep.block, entry, Residual, Residual [1]
+
+    Args:
+        job_id: Id of the job.
+        source: type of variance source.
+
+    Returns:
+        Matched Variance object from database.
+
+    """
+
+    query = db_session.query(db.models.Variance)
+
+    if job_id:
+        query = query.filter(db.models.Variance.job_id == job_id)
+
+    if source:
+        query = query.filter(db.models.Variance.source == source)
+
+    return query.all()
 
 
 def add(db_session, _object):

@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 
 import openpyxl
+import pandas as pd
 from af.pipeline import exceptions
 
 
@@ -47,6 +48,11 @@ def create_workbook(workbook_file: str, sheet_names: list[str]):
         wb.create_sheet(sheet)
 
     wb.save(filename=workbook_file)
+
+
+def get_metadata(metadata_file: str):
+    metadata = pd.read_csv(metadata_file, sep="\t", dtype=str)
+    return metadata
 
 
 def remove_empty_worksheets(workbook_file: str):

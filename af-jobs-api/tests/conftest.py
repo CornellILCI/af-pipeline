@@ -21,8 +21,6 @@ from .factories import db as _db
 
 pg = PGTest()
 
-TEST_DATABASE_URI = "sqlite://"
-
 settings_override = {
     "SQLALCHEMY_DATABASE_URI": pg.url,
     "SQLALCHEMY_TRACK_MODIFICATIONS": False,
