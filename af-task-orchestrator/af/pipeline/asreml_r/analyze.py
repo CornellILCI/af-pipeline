@@ -17,7 +17,7 @@ input <- list(
   "request" = "{job_name}",
   "trait" = "AYLD_CONT",
   "formula_1job" = "{fixed_formula}",
-  "formula_2job" = "fixed = {trait_name} ~ rep, random = ~ ge",
+  #"formula_2job" = "fixed = {trait_name} ~ rep, random = ~ ge",
   "residual" = "{residual_formula}",
   "predict" = "ge"
 )
@@ -29,56 +29,42 @@ data <- data[with(data, order(occurrence,row,col)),]
 
 # asreml requires that the data type of some columns are "factor"
 data$rep <- as.factor(data$rep)
-data$occurrence <- as.factor(data$occurrence)
+# data$occurrence <- as.factor(data$occurrence)
 data$expt <- as.factor(data$expt)
 data$row <- as.factor(data$row)
 data$col <- as.factor(data$col)
 data$ge <- as.factor(data$ge)
+  
+#creating the asreml call for the first job of the first stage
+asremlModel <-paste("asr <- asreml(",input$formula_1job,
+                    ",residual=", input$residual,
+                    ",data=data_occ)",
+                    sep = "")
 
-# the multi-experiment should run, in the first stage, the analysis per occurrence
-for(i in levels(data$occurrence)){{
-  data_occ <- data[data$occurrence==i,]
-  data_occ <- droplevels(data_occ)
-  
-  # replacing the trait name in the formula of first job (ge as fixed)
-  # input$formula_1job <- gsub("{trait_name}",replacement = input$trait,x = input$formula_1job,fixed=T)
-  
-  #creating the asreml call for the first job of the first stage
-  asremlModel <-paste("asr <- asreml(",input$formula_1job,
-                      ",residual=", input$residual,
-                      ",data=data_occ)",
-                      sep = "")
 
-  
-  #executing asreml
-  eval(parse(text=asremlModel))
-  
-  # cicles until model gets converged
-  tries <- 0
-  while(!asr$converge & tries<6){{
-    tries <- tries+1
-    asr<-update.asreml(asr)
-  }}
-  
-  #asreml generates many results, stored in the object we called asr, lets consider that we want the predictions
-  
-  #summary
-  summary_model <- summary(asr)
-  #predictions
-  (pred <- predict.asreml(object = asr,classify = input$predict, sed = T))
-  
-  
-  # printing RDS files with results (main asreml object -asr; its summary - summary; its prediction - pred)
-  saveRDS(asr, paste("{job_dir}/{job_name}_asr}.rds", sep=""))
-  saveRDS(summary_model, paste("{job_dir}/{job_name}_summary.rds", sep=""))
-  saveRDS(pred, paste("{job_dir}/{job_name}_pred.rds", sep=""))
-  
-  # post analysis calculation - for calculation engine
-  # vdBLUP.mat <- predict.asreml(asr, classify=input$predict, only=input$predict, sed=TRUE)$sed^2 # obtain squared s.e.d. matrix 
-  # predict.asreml(asr, classify="ge", only="ge", sed=TRUE)$sed^2 # obtain squared s.e.d. matrix 
-  # vdBLUP.avg <- mean(vdBLUP.mat[upper.tri(vdBLUP.mat, diag=FALSE)]) # take mean of upper triangle
-  # vdBLUP.avg
-  }}​
+#executing asreml
+eval(parse(text=asremlModel))
+
+# cicles until model gets converged
+tries <- 0
+while(!asr$converge & tries<6){{
+tries <- tries+1
+asr<-update.asreml(asr)
+}}
+
+#asreml generates many results, stored in the object we called asr, lets consider that we want the predictions
+
+#summary
+summary_model <- summary(asr)
+#predictions
+(pred <- predict.asreml(object = asr,classify = input$predict, sed = T))
+
+
+# printing RDS files with results (main asreml object -asr; its summary - summary; its prediction - pred)
+saveRDS(asr, paste("{job_dir}/{job_name}_asr}.rds", sep=""))
+saveRDS(summary_model, paste("{job_dir}/{job_name}_summary.rds", sep=""))
+saveRDS(pred, paste("{job_dir}/{job_name}_pred.rds", sep=""))
+​
 '''
 
 
