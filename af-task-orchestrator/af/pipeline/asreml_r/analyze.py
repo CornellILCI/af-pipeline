@@ -19,6 +19,7 @@ input <- list(
   "formula_1job" = "{fixed_formula}",
   #"formula_2job" = "fixed = {trait_name} ~ rep, random = ~ ge",
   "residual" = "{residual_formula}",
+  "options" = "na.action = na.method(y = 'include', x = 'include')",
   "predict" = "{prediction}"
 )
 
@@ -33,6 +34,7 @@ data <- data[with(data, order(row,col)),]
 #creating the asreml call for the first job of the first stage
 asremlModel <-paste("asr <- asreml(",input$formula_1job,
                     ",residual=", input$residual,
+                    ",",input$options,
                     ",data=data)",
                     sep = "")
 
