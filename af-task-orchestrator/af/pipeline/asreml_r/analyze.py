@@ -150,5 +150,11 @@ class AsremlRAnalyze(AsremlAnalyze):
     
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):
         # TODO: customize job result processing
-        return super().process_job_result(job_result, gathered_objects)
+        # return super().process_job_result(job_result, gathered_objects)
+        job_dir = utils.get_parent_dir(job_result.data_file)
+        utils.zip_dir(job_dir, self.output_file_path, job_result.job_name)
+        return gathered_objects
+
+    def finalize(self, gathered_objects):
+        return super().finalize(gathered_objects)
 
