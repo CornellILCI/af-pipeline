@@ -46,7 +46,9 @@ def pre_process(request_id, analysis_request):
 
 @app.task(name="post_process", base=StatusReportingTask)
 def post_process(request_id, analysis_request, results, gathered_objects=None):
-
+    if not results:
+        return
+        
     result, results = results[0], results[1:]
 
     if gathered_objects is None:

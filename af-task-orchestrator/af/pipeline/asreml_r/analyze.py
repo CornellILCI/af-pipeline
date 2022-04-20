@@ -15,30 +15,25 @@ library(asreml)
 # the input object just emulates a reqeuest and its data
 input <- list(
   "request" = "{job_name}",
-  "trait" = "AYLD_CONT",
+  "trait" = "{trait_name}",
   "formula_1job" = "{fixed_formula}",
   #"formula_2job" = "fixed = {trait_name} ~ rep, random = ~ ge",
   "residual" = "{residual_formula}",
-  "predict" = "ge"
+  "predict" = "{prediction}"
 )
 
 data <- read.csv("{datafile}",h=T)
 
 # Some data modification required by asreml (do not care with this now)
-data <- data[with(data, order(occurrence,row,col)),]
+data <- data[with(data, order(row,col)),]
 
 # asreml requires that the data type of some columns are "factor"
-data$rep <- as.factor(data$rep)
-# data$occurrence <- as.factor(data$occurrence)
-data$expt <- as.factor(data$expt)
-data$row <- as.factor(data$row)
-data$col <- as.factor(data$col)
-data$ge <- as.factor(data$ge)
-  
+{factor_script}
+
 #creating the asreml call for the first job of the first stage
 asremlModel <-paste("asr <- asreml(",input$formula_1job,
                     ",residual=", input$residual,
-                    ",data=data_occ)",
+                    ",data=data)",
                     sep = "")
 
 
@@ -61,33 +56,41 @@ summary_model <- summary(asr)
 
 
 # printing RDS files with results (main asreml object -asr; its summary - summary; its prediction - pred)
-saveRDS(asr, paste("{job_dir}/{job_name}_asr}.rds", sep=""))
+saveRDS(asr, paste("{job_dir}/{job_name}_asr.rds", sep=""))
 saveRDS(summary_model, paste("{job_dir}/{job_name}_summary.rds", sep=""))
 saveRDS(pred, paste("{job_dir}/{job_name}_pred.rds", sep=""))
-​
+
 '''
 
 
-
-def run_asremlr(job_dir, job_data: JobData):
-    fixed_formula = str(job_data.job_params.formula)   
-    # random_formula = "~ entry"
+def run_asremlr(job_dir, job_data: JobData, factors):
+    """ 
+    This function builds the R script that will be run.  The base script template is defined in SCRIPT var.
+    """
+    fixed_formula = str(job_data.job_params.formula) 
     residual_formula = job_data.job_params.residual
-    # result1 = f"{job_dir}/{job_data.job_name}_results.csv"
+    prediction = job_data.job_params.predictions[0]
+    trait_name = job_data.trait_name
 
     # replace trait_name in fixed formula
-    fixed_formula = fixed_formula.format(
-        trait_name=job_data.trait_name
-    )
+    if "{trait_name}" in fixed_formula:
+        fixed_formula = fixed_formula.format(
+            trait_name=trait_name
+        )
+      
+    factor_script = ""
+    for factor in factors:
+        factor_script += f"data${factor} <- as.factor(data${factor})\n"
 
     user_script = SCRIPT.format(
-        trait_name=job_data.trait_name,
+        trait_name=trait_name,
         datafile=job_data.data_file,
         fixed_formula=fixed_formula,
-        # random_formula=random_formula,
+        factor_script=factor_script,
         residual_formula=residual_formula,
         job_dir=job_dir,
-        job_name=job_data.job_name
+        job_name=job_data.job_name,
+        prediction=prediction
     )
     robjects.r(user_script)  # quickest way to implement, but might be hard to get error desc....
 
@@ -118,7 +121,15 @@ class AsremlRAnalyze(AsremlAnalyze):
         )
 
         try:
-            run_asremlr(job_dir, job_data)
+            model_prop = db_services.get_property(self.db_session, self.analysis_request.analysisConfigPropertyId)
+            # get factors for config and pass them
+            factor_properties = db_services.get_child_properties(
+                self.db_session, model_prop.code, model_prop.name
+            )
+            
+            factors = [prop.code for prop in factor_properties if prop.data_type == "factor"]
+
+            run_asremlr(job_dir, job_data, factors)
             
             job = db_services.update_job(
                 self.db_session, job, "IN-PROGRESS", "Completed the job. Pending post processing."
@@ -136,4 +147,6 @@ class AsremlRAnalyze(AsremlAnalyze):
             self.db_session.commit()
     
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):
+        # TODO: customize job result processing
         return super().process_job_result(job_result, gathered_objects)
+
