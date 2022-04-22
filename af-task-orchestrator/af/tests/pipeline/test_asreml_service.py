@@ -112,8 +112,8 @@ def test_get_average_std_error_calculation_does_not_include_prediction_id(temp_f
         ),
         (
             b"something unrelated\nPredicted values with SED(PV)\n 34\n  1 0.1\n  2 0.1 0\n  3 0.1 0 0\n  4 0 0.1 0\n 0\n  5 0 0.1 0\n 0 0 \nsomething unrelated\nend of file",
-            (0.05/15),
-        )
+            (0.05 / 15),
+        ),
     ],
 )
 def test_get_average_std_error_calculation(temp_file, pvs_data, expected):

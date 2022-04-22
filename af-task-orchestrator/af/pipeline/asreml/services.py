@@ -1,6 +1,6 @@
 import io
-import xml.sax
 import re
+import xml.sax
 from datetime import datetime
 
 from af.pipeline import utils as pipeline_utils
@@ -110,12 +110,12 @@ def get_average_std_error(pvs_file: str) -> float:
     # increments after reading each row as it is symmetric matrix
     row_len = 1
 
-    total_sum = 0 # sum of square of all seds
-    total_count = 0 # number of seds
+    total_sum = 0  # sum of square of all seds
+    total_count = 0  # number of seds
 
     tokens = {" ", "\n"}
 
-    std_avg_error = 0.
+    std_avg_error = 0.0
 
     with open(pvs_file) as f:
 
@@ -126,7 +126,7 @@ def get_average_std_error(pvs_file: str) -> float:
                 continue
             elif read and bool(alphabets_pattern.search(line)):
                 break
-            
+
             # read only when conditions checked
             if read:
                 sed = ""
@@ -137,7 +137,7 @@ def get_average_std_error(pvs_file: str) -> float:
                         # skip first column
                         if column > 0:
                             sed_numeric = float(sed)
-                            total_sum += (sed_numeric**2)
+                            total_sum += sed_numeric ** 2
                             total_count += 1
 
                         column += 1
@@ -148,7 +148,7 @@ def get_average_std_error(pvs_file: str) -> float:
                             row_len += 1
                         sed = ""
     if total_count > 0:
-       std_avg_error = total_sum/total_count
+        std_avg_error = total_sum / total_count
     return std_avg_error
 
 
