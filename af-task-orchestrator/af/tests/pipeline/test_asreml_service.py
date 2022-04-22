@@ -1,5 +1,6 @@
 import io
 import json
+import tempfile
 
 import pytest
 from af.pipeline import asreml
@@ -65,3 +66,61 @@ def test_get_average_std_error_throws_value_error_for_invalid_file(mocker):
 
     with pytest.raises(ValueError, match="SE Blup Calculation: PVS file not found in ASReml results."):
         asreml.services.get_average_std_error("dummy")
+
+
+def test_get_average_error_reads_correct_lines_from_file(temp_file):
+
+    pvs_data = b"something unrelated\nPredicted values with SED(PV)\n1\n1 1\nsomething unrelated\nend of file"
+
+    temp_file.write(pvs_data)
+    temp_file.seek(0)
+
+    assert asreml.services.get_average_std_error(temp_file.name) == 1.0
+
+
+def test_get_average_std_error_calculation_does_not_include_prediction_id(temp_file):
+
+    pvs_data = (
+        b"something unrelated\nPredicted values with SED(PV)\n"
+        b" 34\n"
+        b"  1 1\n"
+        b"  2 1 1\n"
+        b"  3 1 1 1\n"
+        b"  4 1 1 1\n"
+        b" 1\n"
+        b"  5 1 1 1\n"
+        b" 1 1 \n"
+        b"something unrelated\nend of file"
+    )
+
+    temp_file.write(pvs_data)
+    temp_file.seek(0)
+
+    assert asreml.services.get_average_std_error(temp_file.name) == 1.0
+
+
+@pytest.mark.parametrize(
+    "pvs_data, expected",
+    [
+        (
+            b"something unrelated\nPredicted values with SED(PV)\n 34\n  1 1\n  2 1 1\n  3 1 1 1\n  4 1 1 1\n 1\n  5 1 1 1\n 1 1 \nsomething unrelated\nend of file",
+            1.0,
+        ),
+        (
+            b"something unrelated\nPredicted values with SED(PV)\n 34\n  1 0\n  2 0 0\n  3 0 0 0\n  4 0 0 0\n 0\n  5 0 0 0\n 0 0 \nsomething unrelated\nend of file",
+            0.0,
+        ),
+        (
+            b"something unrelated\nPredicted values with SED(PV)\n 34\n  1 0.1\n  2 0.1 0\n  3 0.1 0 0\n  4 0 0.1 0\n 0\n  5 0 0.1 0\n 0 0 \nsomething unrelated\nend of file",
+            (0.05/15),
+        )
+    ],
+)
+def test_get_average_std_error_calculation(temp_file, pvs_data, expected):
+
+    temp_file.write(pvs_data)
+    temp_file.seek(0)
+
+    std_avg_error = asreml.services.get_average_std_error(temp_file.name)
+
+    assert round(std_avg_error, 5) == round(std_avg_error, 5)
