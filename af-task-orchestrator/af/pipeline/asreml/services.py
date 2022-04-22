@@ -2,6 +2,7 @@ import io
 import xml.sax
 from datetime import datetime
 
+from af.pipeline import utils as pipeline_utils
 from af.pipeline.asreml import stupid_asreml_xml_resolver, yhatparser
 from af.pipeline.asreml.resultparser import ASRemlContentHandler
 from af.pipeline.db.core import DBConfig
@@ -52,6 +53,20 @@ def process_asreml_result(session, job_id: int, filename_or_stream, *args, **kwa
     session.commit()
 
     return ch
+
+
+def get_average_std_error(pvs_file: str) -> float:
+    """Reads the pvs_file from asreml result and calculated average standard error.
+
+        Errors are saved as symmetrix matrix in
+
+    Args:
+        pvs_file: pvs file path
+
+    """
+    if not pipeline_utils.is_valid_file(pvs_file):
+        raise ValueError("SE Blup Calculation: PVS file not found in ASReml results.")
+    return 0.0
 
 
 def _save_variances(session, variances):

@@ -11,7 +11,7 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import analysis_report, utils, calculation_engine
+from af.pipeline import analysis_report, calculation_engine, utils
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services

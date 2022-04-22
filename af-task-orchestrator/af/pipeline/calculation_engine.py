@@ -1,6 +1,5 @@
-from af.pipeline.exceptions import InvalidAverageStandardError, InvalidVariance
-
 import pandas as pd
+from af.pipeline.exceptions import InvalidAverageStandardError, InvalidVariance
 
 
 def get_h2_cullis(genetic_variance: float, average_standard_error: float) -> float:

@@ -1,6 +1,8 @@
 import io
 import json
 
+import pytest
+from af.pipeline import asreml
 from af.pipeline.asreml.services import process_asreml_result, process_yhat_result
 from af.pipeline.db.models import FittedValues, ModelStat, PredictionEffect, Variance
 
@@ -43,3 +45,23 @@ def test_yhat_parser_service_happy_path(sample_yhat_data_1, dbsession):
     # SQLITE gets the data as string so, we must do a test
     json_data = json.loads(record.additional_info)
     assert json_data.get("RinvRes") == 0.009825
+
+
+def test_get_average_std_error_returns_float(temp_file):
+
+    assert type(asreml.services.get_average_std_error(temp_file.name)) is float
+
+
+def test_get_average_std_error_checks_for_valid_file(mocker, temp_file):
+
+    check_valid_file_method = mocker.patch("af.pipeline.utils.is_valid_file")
+    asreml.services.get_average_std_error(temp_file.name)
+    check_valid_file_method.assert_called_once_with(temp_file.name)
+
+
+def test_get_average_std_error_throws_value_error_for_invalid_file(mocker):
+
+    check_valid_file_method = mocker.patch("af.pipeline.utils.is_valid_file", return_value=False)
+
+    with pytest.raises(ValueError, match="SE Blup Calculation: PVS file not found in ASReml results."):
+        asreml.services.get_average_std_error("dummy")

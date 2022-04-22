@@ -34,6 +34,15 @@ def get_parent_dir(file_path: str) -> str:
     return _file_path.parent
 
 
+def is_valid_file(file_path: str) -> bool:
+    """Checks if the given file path is valid and
+    the file exists in the input path
+    """
+    if file_path and os.path.isfile(file_path):
+        return True
+    return False
+
+
 def create_workbook(workbook_file: str, sheet_names: list[str]):
     """Creates a excel workbook for given file path.
 
