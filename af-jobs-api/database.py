@@ -116,6 +116,7 @@ class PropertyMeta(db.Model):
     property_id = db.Column(db.Integer, db.ForeignKey(Property.id))
     code = db.Column(db.String)
     value = db.Column(db.String)
+    tenant_id = db.Column(db.Integer)
 
     property = db.relationship(Property, back_populates="property_metas")
 
