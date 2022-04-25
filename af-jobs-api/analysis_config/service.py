@@ -63,22 +63,21 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
 
 def submit_analysis_config(request_params: api_models.Analysis,
                            request_params_meta: api_models.AnalysisConfigMeta,
-                           request_params_config: api_models.ParamsConfig):
+                           request_params_config: api_models.AnalysisConfig):
 
     """Submits analysis config to pipeline."""
 
     analysis_uuid = str(uuidlib.uuid4())
 
-    analysis_property = Property(
-        # (code, "name", "label", description, "type", data_type, creator_id, is_void, tenant_id, id, "statement")
+    analysis = Property(
         code=request_params.code,
         name=request_params.configName,
         label=request_params.label,
         description=request_params.description,
         type=request_params.design,
         data_type=request_params.dataType,
-        creator_id=request_params.creator_id,
-        modifier_id=request_params.modifier_id,
+        creator_id=request_params.creatorId,
+        modifier_id=request_params.modifierId,
         is_void=request_params.isVoid,
         tenant_id=request_params.tenantId,
         id=request_params.id,
@@ -86,21 +85,20 @@ def submit_analysis_config(request_params: api_models.Analysis,
     )
 
     analysis_config_meta = PropertyMeta(
-        # property_id, code, value, tenant_id
-        property_id=request_params_meta.property_id,
+        property_id=request_params_meta.propertyId,
         code=request_params_meta.code,
-        value= request_params_meta.value,
-        tenant_id =request_params_meta.tenant_id
+        value=request_params_meta.value,
+        tenant_id=request_params_meta.tenantId
 
     )
 
     analysis_config = PropertyConfig(
         order_number=request_params_config.order,
-        creator_id=request_params_config.creator_id,
+        creator_id=request_params_config.creatorId,
         is_void=request_params_config.is_void,
-        property_id=request_params_config.property_id,
-        config_property_id=request_params_config.config_property_id,
-        is_layout_variable=request_params_config.is_layout_variable,
+        property_id=request_params_config.propertyId,
+        config_property_id=request_params_config.configPropertyId,
+        is_layout_variable=request_params_config.isLayout,
 
     )
 

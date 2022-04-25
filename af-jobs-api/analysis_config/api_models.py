@@ -72,8 +72,8 @@ class AnalysisConfig(AfBaseModel):
     creatorId: str = Field(None, description="creator id")
     isVoid: str = Field(None, description="is void")
     propertyId: str = Field(None, description="property id")
-    config_property: str = Field(None, description="property id")
-    is_layout: str = Field(None, description="property id")
+    configPropertyId: str = Field(None, description="property id")
+    isLayout: str = Field(None, description="property id")
 
     # configId: str = Field(None, description="config id")
     # configVersion: str = Field(None, description="config version")
