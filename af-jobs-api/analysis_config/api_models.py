@@ -45,29 +45,52 @@ class AnalysisConfigListResponse(BaseModel):
     result: Optional[AnalysisConfigListResponseResult] = None
 
 
-class AnalysisConfig(AfBaseModel):
+class Analysis(AfBaseModel):
     code: str = Field(None, description="Organization code")
     configName: str = Field(None, description="config name")
+    label: str = Field(None, description="label")
     description: str = Field(None, description="Description")
+    design: str = Field(None, description="Design type")
+    dataType: str = Field(None, description="data type")
+    creatorId: str = Field(None, description="creator id")
+    modifierId: str = Field(None, description="modifier id")
+    isVoid: str = Field(None, description="is void")
+    tenantId: str = Field(None, description="tenant id")
+    id: str = Field(None, description="id")
+    statement: str = Field(None, description="statement")
 
 
 class AnalysisConfigMeta(AfBaseModel):
-    configId: str = Field(None, description="config id")
-    configVersion: str = Field(None, description="config version")
-    createdOn: datetime = None
-    author: str = Field(None, description="author")
-    email: str = Field(None, description="email")
-    engine: str = Field(None, description="Name of the analysis engine")
-    experimentInfo: str = Field(None, description="experiment info")
-    breedingProgramId: str = Field(None, description="breeding program id")
-    pipelineId: str = Field(None, description="Description")
-    stageId: str = Field(None, description="stage id")
-    design: str = Field(None, description="Design type")
-    traitLevel: str = Field(None, description="Trait level, example: plot")
-    analysisInfo: str = Field(None, description="analysis info")
-    analysisObjective: str = Field(None, description="Analysis objective example: prediction")
-    experimentAnalysisPattern: str = Field(None, description="Experiment Analysis pattern example: single")
-    locationAnalysisPattern: str = Field(None, description="Location Analysis pattern example: single")
-    yearAnalysisPattern: str = Field(None, description="Description")
-    traitPattern: str = Field(None, description="Trait Pattern example: single")
-    # are some of these supposed to be Property objects instead of strings?
+    propertyId : str = Field(None, description="property id")
+    code: str = Field(None, description="Organization code")
+    value: str = Field(None, description="value")
+    tenantId: str = Field(None, description="tenant id")
+
+
+class AnalysisConfig(AfBaseModel):
+    order: str = Field(None, description="Order number")
+    creatorId: str = Field(None, description="creator id")
+    isVoid: str = Field(None, description="is void")
+    propertyId: str = Field(None, description="property id")
+    config_property: str = Field(None, description="property id")
+    is_layout: str = Field(None, description="property id")
+
+    # configId: str = Field(None, description="config id")
+    # configVersion: str = Field(None, description="config version")
+    # createdOn: datetime = None
+    # author: str = Field(None, description="author")
+    # email: str = Field(None, description="email")
+    # engine: str = Field(None, description="Name of the analysis engine")
+    # experimentInfo: str = Field(None, description="experiment info")
+    # breedingProgramId: str = Field(None, description="breeding program id")
+    # pipelineId: str = Field(None, description="Description")
+    # stageId: str = Field(None, description="stage id")
+    # design: str = Field(None, description="Design type")
+    # traitLevel: str = Field(None, description="Trait level, example: plot")
+    # analysisInfo: str = Field(None, description="analysis info")
+    # analysisObjective: str = Field(None, description="Analysis objective example: prediction")
+    # experimentAnalysisPattern: str = Field(None, description="Experiment Analysis pattern example: single")
+    # locationAnalysisPattern: str = Field(None, description="Location Analysis pattern example: single")
+    # yearAnalysisPattern: str = Field(None, description="Description")
+    # traitPattern: str = Field(None, description="Trait Pattern example: single")
+    # # are some of these supposed to be Property objects instead of strings?

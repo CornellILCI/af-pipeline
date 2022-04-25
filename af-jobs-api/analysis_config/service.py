@@ -61,8 +61,8 @@ def get_analysis_configs(page=0, page_size=1000, **kwargs):
     return analysis_configs, total_count
 
 
-def submit_analysis_config(request_params_meta: api_models.AnalysisConfigMeta,
-                           request_params: api_models.AnalysisConfig,
+def submit_analysis_config(request_params: api_models.Analysis,
+                           request_params_meta: api_models.AnalysisConfigMeta,
                            request_params_config: api_models.ParamsConfig):
 
     """Submits analysis config to pipeline."""
@@ -72,17 +72,17 @@ def submit_analysis_config(request_params_meta: api_models.AnalysisConfigMeta,
     analysis_property = Property(
         # (code, "name", "label", description, "type", data_type, creator_id, is_void, tenant_id, id, "statement")
         code=request_params.code,
-        name =request_params.name,
-        label =request_params.label,
-        description =request_params.description,
-        type =request_params.type,
-        data_type =request_params.data_type,
-        creator_id =request_params.creator_id,
-        modifier_id =request_params.modifier_id,
-        is_void =request_params.is_void,
-        tenant_id=request_params.tenant_id,
+        name=request_params.configName,
+        label=request_params.label,
+        description=request_params.description,
+        type=request_params.design,
+        data_type=request_params.dataType,
+        creator_id=request_params.creator_id,
+        modifier_id=request_params.modifier_id,
+        is_void=request_params.isVoid,
+        tenant_id=request_params.tenantId,
         id=request_params.id,
-        statement =request_params.statement
+        statement=request_params.statement
     )
 
     analysis_config_meta = PropertyMeta(
@@ -95,7 +95,7 @@ def submit_analysis_config(request_params_meta: api_models.AnalysisConfigMeta,
     )
 
     analysis_config = PropertyConfig(
-        order_number=request_params_config.order_number,
+        order_number=request_params_config.order,
         creator_id=request_params_config.creator_id,
         is_void=request_params_config.is_void,
         property_id=request_params_config.property_id,
