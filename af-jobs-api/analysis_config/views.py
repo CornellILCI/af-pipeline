@@ -37,11 +37,10 @@ def list():
     return json_response(response, HTTPStatus.OK)
 
 
-@af_requests_bp.route("", methods=["POST"])
+@af_requests_bp.route("/analysis_model", methods=["POST"])
 @validate_api_request(body_model=api_models.AnalysisRequestParameters)
 def post_analysis_config():
     """Create request object based on body params"""
-
     request_query_params = api_models.AnalysisConfigsListQueryParameters(**request.args)
 
     filter_params = request_query_params.as_db_filter_params()
