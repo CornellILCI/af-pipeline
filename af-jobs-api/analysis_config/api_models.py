@@ -1,4 +1,5 @@
 from typing import List, Optional
+from datetime import datetime
 
 from common.api_models import (
     ErrorResponse,
@@ -43,6 +44,10 @@ class AnalysisConfigListResponseResult(BaseModel):
 class AnalysisConfigListResponse(BaseModel):
     metadata: Optional[Metadata] = None
     result: Optional[AnalysisConfigListResponseResult] = None
+
+class AfBaseModel(BaseModel):
+    createdOn: Optional[datetime] = None
+    modifiedOn: Optional[datetime] = None
 
 
 class Analysis(AfBaseModel):

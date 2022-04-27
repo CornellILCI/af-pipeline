@@ -8,6 +8,7 @@ from flask.blueprints import Blueprint
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 analysis_configs_bp = Blueprint("analysis_configs", __name__, url_prefix="/v1/analysis-configs")
+analysis_models_bp = Blueprint("analysis_models", __name__, url_prefix="/v1/analysis-models")
 
 
 @analysis_configs_bp.route("", methods=["GET"])
@@ -37,7 +38,7 @@ def list():
     return json_response(response, HTTPStatus.OK)
 
 
-@af_requests_bp.route("/analysis_model", methods=["POST"])
+@analysis_models_bp.route("", methods=["POST"])
 @validate_api_request(body_model=api_models.AnalysisRequestParameters)
 def post_analysis_config():
     """Create request object based on body params"""
