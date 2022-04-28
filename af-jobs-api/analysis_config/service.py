@@ -3,8 +3,8 @@ import json
 from database import Property, PropertyConfig, PropertyMeta, db
 from sqlalchemy import and_, func
 
-from af_config import api_models
-from af_config import models as db_models
+from analysis_config import api_models
+from analysis_config import models as db_models
 from database import db
 
 
@@ -111,7 +111,7 @@ def submit_analysis_config(request_params: api_models.Analysis,
 
 def create_analysis_config(
     property_code, property_configName, property_label, property_description, property_design, property_data_type, property_creator_id, property_modifier_id, property_tenant_id, property_id, property_statement,
-    property_meta_version, property_meta_date, property_meta_author, property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breding_program_id,
+    property_meta_version, property_meta_date, property_meta_author, property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breeding_program_id,
     property_meta_pipeline_id, property_meta_stage_id, property_meta_design, property_meta_trait_level, property_meta_analysis_objective, property_meta_exp_analysis_pattern,
     property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern
 ):
@@ -144,7 +144,7 @@ def create_analysis_config(
         PropertyMeta(property_id=property_id, code='organization_code', value=property_meta_organization_code, tenant_id=1),
         PropertyMeta(property_id=property_id, code='engine', value=property_meta_engine, tenant_id=1),
 
-        PropertyMeta(property_id=property_id, code='breding_program_id', value=property_meta_breding_program_id, tenant_id=1),
+        PropertyMeta(property_id=property_id, code='breeding_program_id', value=property_meta_breeding_program_id, tenant_id=1),
         PropertyMeta(property_id=property_id, code='pipeline_id', value=property_meta_pipeline_id, tenant_id=1),
         PropertyMeta(property_id=property_id, code='stage_id', value=property_meta_stage_id, tenant_id=1),
         PropertyMeta(property_id=property_id, code='design', value=property_meta_design, tenant_id=1),

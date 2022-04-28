@@ -49,6 +49,35 @@ class AfBaseModel(BaseModel):
     createdOn: Optional[datetime] = None
     modifiedOn: Optional[datetime] = None
 
+class AnalysisConfigCreateObject(BaseModel):
+    code: str = Field(None, description="Organization code")
+    configName: str = Field(None, description="config name")
+    label: str = Field(None, description="label")
+    description: str = Field(None, description="Description")
+    design: str = Field(None, description="Design type")
+    dataType: str = Field(None, description="data type")
+    creatorId: str = Field(None, description="creator id")
+    modifierId: str = Field(None, description="modifier id")
+    tenantId: str = Field(None, description="tenant id")
+    id: str = Field(None, description="id")
+    statement: str = Field(None, description="statement")
+    property_meta_version: str = Field(None, description="Version")
+    property_meta_date: str = Field(None, description="Date")
+    property_meta_author: str = Field(None, description="Author")
+    property_meta_email: str = Field(None, description="Email")
+    property_meta_organization_code: str = Field(None, description="Organization code")
+    property_meta_engine: str = Field(None, description="engine")
+    property_meta_breeding_program_id: str = Field(None, description="Breeding ProgramId")
+    property_meta_pipeline_id: str = Field(None, description="Pipeline Id")
+    property_meta_stage_id: str = Field(None, description="Stage Id")
+    property_meta_design: str = Field(None, description="Design")
+    property_meta_trait_level: str = Field(None, description="Trait Level")
+    property_meta_analysis_objective: str = Field(None, description="Analysis Objective")
+    property_meta_exp_analysis_pattern: str = Field(None, description="Experiment Analysis Pattern")
+    property_meta_loc_analysis_pattern: str = Field(None, description="Location Analysis Pattern")
+    property_meta_year_analysis_pattern: str = Field(None, description="Yearly Analysis Pattern")
+    property_meta_trait_pattern: str = Field(None, description="Trait Pattern")
+
 
 class Analysis(AfBaseModel):
     code: str = Field(None, description="Organization code")
