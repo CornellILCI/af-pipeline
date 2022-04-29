@@ -136,7 +136,7 @@ def create_analysis_config(
     #create a bunch of PropertyMeta
     property_metas = []
 
-    property_metas.append([
+    property_metas.extend([
         PropertyMeta(property_id=property_id, code='Version', value=property_meta_version, tenant_id=1),
         PropertyMeta(property_id=property_id, code='date', value=property_meta_date, tenant_id=1),
         PropertyMeta(property_id=property_id, code='author', value=property_meta_author, tenant_id=1),
@@ -168,6 +168,7 @@ def create_analysis_config(
         is_layout_variable=False,
     )
 
+    print(property_metas)
 
     with db.session.begin():
         db.session.add(property)

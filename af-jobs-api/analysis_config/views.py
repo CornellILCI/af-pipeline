@@ -64,9 +64,11 @@ def list():
 #     return json_response(response, HTTPStatus.OK)
 
 @analysis_models_bp.route("", methods=["POST"])
+@validate_api_request(query_model=api_models.AnalysisConfigCreateObject)
 def post_analysis_config():
 
-    analysis_config_params = api_models.AnalysisConfigCreateObject(**request.args)
+    analysis_config_params = api_models.AnalysisConfigCreateObject(**request.json)
+    print(analysis_config_params)
 
     service.create_analysis_config(
         property_code = analysis_config_params.code,
