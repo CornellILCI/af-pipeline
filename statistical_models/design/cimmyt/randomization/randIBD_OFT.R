@@ -124,7 +124,7 @@ if(length(wholeExp)==0){stop("Error in randIBD_OFT: No combination met the quali
 
 # Selecting one of the the available combinations
 
-selectedExp <- wholeExp[[1]] # pick the 8 while no method for this selection is implemented
+selectedExp <- wholeExp[[1]] # pick the 1 while no method for this selection is implemented - the first will always focus on add exp1 as preference.
 
 ## generating whole experiment based on the selected combination
 for(i in 1:length(table(selectedExp))){

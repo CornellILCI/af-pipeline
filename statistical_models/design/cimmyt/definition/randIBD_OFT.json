@@ -17,9 +17,9 @@
         "input": {
             "nTrial": {
                 "variable_label": "No. farms",
-                "description": "Number of participant farms. Min = 80",
+                "description": "Number of participant farms.",
                 "visible": "T",
-                "minimum": 80,
+                "minimum": 60,
                 "maximum": null,
                 "unit": null,
                 "values": null,
@@ -87,7 +87,7 @@
                     {
                         "order number": 1,
                         "type": "allowed-value",
-                        "expression": "value>3",
+                        "expression": "value>2",
                         "notification": null,
                         "action": null
                     },
