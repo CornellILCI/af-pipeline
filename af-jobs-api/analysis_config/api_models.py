@@ -61,7 +61,6 @@ class AnalysisConfigCreateObject(BaseModel):
     creatorId: str = Field(None, description="creator id")
     modifierId: str = Field(None, description="modifier id")
     tenantId: str = Field(None, description="tenant id")
-    id: str = Field(None, description="id")
     statement: str = Field(None, description="statement")
     propertyMetaVersion: str = Field(None, description="Version")
     propertyMetaDate: str = Field(None, description="Date")

@@ -110,70 +110,73 @@ def submit_analysis_config(request_params: api_models.Analysis,
 
 
 def create_analysis_config(
-    property_code, property_configName, property_label, property_description, property_design, property_data_type, property_creator_id, property_modifier_id, property_tenant_id, property_id, property_statement,
+    property_code, property_configName, property_label, property_description, property_design, property_data_type, property_creator_id, property_modifier_id, property_tenant_id, property_statement,
     property_meta_version, property_meta_date, property_meta_author, property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breeding_program_id,
     property_meta_pipeline_id, property_meta_stage_id, property_meta_design, property_meta_trait_level, property_meta_analysis_objective, property_meta_exp_analysis_pattern,
     property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern
 ):
-    
-    #create a property
-    property = Property(
-        code=property_code,
-        name=property_configName,
-        label=property_label,
-        description=property_description,
-        type=property_design,
-        data_type=property_data_type,
-        creator_id=property_creator_id,
-        modifier_id=property_modifier_id,
-        is_void=False,
-        tenant_id=property_tenant_id,
-        id=property_id,
-        statement=property_statement
-    )
-
-    property_metas = []
-
-    property_metas.extend([
-        PropertyMeta(property_id=property_id, code='Version', value=property_meta_version, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='date', value=property_meta_date, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='author', value=property_meta_author, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='email', value=property_meta_email, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='organization_code', value=property_meta_organization_code, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='engine', value=property_meta_engine, tenant_id=1),
-
-        PropertyMeta(property_id=property_id, code='breeding_program_id', value=property_meta_breeding_program_id, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='pipeline_id', value=property_meta_pipeline_id, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='stage_id', value=property_meta_stage_id, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='design', value=property_meta_design, tenant_id=1),
-
-        PropertyMeta(property_id=property_id, code='trait_level', value=property_meta_trait_level, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='analysis_objective', value=property_meta_analysis_objective, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='exp_analysis_pattern', value=property_meta_exp_analysis_pattern, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='loc_analysis_pattern', value=property_meta_loc_analysis_pattern, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='year_analysis_pattern', value=property_meta_year_analysis_pattern, tenant_id=1),
-        PropertyMeta(property_id=property_id, code='trait_pattern', value=property_meta_trait_pattern, tenant_id=1),
-    ]
-    )
-
-    #create a bunch of PropertyConfig
-    analysis_config = PropertyConfig(
-        order_number=999,
-        creator_id=property_creator_id,
-        is_void=False,
-        property_id=4,
-        config_property_id=property_id,
-        is_layout_variable=False,
-    )
-
-    print(property_metas)
-
     try:
-        with db.session.begin():
-            db.session.add(property)
-            for property_meta in property_metas:
-                db.session.add(property_meta)
-            db.session.add(analysis_config)
+        db.session.begin()
+            
+        #create a property
+        property = Property(
+            code=property_code,
+            name=property_configName,
+            label=property_label,
+            description=property_description,
+            type=property_design,
+            data_type=property_data_type,
+            creator_id=property_creator_id,
+            modifier_id=property_modifier_id,
+            is_void=False,
+            tenant_id=property_tenant_id,
+            statement=property_statement
+        )
+
+        db.session.add(property)
+        db.session.commit()
+        db.session.refresh(property)
+
+        property_metas = []
+
+        property_metas.extend([
+            PropertyMeta(property_id=property.id, code='Version', value=property_meta_version, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='date', value=property_meta_date, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='author', value=property_meta_author, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='email', value=property_meta_email, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='organization_code', value=property_meta_organization_code, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='engine', value=property_meta_engine, tenant_id=1),
+
+            PropertyMeta(property_id=property.id, code='breeding_program_id', value=property_meta_breeding_program_id, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='pipeline_id', value=property_meta_pipeline_id, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='stage_id', value=property_meta_stage_id, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='design', value=property_meta_design, tenant_id=1),
+
+            PropertyMeta(property_id=property.id, code='trait_level', value=property_meta_trait_level, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='analysis_objective', value=property_meta_analysis_objective, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='exp_analysis_pattern', value=property_meta_exp_analysis_pattern, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='loc_analysis_pattern', value=property_meta_loc_analysis_pattern, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='year_analysis_pattern', value=property_meta_year_analysis_pattern, tenant_id=1),
+            PropertyMeta(property_id=property.id, code='trait_pattern', value=property_meta_trait_pattern, tenant_id=1),
+        ])
+
+        analysis_config = PropertyConfig(
+            order_number=999,
+            creator_id=property_creator_id,
+            is_void=False,
+            property_id=4,
+            config_property_id=property.id,
+            is_layout_variable=False,
+        )
+
+        print(property_metas)
+
+    
+
+        for property_meta in property_metas:
+            db.session.add(property_meta)
+        db.session.add(analysis_config)
+        db.session.commit()
 
     except exc.IntegrityError:
         db.session.rollback()

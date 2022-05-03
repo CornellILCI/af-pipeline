@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import json
 
 from analysis_config import api_models, service
 from common.responses import json_response
@@ -54,7 +55,6 @@ def post_analysis_config():
         property_creator_id = analysis_config_params.creatorId,
         property_modifier_id = analysis_config_params.modifierId,
         property_tenant_id = analysis_config_params.tenantId,
-        property_id = analysis_config_params.id,
         property_statement = analysis_config_params.statement,
         property_meta_version = analysis_config_params.propertyMetaVersion,
         property_meta_date = analysis_config_params.propertyMetaDate,
@@ -74,5 +74,6 @@ def post_analysis_config():
         property_meta_trait_pattern = analysis_config_params.propertyMetaTraitPattern
     )
 
-    response = {}
-    return json_response(response, HTTPStatus.OK)
+
+    error_response = api_models.ErrorResponse(errorMsg="Success!")
+    return json_response(error_response, HTTPStatus.OK)
