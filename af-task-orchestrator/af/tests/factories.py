@@ -1,14 +1,12 @@
 from datetime import datetime
 
 import factory
-
 from af.pipeline import db
-
 from factory import Factory, LazyAttribute, Sequence, post_generation
 from factory.alchemy import SQLAlchemyModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyText
-from sqlalchemy import orm
 from pytz import UTC
+from sqlalchemy import orm
 
 
 class BaseFactory(SQLAlchemyModelFactory):

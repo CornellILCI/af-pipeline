@@ -1,5 +1,4 @@
 from af.pipeline import db
-
 from af.tests import factories
 
 

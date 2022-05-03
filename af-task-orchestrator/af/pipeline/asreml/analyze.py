@@ -11,7 +11,7 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import analysis_report, utils, calculation_engine
+from af.pipeline import analysis_report, calculation_engine, utils
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services
@@ -151,25 +151,24 @@ class AsremlAnalyze(Analyze):
                 metadata_df,
             )
 
-            h2_cullis = None
-
             if exptloc_analysis_pattern.code == "SESL":
                 # get h2 cullis
+                h2_cullis = None
+
+                # get average standard error
+                pvs_file_path = path.join(job_result.job_result_dir, f"{job.name}_pvs.txt")
+                avg_std_error = asreml_services.get_average_std_error(pvs_file_path)
+
                 entry_variances = db_services.query_variance(self.db_session, job.id, "entry")
-                h2_cullis = "Value Error"
+
                 if len(entry_variances) == 1:
+                    genetic_variance = entry_variances[0].component
+
                     try:
-                        genetic_variance = entry_variances[0].component
-                        if "entry" in predictions_df.columns:
-                            entry_predictions = predictions_df[predictions_df["entry"] != None]
-                            if "loc" in predictions_df.columns:
-                                entry_predictions = entry_predictions[entry_predictions["loc"] == None]
+                        h2_cullis = calculation_engine.get_h2_cullis(genetic_variance, avg_std_error)
 
-                            avg_std_error = calculation_engine.get_average_std_error(entry_predictions)
-
-                            h2_cullis = calculation_engine.get_h2_cullis(genetic_variance, avg_std_error)
-                        else:
-                            h2_cullis = None
+                        # round h2 cullis to 4 decimal points
+                        h2_cullis = round(h2_cullis, 4)
                     except ValueError as ve:
                         h2_cullis = str(ve)
 

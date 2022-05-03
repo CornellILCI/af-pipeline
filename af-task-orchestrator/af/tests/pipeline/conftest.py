@@ -1,6 +1,5 @@
 import json
 import os
-
 # hacky importing since we need to declare these before we import Base
 # since core.py directly declares the vars
 import tempfile
@@ -8,7 +7,6 @@ import tempfile
 import pandas as pd
 import pytest
 from af.pipeline.db.models import Property
-
 # fixtures import area
 from af.tests import factories as model_factory
 
