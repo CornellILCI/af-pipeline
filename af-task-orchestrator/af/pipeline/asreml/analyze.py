@@ -157,7 +157,7 @@ class AsremlAnalyze(Analyze):
 
                 # get average standard error
                 pvs_file_path = path.join(job_result.job_result_dir, f"{job.name}_pvs.txt")
-                avg_std_error = services.get_average_std_error(pvs_file_path)
+                avg_std_error = asreml_services.get_average_std_error(pvs_file_path)
 
                 entry_variances = db_services.query_variance(self.db_session, job.id, "entry")
 
@@ -166,6 +166,9 @@ class AsremlAnalyze(Analyze):
 
                     try:
                         h2_cullis = calculation_engine.get_h2_cullis(genetic_variance, avg_std_error)
+
+                        # round h2 cullis to 4 decimal points
+                        h2_cullis = round(h2_cullis, 4)
                     except ValueError as ve:
                         h2_cullis = str(ve)
 
