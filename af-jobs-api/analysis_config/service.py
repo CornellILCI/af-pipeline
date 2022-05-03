@@ -1,7 +1,7 @@
 import json
 
 from database import Property, PropertyConfig, PropertyMeta, db
-from sqlalchemy import and_, func, exc
+from sqlalchemy import and_, func
 
 from analysis_config import api_models
 from analysis_config import models as db_models
