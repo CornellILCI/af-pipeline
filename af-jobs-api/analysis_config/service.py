@@ -1,7 +1,7 @@
 import json
 
 from database import Property, PropertyConfig, PropertyMeta, db
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, exc
 
 from analysis_config import api_models
 from analysis_config import models as db_models
@@ -132,8 +132,6 @@ def create_analysis_config(
         statement=property_statement
     )
 
-
-    #create a bunch of PropertyMeta
     property_metas = []
 
     property_metas.extend([
@@ -170,11 +168,15 @@ def create_analysis_config(
 
     print(property_metas)
 
-    with db.session.begin():
-        db.session.add(property)
-        for property_meta in property_metas:
-            db.session.add(property_meta)
-        db.session.add(analysis_config)
+    try:
+        with db.session.begin():
+            db.session.add(property)
+            for property_meta in property_metas:
+                db.session.add(property_meta)
+            db.session.add(analysis_config)
+
+    except exc.IntegrityError:
+        db.session.rollback()
 
 
 
