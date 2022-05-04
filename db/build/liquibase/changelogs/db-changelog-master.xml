@@ -60,5 +60,7 @@
     <include file="changelogs/db-changelog-22.04.xml"/>
     <!--include file="changesets/22.04/tag/dev-tag.xml"/-->
 
+    <!-- 22.05 -->
+    <include file="changelogs/db-changelog-22.05.xml"/>
 
   </databaseChangeLog>
