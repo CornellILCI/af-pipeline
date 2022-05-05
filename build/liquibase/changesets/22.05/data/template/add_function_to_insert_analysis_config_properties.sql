@@ -7,7 +7,7 @@
 -- Current property types are 'formula', 'residual', 'prediction', though there is no constraint availble in
 -- database to restrict only these types. This was a drawback of how tables were designed.
 
-CREATE OR REPLACE FUNCTION add_analysis_config_property(
+CREATE OR REPLACE FUNCTION af.add_analysis_config_property(
 	_property_code TEXT, _property_name TEXT, _property_label TEXT, 
 	_property_statement TEXT, _property_type TEXT, _analysis_config_name TEXT
 ) 
