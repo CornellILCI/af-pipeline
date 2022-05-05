@@ -44,14 +44,15 @@ RETURNS INTEGER AS $$
 					'catalog_item', 'character varying', 
 					_property_code, _property_name, 
 					_property_label, _property_statement
-				) RETURNING id INTO _property_id
+				) RETURNING id
 			),
 			config__property_config_link AS (
 				INSERT INTO af.property_config(
 					order_number, creation_timestamp, creator_id,
 					is_void, property_id, config_property_id, is_layout_variable
 				) VALUES (
-					1, 'now()', '1', false, _property_type_id, _property_id, false
+					1, 'now()', '1', false, _property_type_id,
+					(SELECT id FROM config_property), false
 				)
 			),
 			config_property_analysis_config_link AS (
@@ -59,7 +60,8 @@ RETURNS INTEGER AS $$
 					order_number, creation_timestamp, creator_id,
 					is_void, property_id, config_property_id, is_layout_variable
 				) VALUES (
-					1, 'now()', '1', false, _analysis_config_id, _property_id, false
+					1, 'now()', '1', false, _analysis_config_id, 
+					(SELECT id FROM config_property), false
 				)
 			
 			)
