@@ -116,177 +116,29 @@ INSERT INTO af.property_meta(code,value,property_id) VALUES
     	('year_analysis_pattern', 'single', (SELECT id FROM analysis_config)),
     	('trait_pattern', 'univariate', (SELECT id FROM analysis_config));
 
+-- Update name of the options from asrmel_options to asreml_options
+UPDATE af.property SET code='asreml_options' WHERE code='asrmel_options';
+
+-- add asreml options to config_20022
+SELECT add_analysis_config_property(
+	'asreml_opt1', 'asreml_opt1_20022', 'asreml_opt1_20022', 
+	'na.action = na.method(y = ''include'', x = ''include''),workspace = 128e06', 'asreml_options', 'config_20022.cfg');
 
 -- add formula to config_20022
-DO $$
-	DECLARE 
-		formula_id INTEGER;
-		formula_code TEXT := 'formula_opt1';
-		formula_name TEXT := 'Analysis with genotype as fixed - BLUEs. RCBD';
-		formula_statement TEXT := 'fixed = {trait_name} ~ rep + ge';
+SELECT add_analysis_config_property(
+	'formula_opt1', 'Analysis with genotype as fixed - BLUEs. RCBD', 'Analysis with genotype as fixed - BLUEs. RCBD', 
+	'fixed = {trait_name} ~ rep + ge', 'formula', 'config_20022.cfg');
 
-	BEGIN
-		SELECT id FROM af.property WHERE code=formula_code
-			AND name=formula_name
-			AND statement=formula_statement INTO formula_id;
-
-		IF formula_id IS NULL THEN
-			WITH config_formula AS (
-				INSERT INTO af.property(
-					type, data_type, code, "name", "label", "statement"
-				) VALUES (
-					'catalog_item', 'character varying', 
-					formula_code, formula_name, 
-					formula_name, formula_statement
-				) RETURNING id
-			),
-			config_formula_property_config_link AS (
-				INSERT INTO af.property_config(
-					order_number, creation_timestamp, creator_id,
-					is_void, property_id, config_property_id, is_layout_variable
-				) VALUES (
-					1, 'now()', '1', false,
-					(SELECT id FROM af.property WHERE code='formula'), 
-					formula_id, false
-				)
-			),
-			config_formula_config_20022_link AS (
-				INSERT INTO af.property_config(
-					order_number, creation_timestamp, creator_id,
-					is_void, property_id, config_property_id, is_layout_variable
-				) VALUES (
-					1, 'now()', '1', false,
-					(SELECT id FROM af.property WHERE code = 'config_20022.cfg'),
-					formula_id, false
-				)
-			
-			)
-			SELECT * FROM config_formula;
-		ELSE
-			INSERT INTO af.property_config(
-				order_number, creation_timestamp, creator_id,
-				is_void, property_id, config_property_id, is_layout_variable
-			) VALUES (
-				1, 'now()', '1', false,
-				(SELECT id FROM af.property WHERE code = 'config_20022.cfg'),
-				formula_id, false
-			);
-		END IF;
-	END $$	
 
 -- add residual:Univariate homogeneous variance model to config_20022
-
-DO $$
-	DECLARE 
-		residual_id INTEGER;
-		residual_code TEXT := 'residual_opt1';
-		residual_name TEXT := 'Univariate homogeneous variance model';
-		residual_statement := '~id(units)'
-	BEGIN
-		SELECT id FROM af.property WHERE code=residual_code
-			AND name=residual_name
-			AND statement=residual_statement INTO residual_id;
-
-		IF residual_id IS NULL THEN
-			WITH config_residual AS (
-				INSERT INTO af.property(
-					type, data_type, code, "name", "label", "statement"
-				) VALUES (
-					'catalog_item', 'character varying', 
-					residual_code, residual_name, 
-					residual_name, residual_statement
-				) RETURNING id
-			),
-			config_residual_property_config_link AS (
-				INSERT INTO af.property_config(
-					order_number, creation_timestamp, creator_id,
-					is_void, property_id, config_property_id, is_layout_variable
-				) VALUES (
-					1, 'now()', '1', false,
-					(SELECT id FROM af.property WHERE code='residual'), 
-					residual_id, false
-				)
-			),
-			config_residual_config_20022_link AS (
-				INSERT INTO af.property_config(
-					order_number, creation_timestamp, creator_id,
-					is_void, property_id, config_property_id, is_layout_variable
-				) VALUES (
-					1, 'now()', '1', false,
-					(SELECT id FROM af.property WHERE code = 'config_20022.cfg'),
-					residual_id, false
-				)
-			),
-			SELECT * FROM config_residual;
-		ELSE:
-			INSERT INTO af.property_config(
-				order_number, creation_timestamp, creator_id,
-				is_void, property_id, config_property_id, is_layout_variable
-			) VALUES (
-				1, 'now()', '1', false,
-				(SELECT id FROM af.property WHERE code = 'config_20022.cfg'),
-				residual_id, false
-			);
-		END IF;
-	END $$
-
+SELECT add_analysis_config_property(
+	'residual_opt1', 'Univariate homogeneous variance model', 'Univariate homogeneous variance model', 
+	'~id(units)', 'residual', 'config_20022.cfg');
 
 
 -- add prediction to config_20022
+SELECT add_analysis_config_property('g', 'G', 'G', 'ge', 'prediction', 'config_20022.cfg');
 
-DO $$
-	DECLARE 
-		prediction_id INTEGER;
-		prediction_code TEXT := 'g';
-		prediction_name TEXT := 'G';
-		prediction_statement := 'ge'
-	BEGIN
-		SELECT id FROM af.property WHERE code=prediction_code
-			AND name=prediction_name
-			AND statement=prediction_statement INTO prediction_id;
-		IF prediction_id IS NULL THEN
-			WITH config_prediction AS (
-				INSERT INTO af.property(
-					type, data_type, code, "name", "statement"
-				) VALUES (
-					'catalog_item', 'character varying',
-					prediction_code, prediction_name,
-					prediction_statement
-				) RETURNING id
-			),
-			config_prediction_property_config_link AS (
-				INSERT INTO af.property_config(
-					order_number, creation_timestamp, creator_id,
-					is_void, property_id, config_property_id, is_layout_variable
-				) VALUES (
-					1, 'now()', '1', false,
-					(SELECT id FROM af.property WHERE code='prediction'), 
-					prediction_id, false
-				)
-			),
-			config_prediction_config_20022_link AS (
-				INSERT INTO af.property_config(
-					order_number, creation_timestamp, creator_id,
-					is_void, property_id, config_property_id, is_layout_variable
-				) VALUES (
-					1, 'now()', '1', false,
-					(SELECT id FROM af.property WHERE code = 'config_20022.cfg'),
-					prediction_id, false
-				)
-			
-			)
-			SELECT * FROM config_prediction;
-		ELSE:
-			INSERT INTO af.property_config(
-				order_number, creation_timestamp, creator_id,
-				is_void, property_id, config_property_id, is_layout_variable
-			) VALUES (
-				1, 'now()', '1', false,
-				(SELECT id FROM af.property WHERE code = 'config_20022.cfg'),
-				prediction_id, false
-			);
-		END IF;
-	END $$
 
 
 
