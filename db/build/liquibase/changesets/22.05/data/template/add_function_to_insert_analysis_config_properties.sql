@@ -44,7 +44,7 @@ RETURNS INTEGER AS $$
 					'catalog_item', 'character varying', 
 					_property_code, _property_name, 
 					_property_label, _property_statement
-				) RETURNING id
+				) RETURNING id INTO _property_id
 			),
 			config__property_config_link AS (
 				INSERT INTO af.property_config(
