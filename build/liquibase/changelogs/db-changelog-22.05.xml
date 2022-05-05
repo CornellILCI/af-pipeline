@@ -6,5 +6,8 @@
 	
 	<!-- BA2-44 Add analysis config 20022  -->
 	<include file="changesets/22.05/data/template/add_asreml_r_analysis_configuration_20022.sql"/>
+	
+	<!-- BA2-44 Add analysis config 20025  -->
+	<include file="changesets/22.05/data/template/add_asreml_r_analysis_configuration_20025.sql"/>
 
   </databaseChangeLog>
