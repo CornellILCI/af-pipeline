@@ -120,24 +120,24 @@ INSERT INTO af.property_meta(code,value,property_id) VALUES
 UPDATE af.property SET code='asreml_options' WHERE code='asrmel_options';
 
 -- add asreml options to config_20022
-SELECT add_analysis_config_property(
+SELECT af.add_analysis_config_property(
 	'asreml_opt1', 'asreml_opt1_20022', 'asreml_opt1_20022', 
 	'na.action = na.method(y = ''include'', x = ''include''),workspace = 128e06', 'asreml_options', 'config_20022.cfg');
 
 -- add formula to config_20022
-SELECT add_analysis_config_property(
+SELECT af.add_analysis_config_property(
 	'formula_opt1', 'Analysis with genotype as fixed - BLUEs. RCBD', 'Analysis with genotype as fixed - BLUEs. RCBD', 
 	'fixed = {trait_name} ~ rep + ge', 'formula', 'config_20022.cfg');
 
 
 -- add residual:Univariate homogeneous variance model to config_20022
-SELECT add_analysis_config_property(
+SELECT af.add_analysis_config_property(
 	'residual_opt1', 'Univariate homogeneous variance model', 'Univariate homogeneous variance model', 
 	'~id(units)', 'residual', 'config_20022.cfg');
 
 
 -- add prediction to config_20022
-SELECT add_analysis_config_property('g', 'G', 'G', 'ge', 'prediction', 'config_20022.cfg');
+SELECT af.add_analysis_config_property('g', 'G', 'G', 'ge', 'prediction', 'config_20022.cfg');
 
 
 
