@@ -1,0 +1,21 @@
+{
+  "metadata":{
+        "id": "RCBD_OFT_SD_0000",
+        "category": "Design",
+        "type": "Trial Design",
+        "engine": "R 4.1.0",
+        "method": "randRCBDirri_OFT",
+        "design": "RCBD",
+        "timestamp": "",
+        "requestorId": "",
+        "organization_code": "IRRI",
+        "crop": "RICE",
+        "program": "AGGRI",
+        "experiment_id": 10272007209,
+        "occurrence_id": [1116081]
+  },
+  "parameters": {
+	"entryList": "RCBD_OFT_SD_0001.lst",
+  "nTrial": 20 
+  }
+}

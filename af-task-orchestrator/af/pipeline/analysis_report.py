@@ -59,13 +59,13 @@ def write_occurrences(report_file, occurrences):
 
 
 def write_predictions(
-    db_session, analysis_request, report_file: str, predictions: list[dict], metadata_df: pd.DataFrame
+    db_session, analysis_request, report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame
 ):
     """Writes spearate report sheet for predictions of entry, location and entry x location in
     the report workbook.
     Args:
         report_file: file path of the report to whcih predictions will be written.
-        predictions: list of dictionary objects with following keys (* - indicates mandatory columns)
+        predictions: Dataframe with following columns (* - indicates mandatory columns)
             job_id*: Id of the job which generated the predictions.
             entry: Id of the entry, if prediction is for entry
             loc: Id of the location, if the prediction is for location
@@ -85,10 +85,8 @@ def write_predictions(
                 trait_abbreviation: Abbreviation of trait name
     """
 
-    if len(predictions) == 0:
+    if len(predictions_df) == 0:
         return
-
-    predictions_df = pd.DataFrame(predictions)
 
     # write entry report
     if "entry" in predictions_df.columns:
@@ -202,7 +200,7 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
     pandasutil.append_df_to_excel(report_file, entry_location_report, sheet_name=ENTRY_LOCATION_SHEET_NAME)
 
 
-def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame, rename_map: dict):
+def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFrame, rename_map: dict, h2_cullis=None):
 
     # write model statistics
     if len(model_stat) == 0:
@@ -222,6 +220,10 @@ def write_model_stat(report_file: str, model_stat: dict, metadata_df: pd.DataFra
         "conclusion",
         "is_converged",
     ]
+
+    if h2_cullis is not None:
+        model_stats_report_columns.append("h2_cullis")
+        model_stats_df["h2_cullis"] = h2_cullis
 
     model_stats_df["experiment_name"] = ",".join(metadata_df.experiment_name.drop_duplicates().astype(str))
     model_stats_df["location_name"] = ",".join(metadata_df.location_name.drop_duplicates().astype(str))

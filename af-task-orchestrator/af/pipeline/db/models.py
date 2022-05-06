@@ -101,6 +101,8 @@ class Job(BaseMixin, Base):
 
     analysis = relationship(Analysis, back_populates="jobs")
 
+    variances = relationship("Variance", back_populates="job")
+
     # job_data
     job_data = Column(JSON)
 
@@ -160,7 +162,9 @@ class Variance(BaseMixin, Base):
     code = Column(String)  # character varying(50) COLLATE pg_catalog."default",
     tenant_id = Column(Integer, nullable=False)  # integer NOT NULL,
 
-    job_id = Column(Integer)
+    job_id = Column(Integer, ForeignKey("af.job.id"))
+
+    job = relationship("Job", back_populates="variances")
 
 
 class ModelStat(BaseMixin, Base):
