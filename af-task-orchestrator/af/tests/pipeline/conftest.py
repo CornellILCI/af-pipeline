@@ -10,6 +10,8 @@ from af.pipeline.db.models import Property
 # fixtures import area
 from af.tests import factories as model_factory
 
+from rpy2.robjects.packages import importr
+from rpy2 import robjects
 
 def get_test_resource_path(testfile, resource_name):
     """Get resource files in the same directory as test file"""
@@ -533,3 +535,11 @@ def predictions_df():
             [1, 2, 1, 1, 1.5, "E", 2],
         ],
     )
+
+@pytest.fixture
+@robjects.packages.no_warnings
+def r_base():
+    r_base = importr('base')
+    return r_base
+
+
