@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from af.pipeline import db
-from af.pipeline import job_status
+from af.pipeline import db, job_status
 from af.pipeline.db.models import Analysis, Job, Property, PropertyConfig, PropertyMeta, Request
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
@@ -45,7 +44,12 @@ def get_job_by_name(db_session, job_name) -> Job:
 
 
 def create_job(
-    db_session, analysis_id: int, job_name: str, status: job_status.JobStatus, status_message: str, job_data: dict = None
+    db_session,
+    analysis_id: int,
+    job_name: str,
+    status: job_status.JobStatus,
+    status_message: str,
+    job_data: dict = None,
 ) -> Job:
 
     job_start_time = datetime.utcnow()

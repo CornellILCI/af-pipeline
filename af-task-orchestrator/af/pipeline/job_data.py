@@ -9,6 +9,7 @@ class JobParams:
     formula: str = None
     residual: str = None
     predictions: list[str] = None
+    analysis_fields_types: dict = None  # field datatypes.
 
 
 @dataclass

@@ -1,13 +1,13 @@
-from af.pipeline.asreml_r import analyze
-from af.pipeline.job_data import JobData, JobParams
+from af.pipeline import asreml_r
+from mock import patch
+from af.pipeline import job_data
 
-data = JobData()
-params = JobParams()
-params.formula = "fixed = {trait_name} ~ rep, random = ~ ge"
-params.residual = "~ units"
-data.job_params = params
-data.trait_name = "AYLD_CONT"
-data.job_name = "test-job"
-data.job_result_dir = "/tmp"
-data.data_file = "/tmp/test-data.csv"
-#analyze.run_asremlr("/tmp", data)
+def test_run_job_returns_job_data(analysis_request, mocker):
+
+    mocker.patch.object(asreml_r.analyze.AsremlRAnalyze, "__init__", lambda x, y: None)
+
+    returned_job_data = asreml_r.analyze.AsremlRAnalyze(analysis_request).run_job(job_data.JobData())
+
+    assert type(returned_job_data) == job_data.JobData
+
+    

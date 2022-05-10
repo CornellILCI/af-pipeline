@@ -11,7 +11,7 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import analysis_report, calculation_engine, utils, job_status
+from af.pipeline import analysis_report, calculation_engine, job_status, utils
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services
@@ -199,7 +199,7 @@ class AsremlAnalyze(Analyze):
             for occurrence in job_result.occurrences:
                 if occurrence.occurrence_id not in gathered_objects["occurrences"]:
                     gathered_objects["occurrences"][occurrence.occurrence_id] = occurrence
-            
+
             return gathered_objects
 
         except Exception as e:
