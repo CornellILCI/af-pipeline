@@ -8,16 +8,16 @@
 # Author           : Alaine A. Gulles 
 # Author Email     : a.gulles@irri.org
 # Date             : 2022.04.26
-# Date Modified    : 2022.04.26
+# Date Modified    : 2022.05.10
 # Maintainer       : Alaine A. Gulles 
 # Maintainer Email : a.gulles@irri.org
-# Script Version   : 1
+# Script Version   : 1.1
 # Command          : Rscript randRCBDirri_OFT.R --entryList "RCBD_SD_0001.lst" 
-#                    --nTrial 3 -o "Output" -p "D:/Results"  
+#                    --nFarm 3 -o "Output" -p "D:/Results"  
 # -------------------------------------------------------------------------------------
 # Parameters:
 # entryList = a cvs file containing the entry information
-# nTrial = number of farm (occurrence)
+# nFarm = number of farm (occurrence)
 # outputFile = prefix to be used for the names of the output files
 # outputPath = path where output will be saved
 # ---------------------------------------------------------
@@ -29,7 +29,7 @@ suppressWarnings(suppressPackageStartupMessages(library(PBToolsDesign)))
 optionList <- list(
   make_option(opt_str = c("--entryList"), type = "character", 
               help = "Entry List", metavar = "entry list"),
-  make_option(opt_str = c("-t","--nTrial"), default = as.integer(1),
+  make_option(opt_str = c("-t","--nFarm"), default = as.integer(1),
               help = "Number of farms", metavar = "number of farms"),
   make_option(opt_str = c("-o", "--outputFile"), type = "character", default = "RCBD_OFT_Expt",
               help = "Prefix to be used for the names of the output files",
@@ -61,7 +61,7 @@ entryInfo <- entryData[,"entry_id"]
 # write the design information in a pdf
 sink(file = paste(paste(opt$outputPath, opt$outputFile, sep = "/"), "_designInfo.txt", sep = ""))
 temp <- try(result <- designRCBD(generate = list(Entry = entryInfo),
-                                 numBlk = opt$nTrial,
+                                 numBlk = opt$nFarm,
                                  display = T), 
         
             silent = TRUE)  
@@ -80,7 +80,7 @@ if(all(class(temp) == "try-error")) { stop(paste("Error in designRCBD:", msg, se
 fbook <- result[[1]]
 names(fbook) <- c("occurrence", "replicate", "entry_id","plot_number")
 fbook$occurrence <- fbook$replicate
-fbook$plot_number <- rep(1:nrow(entryData), times = opt$nTrial)
+fbook$plot_number <- rep(1:nrow(entryData), times = opt$nFarm)
 
 # rearrange columns
 

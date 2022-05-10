@@ -4,11 +4,11 @@
     "date": "26-Apr-2022",
     "author": "Alaine Gulles",
     "email": "a.gulles@irri.org",
-    "syntax": "Rscript randRCBD_OFT.R --entryList 'RCBD_OFT_SD_0001.lst' --nTrial 3 -o 'Output1' -p 'D:/Results'",
+    "syntax": "Rscript randRCBD_OFT.R --entryList 'RCBD_OFT_SD_0001.lst' --nFarm 10 -o 'Output1' -p 'D:/Results'",
     "engine": "R 4.1.1",
     "method": "randRCBD_OFT",
     "design": "Randomized Complete Block",
-    "modelVersion": 1,
+    "modelVersion": 1.1,
     "organization_code": "IRRI",
     "note": null
   },
@@ -58,7 +58,7 @@
           }
         ]
       },
-      "nTrial": {
+      "nFarm": {
         "variable_label": "No. of Farms",
         "description": "Number of farms",
         "visible": "T",
