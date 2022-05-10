@@ -1,7 +1,7 @@
 import json
 
 from database import Property, PropertyConfig, PropertyMeta, db
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, text
 
 from analysis_config import api_models
 from analysis_config import models as db_models
@@ -113,7 +113,7 @@ def create_analysis_config(
     property_code, property_configName, property_label, property_description, property_design, property_data_type, property_creator_id, property_modifier_id, property_tenant_id, property_statement,
     property_meta_version, property_meta_date, property_meta_author, property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breeding_program_id,
     property_meta_pipeline_id, property_meta_stage_id, property_meta_design, property_meta_trait_level, property_meta_analysis_objective, property_meta_exp_analysis_pattern,
-    property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern
+    property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern, fields, options, formulas, residuals, predictions
 ):
     try:
         db.session.begin()
@@ -136,8 +136,190 @@ def create_analysis_config(
         db.session.add(property)
         db.session.commit()
         db.session.refresh(property)
+        
+        sub_properties = []
 
+        # for every field
+        for field in fields:
+            # first we make a sub property and add it to the DB
+            field_property = Property(
+                code=field.stat_factor,
+                data_type=field.data_type,
+                is_void=False,
+            )
+            db.session.add(field_property)
+            db.session.commit()
+            db.session.refresh(field_property)
+            # then we get the id for the sub property and add the link (property config) from our first property to it
+        
+            property_link_to_parent = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=property.id,
+                config_property_id=field_property.id,
+                is_layout_variable=False,
+            )
+            
+            property_link_to_root = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=159,
+                config_property_id=field_property.id,
+                is_layout_variable=False,
+            )
+
+            db.session.add(property_link_to_parent)
+            db.session.add(property_link_to_root)
+            db.session.commit()
+
+        # then we also add a property config to the root of field 
+        
+        # repeat for options
+        for option in options:
+            # first we make a sub property and add it to the DB
+            option_property = Property(
+                code="option_opt"+option.id,
+                statement=option.options,
+                is_void=False,
+            )
+            db.session.add(option_property)
+            db.session.commit()
+            db.session.refresh(option_property)
+            # then we get the id for the sub property and add the link (property config) from our first property to it
+        
+            property_link_to_parent = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=property.id,
+                config_property_id=option_property.id,
+                is_layout_variable=False,
+            )
+            
+            property_link_to_root = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=137,
+                config_property_id=option_property.id,
+                is_layout_variable=False,
+            )
+
+            db.session.add(property_link_to_parent)
+            db.session.add(property_link_to_root)
+            db.session.commit()
+
+        # repeat for formula
+        for formula in formulas:
+            # first we make a sub property and add it to the DB
+            formula_property = Property(
+                name=formula.name,
+                label=formula.name,
+                # check for description - description=formula.description,
+                statement=formula.statement,
+                code="formula_opt"+formula.id,
+                type="catalog_item",
+                is_void=False,
+            )
+            db.session.add(formula_property)
+            db.session.commit()
+            db.session.refresh(formula_property)
+            # then we get the id for the sub property and add the link (property config) from our first property to it
+        
+            property_link_to_parent = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=property.id,
+                config_property_id=formula_property.id,
+                is_layout_variable=False,
+            )
+            
+            property_link_to_root = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=139,
+                config_property_id=formula_property.id,
+                is_layout_variable=False,
+            )
+
+            db.session.add(property_link_to_parent)
+            db.session.add(property_link_to_root)
+            db.session.commit()
+
+        # repeat for residual
+        for residual in residuals:
+            # first we make a sub property and add it to the DB
+            residual_property = Property(
+                name=residual.name,
+                label=residual.name,
+                # check for description - description=formula.description,
+                statement=residual.statement,
+                type="catalog_item",
+                code="residual_opt"+residual.id,
+                is_void=False,
+            )
+            db.session.add(residual_property)
+            db.session.commit()
+            db.session.refresh(residual_property)
+            # then we get the id for the sub property and add the link (property config) from our first property to it
+        
+            property_link_to_parent = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=property.id,
+                config_property_id=residual_property.id,
+                is_layout_variable=False,
+            )
+            
+            property_link_to_root = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=140,
+                config_property_id=residual_property.id,
+                is_layout_variable=False,
+            )
+
+            db.session.add(property_link_to_parent)
+            db.session.add(property_link_to_root)
+            db.session.commit()
+
+        # repeat for predict
+        for prediction in predictions:
+            # first we make a sub property and add it to the DB
+            prediction_property = Property(
+                name=prediction.name,
+                # check for description - description=formula.description,
+                statement=prediction.statement,
+                type="catalog_item",
+                code=prediction.name,
+                is_void=False,
+            )
+            db.session.add(prediction_property)
+            db.session.commit()
+            db.session.refresh(prediction_property)
+            # then we get the id for the sub property and add the link (property config) from our first property to it
+        
+            property_link_to_parent = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=property.id,
+                config_property_id=prediction_property.id,
+                is_layout_variable=False,
+            )
+            
+            property_link_to_root = PropertyConfig(
+                order_number=999,
+                is_void=False,
+                property_id=5,
+                config_property_id=prediction_property.id,
+                is_layout_variable=False,
+            )
+
+            db.session.add(property_link_to_parent)
+            db.session.add(property_link_to_root)
+            db.session.commit()
+        
+        
         property_metas = []
+
 
         property_metas.extend([
             PropertyMeta(property_id=property.id, code='Version', value=property_meta_version, tenant_id=1),
@@ -164,7 +346,7 @@ def create_analysis_config(
             order_number=999,
             creator_id=property_creator_id,
             is_void=False,
-            property_id=4,
+            property_id=134,
             config_property_id=property.id,
             is_layout_variable=False,
         )
@@ -185,5 +367,141 @@ def create_analysis_config(
 
     return
 
+def locate_analysis_config(
+    property_code, property_configName, property_label, property_description, property_design, property_data_type, property_creator_id, property_modifier_id, property_tenant_id, property_statement,
+    property_meta_version, property_meta_date, property_meta_author, property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breeding_program_id,
+    property_meta_pipeline_id, property_meta_stage_id, property_meta_design, property_meta_trait_level, property_meta_analysis_objective, property_meta_exp_analysis_pattern,
+    property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern
+):
+    
+       
+
+    sql = text(
+    (
+        "select code, name, label, description, type, creation_timestamp, id from af.property where id in ( "+
+        "   select pc.config_property_id from af.property_config pc where property_id = 134 "+
+        ")"
+    )
+    )
+    result = db.engine.execute(sql)
+    
+    configs = []
+
+    for row in result:
+        values = row.values()
+        config = {
+            "code":values[0],
+            "name":values[1], 
+            "label":values[2], 
+            "description":values[3], 
+            "type":values[4], 
+            "creation_timestamp":values[5].strftime("%Y-%m-%dT%H:%M:%SZ"), 
+            "id":values[6]
+        }
+        
+        #add the property meta to the result
+        metaSql = text(
+        (
+            "select code, value from af.property_meta pm  where pm.property_id = {}"
+        ).format(values[6])
+        )
+
+        metaResult = db.engine.execute(metaSql)
+        for metaRow in metaResult:
+            config["propertyMeta"+metaRow[0]] = metaRow[1]
+
+        #add formula
+        formulaSql = text(
+        (
+            "select code, name, statement from af.property where id in ( select pc.config_property_id from af.property_config pc where property_id = {} ) "+
+            "and id in (select pc.config_property_id from af.property_config pc where property_id = 139)"
+        ).format(values[6])
+        )   
+        formulaResult = db.engine.execute(formulaSql)
+        formulas = []
+        for formulaRow in formulaResult:
+            formulas.append({
+                "statement":formulaRow[2],
+                "id": formulaRow[0].replace("formula_opt",""),
+                "name":formulaRow[1]
+            })
+
+        config["formulas"] = formulas
+
+        #fields
+
+        fieldSql = text(
+        (
+            "select code, name, data_type from af.property where id in ( select pc.config_property_id from af.property_config pc where property_id = {} ) "+
+            "and id in (select pc.config_property_id from af.property_config pc where property_id = 159)"
+        ).format(values[6])
+        )   
+        fieldResult = db.engine.execute(fieldSql)
+        fields = []
+        for fieldRow in fieldResult:
+            fields.append({
+                "stat_factor":fieldRow[0],
+                "data_type":fieldRow[2]
+            })
+            
+        config["fields"] = fields
+
+        #options
+        optionSql = text(
+        (
+            "select code, name, statement from af.property where id in ( select pc.config_property_id from af.property_config pc where property_id = {} ) "+
+            "and id in (select pc.config_property_id from af.property_config pc where property_id = 137)"
+        ).format(values[6])
+        )   
+        optionResult = db.engine.execute(optionSql)
+        options = []
+        for optionRow in optionResult:
+            options.append({
+                "options":optionRow[2],
+                "id": optionRow[0].replace("option_opt","")
+            })
+
+        config["options"] = options
+
+        #residuals
+        residualSql = text(
+        (
+            "select code, name, statement, type from af.property where id in ( select pc.config_property_id from af.property_config pc where property_id = {} ) "+
+            "and id in (select pc.config_property_id from af.property_config pc where property_id = 140)"
+        ).format(values[6])
+        )   
+        residualResult = db.engine.execute(residualSql)
+        residuals = []
+        for residualRow in residualResult:
+            residuals.append({
+                "name":residualRow[1],
+                "statement":residualRow[2],
+                "catalog_item":residualRow[3],
+                "id": residualRow[0].replace("residual_opt","")
+            })
+
+        config["residuals"] = residuals
+
+        #predictions
+        predictionSql = text(
+        (
+            "select code, name, statement, type from af.property where id in ( select pc.config_property_id from af.property_config pc where property_id = {} ) "+
+            "and id in (select pc.config_property_id from af.property_config pc where property_id = 5)"
+        ).format(values[6])
+        )   
+        predictionResult = db.engine.execute(predictionSql)
+        predictions = []
+        for predictionRow in predictionResult:
+            predictions.append({
+                "name":predictionRow[1],
+                "statement":predictionRow[2],
+                "catalog_item":predictionRow[3],
+            })
+        
+        config["predictions"] = predictions
+    
+        configs.append(config)
+
+    return configs
 
 # https://bitbucket.org/ebsproject/ba-db/src/develop/build/liquibase/changesets/21.09/data/template/add_2_new_models_for_cimmyt.sql?atlOrigin=eyJpIjoiMWRiZjlmZjhkYmE3NDg0Mzk3NWI3ODZhZjczNGQyODQiLCJwIjoiYmItY2hhdHMtaW50ZWdyYXRpb24ifQ

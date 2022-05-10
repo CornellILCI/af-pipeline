@@ -50,6 +50,31 @@ class AfBaseModel(BaseModel):
     createdOn: Optional[datetime] = None
     modifiedOn: Optional[datetime] = None
 
+class AnalysisField(BaseModel):
+    stat_factor_id: str = Field(None, description="Example: 1"),
+    stat_factor: str = Field(None, description="Example: loc"),
+    definition: str = Field(None, description="Example: loc_id"),
+    data_type: str = Field(None, description="Example: factor")
+
+class AnalysisOption(BaseModel):
+    id: str = Field(None, description="Example: 1"),
+    options: str = Field(None, description="Example: ")
+
+class AnalysisFormula(BaseModel):
+    id: str = Field(None, description="Example: 1"),
+    name: str = Field(None, description="Example: Univariate. Replicate as fixed and genotype as random effect"),
+    statement: str = Field(None, description="Example: fixed = \{trait_name\} ~ rep, random = ~ entry")
+
+class AnalysisResidual(BaseModel):
+    id: str = Field(None, description="Example: 1"),
+    name: str = Field(None, description="Example: Univariate homogeneous variance model"),
+    statement: str = Field(None, description="Example: ~id(units)")
+
+class AnalysisPrediction(BaseModel):
+    id: str = Field(None, description="Example: 1"),
+    name: str = Field(None, description="Example: G"),
+    statement: str = Field(None, description="Example: entry")
+
 
 class AnalysisConfigCreateObject(BaseModel):
     code: str = Field(None, description="Organization code")
@@ -78,6 +103,11 @@ class AnalysisConfigCreateObject(BaseModel):
     propertyMetaLocAnalysisPattern: str = Field(None, description="Location Analysis Pattern")
     propertyMetaYearAnalysisPattern: str = Field(None, description="Yearly Analysis Pattern")
     propertyMetaTraitPattern: str = Field(None, description="Trait Pattern")
+    fields: Optional[List[AnalysisField]] = None
+    options: Optional[List[AnalysisOption]] = None
+    formulas: Optional[List[AnalysisFormula]] = None
+    residuals: Optional[List[AnalysisResidual]] = None
+    predictions: Optional[List[AnalysisPrediction]] = None
 
 
 class Analysis(AfBaseModel):
