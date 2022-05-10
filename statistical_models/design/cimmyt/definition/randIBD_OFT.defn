@@ -4,20 +4,20 @@
         "date": "22-Apr-2022",
         "author": "Pedro Barbosa",
         "email": "p.medeiros@cgiar.org",
-        "syntax": "Rscript randIBD_OFT.R -e randIBD_OFT_SD_0001.lst --sBlk 3 --nTrial 100",
+        "syntax": "Rscript randIBD_OFT.R -e randIBD_OFT_SD_0001.lst --plotFarm 3 --nFarm 100",
         "engine": "R 4.1.3",
         "method": "randIBD_OFT",
         "stage": "OFT",
         "design": "Incomplete Block",
-        "modelVersion": 1,
+        "modelVersion": 1.1,
         "organization_code": "CIMMYT",
         "note": ""
     },
     "parameters": {
         "input": {
-            "nTrial": {
+            "nFarm": {
                 "variable_label": "No. farms",
-                "description": "Number of participant farms.",
+                "description": "Number of farms.",
                 "visible": "T",
                 "minimum": 60,
                 "maximum": null,
@@ -49,7 +49,7 @@
                         "order_number": 1,
                         "type": "validation-design",
                         "expression": "nCheck>2",
-                        "notification": "Number of check entries should be greater than 1.",
+                        "notification": "Number of check entries should be greater than 2.",
                         "action": "error"
                     },
                     {
@@ -60,7 +60,7 @@
                         "action": "error"
                     },
                     {
-                        "order number": 2,
+                        "order number": 3,
                         "type": "validation-design",
                         "expression": "totalEntries>15",
                         "notification": "Total number of entries is too large. Usually OFT evaluates less than 15 genotypes",
@@ -68,9 +68,9 @@
                     }
                 ]
             },
-            "sBlk": {
+            "plotFarm": {
                 "variable_label": "No. of plots per farm",
-                "description": "Block size, it is the number of plots per block in the Incomplete Block Design. In the case of OFT this is the number os genotypes evaluated in each farm",
+                "description": "It is the number of plots per block in the Incomplete Block Design. In the case of OFT this is the number os genotypes evaluated in each farm",
                 "visible": "T",
                 "minimum": 3,
                 "maximum": null,
@@ -80,7 +80,7 @@
                 "disabled": "F",
                 "required": "T",
                 "data_type": "integer",
-                "order_number": 4,
+                "order_number": 3,
                 "variable_abbrev": "BLOCK_SIZE",
                 "is_layout_variable": "F",
                 "rule": [
@@ -126,7 +126,7 @@
                 "disabled": "T",
                 "required": "T",
                 "data_type": "character varying",
-                "order_number": 9,
+                "order_number": 4,
                 "variable_abbrev": null,
                 "is_layout_variable": "F"
             },
@@ -142,7 +142,7 @@
                 "disabled": "T",
                 "required": "T",
                 "data_type": "character varying",
-                "order_number": 10,
+                "order_number": 5,
                 "variable_abbrev": null,
                 "is_layout_variable": "F"
             }
