@@ -46,8 +46,6 @@ def pre_process(request_id, analysis_request):
 
 @app.task(name="post_process", base=StatusReportingTask)
 def post_process(request_id, analysis_request, results, gathered_objects=None):
-    if not results:
-        done_analyze.delay(request_id, analysis_request, gathered_objects)
 
     result, results = results[0], results[1:]
 
@@ -59,7 +57,11 @@ def post_process(request_id, analysis_request, results, gathered_objects=None):
     except AnalysisError as ae:
         log.error("Encountered error: %s", str(ae))
     finally:
-        post_process.delay(request_id, analysis_request, results, gathered_objects)
+        # process the results here
+        if not results:
+            done_analyze.delay(request_id, analysis_request, gathered_objects)
+        else:
+            post_process.delay(request_id, analysis_request, results, gathered_objects)
 
 
 @app.task(name="done_analyze", base=ResultReportingTask)

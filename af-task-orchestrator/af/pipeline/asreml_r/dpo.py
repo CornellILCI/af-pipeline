@@ -6,6 +6,7 @@ from af.pipeline.job_data import JobData, JobParams
 
 
 class AsremlRProcessData(AsremlProcessData):
+
     def __init__(self, analysis_request):
         super().__init__(analysis_request)
 

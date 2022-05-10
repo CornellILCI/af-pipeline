@@ -1,16 +1,14 @@
+import rpy2.robjects as robjects
 from af.pipeline import utils
 from af.pipeline.asreml.analyze import AsremlAnalyze
 from af.pipeline.asreml_r.dpo import AsremlRProcessData  # temporary while we refactor parts
 from af.pipeline.db import services as db_services
 from af.pipeline.exceptions import AnalysisError
 from af.pipeline.job_data import JobData
-
 from rpy2.robjects.packages import importr
-import rpy2.robjects as robjects
-
 
 # TODO: This is a ME script ,  Pedro will provide script for single run
-SCRIPT = '''
+SCRIPT = """
 library(asreml)
 # the input object just emulates a reqeuest and its data
 input <- list(
@@ -62,24 +60,22 @@ saveRDS(asr, paste("{job_dir}/{job_name}_asr.rds", sep=""))
 saveRDS(summary_model, paste("{job_dir}/{job_name}_summary.rds", sep=""))
 saveRDS(pred, paste("{job_dir}/{job_name}_pred.rds", sep=""))
 
-'''
+"""
 
 
 def run_asremlr(job_dir, job_data: JobData, factors):
-    """ 
+    """
     This function builds the R script that will be run.  The base script template is defined in SCRIPT var.
     """
-    fixed_formula = str(job_data.job_params.formula) 
+    fixed_formula = str(job_data.job_params.formula)
     residual_formula = job_data.job_params.residual
     prediction = job_data.job_params.predictions[0]
     trait_name = job_data.trait_name
 
     # replace trait_name in fixed formula
     if "{trait_name}" in fixed_formula:
-        fixed_formula = fixed_formula.format(
-            trait_name=trait_name
-        )
-      
+        fixed_formula = fixed_formula.format(trait_name=trait_name)
+
     factor_script = ""
     for factor in factors:
         factor_script += f"data${factor} <- as.factor(data${factor})\n"
@@ -92,7 +88,7 @@ def run_asremlr(job_dir, job_data: JobData, factors):
         residual_formula=residual_formula,
         job_dir=job_dir,
         job_name=job_data.job_name,
-        prediction=prediction
+        prediction=prediction,
     )
     robjects.r(user_script)  # quickest way to implement, but might be hard to get error desc....
 
@@ -100,7 +96,7 @@ def run_asremlr(job_dir, job_data: JobData, factors):
 class AsremlRAnalyze(AsremlAnalyze):
     engine_script = "asreml-r"
     dpo_cls = AsremlRProcessData
-    
+
     def run_job(self, job_data: JobData, analysis_engine=None):
 
         if not analysis_engine:
@@ -125,14 +121,12 @@ class AsremlRAnalyze(AsremlAnalyze):
         try:
             model_prop = db_services.get_property(self.db_session, self.analysis_request.analysisConfigPropertyId)
             # get factors for config and pass them
-            factor_properties = db_services.get_child_properties(
-                self.db_session, model_prop.code, model_prop.name
-            )
-            
+            factor_properties = db_services.get_child_properties(self.db_session, model_prop.code, model_prop.name)
+
             factors = [prop.code for prop in factor_properties if prop.data_type == "factor"]
 
             run_asremlr(job_dir, job_data, factors)
-            
+
             job = db_services.update_job(
                 self.db_session, job, "IN-PROGRESS", "Completed the job. Pending post processing."
             )
@@ -147,7 +141,7 @@ class AsremlRAnalyze(AsremlAnalyze):
             raise AnalysisError(str(e))
         finally:
             self.db_session.commit()
-    
+
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):
         # TODO: customize job result processing
         # return super().process_job_result(job_result, gathered_objects)
@@ -157,4 +151,3 @@ class AsremlRAnalyze(AsremlAnalyze):
 
     def finalize(self, gathered_objects):
         return super().finalize(gathered_objects)
-

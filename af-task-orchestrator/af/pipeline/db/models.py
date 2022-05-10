@@ -84,7 +84,7 @@ class Analysis(BaseMixin, Base):
     request = relationship(Request, back_populates="analyses")
 
     jobs = relationship("Job", back_populates="analysis")
-    
+
 
 class Job(BaseMixin, Base):
 

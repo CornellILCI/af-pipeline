@@ -1,10 +1,7 @@
-from af.pipeline import rpy_utils
-from af.pipeline import exceptions
-from rpy2 import robjects
-
 import pandas as pd
-
 import pytest
+from af.pipeline import exceptions, rpy_utils
+from rpy2 import robjects
 
 
 def test_read_csv(temp_file):
