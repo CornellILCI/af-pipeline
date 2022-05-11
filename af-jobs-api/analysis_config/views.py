@@ -95,28 +95,14 @@ def get_analysis_config():
         property_configName = analysis_config_params.configName,
         property_label = analysis_config_params.label,
         property_description = analysis_config_params.description,
-        property_design = analysis_config_params.design,
-        property_data_type = analysis_config_params.dataType,
         property_creator_id = analysis_config_params.creatorId,
-        property_modifier_id = analysis_config_params.modifierId,
-        property_tenant_id = analysis_config_params.tenantId,
-        property_statement = analysis_config_params.statement,
-        property_meta_version = analysis_config_params.propertyMetaVersion,
-        property_meta_date = analysis_config_params.propertyMetaDate,
         property_meta_author = analysis_config_params.propertyMetaAuthor,
         property_meta_email = analysis_config_params.propertyMetaEmail,
         property_meta_organization_code = analysis_config_params.propertyMetaOrganizationCode,
         property_meta_engine = analysis_config_params.propertyMetaEngine,
         property_meta_breeding_program_id = analysis_config_params.propertyMetaBreedingProgramId,
-        property_meta_pipeline_id = analysis_config_params.propertyMetaPipelineId,
-        property_meta_stage_id = analysis_config_params.propertyMetaStageId,
         property_meta_design = analysis_config_params.propertyMetaDesign,
-        property_meta_trait_level = analysis_config_params.propertyMetaTraitLevel,
-        property_meta_analysis_objective = analysis_config_params.propertyMetaAnalysisObjective,
-        property_meta_exp_analysis_pattern = analysis_config_params.propertyMetaExpAnalysisPattern,
-        property_meta_loc_analysis_pattern = analysis_config_params.propertyMetaLocAnalysisPattern,
-        property_meta_year_analysis_pattern = analysis_config_params.propertyMetaYearAnalysisPattern,
-        property_meta_trait_pattern = analysis_config_params.propertyMetaTraitPattern
+        property_meta_analysis_objective = analysis_config_params.propertyMetaAnalysisObjective
     )
 
     return {"response":response}, HTTPStatus.OK

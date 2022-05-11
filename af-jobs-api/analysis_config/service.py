@@ -368,21 +368,31 @@ def create_analysis_config(
     return
 
 def locate_analysis_config(
-    property_code, property_configName, property_label, property_description, property_design, property_data_type, property_creator_id, property_modifier_id, property_tenant_id, property_statement,
-    property_meta_version, property_meta_date, property_meta_author, property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breeding_program_id,
-    property_meta_pipeline_id, property_meta_stage_id, property_meta_design, property_meta_trait_level, property_meta_analysis_objective, property_meta_exp_analysis_pattern,
-    property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern
+    property_code, property_configName, property_label, property_description, property_creator_id, property_meta_author, 
+    property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breeding_program_id,
+    property_meta_design, property_meta_analysis_objective
 ):
-    
        
-
-    sql = text(
-    (
-        "select code, name, label, description, type, creation_timestamp, id from af.property where id in ( "+
+    configSelect = ("select code, name, label, description, type, creation_timestamp, id from af.property where id in ( "+
         "   select pc.config_property_id from af.property_config pc where property_id = 134 "+
-        ")"
-    )
-    )
+        ")")
+
+    if (property_code is not None and property_code != ""):
+        configSelect = configSelect+"and code like ('%{}%')".format(property_code)
+    
+    if (property_configName is not None and property_configName != ""):
+        configSelect = configSelect+"and name like ('%{}%')".format(property_configName)
+
+    if (property_label is not None and property_label != ""):
+        configSelect = configSelect+"and label like ('%{}%')".format(property_label)
+
+    if (property_description is not None and property_description != ""):
+        configSelect = configSelect+"and description like ('%{}%')".format(property_description)
+
+    if (property_creator_id is not None and property_creator_id != ""):
+        configSelect = configSelect+"and creator_id like ('%{}%')".format(property_creator_id)
+
+    sql = text(configSelect)
     result = db.engine.execute(sql)
     
     configs = []
@@ -407,8 +417,28 @@ def locate_analysis_config(
         )
 
         metaResult = db.engine.execute(metaSql)
+
+        #this filters by metas
+        skipFlag = False
         for metaRow in metaResult:
-            config["propertyMeta"+metaRow[0]] = metaRow[1]
+            config["property_meta_"+metaRow[0]] = metaRow[1]
+            if(property_meta_author is not None and property_meta_author != "" and metaRow[0] == "author" and metaRow[1].lower().find(property_meta_author.lower()) == -1):
+                skipFlag = True
+            if(property_meta_email is not None and property_meta_email != "" and metaRow[0] == "email" and metaRow[1].lower().find(property_meta_email.lower()) == -1):
+                skipFlag = True
+            if(property_meta_organization_code is not None and property_meta_organization_code != "" and metaRow[0] == "organization_code" and metaRow[1].lower().find(property_meta_organization_code.lower()) == -1):
+                skipFlag = True
+            if(property_meta_breeding_program_id is not None and property_meta_breeding_program_id != "" and metaRow[0] == "breeding_program_id" and metaRow[1].lower().find(property_meta_breeding_program_id.lower()) == -1):
+                skipFlag = True
+            if(property_meta_design is not None and property_meta_design != "" and metaRow[0] == "design" and metaRow[1].lower().find(property_meta_design.lower()) == -1):
+                skipFlag = True
+            if(property_meta_analysis_objective is not None and property_meta_analysis_objective != "" and metaRow[0] == "analysis_objective" and metaRow[1].lower().find(property_meta_analysis_objective.lower()) == -1):
+                skipFlag = True
+            if(property_meta_engine is not None and property_meta_engine != "" and metaRow[0] == "engine" and metaRow[1].lower().find(property_meta_engine.lower()) == -1):
+                skipFlag = True
+        
+        if(skipFlag):
+            continue
 
         #add formula
         formulaSql = text(
