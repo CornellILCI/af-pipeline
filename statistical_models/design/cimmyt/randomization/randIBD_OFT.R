@@ -9,12 +9,12 @@
 # Maintainer       : Pedro A M Barbosa 
 # Maintainer Email : p.medeiros@cgiar.org
 # Script Version   : 1
-# Syntax           : "Rscript randIBD_OFT.R -e randIBD_OFT_SD_0001.lst --sBlk 3 --nTrial 100"
+# Syntax           : "Rscript randIBD_OFT.R -e randIBD_OFT_SD_0001.lst --plotFarm 3 --nFarm 100"
 # -------------------------------------------------------------------------------------
 # Parameters:
 # entryList = csv file that contains the entry list
-# nTrial = number of Occurrences/Farms
-# sBlk = number of plot in each block (block = farm)
+# nFarm = number of Occurrences/Farms
+# plotFarm = number of plot in each block (block = farm)
 # outputFile = prefix to be used for the names of the output files
 # outputPath = path where output will be saved
 # ---------------------------------------------------------
@@ -27,9 +27,9 @@ suppressWarnings(suppressPackageStartupMessages(library(ebsRtools)))
 optionList <- list(
   make_option(opt_str = c("-e","--entryList"), type = "character", default = "randIBD_OFT_SD_0001.lst",
               help = "name of the csv file with the entry list", metavar = "entry list"),
-  make_option(opt_str = c("-k","--sBlk"), type = "integer", default = 3,
+  make_option(opt_str = c("-k","--plotFarm"), type = "integer", default = 3,
               help = "Number of plots in each block", metavar = "size of blocks"),
-  make_option(opt_str = c("-t","--nTrial"),  type = "integer", default = as.integer(100),
+  make_option(opt_str = c("-t","--nFarm"),  type = "integer", default = as.integer(100),
               help = "Number of occurrences", metavar = "number of occurrences"),
   make_option(opt_str = c("-o", "--outputFile"), type = "character", default = "IBD_OFT_Expt_",
               help = "Prefix to be used for the names of the output files",
@@ -57,13 +57,13 @@ if(nCheck<3){stop("Error in randIBD_OFT: The entry list should contain at least 
 nTest <- sum(entryList$entry_type=="test")
 if(nTest<3){stop("Error in randIBD_OFT: The experiment should evaluate at least 3 new genotypes (test entriess)")}
 
-if(opt$sBlk<3){stop("Error in randIBD_OFT: The block size should be bigger than 2")}
+if(opt$plotFarm<3){stop("Error in randIBD_OFT: The block size should be bigger than 2")}
 if(length(unique(entryList$entry_id))!=nTreatment){stop("Error in randIBD_OFT: There are more than one entry with the same id.")}
 
 checks <- entryList$entry_id[entryList$entry_type=="check"]
 test <- entryList$entry_id[entryList$entry_type=="test"]
 
-if(opt$sBlk > nCheck | opt$sBlk > nTest){stop("Error in randIBD_OFT: Block size should be smaller than the number of checks and test entries")}
+if(opt$plotFarm > nCheck | opt$plotFarm > nTest){stop("Error in randIBD_OFT: Block size should be smaller than the number of checks and test entries")}
 
 if(!(nCheck + nTest == nTreatment)) {stop("Error in randIBD_OFT: Please, Entry types should be 'test' or 'check')")}
 if(nCheck== 0) {stop("Error in randIBD_OFT: Check entries not found, check genotypes are required for this design)")}
@@ -71,22 +71,22 @@ if(nCheck== 0) {stop("Error in randIBD_OFT: Check entries not found, check genot
 # Creating the 4 types of experiments
 
 ## Exp1 All entries
-exp1 <- combn(entryList$entry_id,opt$sBlk)
+exp1 <- combn(entryList$entry_id,opt$plotFarm)
 
 ## Exp2 Only test
-exp2 <- combn(test,opt$sBlk)
+exp2 <- combn(test,opt$plotFarm)
 
 ## Exp3 Each check with each pair of test
-test1 <- combn(checks,opt$sBlk-1)
-exp3 <- matrix(NA,opt$sBlk,nTest*ncol(test1))
-exp3[c(1:(opt$sBlk-1)),] <- test1
-exp3[opt$sBlk,] <- rep(test,each=ncol(test1))
+test1 <- combn(checks,opt$plotFarm-1)
+exp3 <- matrix(NA,opt$plotFarm,nTest*ncol(test1))
+exp3[c(1:(opt$plotFarm-1)),] <- test1
+exp3[opt$plotFarm,] <- rep(test,each=ncol(test1))
 
 ## Exp4 Each test with each pair of check
-test2 <- combn(test,opt$sBlk-1)
-exp4 <- matrix(NA,opt$sBlk,nCheck*ncol(test2))
-exp4[c(1:(opt$sBlk-1)),] <- test2
-exp4[opt$sBlk,] <- rep(checks,each=ncol(test2))
+test2 <- combn(test,opt$plotFarm-1)
+exp4 <- matrix(NA,opt$plotFarm,nCheck*ncol(test2))
+exp4[c(1:(opt$plotFarm-1)),] <- test2
+exp4[opt$plotFarm,] <- rep(checks,each=ncol(test2))
 
 exps <- list(exp1,exp2,exp3,exp4)
 n1 <- ncol(exp1)
@@ -96,7 +96,7 @@ n4 <- ncol(exp4)
 nu <- c(n1,n2,n3,n4)
 names(exps) <- nu
 
-# Creating all comninations of the experiments that result nTrial
+# Creating all comninations of the experiments that result nFarm
 combSum <- function(s, x, xhead = head(x,1), r = c()) {
   if (s == 0) {
     return(list(r))
@@ -106,7 +106,7 @@ combSum <- function(s, x, xhead = head(x,1), r = c()) {
   }
 }
 
-wholeExp <- combSum(opt$nTrial,c(nu))
+wholeExp <- combSum(opt$nFarm,c(nu))
 
 if(is.null(wholeExp)){stop("Error in randIBD_OFT: No combinations were found for this entry list, block size and number of farms. Try to update one of these inputs")}
 
@@ -135,9 +135,9 @@ for(i in 1:length(table(selectedExp))){
   }
 }
 
-DesignArray <- data.frame(occurrence=rep(1:opt$nTrial,each=opt$sBlk),
-                          plot_num = rep(1:3,opt$nTrial),
-                          block=rep(1:opt$nTrial,each=opt$sBlk),
+DesignArray <- data.frame(occurrence=rep(1:opt$nFarm,each=opt$plotFarm),
+                          plot_num = rep(1:3,opt$nFarm),
+                          block=rep(1:opt$nFarm,each=opt$plotFarm),
                           entry_id = unlist(as.data.frame(tmp)))
 
 # save the Design Array to a csv file
