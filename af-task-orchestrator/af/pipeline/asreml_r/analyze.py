@@ -1,12 +1,13 @@
 import rpy2.robjects as robjects
-from af.pipeline import rpy_utils, utils
+from af.pipeline import rpy_utils, utils, job_status
 from af.pipeline.asreml.analyze import AsremlAnalyze
 from af.pipeline.asreml_r.dpo import AsremlRProcessData  # temporary while we refactor parts
 from af.pipeline.db import services as db_services
 from af.pipeline.exceptions import AnalysisError
 from af.pipeline.job_data import JobData
-from af.pipeline.job_status import JobStatus
-from rpy2.robjects.packages import importr
+from af.pipeline import rpy_utils
+import rpy2
+import rpy2.robjects as robjects
 
 # TODO: This is a ME script ,  Pedro will provide script for single run
 SCRIPT = """
@@ -69,7 +70,28 @@ class AsremlRAnalyze(AsremlAnalyze):
     engine_script = "asreml-r"
     dpo_cls = AsremlRProcessData
 
-    def run_job(self, job_data: JobData, analysis_engine=None):
+    @robjects.packages.no_warnings
+    def run_job(self, job_data: JobData):
+
+        job = db_services.create_job(
+            self.db_session,
+            self.analysis.id,
+            job_data.job_name,
+            job_status.JobStatus.INPROGRESS,
+            "Processing input request",
+            {},
+        )
+
+        input_data = rpy_utils.read_csv(file=job_data.data_file)
+
+        asreml_r = robjects.packages.importr("asreml")
+        
+        asr = asreml_r.asreml(
+            robjects.Formula(job_data.job_params.formula),
+            residual=robjects.Formula(job_data.job_params.residual),
+            data=input_data
+        )
+
         return JobData()
 
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):

@@ -538,7 +538,44 @@ def predictions_df():
 
 
 @pytest.fixture
+def analysis(mocker, dbsession):
+
+    mocker.patch("af.pipeline.db.core.DBConfig.get_session", return_value=dbsession)
+
+    model_factory.RequestFactory._meta.sqlalchemy_session = dbsession
+    model_factory.AnalysisFactory._meta.sqlalchemy_session = dbsession
+
+    analysis = model_factory.AnalysisFactory()
+    
+    return analysis
+
+@pytest.fixture
+def asreml_r_analysis_request(analysis_request, analysis):
+    analysis_request.requestId = analysis.request.uuid
+    return analysis_request
+
+@pytest.fixture
 @robjects.packages.no_warnings
 def r_base():
     r_base = importr("base")
     return r_base
+
+@pytest.fixture
+def asreml_r_input_data():
+    return robjects.DataFrame({"a": 5})
+
+class RFormulaMock(robjects.Formula):
+    def __eq__(self, other):
+        return self.r_repr() == other.r_repr()
+
+@pytest.fixture
+def asreml_r_formula():
+    return RFormulaMock("test ~ formula")
+
+
+@pytest.fixture
+def asreml_r_residual():
+    return RFormulaMock("test ~ residual")
+
+
+
