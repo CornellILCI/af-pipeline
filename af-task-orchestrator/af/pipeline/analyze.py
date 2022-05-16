@@ -7,8 +7,8 @@ import os
 import subprocess
 import sys
 from os import path
-from af.pipeline.data_reader.exceptions import DataReaderException
 
+from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db.models import Analysis, Job
 
 if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR") == "SLURM":

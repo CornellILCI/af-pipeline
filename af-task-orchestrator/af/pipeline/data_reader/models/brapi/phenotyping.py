@@ -1729,6 +1729,7 @@ class MethodSingleResponse(BaseModel):
     _context: Optional[Context] = Field(None, alias="@context")
     metadata: Metadata
 
+
 class ObservationListResponse(BaseModel):
     _context: Optional[Context] = Field(None, alias="@context")
     metadata: Metadata
@@ -1765,6 +1766,7 @@ class Image(ImageNewRequest):
     imageDbId: Optional[str] = Field(None, description="The unique identifier of an image", example="a55efb9c")
 
     result: Method
+
 
 class ObservationUnitsSearchRequestDto(BaseModel):
     externalReferenceIDs: Optional[List[str]] = Field(
