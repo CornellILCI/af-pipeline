@@ -18,6 +18,11 @@ RUN wget https://downloads.vsni.digital/2bdb06398e7dcf7d9a638092305b5b78fdffacb1
 RUN apt-get install -y ./ASReml-4.2.1.170-Ubuntu-18.04.deb
 RUN apt-get install -y supervisor
 
+
+ENV PATH="/app/scripts:${PATH}"
+
+# Install ASREML-R
+RUN apt install -y -t buster-cran40
 RUN apt-get install -y -f r-base
 
 # install R packages
@@ -25,10 +30,6 @@ RUN Rscript -e  "install.packages('sommer')"
 RUN Rscript -e  "install.packages('RJSONIO')"
 RUN Rscript -e  "install.packages('gtools')"
 
-ENV PATH="/app/scripts:${PATH}"
-
-# Install ASREML-R
-RUN apt install -y -t buster-cran40
 RUN Rscript /app/packages/install_asreml.R
 
 # RUN apt-get update && pip3 install  -r requirements.txt
