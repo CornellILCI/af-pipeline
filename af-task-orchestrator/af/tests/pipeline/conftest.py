@@ -158,6 +158,12 @@ def analysis_formula():
 
 
 @pytest.fixture(scope="class")
+def analysis_r_formula():
+    analysis_formula = Property(statement="fixed={trait_name} ~ mu rep, random=entry")
+    return analysis_formula
+
+
+@pytest.fixture(scope="class")
 def analysis_formula_class(request, analysis_formula):
     request.cls.analysis_formula = analysis_formula
 
@@ -446,7 +452,7 @@ def mesl_analysis_request(
     me_occurrence_mock,
     me_trait_mock,
     analysis_fields,
-    analysis_formula,
+    analysis_r_formula,
     analysis_residual,
     analysis_prediction,
 ):
@@ -454,7 +460,7 @@ def mesl_analysis_request(
     mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
 
     get_property_stubs = [Property(code="MESL")]
-    get_property_stubs.extend([analysis_formula, analysis_residual, analysis_prediction] * 4)
+    get_property_stubs.extend([analysis_r_formula, analysis_residual, analysis_prediction] * 4)
     mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
 
     return me_analysis_request
@@ -469,7 +475,7 @@ def meml_analysis_request(
     me_occurrence_mock,
     me_trait_mock,
     analysis_fields,
-    analysis_formula,
+    analysis_r_formula,
     analysis_residual,
     analysis_prediction,
 ):
@@ -477,7 +483,7 @@ def meml_analysis_request(
     mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
 
     get_property_stubs = [Property(code="MEML")]
-    get_property_stubs.extend([analysis_formula, analysis_residual, analysis_prediction] * 4)
+    get_property_stubs.extend([analysis_r_formula, analysis_residual, analysis_prediction] * 4)
     mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
 
     return me_analysis_request

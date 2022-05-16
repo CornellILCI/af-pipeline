@@ -11,7 +11,7 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
     pipeline_dir = path.dirname(file_dir)
     sys.path.append(pipeline_dir)
 
-from af.pipeline import analysis_report, calculation_engine, job_status, utils
+from af.pipeline import analysis_report, calculation_engine, utils
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.analyze import Analyze
 from af.pipeline.asreml import services as asreml_services
@@ -21,6 +21,7 @@ from af.pipeline.db import services as db_services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.exceptions import AnalysisError, DpoException
 from af.pipeline.job_data import JobData
+from af.pipeline.job_status import JobStatus
 
 
 class AsremlAnalyze(Analyze):
@@ -86,7 +87,7 @@ class AsremlAnalyze(Analyze):
             self.db_session,
             self.analysis.id,
             job_data.job_name,
-            job_status.JobStatus.INPROGRESS,
+            JobStatus.INPROGRESS,
             "Processing in the input request",
             job_detail,
         )
@@ -95,7 +96,7 @@ class AsremlAnalyze(Analyze):
             cmd = [analysis_engine, job_data.job_file, job_data.data_file]
             _ = subprocess.run(cmd, capture_output=True)
             job = db_services.update_job(
-                self.db_session, job, job_status.JobStatus.INPROGRESS, "Completed the job. Pending post processing."
+                self.db_session, job, JobStatus.INPROGRESS, "Completed the job. Pending post processing."
             )
 
             job_data.job_result_dir = job_dir
@@ -103,7 +104,7 @@ class AsremlAnalyze(Analyze):
             return job_data
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, job_status.JobStatus.ERROR, str(e))
+            db_services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
             utils.zip_dir(job_dir, self.output_file_path, job_data.job_name)
             raise AnalysisError(str(e))
         finally:
@@ -132,7 +133,7 @@ class AsremlAnalyze(Analyze):
                 db_services.update_job(
                     self.db_session,
                     job,
-                    job_status.JobStatus.FAILED,
+                    JobStatus.FAILED,
                     asreml_result_content.model_stat.get("conclusion"),
                 )
                 return gathered_objects
@@ -188,7 +189,7 @@ class AsremlAnalyze(Analyze):
             asreml_services.process_yhat_result(self.db_session, job.id, yhat_file_path)
 
             db_services.update_job(
-                self.db_session, job, job_status.JobStatus.FINISHED, asreml_result_content.model_stat.get("conclusion")
+                self.db_session, job, JobStatus.FINISHED, asreml_result_content.model_stat.get("conclusion")
             )
 
             # gather occurrences from the jobs, so we don't have to read occurrences again.
@@ -204,7 +205,7 @@ class AsremlAnalyze(Analyze):
 
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, job_status.JobStatus.ERROR, str(e))
+            db_services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
             raise AnalysisError(str(e))
         finally:
             # zip the result files to be downloaded by the users

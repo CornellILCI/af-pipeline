@@ -1,7 +1,7 @@
 import pytest
 import rpy2
 from af.pipeline import asreml_r, job_data, job_status
-from mock import ANY, patch, call
+from mock import ANY, call, patch
 
 
 def test_run_job_returns_job_data(mocker, asreml_r_analysis_request):
@@ -85,7 +85,7 @@ def test_asreml_run(
 
     mocker.patch("af.pipeline.db.services.create_job")
     mocker.patch("af.pipeline.rpy_utils.read_csv", return_value=asreml_r_input_data)
-    
+
     importr = mocker.Mock()
     importr.asreml = mocker.Mock(return_value=None)
     mocker.patch("rpy2.robjects.packages.importr", return_value=importr)
@@ -128,8 +128,7 @@ def test_asreml_is_detached_after_run(asreml_r_analysis_request, mocker):
     mocker.patch("rpy2.robjects.packages.importr", return_value=importr)
 
     job_data_ = job_data.JobData(job_params=job_data.JobParams(fixed="test ~ formula", residual="test ~ residual"))
-    
+
     asreml_r_analyze.run_job(job_data_)
-    
-    importr.detach.assert_called_once_with('package:asreml', unload=True)
-    
+
+    importr.detach.assert_called_once_with("package:asreml", unload=True)
