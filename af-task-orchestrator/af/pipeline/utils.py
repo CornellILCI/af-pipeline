@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 
 import openpyxl
+import pandas as pd
 from af.pipeline import exceptions
 
 
@@ -33,6 +34,15 @@ def get_parent_dir(file_path: str) -> str:
     return _file_path.parent
 
 
+def is_valid_file(file_path: str) -> bool:
+    """Checks if the given file path is valid and
+    the file exists in the input path
+    """
+    if file_path and os.path.isfile(file_path):
+        return True
+    return False
+
+
 def create_workbook(workbook_file: str, sheet_names: list[str]):
     """Creates a excel workbook for given file path.
 
@@ -47,6 +57,11 @@ def create_workbook(workbook_file: str, sheet_names: list[str]):
         wb.create_sheet(sheet)
 
     wb.save(filename=workbook_file)
+
+
+def get_metadata(metadata_file: str):
+    metadata = pd.read_csv(metadata_file, sep="\t", dtype=str)
+    return metadata
 
 
 def remove_empty_worksheets(workbook_file: str):

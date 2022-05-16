@@ -7,8 +7,8 @@ import tempfile
 import pandas as pd
 import pytest
 from af.pipeline.db.models import Property
-
 # fixtures import area
+from af.tests import factories as model_factory
 
 
 def get_test_resource_path(testfile, resource_name):
@@ -479,3 +479,57 @@ def meml_analysis_request(
     mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
 
     return me_analysis_request
+
+
+@pytest.fixture
+def job(dbsession):
+
+    model_factory.JobFactory._meta.sqlalchemy_session = dbsession
+    job = model_factory.JobFactory()
+    dbsession.commit()
+    return job
+
+
+@pytest.fixture
+def jobs(dbsession):
+
+    model_factory.JobFactory._meta.sqlalchemy_session = dbsession
+    jobs = model_factory.JobFactory.create_batch(size=2)
+    return jobs
+
+
+@pytest.fixture
+def variance(dbsession, job):
+
+    model_factory.VarianceFactory._meta.sqlalchemy_session = dbsession
+
+    variance = model_factory.VarianceFactory(job=job)
+
+    return variance
+
+
+@pytest.fixture
+def variances(dbsession, jobs):
+
+    model_factory.VarianceFactory._meta.sqlalchemy_session = dbsession
+
+    variance_1 = model_factory.VarianceFactory(job=jobs[0], source="source1")
+    variance_2 = model_factory.VarianceFactory(job=jobs[1], source="source1")
+    variance_3 = model_factory.VarianceFactory(job=jobs[1], source="source2")
+
+    return [variance_1, variance_2, variance_3]
+
+
+@pytest.fixture
+def predictions_df():
+
+    return pd.DataFrame(
+        columns=["job_id", "entry", "loc", "value", "std_error", "e_code", "num_factors"],
+        data=[
+            [1, 1, None, 1, 1.4, "E", 1],
+            [1, 2, None, 1, 1.5, "E", 1],
+            [1, None, 1, 1, 1.4, "E", 1],
+            [1, 1, 1, 1, 1.5, "E", 2],
+            [1, 2, 1, 1, 1.5, "E", 2],
+        ],
+    )

@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "Rversion": "4.1.1",
+    "date": "26-Apr-2022",
+    "author": "Alaine Gulles",
+    "email": "a.gulles@irri.org",
+    "syntax": "Rscript randRCBD_OFT.R --entryList 'RCBD_OFT_SD_0001.lst' --nFarm 10 -o 'Output1' -p 'D:/Results'",
+    "engine": "R 4.1.1",
+    "method": "randRCBD_OFT",
+    "design": "Randomized Complete Block",
+    "modelVersion": 1.1,
+    "organization_code": "IRRI",
+    "note": null
+  },
+  "parameters": {
+    "input": {
+      "entryList": {
+        "variable_label": "Entry List",
+        "description": "CSV file with the entries information",
+        "visible": "F",
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "T",
+        "required": "T",
+        "data_type": "string",
+        "order_number": 1,
+        "variable_abbrev": "entryList",
+        "is_layout_variable": "F",
+        "rule": [
+          {
+            "order number": 1,
+            "type": "validation-design",
+            "expression": "nCheck>1",
+            "notification": "Total number of check entries should be greated than 1.",
+            "action": "error"
+          },
+          {
+            "order number": 2,
+            "type": "validation-design",
+            "expression": "nEntries>=3",
+            "notification": "Total number of test entries should be at least 3.",
+            "action": "error"
+          },
+          {
+            "order number": 3,
+            "type": "validation-design",
+            "expression": "totalEntries>=5",
+            "notification": "Minimum number of entries should be 5.",
+            "action": "warning"
+          },
+          {
+            "order number": 4,
+            "type": "validation-design",
+            "expression": "totalEntries<=15",
+            "notification": "Total number of entries is too large for OFT. Usually OFT evaluates at most 15 entries.",
+            "action": "warning"
+          }
+        ]
+      },
+      "nFarm": {
+        "variable_label": "No. of Farms",
+        "description": "Number of farms",
+        "visible": "T",
+        "minimum": 10,
+        "maximum": null,
+        "unit": null,
+        "values": null,
+        "default": 10,
+        "disabled": "F",
+        "required": "T",
+        "data_type": "integer",
+        "order_number": 2,
+        "variable_abbrev": "OCCURRENCES",
+        "is_layout_variable": "F"
+      },
+      "outputFile": {
+        "variable_label": "Output File",
+        "description": "Prefix to be used for the names of the output files",
+        "visible": "F",
+        "minimum": null,
+        "maximum": null,
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "T",
+        "required": "T",
+        "data_type": "character varying",
+        "order_number": 8,
+        "variable_abbrev": null,
+        "is_layout_variable": "F"
+      },
+      "outputPath": {
+        "variable_label": "Output Path",
+        "description": "Path where output will be saved",
+        "visible": "F",
+        "minimum": null,
+        "maximum": null,
+        "unit": null,
+        "values": null,
+        "default": null,
+        "disabled": "T",
+        "required": "T",
+        "data_type": "character varying",
+        "order_number": 9,
+        "variable_abbrev": null,
+        "is_layout_variable": "F"
+      }
+    },
+    "output": {
+      "DesignArray": {
+        "filetype": "csv",
+        "label": "Randomization Fieldbook file",
+        "description": "spreadsheet file showing the result of  the randomization (and layout, if generated)"
+      },
+      "designInfo": {
+        "filetype": "txt",
+        "label": "Design information file",
+        "description": "contains information on the parameters used to generate the randomization"
+      }
+    }
+  }
+}

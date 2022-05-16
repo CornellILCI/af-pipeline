@@ -16,6 +16,12 @@ class SommeRAnalyze(Analyze):
     def get_cmd(self, job_data, analysis_engine=None):
         return ["sommer", job_data.job_file]
 
+    def pre_process(self):
+        super().pre_process()
+
+    def run_job(self, job_data):
+        super().run_job(job_data)
+
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):
         pass
 
