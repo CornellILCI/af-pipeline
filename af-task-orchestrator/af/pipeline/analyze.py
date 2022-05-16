@@ -50,7 +50,7 @@ class Analyze(abc.ABC):
         """Get the associated ProcessData object for this Analyze"""
         return self.dpo_cls(analysis_request)
 
-    @abstractmethod
+    @abc.abstractmethod
     def pre_process(self):
         status = "IN-PROGRESS"
         message = "Data preprocessing in progress"
@@ -78,7 +78,7 @@ class Analyze(abc.ABC):
             analysis_engine = self.get_engine_script()
         return [analysis_engine, job_data.job_file, job_data.data_file]
 
-    @abstractmethod
+    @abc.abstractmethod
     def run_job(self, job_data, analysis_engine=None):
         job_dir = utils.get_parent_dir(job_data.data_file)
 

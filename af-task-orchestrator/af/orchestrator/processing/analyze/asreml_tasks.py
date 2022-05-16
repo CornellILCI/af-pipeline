@@ -25,4 +25,4 @@ def run_asreml_analyze(request_id, analysis_request, input_files, results):
             app.send_task("post_process", args=args)
         else:
             args = request_id, analysis_request, input_files, results
-            app.send_task("run_analyze", args=args, queue="ASREML")
+            app.send_task("run_asreml_analyze", args=args, queue="ASREML")
