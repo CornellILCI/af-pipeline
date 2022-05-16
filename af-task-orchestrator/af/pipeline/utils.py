@@ -34,6 +34,10 @@ def get_parent_dir(file_path: str) -> str:
     return _file_path.parent
 
 
+def path_join(dir_: str, file_: str) -> str:
+    return os.path.join(dir_, file_)
+
+
 def is_valid_file(file_path: str) -> bool:
     """Checks if the given file path is valid and
     the file exists in the input path

@@ -1,17 +1,22 @@
-from af.pipeline import asreml_r, job_data, job_status
-from mock import patch
+import pytest
 import rpy2
+from af.pipeline import asreml_r, job_data, job_status
+from mock import ANY, patch
 
 
 class AsremlMock:
     """ARReml mock"""
 
-    def asreml(self, formula, residual=None, data=None):
-        return None
+    def asreml(self, fixed=None, random=None, residual=None, data=None, na_action=None):
+        pass
+
+    def na_method(self, **kwargs):
+        pass
 
 
 def test_run_job_returns_job_data(mocker, asreml_r_analysis_request):
 
+    mocker.patch("af.pipeline.db.services.create_job")
     mocker.patch("af.pipeline.rpy_utils.read_csv")
     mocker.patch("rpy2.robjects.packages.importr", return_value=AsremlMock())
 
@@ -69,7 +74,7 @@ def test_input_data_is_read(asreml_r_analysis_request, mocker):
     job_data_ = job_data.JobData(
         job_name="test_job",
         data_file="test_data_file.txt",
-        job_params=job_data.JobParams(formula="test ~ formula", residual="test ~ residual"),
+        job_params=job_data.JobParams(fixed="test ~ formula", random="~random", residual="test ~ residual"),
     )
 
     asreml_r_analyze.run_job(job_data_)
@@ -77,7 +82,14 @@ def test_input_data_is_read(asreml_r_analysis_request, mocker):
     read_data.assert_called_once_with(file=job_data_.data_file)
 
 
-def test_asreml_run(asreml_r_analysis_request, asreml_r_input_data, asreml_r_formula, asreml_r_residual, mocker):
+def test_asreml_run(
+    asreml_r_analysis_request,
+    asreml_r_input_data,
+    asreml_r_fixed_formula,
+    asreml_r_random_formula,
+    asreml_r_residual,
+    mocker,
+):
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
@@ -88,19 +100,34 @@ def test_asreml_run(asreml_r_analysis_request, asreml_r_input_data, asreml_r_for
     asreml_run = mocker.patch.object(AsremlMock, "asreml")
 
     job_data_ = job_data.JobData(
-        job_params=job_data.JobParams(formula=asreml_r_formula.r_repr(), residual=asreml_r_residual.r_repr())
+        job_params=job_data.JobParams(fixed=asreml_r_fixed_formula.r_repr(), residual=asreml_r_residual.r_repr())
     )
 
     asreml_r_analyze.run_job(job_data_)
 
     asreml_run.assert_called_once_with(
-        asreml_r_formula,
-        residual=asreml_r_residual,
-        data=asreml_r_input_data,
+        fixed=asreml_r_fixed_formula, residual=asreml_r_residual, data=asreml_r_input_data, na_action=ANY
     )
+
+
+def test_asreml_raises_inavlid_formula_error(asreml_r_analysis_request, mocker):
+
+    asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
+
+    mocker.patch("af.pipeline.db.services.create_job")
+    mocker.patch("rpy2.robjects.packages.importr", return_value=AsremlMock())
+    mocker.patch("af.pipeline.rpy_utils.read_csv")
+
+    job_data_ = job_data.JobData(job_params=job_data.JobParams(fixed="test formula", residual="test residual"))
+
+    with pytest.raises(asreml_r.analyze.InvalidFormulaError):
+        asreml_r_analyze.run_job(job_data_)
 
 
 def test_asreml_is_detached_after_run(asreml_r_analysis_request, mocker):
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
+
+    mocker.patch("af.pipeline.db.services.create_job")
+
     pass

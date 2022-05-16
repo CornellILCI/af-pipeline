@@ -7,6 +7,8 @@ from af.pipeline.data_reader.models import Occurrence  # noqa: E402; noqa: E402
 class JobParams:
 
     formula: str = None
+    fixed: str = None
+    random: str = None
     residual: str = None
     predictions: list[str] = None
     analysis_fields_types: dict = None  # field datatypes.
