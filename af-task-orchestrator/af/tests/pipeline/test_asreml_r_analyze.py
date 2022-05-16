@@ -1,24 +1,14 @@
 import pytest
 import rpy2
 from af.pipeline import asreml_r, job_data, job_status
-from mock import ANY, patch
-
-
-class AsremlMock:
-    """ARReml mock"""
-
-    def asreml(self, fixed=None, random=None, residual=None, data=None, na_action=None):
-        pass
-
-    def na_method(self, **kwargs):
-        pass
+from mock import ANY, patch, call
 
 
 def test_run_job_returns_job_data(mocker, asreml_r_analysis_request):
 
     mocker.patch("af.pipeline.db.services.create_job")
     mocker.patch("af.pipeline.rpy_utils.read_csv")
-    mocker.patch("rpy2.robjects.packages.importr", return_value=AsremlMock())
+    mocker.patch("rpy2.robjects.packages.importr", return_value=mocker.Mock())
 
     returned_job_data = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request).run_job(
         job_data.JobData(job_params=job_data.JobParams(formula="test ~ formula", residual="test ~ residual"))
@@ -31,7 +21,7 @@ def test_run_job_creates_job_with_inprogess(asreml_r_analysis_request, analysis,
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
     mocker.patch("af.pipeline.rpy_utils.read_csv")
-    mocker.patch("rpy2.robjects.packages.importr", return_value=AsremlMock())
+    mocker.patch("rpy2.robjects.packages.importr", return_value=mocker.Mock())
 
     create_job = mocker.patch("af.pipeline.db.services.create_job")
 
@@ -52,7 +42,7 @@ def test_asreml_package_imported(asreml_r_analysis_request, mocker):
     mocker.patch("af.pipeline.db.services.create_job")
     mocker.patch("af.pipeline.rpy_utils.read_csv")
 
-    asreml_import = mocker.patch("rpy2.robjects.packages.importr", return_value=AsremlMock())
+    asreml_import = mocker.patch("rpy2.robjects.packages.importr", return_value=mocker.Mock())
 
     asreml_r_analyze.run_job(
         job_data.JobData(
@@ -60,14 +50,14 @@ def test_asreml_package_imported(asreml_r_analysis_request, mocker):
         )
     )
 
-    asreml_import.assert_called_once_with("asreml")
+    asreml_import.assert_has_calls([call("base"), call("asreml")])
 
 
 def test_input_data_is_read(asreml_r_analysis_request, mocker):
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
     mocker.patch("af.pipeline.db.services.create_job")
-    mocker.patch("rpy2.robjects.packages.importr", return_value=AsremlMock())
+    mocker.patch("rpy2.robjects.packages.importr", return_value=mocker.Mock())
 
     read_data = mocker.patch("af.pipeline.rpy_utils.read_csv")
 
@@ -94,10 +84,11 @@ def test_asreml_run(
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
     mocker.patch("af.pipeline.db.services.create_job")
-    mocker.patch("rpy2.robjects.packages.importr", return_value=AsremlMock())
     mocker.patch("af.pipeline.rpy_utils.read_csv", return_value=asreml_r_input_data)
-
-    asreml_run = mocker.patch.object(AsremlMock, "asreml")
+    
+    importr = mocker.Mock()
+    importr.asreml = mocker.Mock(return_value=None)
+    mocker.patch("rpy2.robjects.packages.importr", return_value=importr)
 
     job_data_ = job_data.JobData(
         job_params=job_data.JobParams(fixed=asreml_r_fixed_formula.r_repr(), residual=asreml_r_residual.r_repr())
@@ -105,7 +96,7 @@ def test_asreml_run(
 
     asreml_r_analyze.run_job(job_data_)
 
-    asreml_run.assert_called_once_with(
+    importr.asreml.assert_called_once_with(
         fixed=asreml_r_fixed_formula, residual=asreml_r_residual, data=asreml_r_input_data, na_action=ANY
     )
 
@@ -115,8 +106,8 @@ def test_asreml_raises_inavlid_formula_error(asreml_r_analysis_request, mocker):
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
     mocker.patch("af.pipeline.db.services.create_job")
-    mocker.patch("rpy2.robjects.packages.importr", return_value=AsremlMock())
     mocker.patch("af.pipeline.rpy_utils.read_csv")
+    mocker.patch("rpy2.robjects.packages.importr", return_value=mocker.Mock())
 
     job_data_ = job_data.JobData(job_params=job_data.JobParams(fixed="test formula", residual="test residual"))
 
@@ -129,5 +120,16 @@ def test_asreml_is_detached_after_run(asreml_r_analysis_request, mocker):
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
     mocker.patch("af.pipeline.db.services.create_job")
+    mocker.patch("af.pipeline.rpy_utils.read_csv")
 
-    pass
+    importr = mocker.Mock()
+    importr.asreml = mocker.Mock(return_value=None)
+    importr.detach = mocker.Mock()
+    mocker.patch("rpy2.robjects.packages.importr", return_value=importr)
+
+    job_data_ = job_data.JobData(job_params=job_data.JobParams(fixed="test ~ formula", residual="test ~ residual"))
+    
+    asreml_r_analyze.run_job(job_data_)
+    
+    importr.detach.assert_called_once_with('package:asreml', unload=True)
+    
