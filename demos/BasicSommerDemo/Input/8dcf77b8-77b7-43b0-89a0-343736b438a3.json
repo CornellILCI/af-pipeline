@@ -1,0 +1,15 @@
+{
+    "rep": 1,
+    "grm": "/Users/sb2597/Documents/GitHub/af-core/demos/BasicSommerDemo/Input/GRM.txt",
+    "input_phenotypic_data": "/Users/sb2597/Documents/GitHub/af-core/demos/BasicSommerDemo/Input/2cd7238d-1d50-4b2b-b514-e1f2b80bcd60.csv",
+    "formula": "fixed=%trait%~Rep, random=~ID",
+    "rcov": "~ units",
+    "trait": "GrYld_Comp_kgha",
+    "output_var": "/Users/sb2597/Documents/GitHub/af-core/demos/BasicSommerDemo/Output/var.csv",
+    "output_statmodel": "/Users/sb2597/Documents/GitHub/af-core/demos/BasicSommerDemo/Output/statmodel.csv",
+    "output_BV": "/Users/sb2597/Documents/GitHub/af-core/demos/BasicSommerDemo/Output/BVs.csv",
+    "output_pred": "/Users/sb2597/Documents/GitHub/af-core/demos/BasicSommerDemo/Output/pvs.csv",
+    "output_yhat": "/Users/sb2597/Documents/GitHub/af-core/demos/BasicSommerDemo/Output/Yhat.csv",
+    "output_outliers": "/Users/sb2597/Documents/GitHub/af-core/demos/BasicSommerDemo/Output/outliers.csv",
+    "raw_analysis_out": "/Users/sb2597/Documents/GitHub/af-core/demos/BasicSommerDemo/Output/out.rds"
+ }

@@ -1728,8 +1728,6 @@ class ObservationVariableNewRequest(VariableBaseClass):
 class MethodSingleResponse(BaseModel):
     _context: Optional[Context] = Field(None, alias="@context")
     metadata: Metadata
-    result: Method
-
 
 class ObservationListResponse(BaseModel):
     _context: Optional[Context] = Field(None, alias="@context")
@@ -1765,6 +1763,55 @@ class ObservationVariableListResponseResult(BaseModel):
 
 class Image(ImageNewRequest):
     imageDbId: Optional[str] = Field(None, description="The unique identifier of an image", example="a55efb9c")
+
+    result: Method
+
+class ObservationUnitsSearchRequestDto(BaseModel):
+    externalReferenceIDs: Optional[List[str]] = Field(
+        None,
+        description="",
+        example="",
+    )
+    externalReferenceSources: Optional[List[str]] = Field(
+        None,
+        description="",
+        example="",
+    )
+    germplasmDbIds: Optional[List[str]] = Field(
+        None,
+        description="",
+        example="",
+    )
+    locationDbIds: Optional[List[str]] = Field(
+        None,
+        description="",
+        example="",
+    )
+    observationLevel: Optional[str] = Field(
+        None,
+        description="",
+        example="",
+    )
+    observationUnitDbIds: Optional[List[str]] = Field(
+        None,
+        description="",
+        example="",
+    )
+    programDbIds: Optional[List[str]] = Field(
+        None,
+        description="",
+        example="",
+    )
+    studyDbIds: Optional[List[str]] = Field(
+        None,
+        description="",
+        example="",
+    )
+    trialDbIds: Optional[List[str]] = Field(
+        None,
+        description="",
+        example="",
+    )
 
 
 class ObservationUnitNewRequest(BaseModel):

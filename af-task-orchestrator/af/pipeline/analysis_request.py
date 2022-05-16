@@ -36,3 +36,4 @@ class AnalysisRequest(BaseModel):
     configResidualPropertyId: str
     configPredictionPropertyIds: list[str] = []
     outputFolder: str
+    crop:Optional[str]

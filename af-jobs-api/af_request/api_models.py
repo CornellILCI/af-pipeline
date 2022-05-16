@@ -30,7 +30,12 @@ class Property(AfBaseModel):
     type: Optional[str] = None
 
 
-class Occrrence(BaseModel):
+class Experiment(BaseModel):
+    experimentId: str
+    experimentName: str
+
+
+class Occurrence(BaseModel):
     occurrenceId: str
     occurrenceName: str
     locationId: Optional[str] = None
@@ -40,7 +45,7 @@ class Occrrence(BaseModel):
 class Experiment(BaseModel):
     experimentId: str
     experimentName: str
-    occurrences: Optional[list[Occrrence]] = None
+    occurrences: Optional[list[Occurrence]] = None
 
 
 class Trait(BaseModel):
@@ -96,6 +101,7 @@ class AnalysisRequestParameters(BaseModel):
     institute: Optional[str] = Field(None, description="Name of the institute for which the analysis is submitted.")
     analysisType: Optional[AnalysisType] = AnalysisType.ANALYZE
     experiments: List[Experiment]
+    occurrences: List[Occurrence]
     traits: List[Trait]
     analysisObjectivePropertyId: str = Field(..., description="Property Id of selected analysis objective.")
     analysisConfigPropertyId: str = Field(..., description="Property Id of selected analysis configuration.")

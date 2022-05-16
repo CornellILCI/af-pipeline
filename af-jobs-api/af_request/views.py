@@ -24,7 +24,7 @@ def post():
 
     submitted_analysis_request = service.submit(request_data)
 
-    submitted_request_dto = _map_analsysis(submitted_analysis_request)
+    submitted_request_dto = _map_analysis(submitted_analysis_request)
 
     return json_response(submitted_request_dto, HTTPStatus.CREATED)
 
@@ -42,7 +42,7 @@ def list():
     analysis_request_dtos = []
 
     for analysis in analyses:
-        analysis_request_dtos.append(_map_analsysis(analysis))
+        analysis_request_dtos.append(_map_analysis(analysis))
 
     response = api_models.AnalysisRequestListResponse(
         metadata=api_models.create_metadata(query_params.page, query_params.pageSize, total_count),
@@ -58,7 +58,7 @@ def get(request_uuid: str):
 
     try:
         analysis = service.get_by_id(request_uuid)
-        req_dto = api_models.AnalysisRequestResponse(result=_map_analsysis(analysis))
+        req_dto = api_models.AnalysisRequestResponse(result=_map_analysis(analysis))
         return json_response(req_dto, HTTPStatus.OK)
     except NoResultFound:
         error_response = api_models.ErrorResponse(errorMsg="AnalysisRequest not found")
@@ -86,7 +86,7 @@ def download_result(request_uuid: str):
     )
 
 
-def _map_analsysis(analysis):
+def _map_analysis(analysis):
     """Maps the db result to the Result model."""
 
     req = analysis.request

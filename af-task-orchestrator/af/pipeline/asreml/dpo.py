@@ -294,7 +294,7 @@ class AsremlProcessData(ProcessData):
 
     def _get_asreml_option(self):
         asreml_options = services.get_analysis_config_properties(
-            self.db_session, self.analysis_request.analysisConfigPropertyId, "asrmel_options"
+            self.db_session, self.analysis_request.analysisConfigPropertyId, "asreml_options"
         )
         if len(asreml_options) > 0:
             return asreml_options[0]

@@ -26,7 +26,7 @@ def get_analysis_engine_script(engine_name: str):
     if engine in ["asremlr", "asreml-r", "asreml_r"]:
         return "asreml-r"
 
-    if engine == "sommer":
+    if engine in ["r - sommer", "sommer"]:
         return "sommer"
 
     return None
