@@ -29,20 +29,7 @@ class AsremlAnalyze(Analyze):
     engine_script = "asreml"
 
     def __init__(self, analysis_request: AnalysisRequest, *args, **kwargs):
-        """Constructor.
-
-        Constructs analysis db record and other required objects.
-
-        Args:
-            analysis_request: Object with all required inputs to run analysis.
-        """
-
-        self.analysis_request = analysis_request
-
-        self.db_session = DBConfig.get_session()
-
-        # load existing analysis record OR create if it does not exist
-        self.analysis = db_services.get_analysis_by_request_id(self.db_session, request_id=analysis_request.requestId)
+        super().__init__(analysis_request=analysis_request, *args, **kwargs)
 
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
         self.report_file_path = path.join(analysis_request.outputFolder, f"{analysis_request.requestId}_report.xlsx")
@@ -50,11 +37,11 @@ class AsremlAnalyze(Analyze):
 
     def pre_process(self):
 
-        self.__update_request_status("IN-PROGRESS", "Data preprocessing in progress")
+        self._update_request_status("IN-PROGRESS", "Data preprocessing in progress")
 
         try:
             job_input_files = self.get_process_data(self.analysis_request).run()
-            self.__update_request_status("IN-PROGRESS", "Data preprocessing completed. Running jobs.")
+            self._update_request_status("IN-PROGRESS", "Data preprocessing completed. Running jobs.")
             return job_input_files
         except (DataReaderException, DpoException) as e:
             self.__update_request_status("FAILURE", "Data preprocessing failed.")

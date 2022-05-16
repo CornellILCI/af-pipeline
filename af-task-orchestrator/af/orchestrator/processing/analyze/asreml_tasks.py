@@ -8,8 +8,8 @@ from af.pipeline.exceptions import AnalysisError
 log = logging.getLogger(__name__)
 
 
-@app.task(name="run_analyze", base=StatusReportingTask, queue="ASREML")
-def run_analyze(request_id, analysis_request, input_files, results):
+@app.task(name="run_asreml_analyze", base=StatusReportingTask, queue="ASREML")
+def run_asreml_analyze(request_id, analysis_request, input_files, results):
     # pop 1 from input_files
     input_file, input_files = input_files[0], input_files[1:]
 
