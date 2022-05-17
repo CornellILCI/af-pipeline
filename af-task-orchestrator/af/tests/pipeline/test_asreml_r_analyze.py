@@ -132,3 +132,7 @@ def test_asreml_is_detached_after_run(asreml_r_analysis_request, mocker):
     asreml_r_analyze.run_job(job_data_)
 
     importr.detach.assert_called_once_with("package:asreml", unload=True)
+
+
+def test_post_processing_reads_asr_file():
+    pass

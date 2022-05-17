@@ -103,8 +103,26 @@ class AsremlRAnalyze(AsremlAnalyze):
             "Processing input request",
             {},
         )
+        
+        r_base = robjects.packages.importr("base")
 
         input_data = rpy_utils.read_csv(file=job_data.data_file)
+
+        # set data types to input data fields
+        # ASReml-R has only two datatypes, factor & numeric
+        # datatype keys are lower case
+        datatype_converters = {
+            "factor": r_base.as_factor,
+            "numeric": r_base.as_numeric
+        } 
+        if job_data.job_params.analysis_fields_types:
+            for field in job_data.job_params.analysis_fields_types:
+
+                data_type = job_data.job_params.analysis_fields_types.get(field)
+                converter = datatype_converters.get(data_type)
+
+                if converter:
+                    input_data[input_data.colnames.index(field)] = converter(input_data.rx2(field))
 
         # asreml has fixed, random and residual formulas.
         model_formulas = {}
@@ -121,7 +139,6 @@ class AsremlRAnalyze(AsremlAnalyze):
         if residual:
             model_formulas["residual"] = residual
 
-        r_base = robjects.packages.importr("base")
 
         asr = None
         prediction = None
@@ -161,11 +178,10 @@ class AsremlRAnalyze(AsremlAnalyze):
         prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name)
 
         # save asr as rds
-        r_base = robjects.packages.importr("base")
-
         if asr:
             r_base.saveRDS(asr, asr_rds_file)
 
+        # save prediction as rds
         if prediction:
             r_base.saveRDS(prediction, prediction_rds_file)
 

@@ -118,8 +118,14 @@ class AsremlRProcessData(AsremlProcessData):
 
         job_params = JobParams(**formula, residual=self._get_residual(), predictions=[])
 
+        # set predictions statements
         predictions = self._get_predictions()
-
         job_params.predictions = [prediction.statement for prediction in predictions]
+
+        # map analysis fields to their data type
+        analysis_fields = self._get_analysis_fields()
+        job_params.analysis_fields_types = {}
+        for field in analysis_fields:
+            job_params.analysis_fields_types[field.Property.code] = field.Property.data_type.lower()
 
         job_data.job_params = job_params

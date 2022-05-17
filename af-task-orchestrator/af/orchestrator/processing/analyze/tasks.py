@@ -43,10 +43,10 @@ def pre_process(request_id, analysis_request):
     args = request_id, analysis_request, input_files, results
 
     engine = analyze_object.get_engine_script()
-    if engine == "asreml":
+    if engine in ("asreml", "asreml-r"):
         app.send_task("run_asreml_analyze", args=args, queue="ASREML")
-    if engine == "sommer":
-        app.send_task("run_sommer_analyze", args=args)
+    else:
+        app.send_task("run_analyze", args=args)
 
 
 @app.task(name="post_process", base=StatusReportingTask)

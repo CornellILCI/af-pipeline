@@ -5,6 +5,7 @@ from af import pipeline
 from rpy2 import robjects
 from rpy2.robjects.packages import importr
 
+r_base = importr('base')
 
 @robjects.packages.no_warnings
 def read_csv(file: str):
