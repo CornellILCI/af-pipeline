@@ -113,7 +113,7 @@ def create_analysis_config(
     property_code, property_configName, property_label, property_description, property_design, property_data_type, property_creator_id, property_modifier_id, property_tenant_id, property_statement,
     property_meta_version, property_meta_date, property_meta_author, property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breeding_program_id,
     property_meta_pipeline_id, property_meta_stage_id, property_meta_design, property_meta_trait_level, property_meta_analysis_objective, property_meta_exp_analysis_pattern,
-    property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern, fields, options, formulas, residuals, predictions
+    property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern, fields, options, formulas, residuals, predictions, id = None
 ):
     try:
         db.session.begin()
@@ -132,6 +132,11 @@ def create_analysis_config(
             tenant_id=property_tenant_id,
             statement=property_statement
         )
+
+        if (id is not None):
+            property.id = id
+
+
 
         db.session.add(property)
         db.session.commit()
@@ -534,4 +539,97 @@ def locate_analysis_config(
 
     return configs
 
+def delete_analysis_config(id):
+
+    # --prove that there is one record and that it is an analysis config
+    # select count(*) from af.property where id in ( select pc.config_property_id from af.property_config pc where property_id = 134 and config_property_id <> 134 ) and id = 248
+    proveOneRecordSql = text(
+        (
+            "select count(*) from af.property where id in ( select pc.config_property_id from af.property_config pc where property_id = 134 and config_property_id <> 134 ) and id = {}"
+        ).format(id)
+        )   
+    proveOneRecordResult = db.engine.execute(proveOneRecordSql)
+    for row in proveOneRecordResult:
+        if (row[0] != 1):
+            raise Exception("Searching for a matching analysis config did not return exactly one result.")
+            
+    # --get all the property meta ids for this analysis config
+    # select id from af.property_meta pm where property_id = 248
+    getAllPropertyMetaIdsSql = text(
+        (
+            "select id from af.property_meta pm where property_id = {}"
+        ).format(id)
+        )   
+    getAllPropertyMetaIdsResult = db.engine.execute(getAllPropertyMetaIdsSql)
+    propertyMetaIds = []
+    for row in getAllPropertyMetaIdsResult:
+        propertyMetaIds.append(row[0])
+
+    # --get the id that links root analysis config to this config
+    # select id from af.property_config pc where config_property_id = 248 
+    getRootPropertyConfigToAnalysisIdSql = text(
+        (
+            "select id from af.property_config pc where config_property_id = {}"
+        ).format(id)
+        )   
+    getRootPropertyConfigToAnalysisIdResult = db.engine.execute(getRootPropertyConfigToAnalysisIdSql)
+    propertyConfigIds = []
+    for row in getRootPropertyConfigToAnalysisIdResult:
+        propertyConfigIds.append(row[0])
+
+    # --get all property ids for downstream propertys to the analysis config NOTE DELETE THESE FROM PROPERTY
+    # select id from af.property where id in (select config_property_id from af.property_config pc where property_id = 248)
+    getPropertyIdsforDownstreamPropertiesSql = text(
+        (
+            "select id from af.property where id in (select config_property_id from af.property_config pc where property_id = {})"
+        ).format(id)
+        )   
+    getPropertyIdsforDownstreamPropertiesResult = db.engine.execute(getPropertyIdsforDownstreamPropertiesSql)
+    propertyIds = []
+    for row in getPropertyIdsforDownstreamPropertiesResult:
+        propertyIds.append(row[0])
+
+    # --get the ids for all links to the sub properties
+    # select id from af.property_config pc where config_property_id in (select config_property_id from af.property_config pc where property_id = 248 ) 
+    getAllDownstreamPropertyIdsSql = text(
+        (
+            "select id from af.property_config pc where config_property_id in (select config_property_id from af.property_config pc where property_id = {} )"
+        ).format(id)
+        )   
+    getAllDownstreamPropertyIdsResult = db.engine.execute(getAllDownstreamPropertyIdsSql)
+    for row in getAllDownstreamPropertyIdsResult:
+        propertyConfigIds.append(row[0])
+
+    propertyIds.append(id)
+
+    #delete all property configs
+    for propertyConfigId in propertyConfigIds:
+        db.engine.execute(
+            text(("delete from af.property_config where id = {}").format(propertyConfigId))
+        )
+
+    #delete all property metas
+    for propertyMetaId in propertyMetaIds:
+        db.engine.execute(
+            text(("delete from af.property_meta where id = {}").format(propertyMetaId))
+        )
+
+    #delete all properties
+    for propertyId in propertyIds:
+        db.engine.execute(
+            text(("delete from af.property where id = {}").format(propertyId))
+        )
+
+
 # https://bitbucket.org/ebsproject/ba-db/src/develop/build/liquibase/changesets/21.09/data/template/add_2_new_models_for_cimmyt.sql?atlOrigin=eyJpIjoiMWRiZjlmZjhkYmE3NDg0Mzk3NWI3ODZhZjczNGQyODQiLCJwIjoiYmItY2hhdHMtaW50ZWdyYXRpb24ifQ
+
+def update_analysis_config(id, property_code, property_configName, property_label, property_description, property_design, property_data_type, property_creator_id, property_modifier_id, property_tenant_id, property_statement,
+    property_meta_version, property_meta_date, property_meta_author, property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breeding_program_id,
+    property_meta_pipeline_id, property_meta_stage_id, property_meta_design, property_meta_trait_level, property_meta_analysis_objective, property_meta_exp_analysis_pattern,
+    property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern, fields, options, formulas, residuals, predictions):
+
+    delete_analysis_config(id)
+    create_analysis_config(property_code, property_configName, property_label, property_description, property_design, property_data_type, property_creator_id, property_modifier_id, property_tenant_id, property_statement,
+    property_meta_version, property_meta_date, property_meta_author, property_meta_email, property_meta_organization_code, property_meta_engine, property_meta_breeding_program_id,
+    property_meta_pipeline_id, property_meta_stage_id, property_meta_design, property_meta_trait_level, property_meta_analysis_objective, property_meta_exp_analysis_pattern,
+    property_meta_loc_analysis_pattern, property_meta_year_analysis_pattern, property_meta_trait_pattern, fields, options, formulas, residuals, predictions)

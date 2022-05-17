@@ -109,6 +109,42 @@ class AnalysisConfigCreateObject(BaseModel):
     residuals: Optional[List[AnalysisResidual]] = None
     predictions: Optional[List[AnalysisPrediction]] = None
 
+class AnalysisConfigUpdate(BaseModel):
+    id :str = Field(None, description="property id")
+    code: str = Field(None, description="Organization code")
+    configName: str = Field(None, description="config name")
+    label: str = Field(None, description="label")
+    description: str = Field(None, description="Description")
+    design: str = Field(None, description="Design type")
+    dataType: str = Field(None, description="data type")
+    creatorId: str = Field(None, description="creator id")
+    modifierId: str = Field(None, description="modifier id")
+    tenantId: str = Field(None, description="tenant id")
+    statement: str = Field(None, description="statement")
+    propertyMetaVersion: str = Field(None, description="Version")
+    propertyMetaDate: str = Field(None, description="Date")
+    propertyMetaAuthor: str = Field(None, description="Author")
+    propertyMetaEmail: str = Field(None, description="Email")
+    propertyMetaOrganizationCode: str = Field(None, description="Organization code")
+    propertyMetaEngine: str = Field(None, description="engine")
+    propertyMetaBreedingProgramId: str = Field(None, description="Breeding ProgramId")
+    propertyMetaPipelineId: str = Field(None, description="Pipeline Id")
+    propertyMetaStageId: str = Field(None, description="Stage Id")
+    propertyMetaDesign: str = Field(None, description="Design")
+    propertyMetaTraitLevel: str = Field(None, description="Trait Level")
+    propertyMetaAnalysisObjective: str = Field(None, description="Analysis Objective")
+    propertyMetaExpAnalysisPattern: str = Field(None, description="Experiment Analysis Pattern")
+    propertyMetaLocAnalysisPattern: str = Field(None, description="Location Analysis Pattern")
+    propertyMetaYearAnalysisPattern: str = Field(None, description="Yearly Analysis Pattern")
+    propertyMetaTraitPattern: str = Field(None, description="Trait Pattern")
+    fields: Optional[List[AnalysisField]] = None
+    options: Optional[List[AnalysisOption]] = None
+    formulas: Optional[List[AnalysisFormula]] = None
+    residuals: Optional[List[AnalysisResidual]] = None
+    predictions: Optional[List[AnalysisPrediction]] = None
+
+class AnalysisConfigDelete(BaseModel):
+    id :str = Field(None, description="property id")
 
 class Analysis(AfBaseModel):
     code: str = Field(None, description="Organization code")

@@ -43,7 +43,6 @@ def list():
 def post_analysis_config():
 
     analysis_config_params = api_models.AnalysisConfigCreateObject(**request.json)
-    print(analysis_config_params)
 
     service.create_analysis_config(
         property_code = analysis_config_params.code,
@@ -80,8 +79,7 @@ def post_analysis_config():
     )
 
 
-    error_response = api_models.ErrorResponse(errorMsg="Success!")
-    return json_response(error_response, HTTPStatus.OK)
+    return {"response":"Success!"}, HTTPStatus.OK
 
 
 @analysis_models_bp.route("", methods=["GET"])
@@ -106,3 +104,58 @@ def get_analysis_config():
     )
 
     return {"response":response}, HTTPStatus.OK
+
+
+@analysis_models_bp.route("/delete", methods=["POST"])
+@validate_api_request(query_model=api_models.AnalysisConfigDelete)
+def post_delete_analysis_config():
+    
+    analysis_delete_params = api_models.AnalysisConfigDelete(**request.json)
+
+    service.delete_analysis_config(analysis_delete_params.id)
+
+    return {"response":"Delete Successful!"}, HTTPStatus.OK
+
+
+@analysis_models_bp.route("/update", methods=["POST"])
+@validate_api_request(query_model=api_models.AnalysisConfigUpdate)
+def post_update_analysis_config():
+    
+    analysis_update_params = api_models.AnalysisConfigUpdate(**request.json)
+
+    service.update_analysis_config(
+        id = analysis_update_params.id,
+        property_code = analysis_update_params.code,
+        property_configName = analysis_update_params.configName,
+        property_label = analysis_update_params.label,
+        property_description = analysis_update_params.description,
+        property_design = analysis_update_params.design,
+        property_data_type = analysis_update_params.dataType,
+        property_creator_id = analysis_update_params.creatorId,
+        property_modifier_id = analysis_update_params.modifierId,
+        property_tenant_id = analysis_update_params.tenantId,
+        property_statement = analysis_update_params.statement,
+        property_meta_version = analysis_update_params.propertyMetaVersion,
+        property_meta_date = analysis_update_params.propertyMetaDate,
+        property_meta_author = analysis_update_params.propertyMetaAuthor,
+        property_meta_email = analysis_update_params.propertyMetaEmail,
+        property_meta_organization_code = analysis_update_params.propertyMetaOrganizationCode,
+        property_meta_engine = analysis_update_params.propertyMetaEngine,
+        property_meta_breeding_program_id = analysis_update_params.propertyMetaBreedingProgramId,
+        property_meta_pipeline_id = analysis_update_params.propertyMetaPipelineId,
+        property_meta_stage_id = analysis_update_params.propertyMetaStageId,
+        property_meta_design = analysis_update_params.propertyMetaDesign,
+        property_meta_trait_level = analysis_update_params.propertyMetaTraitLevel,
+        property_meta_analysis_objective = analysis_update_params.propertyMetaAnalysisObjective,
+        property_meta_exp_analysis_pattern = analysis_update_params.propertyMetaExpAnalysisPattern,
+        property_meta_loc_analysis_pattern = analysis_update_params.propertyMetaLocAnalysisPattern,
+        property_meta_year_analysis_pattern = analysis_update_params.propertyMetaYearAnalysisPattern,
+        property_meta_trait_pattern = analysis_update_params.propertyMetaTraitPattern,
+        fields = analysis_update_params.fields,
+        options = analysis_update_params.options,
+        formulas = analysis_update_params.formulas,
+        residuals = analysis_update_params.residuals,
+        predictions = analysis_update_params.predictions
+    )
+
+    return {"response":"Update Successful!"}, HTTPStatus.OK
