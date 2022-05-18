@@ -29,10 +29,11 @@ def create_app(settings: dict = None):
     app.register_blueprint(af_apis)
 
     from af_request.views import af_requests_bp
-    from analysis_config.views import analysis_configs_bp
+    from analysis_config.views import analysis_configs_bp, analysis_models_bp
 
     app.register_blueprint(af_requests_bp)
     app.register_blueprint(analysis_configs_bp)
+    app.register_blueprint(analysis_models_bp)
 
     db.init_app(app)
     return app
