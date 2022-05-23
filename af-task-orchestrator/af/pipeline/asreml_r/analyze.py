@@ -87,7 +87,7 @@ class AsremlRAnalyze(AsremlAnalyze):
     dpo_cls = AsremlRProcessData
 
     asr_rds_file_name = "asr.rds"
-    prediction_rds_file_name = "prediction.rds"
+    prediction_rds_file_name = "prediction{i}.rds"
 
     CONVERGENCE_TRIES = 6
 
@@ -139,6 +139,7 @@ class AsremlRAnalyze(AsremlAnalyze):
         if residual:
             model_formulas["residual"] = residual
 
+        asr_rds_file = utils.path_join(job_dir, self.asr_rds_file_name)
 
         asr = None
         prediction = None
@@ -159,11 +160,17 @@ class AsremlRAnalyze(AsremlAnalyze):
                 while self.__is_converged(asr) == False and tries < CONVERGENCE_TRIES:
                     asr = asreml_r.update(asr, **model_formulas)
                     tries += 1
-
-                if job_data.job_params.predictions and len(job_data.job_params.predictions) > 0:
+                
+                # save asr as rds file
+                r_base.saveRDS(asr, asr_rds_file)
+                
+                # run predictions 
+                for i, prediction_statement in enumerate(job_data.job_params.predictions):
                     prediction = asreml_r.predict_asreml(
-                        object=asr, classify=job_data.job_params.predictions[0], **model_formulas
+                        object=asr, classify=prediction_statement, **model_formulas
                     )
+                    prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name.format(i+1))
+                    r_base.saveRDS(prediction, prediction_rds_file)
 
             # checking in the license back
             r_base.detach("package:asreml", unload=True)
@@ -174,16 +181,9 @@ class AsremlRAnalyze(AsremlAnalyze):
             utils.zip_dir(job_dir, self.output_file_path, job_data.job_name)
             raise AnalysisError(str(e))
 
-        asr_rds_file = utils.path_join(job_dir, self.asr_rds_file_name)
-        prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name)
-
-        # save asr as rds
-        if asr:
-            r_base.saveRDS(asr, asr_rds_file)
 
         # save prediction as rds
         if prediction:
-            r_base.saveRDS(prediction, prediction_rds_file)
 
         job_data.job_result_dir = job_dir
 

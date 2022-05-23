@@ -1,10 +1,6 @@
 FROM python:3.9-slim-buster
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1
 ENV LOG_LEVEL info
-ENV PYTHONPATH "${PYTHONPATH}:/app/"
-WORKDIR /app/
-COPY . /app/
-
 #
 RUN apt-get update 
 RUN apt-get install -y dirmngr gnupg apt-transport-https ca-certificates software-properties-common
@@ -29,6 +25,10 @@ RUN apt-get install -y -f r-base
 RUN Rscript -e  "install.packages('sommer')"
 RUN Rscript -e  "install.packages('RJSONIO')"
 RUN Rscript -e  "install.packages('gtools')"
+
+ENV PYTHONPATH "${PYTHONPATH}:/app/"
+WORKDIR /app/
+COPY . /app/
 
 RUN Rscript /app/packages/install_asreml.R
 
