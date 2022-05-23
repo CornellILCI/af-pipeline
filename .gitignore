@@ -16,6 +16,7 @@
 *.sif
 .coverage
 .env
+.RData
 
 # Ignore folders
 __pycache__/
