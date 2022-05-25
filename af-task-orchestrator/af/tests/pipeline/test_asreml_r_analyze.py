@@ -188,7 +188,7 @@ def test_post_processing_reads_asr_file(asreml_r_analysis_request, temp_dir, r_b
     import os
 
     asr_file = os.path.join(temp_dir.name, asreml_r.analyze.AsremlRAnalyze.asr_rds_file_name)
-    job_result = asreml_r.analyze.AsremlRJobResult(asr_rds_file=asr_file)
+    job_result = asreml_r.analyze.AsremlRJobResult(asr_rds_file=asr_file, prediction_rds_files=[])
 
     asreml_r_analyze.process_job_result(job_result, {})
 
@@ -216,4 +216,24 @@ def test_job_is_failed_if_convergence_false(asreml_r_analysis_request, dbsession
 
 
 def test_predictions_are_read_when_converged(asreml_r_analysis_request, r_base_lib, mocker):
+
+    asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
+
+    mocker.patch("af.pipeline.db.services.get_job_by_name")
+
+    job_result = asreml_r.analyze.AsremlRJobResult(prediction_rds_files=["prediction_file_path_1"])
+
+    asreml_r_analyze.process_job_result(job_result, {})
+
+    r_base_lib.readRDS.assert_called_with("prediction_file_path_1")
+
+
+def test_entry_predictions_are_written(asreml_r_analysis_request, r_base_lib, mocker):
+
+    asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
+
+    mocker.patch("af.pipeline.db.services.get_job_by_name")
+
     pass
+
+

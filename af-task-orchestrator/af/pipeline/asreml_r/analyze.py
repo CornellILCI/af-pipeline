@@ -215,6 +215,9 @@ class AsremlRAnalyze(AsremlAnalyze):
             )
             return gathered_objects
 
+        for prediction_file in job_result.prediction_rds_files:
+            prediction_r_df = r_base.readRDS(prediction_file)
+
         #predictions_r_df = predictions.rx2("pvals")
         # with localconverter(robjects.default_converter + pandas2ri.converter):
         #    predictions_df = robjects.conversion.rpy2py(predictions_r_df)
