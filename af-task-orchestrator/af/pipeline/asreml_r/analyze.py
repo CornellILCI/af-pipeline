@@ -12,6 +12,8 @@ from af.pipeline.job_status import JobStatus
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 
+import pathlib
+
 # TODO: This is a ME script ,  Pedro will provide script for single run
 SCRIPT = """
 library(asreml)
@@ -103,7 +105,7 @@ class AsremlRAnalyze(AsremlAnalyze):
             "Processing input request",
             {},
         )
-        
+
         r_base = robjects.packages.importr("base")
 
         input_data = rpy_utils.read_csv(file=job_data.data_file)
@@ -111,10 +113,7 @@ class AsremlRAnalyze(AsremlAnalyze):
         # set data types to input data fields
         # ASReml-R has only two datatypes, factor & numeric
         # datatype keys are lower case
-        datatype_converters = {
-            "factor": r_base.as_factor,
-            "numeric": r_base.as_numeric
-        } 
+        datatype_converters = {"factor": r_base.as_factor, "numeric": r_base.as_numeric}
         if job_data.job_params.analysis_fields_types:
             for field in job_data.job_params.analysis_fields_types:
 
@@ -160,30 +159,21 @@ class AsremlRAnalyze(AsremlAnalyze):
                 while self.__is_converged(asr) == False and tries < CONVERGENCE_TRIES:
                     asr = asreml_r.update(asr, **model_formulas)
                     tries += 1
-                
+
                 # save asr as rds file
                 r_base.saveRDS(asr, asr_rds_file)
-                
-                # run predictions 
+
+                # run predictions
                 for i, prediction_statement in enumerate(job_data.job_params.predictions):
-                    prediction = asreml_r.predict_asreml(
-                        object=asr, classify=prediction_statement, **model_formulas
-                    )
-                    prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name.format(i+1))
+                    prediction = asreml_r.predict_asreml(object=asr, classify=prediction_statement, **model_formulas)
+                    prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name.format(i=i + 1))
                     r_base.saveRDS(prediction, prediction_rds_file)
 
             # checking in the license back
             r_base.detach("package:asreml", unload=True)
 
-        except rpy2.rinterface_lib.embedded.RRuntimeError as e:
-            self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
-            utils.zip_dir(job_dir, self.output_file_path, job_data.job_name)
-            raise AnalysisError(str(e))
-
-
-        # save prediction as rds
-        if prediction:
+        except (rpy2.rinterface_lib.embedded.RRuntimeError, ValueError) as e:
+            self._raise_analysis_error(job, e)
 
         job_data.job_result_dir = job_dir
 
@@ -197,48 +187,53 @@ class AsremlRAnalyze(AsremlAnalyze):
 
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):
 
-        job = db_services.get_job_by_name(self.db_session, job_result.job_name)
-        job_dir = utils.get_parent_dir(job_result.data_file)
+        #job = db_services.get_job_by_name(self.db_session, job_result.job_name)
+        #job_dir = utils.get_parent_dir(job_result.data_file)
 
-        asr_rds_file = utils.path_join(job_dir, self.asr_rds_file_name)
-        prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name)
+        #asr_rds_file = utils.path_join(job_dir, self.asr_rds_file_name)
+        #prediction_rds_files_pattern = "prediction*.rds"
 
-        r_base = robjects.packages.importr("base")
+        #r_base = robjects.packages.importr("base")
 
-        asr = r_base.readRDS(asr_rds_file)
-        predictions = r_base.readRDS(prediction_rds_file)
+        #predictions = []
 
-        # if not converged
-        if not self.__is_converged(asr):
-            db_services.update_job(
-                self.db_session,
-                job,
-                JobStatus.FAILED,
-                "Failed to converge.",
-            )
-            return gathered_objects
+        #try:
+        #    asr = r_base.readRDS(asr_rds_file)
+        #except rpy2.rinterface_lib.embedded.RRuntimeError as e:
+        #    self._raise_analysis_error(job, e)
 
-        predictions_r_df = predictions.rx2("pvals")
-        with localconverter(robjects.default_converter + pandas2ri.converter):
-            predictions_df = robjects.conversion.rpy2py(predictions_r_df)
+        ## if not converged
+        # if not self.__is_converged(asr):
+        #    db_services.update_job(
+        #        self.db_session,
+        #        job,
+        #        JobStatus.FAILED,
+        #        "Failed to converge.",
+        #    )
+        #    return gathered_objects
 
-        # initialize the report workbook
-        if not path.isfile(self.report_file_path):
-            utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
+        # predictions_r_df = predictions.rx2("pvals")
+        # with localconverter(robjects.default_converter + pandas2ri.converter):
+        #    predictions_df = robjects.conversion.rpy2py(predictions_r_df)
 
-        metadata_df = utils.get_metadata(job_result.metadata_file)
+        ## initialize the report workbook
+        # if not path.isfile(self.report_file_path):
+        #    utils.create_workbook(self.report_file_path, sheet_names=analysis_report.REPORT_SHEETS)
 
-        # write prediction to the analysis report
-        analysis_report.write_predictions(
-            self.db_session,
-            self.analysis_request,
-            self.report_file_path,
-            predictions_df,
-            metadata_df,
-        )
+        # metadata_df = utils.get_metadata(job_result.metadata_file)
 
-        utils.zip_dir(job_dir, self.output_file_path, job_result.job_name)
-        return gathered_objects
+        ## write prediction to the analysis report
+        # analysis_report.write_predictions(
+        #    self.db_session,
+        #    self.analysis_request,
+        #    self.report_file_path,
+        #    predictions_df,
+        #    metadata_df,
+        # )
+
+        # utils.zip_dir(job_dir, self.output_file_path, job_result.job_name)
+        # return gathered_objects
+        pass
 
     def finalize(self, gathered_objects):
         return super().finalize(gathered_objects)

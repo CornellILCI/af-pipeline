@@ -120,6 +120,10 @@ class AsremlRProcessData(AsremlProcessData):
 
         # set predictions statements
         predictions = self._get_predictions()
+
+        if not predictions:
+            raise ValueError("Predictions are not available for the job to process")
+
         job_params.predictions = [prediction.statement for prediction in predictions]
 
         # map analysis fields to their data type

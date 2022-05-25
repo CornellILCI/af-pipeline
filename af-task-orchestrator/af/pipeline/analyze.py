@@ -110,10 +110,6 @@ class Analyze(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
-    def get_engine_script(self):
-        return self.engine_script
-
     def _get_new_job(self, job_name: str, status: str, status_message: str) -> Job:
 
         job_start_time = datetime.utcnow()
@@ -142,6 +138,13 @@ class Analyze(abc.ABC):
     def _update_request_status(self, status, message):
         self.analysis.request.status = status
         self.analysis.request.msg = message
+
+    def _raise_job_error(self, job, e):
+        self.analysis.status = "FAILURE"
+        db_services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
+        utils.zip_dir(job_dir, self.output_file_path, job_data.job_name)
+        raise AnalysisError(str(e))
+
 
 
 def get_analyze_object(analysis_request: AnalysisRequest, session=None):
