@@ -1,13 +1,16 @@
 import pytest
 import rpy2
 from af.pipeline import asreml_r, job_data, job_status
+from af.pipeline import db
 from mock import ANY, call, patch
+
 
 @pytest.fixture
 def importr(mocker):
-    
+
     importr = mocker.patch("rpy2.robjects.packages.importr", return_value=mocker.Mock())
     return importr
+
 
 @pytest.fixture
 def asreml_r_lib(importr, mocker):
@@ -17,13 +20,39 @@ def asreml_r_lib(importr, mocker):
     importr.return_value = asreml_r_lib
     return asreml_r_lib
 
-@pytest.fixture
-def r_base(importr, mocker):
 
-    r_base = mocker.Mock()
-    r_base.detach = mocker.Mock()
-    importr.return_value = r_base
-    return r_base
+@pytest.fixture
+def asr(r_base):
+    # set convergence as true
+    asr = r_base.list(converge=r_base.logical(1))
+    return asr
+
+
+@pytest.fixture
+def entry_predictions(r_base):
+
+    entry_prediction = r_base.list(
+        pvals=rpy2.robjects.DataFrame(
+            {
+                "entry": rpy2.robjects.FactorVector(["4", "5"]),
+                "predicted.value": rpy2.robjects.FloatVector([4, 5]),
+                "std.error": rpy2.robjects.FloatVector([4, 5]),
+                "status": rpy2.robjects.StrVector(["4", "5"]),
+            }
+        )
+    )
+    return entry_predictions
+
+
+@pytest.fixture
+def r_base_lib(asr, entry_predictions, importr, mocker):
+
+    r_base_lib = mocker.Mock()
+    r_base_lib.detach = mocker.Mock()
+    r_base_lib.readRDS = mocker.Mock(side_effect=[asr, entry_predictions])
+    importr.return_value = r_base_lib
+    return r_base_lib
+
 
 def test_run_job_returns_job_data(mocker, asreml_r_analysis_request, importr):
 
@@ -36,7 +65,7 @@ def test_run_job_returns_job_data(mocker, asreml_r_analysis_request, importr):
         )
     )
 
-    assert type(returned_job_data) == job_data.JobData
+    assert issubclass(type(returned_job_data), job_data.JobData)
 
 
 def test_run_job_creates_job_with_inprogess(asreml_r_analysis_request, analysis, mocker, importr, dbsession):
@@ -99,7 +128,7 @@ def test_asreml_run(
     asreml_r_random_formula,
     asreml_r_residual,
     asreml_r_lib,
-    mocker
+    mocker,
 ):
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
@@ -135,7 +164,7 @@ def test_asreml_raises_inavlid_formula_error(asreml_r_analysis_request, importr,
         asreml_r_analyze.run_job(job_data_)
 
 
-def test_asreml_is_detached_after_run(asreml_r_analysis_request, r_base, mocker):
+def test_asreml_is_detached_after_run(asreml_r_analysis_request, r_base_lib, mocker):
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
@@ -148,15 +177,43 @@ def test_asreml_is_detached_after_run(asreml_r_analysis_request, r_base, mocker)
 
     asreml_r_analyze.run_job(job_data_)
 
-    r_base.detach.assert_called_once_with("package:asreml", unload=True)
+    r_base_lib.detach.assert_called_once_with("package:asreml", unload=True)
 
 
-def test_post_processing_reads_asr_file(asreml_r_analysis_request, temp_dir, mocker):
-    
+def test_post_processing_reads_asr_file(asreml_r_analysis_request, temp_dir, r_base_lib, mocker):
+
+    asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
+
+    mocker.patch("af.pipeline.db.services.get_job_by_name")
     import os
 
-    data_file = os.path.join(temp_dir.name, "data_file")
-    job_result = job_data.JobData(data_file=data_file)
+    asr_file = os.path.join(temp_dir.name, asreml_r.analyze.AsremlRAnalyze.asr_rds_file_name)
+    job_result = asreml_r.analyze.AsremlRJobResult(asr_rds_file=asr_file)
 
+    asreml_r_analyze.process_job_result(job_result, {})
+
+    r_base_lib.readRDS.assert_called_once_with(asr_file)
+
+
+def test_job_is_failed_if_convergence_false(asreml_r_analysis_request, dbsession, r_base, r_base_lib, importr, mocker):
+
+    # asr with convergence failed
+    asr = r_base.list(converge=r_base.logical(0))
+    r_base_lib.readRDS.side_effect = None
+    r_base_lib.readRDS.return_value = asr
+    importr.return_value = r_base_lib
+
+    asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
+
+    job = db.models.Job()
+    mocker.patch("af.pipeline.db.services.get_job_by_name", return_value=job)
+
+    update_job = mocker.patch("af.pipeline.db.services.update_job")
+
+    asreml_r_analyze.process_job_result(asreml_r.analyze.AsremlRJobResult(), {})
+
+    update_job.assert_called_once_with(dbsession, job, job_status.JobStatus.FAILED, "Failed to converge.")
+
+
+def test_predictions_are_read_when_converged(asreml_r_analysis_request, r_base_lib, mocker):
     pass
-

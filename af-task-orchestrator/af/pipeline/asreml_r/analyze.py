@@ -11,6 +11,7 @@ from af.pipeline.job_data import JobData
 from af.pipeline.job_status import JobStatus
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
+from dataclasses import dataclass
 
 import pathlib
 
@@ -82,6 +83,10 @@ def r_formula(formula: str):
     except rpy2.rinterface_lib.embedded.RRuntimeError as e:
         raise InvalidFormulaError(f"Invalid Formula: {formula}")
 
+@dataclass
+class AsremlRJobResult(JobData):
+    asr_rds_file: str = ""
+    prediction_rds_files: list[str] = None
 
 class AsremlRAnalyze(AsremlAnalyze):
 
@@ -142,6 +147,8 @@ class AsremlRAnalyze(AsremlAnalyze):
 
         asr = None
         prediction = None
+        
+        job_result = AsremlRJobResult(**job_data.__dict__) 
 
         try:
 
@@ -163,6 +170,8 @@ class AsremlRAnalyze(AsremlAnalyze):
                 # save asr as rds file
                 r_base.saveRDS(asr, asr_rds_file)
 
+                job_result.asr_rds_file = asr_rds_file
+
                 # run predictions
                 for i, prediction_statement in enumerate(job_data.job_params.predictions):
                     prediction = asreml_r.predict_asreml(object=asr, classify=prediction_statement, **model_formulas)
@@ -175,44 +184,38 @@ class AsremlRAnalyze(AsremlAnalyze):
         except (rpy2.rinterface_lib.embedded.RRuntimeError, ValueError) as e:
             self._raise_analysis_error(job, e)
 
-        job_data.job_result_dir = job_dir
+        job_result.job_result_dir = job_dir
 
-        return job_data
+        return job_result
 
     def __is_converged(self, asr):
 
         if asr:
             return bool(asr.rx2("converge"))
-        return None
+        return False
 
-    def process_job_result(self, job_result: JobData, gathered_objects: dict = None):
+    def process_job_result(self, job_result: AsremlRJobResult, gathered_objects: dict = None):
 
-        #job = db_services.get_job_by_name(self.db_session, job_result.job_name)
-        #job_dir = utils.get_parent_dir(job_result.data_file)
+        r_base = robjects.packages.importr("base")
 
-        #asr_rds_file = utils.path_join(job_dir, self.asr_rds_file_name)
-        #prediction_rds_files_pattern = "prediction*.rds"
+        job = db_services.get_job_by_name(self.db_session, job_result.job_name)
 
-        #r_base = robjects.packages.importr("base")
+        try:
+            asr = r_base.readRDS(job_result.asr_rds_file)
+        except rpy2.rinterface_lib.embedded.RRuntimeError as e:
+            self._raise_analysis_error(job, e)
 
-        #predictions = []
+        # if not converged,
+        if not self.__is_converged(asr):
+            db_services.update_job(
+                self.db_session,
+                job,
+                JobStatus.FAILED,
+                "Failed to converge.",
+            )
+            return gathered_objects
 
-        #try:
-        #    asr = r_base.readRDS(asr_rds_file)
-        #except rpy2.rinterface_lib.embedded.RRuntimeError as e:
-        #    self._raise_analysis_error(job, e)
-
-        ## if not converged
-        # if not self.__is_converged(asr):
-        #    db_services.update_job(
-        #        self.db_session,
-        #        job,
-        #        JobStatus.FAILED,
-        #        "Failed to converge.",
-        #    )
-        #    return gathered_objects
-
-        # predictions_r_df = predictions.rx2("pvals")
+        #predictions_r_df = predictions.rx2("pvals")
         # with localconverter(robjects.default_converter + pandas2ri.converter):
         #    predictions_df = robjects.conversion.rpy2py(predictions_r_df)
 
