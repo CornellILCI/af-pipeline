@@ -14,7 +14,7 @@ def run_asreml_analyze(*args):
 
 @app.task(name="run_analyze", base=StatusReportingTask)
 def run_analyze(*args):
-    _run_analyze(args)
+    _run_analyze(*args)
 
 
 def _run_analyze(request_id, analysis_request, input_files, results):
