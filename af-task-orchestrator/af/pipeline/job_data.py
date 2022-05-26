@@ -10,7 +10,7 @@ class JobParams:
     fixed: str = None
     random: str = None
     residual: str = None
-    predictions: list[str] = None
+    predictions: list[str] = field(default_factory=list)
     analysis_fields_types: dict = None  # field datatypes.
 
 

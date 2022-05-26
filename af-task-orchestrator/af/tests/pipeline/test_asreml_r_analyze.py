@@ -41,7 +41,7 @@ def entry_predictions(r_base):
             }
         )
     )
-    return entry_predictions
+    return entry_prediction
 
 
 @pytest.fixture
@@ -49,6 +49,7 @@ def r_base_lib(asr, entry_predictions, importr, mocker):
 
     r_base_lib = mocker.Mock()
     r_base_lib.detach = mocker.Mock()
+    
     r_base_lib.readRDS = mocker.Mock(side_effect=[asr, entry_predictions])
     importr.return_value = r_base_lib
     return r_base_lib
@@ -184,6 +185,7 @@ def test_post_processing_reads_asr_file(asreml_r_analysis_request, temp_dir, r_b
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
+    mocker.patch("af.pipeline.utils.get_metadata")
     mocker.patch("af.pipeline.db.services.get_job_by_name")
     import os
 
@@ -209,6 +211,7 @@ def test_job_is_failed_if_convergence_false(asreml_r_analysis_request, dbsession
     mocker.patch("af.pipeline.db.services.get_job_by_name", return_value=job)
 
     update_job = mocker.patch("af.pipeline.db.services.update_job")
+    mocker.patch("af.pipeline.utils.get_metadata")
 
     asreml_r_analyze.process_job_result(asreml_r.analyze.AsremlRJobResult(), {})
 
@@ -220,6 +223,8 @@ def test_predictions_are_read_when_converged(asreml_r_analysis_request, r_base_l
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
     mocker.patch("af.pipeline.db.services.get_job_by_name")
+    mocker.patch("af.pipeline.utils.get_metadata")
+    mocker.patch("af.pipeline.analysis_report.write_entry_predictions")
 
     job_result = asreml_r.analyze.AsremlRJobResult(prediction_rds_files=["prediction_file_path_1"])
 
@@ -228,12 +233,17 @@ def test_predictions_are_read_when_converged(asreml_r_analysis_request, r_base_l
     r_base_lib.readRDS.assert_called_with("prediction_file_path_1")
 
 
-def test_entry_predictions_are_written(asreml_r_analysis_request, r_base_lib, mocker):
+def test_entry_predictions_are_written(asreml_r_analysis_request, r_base_lib, entry_predictions, mocker):
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
     mocker.patch("af.pipeline.db.services.get_job_by_name")
+    mocker.patch("af.pipeline.utils.get_metadata")
 
-    pass
+    write_entry_predictions = mocker.patch("af.pipeline.analysis_report.write_entry_predictions")
 
+    job_result = asreml_r.analyze.AsremlRJobResult(prediction_rds_files=["prediction_file_path_1"])
 
+    asreml_r_analyze.process_job_result(job_result, {})
+
+    write_entry_predictions.assert_called_once()
