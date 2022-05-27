@@ -44,4 +44,6 @@ def rdf_to_pydf(rdf: robjects.DataFrame):
     with localconverter(robjects.default_converter + pandas2ri.converter):
         pydf = robjects.conversion.rpy2py(rdf)
 
+    if pydf == robjects.NULL:
+        return None
     return pydf

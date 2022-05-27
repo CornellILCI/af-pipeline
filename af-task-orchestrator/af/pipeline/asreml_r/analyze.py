@@ -5,6 +5,7 @@ import rpy2.robjects as robjects
 from af.pipeline import analysis_report, rpy_utils, utils
 from af.pipeline.asreml.analyze import AsremlAnalyze
 from af.pipeline.asreml_r.dpo import AsremlRProcessData  # temporary while we refactor parts
+from af.pipeline.asreml_r.asreml_r_result import AsremlRResult
 from af.pipeline.db import services as db_services
 from af.pipeline.exceptions import AnalysisError
 from af.pipeline.job_data import JobData
@@ -13,6 +14,7 @@ from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 from dataclasses import dataclass, field
 
+import collections
 import pathlib
 
 # TODO: This is a ME script ,  Pedro will provide script for single run
@@ -87,7 +89,7 @@ def r_formula(formula: str):
 @dataclass
 class AsremlRJobResult(JobData):
     asr_rds_file: str = ""
-    prediction_rds_files: list[str] = field(default_factory=list) 
+    prediction_rds_files: list[str] = field(default_factory=list)
 
 
 class AsremlRAnalyze(AsremlAnalyze):
@@ -165,7 +167,7 @@ class AsremlRAnalyze(AsremlAnalyze):
 
                 # try to converge by updating asr
                 tries = 0
-                while self.__is_converged(asr) == False and tries < CONVERGENCE_TRIES:
+                while AsremlRResult.is_converged(asr) == False and tries < CONVERGENCE_TRIES:
                     asr = asreml_r.update(asr, **model_formulas)
                     tries += 1
 
@@ -192,26 +194,14 @@ class AsremlRAnalyze(AsremlAnalyze):
 
         return job_result
 
-    def __is_converged(self, asr):
-
-        if asr:
-            return bool(asr.rx2("converge"))
-        return False
-
     @robjects.packages.no_warnings
     def process_job_result(self, job_result: AsremlRJobResult, gathered_objects: dict = None):
 
-        r_base = robjects.packages.importr("base")
-
         job = db_services.get_job_by_name(self.db_session, job_result.job_name)
 
-        try:
-            asr = r_base.readRDS(job_result.asr_rds_file)
-        except rpy2.rinterface_lib.embedded.RRuntimeError as e:
-            self._raise_analysis_error(job, e)
+        asreml_result = AsremlRResult(job, job_result.asr_rds_file, job_result.prediction_rds_files)
 
-        # if not converged,
-        if not self.__is_converged(asr):
+        if not asreml_result.converged:
             db_services.update_job(
                 self.db_session,
                 job,
@@ -226,29 +216,39 @@ class AsremlRAnalyze(AsremlAnalyze):
 
         metadata_df = utils.get_metadata(job_result.metadata_file)
 
-        # write predictions to the report
-        for prediction_file in job_result.prediction_rds_files:
+        # write entry predictions to the report
+        if asreml_result.entry_predictions:
+            analysis_report.write_entry_predictions(
+                self.db_session,
+                self.analysis_request,
+                self.report_file_path,
+                asreml_result.entry_predictions,
+                metadata_df,
+            )
 
-            predictions = r_base.readRDS(prediction_file)
-            predictions_df = rpy_utils.rdf_to_pydf(predictions.rx2("pvals"))
+        # write location predictions to the report if
+        if asreml_result.location_predictions:
+            analysis_report.write_location_predictions(
+                self.report_file_path, asreml_result.location_predictions, metadata_df
+            )
 
-            predictions_df = predictions_df.rename(columns={"predicted.value": "value", "std.error": "std_error"})
-            predictions_df['job_id'] = job.id
+        # write entry location predictions
+        if asreml_result.entry_location_predictions:
+            analysis_report.write_entry_location_predictions(
+                self.report_file_path, asreml_result.entry_location_predictions, metadata_df
+            )
 
-            if "entry" in predictions_df.columns and "loc" in predictions_df.columns:
-                analysis_report.write_entry_location_predictions(
-                    self.db_session, self.analysis_request, self.report_file_path, predictions_df, metadata_df
-                )
-            elif "entry" in predictions_df:
-                analysis_report.write_entry_predictions(
-                    self.db_session, self.analysis_request, self.report_file_path, predictions_df, metadata_df
-                )
-            elif "loc" in predictions_df:
-                analysis_report.write_location_predictions(
-                    self.db_session, self.analysis_request, self.report_file_path, predictions_df, metadata_df
-                )
-            else:
-                raise NotImplementedError("Report format not implemented")
+        # calculate h2 cullis for entry if analysis pattern is SESL
+        h2_cullis = None
+        exptloc_analysis_pattern = db_services.get_property(
+            self.db_session, self.analysis_request.expLocAnalysisPatternPropertyId
+        )
+
+        if exptloc_analysis_pattern.code == "SESL":
+            variance = asreml_result.entry_variance
+            avg_std_error = asreml_result.entry_average_standard_error
+            if variance and avg_std_error:
+                h2_cullis = calculation_engine.get_h2_cullis(variance, avg_std_error)
 
         utils.zip_dir(job_result.job_result_dir, self.output_file_path, job_result.job_name)
         return gathered_objects

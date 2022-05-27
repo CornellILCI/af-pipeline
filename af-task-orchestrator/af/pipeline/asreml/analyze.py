@@ -157,9 +157,6 @@ class AsremlAnalyze(Analyze):
 
                     try:
                         h2_cullis = calculation_engine.get_h2_cullis(genetic_variance, avg_std_error)
-
-                        # round h2 cullis to 4 decimal points
-                        h2_cullis = round(h2_cullis, 4)
                     except ValueError as ve:
                         h2_cullis = str(ve)
 
