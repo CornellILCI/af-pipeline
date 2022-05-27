@@ -222,7 +222,7 @@ def test_predictions_are_read_when_converged(asreml_r_analysis_request, r_base_l
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
-    mocker.patch("af.pipeline.db.services.get_job_by_name")
+    mocker.patch("af.pipeline.db.services.get_job_by_name", return_value=db.models.Job())
     mocker.patch("af.pipeline.utils.get_metadata")
     mocker.patch("af.pipeline.analysis_report.write_entry_predictions")
 
@@ -233,11 +233,11 @@ def test_predictions_are_read_when_converged(asreml_r_analysis_request, r_base_l
     r_base_lib.readRDS.assert_called_with("prediction_file_path_1")
 
 
-def test_entry_predictions_are_written(asreml_r_analysis_request, r_base_lib, entry_predictions, mocker):
+def test_predictions_are_written(asreml_r_analysis_request, r_base_lib, entry_predictions, mocker):
 
     asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
 
-    mocker.patch("af.pipeline.db.services.get_job_by_name")
+    mocker.patch("af.pipeline.db.services.get_job_by_name", return_value=db.models.Job())
     mocker.patch("af.pipeline.utils.get_metadata")
 
     write_entry_predictions = mocker.patch("af.pipeline.analysis_report.write_entry_predictions")
