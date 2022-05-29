@@ -1,21 +1,20 @@
+import collections
+import pathlib
+from dataclasses import dataclass, field
 from os import path
 
 import rpy2
 import rpy2.robjects as robjects
 from af.pipeline import analysis_report, rpy_utils, utils
 from af.pipeline.asreml.analyze import AsremlAnalyze
-from af.pipeline.asreml_r.dpo import AsremlRProcessData  # temporary while we refactor parts
 from af.pipeline.asreml_r.asreml_r_result import AsremlRResult
+from af.pipeline.asreml_r.dpo import AsremlRProcessData  # temporary while we refactor parts
 from af.pipeline.db import services as db_services
 from af.pipeline.exceptions import AnalysisError
 from af.pipeline.job_data import JobData
 from af.pipeline.job_status import JobStatus
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
-from dataclasses import dataclass, field
-
-import collections
-import pathlib
 
 # TODO: This is a ME script ,  Pedro will provide script for single run
 SCRIPT = """

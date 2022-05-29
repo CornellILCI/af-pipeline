@@ -1,7 +1,6 @@
 import pytest
 import rpy2
-from af.pipeline import asreml_r, job_data, job_status
-from af.pipeline import db
+from af.pipeline import asreml_r, db, job_data, job_status
 from mock import ANY, call, patch
 
 

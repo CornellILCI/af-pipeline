@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 def run_asreml_analyze(*args):
     _run_analyze(*args)
 
+
 @app.task(name="run_analyze", base=StatusReportingTask)
 def run_analyze(*args):
     _run_analyze(*args)

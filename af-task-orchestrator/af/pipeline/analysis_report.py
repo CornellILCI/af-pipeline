@@ -153,7 +153,6 @@ def write_location_predictions(report_file: str, location_report: pd.DataFrame, 
 
     location_df = metadata_df[["location_id", "location_name", "trait_abbreviation"]].drop_duplicates()
 
-
     if len(location_report) == 0:
         return
 
@@ -180,7 +179,6 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
         "value",
         "std_error",
     ]
-
 
     if len(entry_location_report) == 0:
         return

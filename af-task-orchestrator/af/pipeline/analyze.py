@@ -146,7 +146,6 @@ class Analyze(abc.ABC):
         raise AnalysisError(str(e))
 
 
-
 def get_analyze_object(analysis_request: AnalysisRequest, session=None):
     """Returns the configured Analyze object based on engine name"""
     if not session:
