@@ -1,4 +1,5 @@
 import collections
+import shlex
 
 import pandas as pd
 from af.pipeline.asreml.dpo import AsremlProcessData
@@ -97,12 +98,38 @@ class AsremlRProcessData(AsremlProcessData):
     def __get_meml_job_name(self, trait_id):
         return f"{self.analysis_request.requestId}_meml_{trait_id}"
 
+    def __parse_formula(self, formula):
+
+        if not formula or not formula.strip():
+            return {}
+
+        lexer = shlex.shlex(formula)
+
+        lexer.whitespace_split = True
+        lexer.whitespace = ","
+
+        params = dict([s.strip() for s in pair.split("=", 1)] for pair in lexer)
+
+        return params
+
     def _set_job_params(self, job_data, trait):
 
-        job_params = JobParams(formula=self._get_formula(trait), residual=self._get_residual(), predictions=[])
+        formula = self.__parse_formula(self._get_formula(trait))
 
+        job_params = JobParams(**formula, residual=self._get_residual(), predictions=[])
+
+        # set predictions statements
         predictions = self._get_predictions()
 
+        if not predictions:
+            raise ValueError("Predictions are not available for the job to process")
+
         job_params.predictions = [prediction.statement for prediction in predictions]
+
+        # map analysis fields to their data type
+        analysis_fields = self._get_analysis_fields()
+        job_params.analysis_fields_types = {}
+        for field in analysis_fields:
+            job_params.analysis_fields_types[field.Property.code] = field.Property.data_type.lower()
 
         job_data.job_params = job_params

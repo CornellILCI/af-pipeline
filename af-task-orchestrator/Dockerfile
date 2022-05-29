@@ -1,10 +1,6 @@
 FROM python:3.9-slim-buster
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1
 ENV LOG_LEVEL info
-ENV PYTHONPATH "${PYTHONPATH}:/app/"
-WORKDIR /app/
-COPY . /app/
-
 #
 RUN apt-get update 
 RUN apt-get install -y dirmngr gnupg apt-transport-https ca-certificates software-properties-common
@@ -18,6 +14,7 @@ RUN wget https://downloads.vsni.digital/2bdb06398e7dcf7d9a638092305b5b78fdffacb1
 RUN apt-get install -y ./ASReml-4.2.1.170-Ubuntu-18.04.deb
 RUN apt-get install -y supervisor
 
+
 #ENV PATH="/app/scripts:${PATH}"
 
 # Install ASREML-R
@@ -28,6 +25,12 @@ RUN apt-get install -y -f r-base
 RUN Rscript -e  "install.packages('sommer')"
 RUN Rscript -e  "install.packages('RJSONIO')"
 RUN Rscript -e  "install.packages('gtools')"
+
+ENV PYTHONPATH "${PYTHONPATH}:/app/"
+WORKDIR /app/
+COPY . /app/
+
+RUN Rscript /app/packages/install_asreml.R
 
 # RUN apt-get update && pip3 install  -r requirements.txt
 RUN pip3 install --upgrade setuptools

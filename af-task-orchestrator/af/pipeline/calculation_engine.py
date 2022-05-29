@@ -29,6 +29,9 @@ def get_h2_cullis(genetic_variance: float, average_standard_error: float) -> flo
     if h2_cullis < 0:
         return 0
 
+    # round h2 cullis to 4 decimal points
+    h2_cullis = round(h2_cullis, 4)
+
     return h2_cullis
 
 

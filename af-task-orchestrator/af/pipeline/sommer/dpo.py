@@ -30,19 +30,19 @@ class SommeRProcessData(ProcessData):
         #     writer = csv.writer(f)
 
         #     for exp_id in self.experiment_ids:
-        #         germplasm, plot_data, headers = self.data_reader.get_plots_from_search(occurrence_id=exp_id, crop=self.analysis_request.crop) 
+        #         germplasm, plot_data, headers = self.data_reader.get_plots_from_search(occurrence_id=exp_id, crop=self.analysis_request.crop)
         #         if not headers_written:
         #             writer.writerow(headers)
         #             headers_written = True
         #         for data in plot_data:
         #             writer.writerow(data)
-        
-        # NOTE: using a loop here because of the structure of experiments but 
+
+        # NOTE: using a loop here because of the structure of experiments but
         # we assume there is only one experiment in the `experiment_ids``
         for exp_id in self.experiment_ids:
-            plot_df = self.data_reader.get_plots_from_search(exp_id=exp_id, crop=self.analysis_request.crop) 
+            plot_df = self.data_reader.get_plots_from_search(exp_id=exp_id, crop=self.analysis_request.crop)
             plot_df.to_csv(data_file, index=True)
-            
+
         return data_file
 
     def __prepare_Sommer_settings_file(self) -> dict:

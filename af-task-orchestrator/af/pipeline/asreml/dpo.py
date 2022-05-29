@@ -201,6 +201,7 @@ class AsremlProcessData(ProcessData):
         return plots_and_measurements
 
     def _write_job_data(self, job_data, plots_and_measurements, trait):
+        job_data.trait_name = trait.abbreviation
 
         data_file_name = f"{job_data.job_name}.csv"
 

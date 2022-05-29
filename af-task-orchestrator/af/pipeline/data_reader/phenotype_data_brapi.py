@@ -6,7 +6,10 @@ from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study, TableResponse
 from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
-from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitQueryParams, ObservationUnitsSearchRequestDto
+from af.pipeline.data_reader.models.brapi.phenotyping import (
+    ObservationUnitQueryParams,
+    ObservationUnitsSearchRequestDto,
+)
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
 from pydantic import BaseModel, ValidationError, parse_obj_as
@@ -21,7 +24,6 @@ GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 GET_GERMPLASM_BY_DB_ID = "/search/germplasm/{searchResultDbId}"
 GET_OBSERVATION_UNITS_TABLE_URL = "/observationunits/table"
 GET_POST_OBSERVATION_UNITS_URL_BMS_V2 = "/bmsapi/{crop}/brapi/v2/search/observationunits"
-
 
 
 class PhenotypeDataBrapi(PhenotypeData):
@@ -59,8 +61,6 @@ class PhenotypeDataBrapi(PhenotypeData):
         )
 
         api_response = self.get(endpoint=GET_OBSERVATION_UNITS_TABLE_URL, params=observation_units_filters.dict())
-
-
 
         pass
 
@@ -114,25 +114,38 @@ class PhenotypeDataBrapi(PhenotypeData):
         return germplasm, plots_data, plots_header
 
     def get_plots_from_search(self, crop: str = None, exp_id: str = None) -> pd.DataFrame:
-        #first POST to /bmsapi/{crop}/brapi/v2/search/observationunits
-        observation_units_filters = ObservationUnitsSearchRequestDto(
-            trialDbIds=[exp_id], observationLevel="PLOT"
-        )
+        # first POST to /bmsapi/{crop}/brapi/v2/search/observationunits
+        observation_units_filters = ObservationUnitsSearchRequestDto(trialDbIds=[exp_id], observationLevel="PLOT")
 
-        {'page': None, 'pageSize': None, 'additionalInfo': None, 
-        'externalReferences': None, 'germplasmDbId': None, 
-        'germplasmName': None, 'locationDbId': None, 
-        'locationName': None, 'observationUnitName': None, 
-        'observationUnitPUI': None, 'observationUnitPosition': None, 
-        'programDbId': None, 'programName': None, 
-        'seedLotDbId': None, 'studyDbId': None, 
-        'studyName': None, 'treatments': None, 
-        'trialDbId': None, 'trialName': None, 
-        'observationUnitDbId': None, 'observations': None}
+        {
+            "page": None,
+            "pageSize": None,
+            "additionalInfo": None,
+            "externalReferences": None,
+            "germplasmDbId": None,
+            "germplasmName": None,
+            "locationDbId": None,
+            "locationName": None,
+            "observationUnitName": None,
+            "observationUnitPUI": None,
+            "observationUnitPosition": None,
+            "programDbId": None,
+            "programName": None,
+            "seedLotDbId": None,
+            "studyDbId": None,
+            "studyName": None,
+            "treatments": None,
+            "trialDbId": None,
+            "trialName": None,
+            "observationUnitDbId": None,
+            "observations": None,
+        }
 
         print(observation_units_filters.dict())
 
-        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop), json=observation_units_filters.dict())
+        post_response = self.post(
+            endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop), json=observation_units_filters.dict()
+        )
         if not post_response.is_success:
             raise DataReaderException(post_response.error)
 
@@ -149,22 +162,22 @@ class PhenotypeDataBrapi(PhenotypeData):
             ["observationUnitPosition", "positionCoordinateY"],
         ]
         page_num = 0
-        
+
         get_more_plots = True
-        #the loop goes here
+        # the loop goes here
 
         data = []
 
         dataframes = []
         idCounter = 0
 
-        while(get_more_plots):
+        while get_more_plots:
 
-            observation_units_filters = ObservationUnitQueryParams(
-                pageSize=self.brapi_list_page_size, page=page_num
+            observation_units_filters = ObservationUnitQueryParams(pageSize=self.brapi_list_page_size, page=page_num)
+            get_response = self.get(
+                endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop) + "/" + observation_units_id
             )
-            get_response = self.get(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop)+"/"+observation_units_id)
-            
+
             if not get_response.is_success:
                 raise DataReaderException(get_response.error)
 
@@ -177,18 +190,17 @@ class PhenotypeDataBrapi(PhenotypeData):
                 columns.append("plot_qc")
                 return pd.DataFrame(columns=columns)
 
-            #build a json object with all the info
-            
+            # build a json object with all the info
+
             rows = []
             for x in get_response.body["result"]["data"]:
                 temp = {}
-                
+
                 temp["ID"] = idCounter
                 idCounter += 1
                 temp["Location"] = x["locationName"]
                 temp["Trial"] = x["trialDbId"]
                 temp["Germplasm"] = x["germplasmDbId"]
-
 
                 for y in x["observationUnitPosition"]["observationLevelRelationships"]:
                     if y["levelName"] == "PLOT":
@@ -212,17 +224,16 @@ class PhenotypeDataBrapi(PhenotypeData):
                 rows.append(temp)
 
             ndf = pd.json_normalize(rows)
-            
+
             dataframes.append(ndf)
 
             if page_num < get_response.body["metadata"]["pagination"]["totalPages"]:
                 page_num += 1
             else:
                 get_more_plots = False
-        ret = pd.concat(dataframes,ignore_index=True)
+        ret = pd.concat(dataframes, ignore_index=True)
         ret.set_index("ID")
         return ret
-
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
 
