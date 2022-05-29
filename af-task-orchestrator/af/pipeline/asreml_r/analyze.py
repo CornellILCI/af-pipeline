@@ -217,7 +217,7 @@ class AsremlRAnalyze(AsremlAnalyze):
         metadata_df = utils.get_metadata(job_result.metadata_file)
 
         # write entry predictions to the report
-        if asreml_result.entry_predictions:
+        if asreml_result.entry_predictions is not None:
             analysis_report.write_entry_predictions(
                 self.db_session,
                 self.analysis_request,
@@ -227,13 +227,13 @@ class AsremlRAnalyze(AsremlAnalyze):
             )
 
         # write location predictions to the report if
-        if asreml_result.location_predictions:
+        if asreml_result.location_predictions is not None:
             analysis_report.write_location_predictions(
                 self.report_file_path, asreml_result.location_predictions, metadata_df
             )
 
         # write entry location predictions
-        if asreml_result.entry_location_predictions:
+        if asreml_result.entry_location_predictions is not None:
             analysis_report.write_entry_location_predictions(
                 self.report_file_path, asreml_result.entry_location_predictions, metadata_df
             )
@@ -247,8 +247,17 @@ class AsremlRAnalyze(AsremlAnalyze):
         if exptloc_analysis_pattern.code == "SESL":
             variance = asreml_result.entry_variance
             avg_std_error = asreml_result.entry_average_standard_error
-            if variance and avg_std_error:
-                h2_cullis = calculation_engine.get_h2_cullis(variance, avg_std_error)
+            if variance is not None and avg_std_error is not None:
+                try:
+                    h2_cullis = calculation_engine.get_h2_cullis(variance, avg_std_error)
+                except ValueError as ve:
+                    h2_cullis = str(ve)
+
+        # write model statisics to analysis report
+        rename_keys = {"log_lik": "LogL"}
+        analysis_report.write_model_stat(
+            self.report_file_path, asreml_result.model_stat, metadata_df, rename_keys, h2_cullis=h2_cullis
+        )
 
         utils.zip_dir(job_result.job_result_dir, self.output_file_path, job_result.job_name)
         return gathered_objects

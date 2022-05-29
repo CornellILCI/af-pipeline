@@ -7,6 +7,8 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects import pandas2ri                                                                                     
 from rpy2.robjects.conversion import localconverter
 
+import pandas as pd
+
 r_base = importr('base')
 
 @robjects.packages.no_warnings
@@ -44,6 +46,6 @@ def rdf_to_pydf(rdf: robjects.DataFrame):
     with localconverter(robjects.default_converter + pandas2ri.converter):
         pydf = robjects.conversion.rpy2py(rdf)
 
-    if pydf == robjects.NULL:
-        return None
-    return pydf
+    if type(pydf) == pd.DataFrame:
+        return pydf
+    return None

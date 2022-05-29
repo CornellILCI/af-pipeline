@@ -19,17 +19,41 @@ class AsremlRResult:
     def __init__(self, job: db.models.Job, asr_rds_file: str, prediction_rds_files: list[str] = None):
         
         self.job = job
+
         self.asr = self.__read_asr(asr_rds_file)
         self.asr_summary = r_base.summary(self.asr)
-
-        self.__get_predictions_by_predictors(prediction_rds_files)
-        self.variances = rpy_utils.rdf_to_pydf(self.asr_summary.rx2('varcomp'))
+        self.converged = AsremlRResult.is_converged(self.asr)
+        self.model_stat = self.__parse_model_stat()
+        if self.converged:
+            self.__get_predictions_by_predictors(prediction_rds_files)
+            self.variances = rpy_utils.rdf_to_pydf(self.asr_summary.rx2('varcomp'))
 
     def __read_asr(self, asr_rds_file):
         try:
             asr = r_base.readRDS(asr_rds_file)
+            return asr
         except rpy2.rinterface_lib.embedded.RRuntimeError as e:
             raise RuntimeError("Unable to process asr result file")
+
+    def __parse_model_stat(self):
+        
+        model_stat = dict()
+        model_stat['log_lik'] = self.__read_robject_param(self.asr, 'loglik')
+        model_stat['aic'] = self.__read_robject_param(self.asr, 'aic')
+        model_stat['bic'] = self.__read_robject_param(self.asr, 'bic')
+        model_stat['is_converged'] = self.converged
+
+        return model_stat
+
+    def __read_robject_param(self, robj, param: str):
+
+        value = robj.rx2(param)
+
+        if value == rpy2.robjects.NULL:
+            return None
+        
+        # values of robjects are vectors
+        return list(value)[0]
 
     def __get_predictions_by_predictors(self, prediction_rds_files):
 
@@ -83,25 +107,19 @@ class AsremlRResult:
     @property
     def entry_variance(self) -> float:
         
-        if not self.variances:
+        if self.variances is not None:
             return None
-
         try:
             return float(self.variances['component']['entry'])
         except KeyError:
             return None
 
-    @property
-    def converged(self):
-        AsremlRResult.is_converged(self.asr)
 
     @staticmethod
     def is_converged(asr):
         if asr:
             return bool(asr.rx2("converge"))
         return False
-    
-
     
     @property
     def entry_average_standard_error(self) -> float:
