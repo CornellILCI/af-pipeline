@@ -6,6 +6,7 @@ UNIVERSAL_UNKNOWN = "NA"
 
 ANALYZE_IMPLEMENTATIONS = {
     "asreml": "af.pipeline.asreml.analyze.AsremlAnalyze",
+    "asreml-r": "af.pipeline.asreml_r.analyze.AsremlRAnalyze",
     "sommer": "af.pipeline.sommer.analyze.SommeRAnalyze",
 }
 
@@ -22,8 +23,13 @@ def get_analysis_engine_script(engine_name: str):
     if engine == "asreml":
         return "asreml"
 
+    if engine in ["asremlr", "asreml-r", "asreml_r"]:
+        return "asreml-r"
+
     if engine in ["r - sommer", "sommer"]:
         return "sommer"
+
+    return None
 
 
 def get_analyze_class(engine_name):

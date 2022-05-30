@@ -27,4 +27,3 @@ class SommeRAnalyze(Analyze):
 
     def finalize(self, gathered_objects):
         pass
-

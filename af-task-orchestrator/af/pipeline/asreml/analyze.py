@@ -21,6 +21,7 @@ from af.pipeline.db import services as db_services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.exceptions import AnalysisError, DpoException
 from af.pipeline.job_data import JobData
+from af.pipeline.job_status import JobStatus
 
 
 class AsremlAnalyze(Analyze):
@@ -73,7 +74,7 @@ class AsremlAnalyze(Analyze):
             self.db_session,
             self.analysis.id,
             job_data.job_name,
-            "IN-PROGRESS",
+            JobStatus.INPROGRESS,
             "Processing in the input request",
             job_detail,
         )
@@ -82,7 +83,7 @@ class AsremlAnalyze(Analyze):
             cmd = [analysis_engine, job_data.job_file, job_data.data_file]
             _ = subprocess.run(cmd, capture_output=True)
             job = db_services.update_job(
-                self.db_session, job, "IN-PROGRESS", "Completed the job. Pending post processing."
+                self.db_session, job, JobStatus.INPROGRESS, "Completed the job. Pending post processing."
             )
 
             job_data.job_result_dir = job_dir
@@ -90,7 +91,7 @@ class AsremlAnalyze(Analyze):
             return job_data
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, "ERROR", str(e))
+            db_services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
             utils.zip_dir(job_dir, self.output_file_path, job_data.job_name)
             raise AnalysisError(str(e))
         finally:
@@ -117,7 +118,10 @@ class AsremlAnalyze(Analyze):
 
             if not asreml_result_content.model_stat.get("is_converged"):
                 db_services.update_job(
-                    self.db_session, job, "FAILED", asreml_result_content.model_stat.get("conclusion")
+                    self.db_session,
+                    job,
+                    JobStatus.FAILED,
+                    asreml_result_content.model_stat.get("conclusion"),
                 )
                 return gathered_objects
 
@@ -153,9 +157,6 @@ class AsremlAnalyze(Analyze):
 
                     try:
                         h2_cullis = calculation_engine.get_h2_cullis(genetic_variance, avg_std_error)
-
-                        # round h2 cullis to 4 decimal points
-                        h2_cullis = round(h2_cullis, 4)
                     except ValueError as ve:
                         h2_cullis = str(ve)
 
@@ -171,7 +172,9 @@ class AsremlAnalyze(Analyze):
                 raise AnalysisError("Analysis result yhat file not found.")
             asreml_services.process_yhat_result(self.db_session, job.id, yhat_file_path)
 
-            db_services.update_job(self.db_session, job, "FINISHED", asreml_result_content.model_stat.get("conclusion"))
+            db_services.update_job(
+                self.db_session, job, JobStatus.FINISHED, asreml_result_content.model_stat.get("conclusion")
+            )
 
             # gather occurrences from the jobs, so we don't have to read occurrences again.
             # will not work for parallel jobs. For parallel job, gather will happen in finalize
@@ -186,7 +189,7 @@ class AsremlAnalyze(Analyze):
 
         except Exception as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, "ERROR", str(e))
+            db_services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
             raise AnalysisError(str(e))
         finally:
             # zip the result files to be downloaded by the users

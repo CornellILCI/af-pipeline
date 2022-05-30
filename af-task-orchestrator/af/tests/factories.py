@@ -45,3 +45,23 @@ class VarianceFactory(CreationModificationBaseFactory):
 
     class Meta:
         model = db.models.Variance
+
+
+class RequestFactory(CreationModificationBaseFactory):
+
+    id = factory.Sequence(lambda n: n)
+    uuid = factory.Faker("uuid4")
+    type = "ANALYZE"
+
+    class Meta:
+        model = db.models.Request
+
+
+class AnalysisFactory(CreationModificationBaseFactory):
+
+    id = factory.Sequence(lambda n: n)
+
+    request = factory.SubFactory(RequestFactory)
+
+    class Meta:
+        model = db.models.Analysis

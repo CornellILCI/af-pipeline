@@ -1,5 +1,6 @@
 import json
 import os
+
 # hacky importing since we need to declare these before we import Base
 # since core.py directly declares the vars
 import tempfile
@@ -7,8 +8,11 @@ import tempfile
 import pandas as pd
 import pytest
 from af.pipeline.db.models import Property
+
 # fixtures import area
 from af.tests import factories as model_factory
+from rpy2 import robjects
+from rpy2.robjects.packages import importr
 
 
 def get_test_resource_path(testfile, resource_name):
@@ -152,6 +156,12 @@ def analysis_fields_class(request, analysis_fields):
 @pytest.fixture(scope="class")
 def analysis_formula():
     analysis_formula = Property(statement="{trait_name} ~ mu rep !r entry !f mv")
+    return analysis_formula
+
+
+@pytest.fixture(scope="class")
+def analysis_r_formula():
+    analysis_formula = Property(statement="fixed={trait_name} ~ mu rep, random=entry")
     return analysis_formula
 
 
@@ -444,7 +454,7 @@ def mesl_analysis_request(
     me_occurrence_mock,
     me_trait_mock,
     analysis_fields,
-    analysis_formula,
+    analysis_r_formula,
     analysis_residual,
     analysis_prediction,
 ):
@@ -452,7 +462,7 @@ def mesl_analysis_request(
     mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
 
     get_property_stubs = [Property(code="MESL")]
-    get_property_stubs.extend([analysis_formula, analysis_residual, analysis_prediction] * 4)
+    get_property_stubs.extend([analysis_r_formula, analysis_residual, analysis_prediction] * 4)
     mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
 
     return me_analysis_request
@@ -467,7 +477,7 @@ def meml_analysis_request(
     me_occurrence_mock,
     me_trait_mock,
     analysis_fields,
-    analysis_formula,
+    analysis_r_formula,
     analysis_residual,
     analysis_prediction,
 ):
@@ -475,7 +485,7 @@ def meml_analysis_request(
     mocker.patch("af.pipeline.db.services.get_analysis_config_module_fields", return_value=analysis_fields)
 
     get_property_stubs = [Property(code="MEML")]
-    get_property_stubs.extend([analysis_formula, analysis_residual, analysis_prediction] * 4)
+    get_property_stubs.extend([analysis_r_formula, analysis_residual, analysis_prediction] * 4)
     mock_props = mocker.patch("af.pipeline.db.services.get_property", side_effect=get_property_stubs)
 
     return me_analysis_request
@@ -533,3 +543,54 @@ def predictions_df():
             [1, 2, 1, 1, 1.5, "E", 2],
         ],
     )
+
+
+@pytest.fixture
+def analysis(mocker, dbsession):
+
+    mocker.patch("af.pipeline.db.core.DBConfig.get_session", return_value=dbsession)
+
+    model_factory.RequestFactory._meta.sqlalchemy_session = dbsession
+    model_factory.AnalysisFactory._meta.sqlalchemy_session = dbsession
+
+    analysis = model_factory.AnalysisFactory()
+
+    return analysis
+
+
+@pytest.fixture
+def asreml_r_analysis_request(analysis_request, analysis):
+    analysis_request.requestId = analysis.request.uuid
+    return analysis_request
+
+
+@pytest.fixture
+@robjects.packages.no_warnings
+def r_base():
+    r_base = importr("base")
+    return r_base
+
+
+@pytest.fixture
+def asreml_r_input_data():
+    return robjects.DataFrame({"a": 5})
+
+
+class RFormulaMock(robjects.Formula):
+    def __eq__(self, other):
+        return self.r_repr() == other.r_repr()
+
+
+@pytest.fixture
+def asreml_r_fixed_formula():
+    return RFormulaMock("test ~ formula")
+
+
+@pytest.fixture
+def asreml_r_random_formula():
+    return RFormulaMock("~random")
+
+
+@pytest.fixture
+def asreml_r_residual():
+    return RFormulaMock("test ~ residual")

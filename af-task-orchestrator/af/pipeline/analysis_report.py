@@ -90,19 +90,29 @@ def write_predictions(
 
     # write entry report
     if "entry" in predictions_df.columns:
-        write_entry_predictions(db_session, analysis_request, report_file, predictions_df, metadata_df)
+        entry_report = predictions_df[predictions_df.entry.notnull()]
+        entry_report = entry_report[entry_report.num_factors == 1]
+        write_entry_predictions(db_session, analysis_request, report_file, entry_report, metadata_df)
 
     # write location report
     if "loc" in predictions_df.columns:
-        write_location_predictions(report_file, predictions_df, metadata_df)
+        # get location only rows
+        # do not try to call loc column as property as it would conflict with default loc property
+        location_report = predictions_df[predictions_df["loc"].notnull()]
+        location_report = location_report[location_report.num_factors == 1]
+        write_location_predictions(report_file, location_report, metadata_df)
 
     # write entry and location report
     if "entry" in predictions_df.columns and "loc" in predictions_df.columns:
-        write_entry_location_predictions(report_file, predictions_df, metadata_df)
+        # get entry location only rows
+        entry_location_report = predictions_df[predictions_df.entry.notnull()]
+        entry_location_report = entry_location_report[entry_location_report["loc"].notnull()]
+        entry_location_report = entry_location_report[entry_location_report.num_factors == 2]
+        write_entry_location_predictions(report_file, entry_location_report, metadata_df)
 
 
 def write_entry_predictions(
-    db_session, analysis_request, report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame
+    db_session, analysis_request, report_file: str, entry_report: pd.DataFrame, metadata_df: pd.DataFrame
 ):
 
     entry_report_columns = [
@@ -123,10 +133,6 @@ def write_entry_predictions(
         pos_to_insert_loc_cols = entry_report_columns.index("experiment_name") + 1
         entry_report_columns[pos_to_insert_loc_cols:pos_to_insert_loc_cols] = ["location_id", "location_name"]
 
-    # get entry only rows
-    entry_report = predictions_df[predictions_df.entry.notnull()]
-    entry_report = entry_report[entry_report.num_factors == 1]
-
     if len(entry_report) == 0:
         return
 
@@ -141,16 +147,11 @@ def write_entry_predictions(
     pandasutil.append_df_to_excel(report_file, entry_report, sheet_name=ENTRY_SHEET_NAME)
 
 
-def write_location_predictions(report_file: str, predictions_df: pd.DataFrame, metadata_df: pd.DataFrame):
+def write_location_predictions(report_file: str, location_report: pd.DataFrame, metadata_df: pd.DataFrame):
 
     location_report_columns = ["job_id", "trait_abbreviation", "location_id", "location_name", "value", "std_error"]
 
     location_df = metadata_df[["location_id", "location_name", "trait_abbreviation"]].drop_duplicates()
-
-    # get location only rows
-    # do not try to call loc column as property as it would conflict with default loc property
-    location_report = predictions_df[predictions_df["loc"].notnull()]
-    location_report = location_report[location_report.num_factors == 1]
 
     if len(location_report) == 0:
         return
@@ -178,11 +179,6 @@ def write_entry_location_predictions(report_file: str, predictions_df: pd.DataFr
         "value",
         "std_error",
     ]
-
-    # get entry location only rows
-    entry_location_report = predictions_df[predictions_df.entry.notnull()]
-    entry_location_report = entry_location_report[entry_location_report["loc"].notnull()]
-    entry_location_report = entry_location_report[entry_location_report.num_factors == 2]
 
     if len(entry_location_report) == 0:
         return
