@@ -70,7 +70,7 @@ class AsremlRResult:
             except rpy2.rinterface_lib.embedded.RRuntimeError as e:
                 raise RuntimeError(f"Unable to process predictions result file {prediction_file}")
 
-            if not predictions.rx2("pvals"):
+            if not predictions.rx2("pvals") or predictions.rx2('pvals') == rpy2.robjects.NULL:
                 continue
 
             predictors = tuple(set(predictions.rx2("pvals").names) - self.predictions_const_columns)
@@ -85,7 +85,7 @@ class AsremlRResult:
 
             sed = predictions.rx2("sed")
 
-            if sed:
+            if sed :
                 self.__sed_by_predictors[predictors] = sed
 
     @property
@@ -106,7 +106,7 @@ class AsremlRResult:
     @property
     def entry_variance(self) -> float:
 
-        if self.variances is not None:
+        if self.variances is None:
             return None
         try:
             return float(self.variances["component"]["entry"])
@@ -130,10 +130,9 @@ class AsremlRResult:
         """
         entry_predictor_key = tuple({"entry"})
         sed = self.__sed_by_predictors.get(entry_predictor_key)
-
-        if not sed:
+        if sed is None:
             return None
-
+        
         sed_matrix = np.array(r_base.as_matrix(sed))
 
         # get upper triangle of sed matrix as array
@@ -141,5 +140,5 @@ class AsremlRResult:
 
         # find the mean of their squares
         avg_std_error = np.mean(sed_upper_tri ** 2)
-
+        
         return float(avg_std_error)

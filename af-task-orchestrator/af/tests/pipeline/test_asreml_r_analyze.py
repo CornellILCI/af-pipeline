@@ -10,6 +10,9 @@ def importr(mocker):
     importr = mocker.patch("rpy2.robjects.packages.importr", return_value=mocker.Mock())
     return importr
 
+@pytest.fixture
+def sparse_matrix(r_base):
+    return r_base.matrix(1, nrow=3, ncol=3)
 
 @pytest.fixture
 def asreml_r_lib(importr, mocker):
@@ -26,9 +29,15 @@ def asr(r_base):
     asr = r_base.list(converge=r_base.logical(1))
     return asr
 
+@pytest.fixture
+def asr_summary(r_base):
+
+    asr_summary = r_base.list(varcomp=r_base.data_frame(component=r_base.c(1), row_names=["entry"]))
+    return asr_summary
+
 
 @pytest.fixture
-def entry_predictions(r_base):
+def entry_predictions(r_base, sparse_matrix):
 
     entry_prediction = r_base.list(
         pvals=rpy2.robjects.DataFrame(
@@ -38,18 +47,20 @@ def entry_predictions(r_base):
                 "std.error": rpy2.robjects.FloatVector([4, 5]),
                 "status": rpy2.robjects.StrVector(["4", "5"]),
             }
-        )
+        ),
+        sed=sparse_matrix
     )
     return entry_prediction
 
 
 @pytest.fixture
-def r_base_lib(asr, entry_predictions, importr, mocker):
+def r_base_lib(sparse_matrix, asr, asr_summary, entry_predictions, importr, mocker):
 
     r_base_lib = mocker.patch("af.pipeline.asreml_r.asreml_r_result.r_base")
     r_base_lib.detach = mocker.Mock()
-
     r_base_lib.readRDS = mocker.Mock(side_effect=[asr, entry_predictions])
+    r_base_lib.summary = mocker.Mock(return_value=asr_summary)
+    r_base_lib.as_matrix = mocker.Mock(return_value=sparse_matrix)
     importr.return_value = r_base_lib
     return r_base_lib
 
@@ -61,6 +72,12 @@ def exp_loc_analysis_pattern(mocker):
     mocker.patch("af.pipeline.db.services.get_property", return_value=exp_loc_analysis_pattern)
     return exp_loc_analysis_pattern
 
+@pytest.fixture
+def sesl_analysis_pattern(mocker):
+
+    exp_loc_analysis_pattern = db.models.Property(code="SESL")
+    mocker.patch("af.pipeline.db.services.get_property", return_value=exp_loc_analysis_pattern)
+    return exp_loc_analysis_pattern
 
 def test_run_job_returns_job_data(mocker, asreml_r_analysis_request, importr):
 
@@ -260,3 +277,22 @@ def test_predictions_are_written(
     asreml_r_analyze.process_job_result(job_result, {})
 
     write_entry_predictions.assert_called_once()
+
+
+def test_h2_cullis_calculated(asreml_r_analysis_request, r_base_lib, entry_predictions, sesl_analysis_pattern, mocker):
+
+    asreml_r_analyze = asreml_r.analyze.AsremlRAnalyze(asreml_r_analysis_request)
+
+    mocker.patch("af.pipeline.db.services.get_job_by_name", return_value=db.models.Job())
+    mocker.patch("af.pipeline.utils.get_metadata")
+    mocker.patch("af.pipeline.analysis_report.write_model_stat")
+    mocker.patch("af.pipeline.analysis_report.write_entry_predictions")
+
+    job_result = asreml_r.analyze.AsremlRJobResult(prediction_rds_files=["prediction_file_path_1"])
+
+    h2_cullis_calculations = mocker.patch("af.pipeline.calculation_engine.get_h2_cullis")
+
+    asreml_r_analyze.process_job_result(job_result, {})
+
+    h2_cullis_calculations.assert_called_once()
+
