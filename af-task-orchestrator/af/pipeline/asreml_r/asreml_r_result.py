@@ -37,14 +37,14 @@ class AsremlRResult:
     def __parse_model_stat(self):
 
         model_stat = dict()
-        model_stat["log_lik"] = self.__read_robject_param(self.asr, "loglik")
-        model_stat["aic"] = self.__read_robject_param(self.asr, "aic")
-        model_stat["bic"] = self.__read_robject_param(self.asr, "bic")
+        model_stat["log_lik"] = self.__read_robject_vector(self.asr, "loglik")
+        model_stat["aic"] = self.__read_robject_vector(self.asr_summary, "aic")
+        model_stat["bic"] = self.__read_robject_vector(self.asr_summary, "bic")
         model_stat["is_converged"] = self.converged
 
         return model_stat
 
-    def __read_robject_param(self, robj, param: str):
+    def __read_robject_vector(self, robj, param: str):
 
         value = robj.rx2(param)
 
@@ -70,7 +70,7 @@ class AsremlRResult:
             except rpy2.rinterface_lib.embedded.RRuntimeError as e:
                 raise RuntimeError(f"Unable to process predictions result file {prediction_file}")
 
-            if not predictions.rx2("pvals") or predictions.rx2('pvals') == rpy2.robjects.NULL:
+            if not predictions.rx2("pvals") or predictions.rx2("pvals") == rpy2.robjects.NULL:
                 continue
 
             predictors = tuple(set(predictions.rx2("pvals").names) - self.predictions_const_columns)
@@ -85,7 +85,7 @@ class AsremlRResult:
 
             sed = predictions.rx2("sed")
 
-            if sed :
+            if sed:
                 self.__sed_by_predictors[predictors] = sed
 
     @property
@@ -132,7 +132,7 @@ class AsremlRResult:
         sed = self.__sed_by_predictors.get(entry_predictor_key)
         if sed is None:
             return None
-        
+
         sed_matrix = np.array(r_base.as_matrix(sed))
 
         # get upper triangle of sed matrix as array
@@ -140,5 +140,5 @@ class AsremlRResult:
 
         # find the mean of their squares
         avg_std_error = np.mean(sed_upper_tri ** 2)
-        
+
         return float(avg_std_error)
