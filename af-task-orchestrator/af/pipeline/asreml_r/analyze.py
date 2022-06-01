@@ -189,7 +189,10 @@ class AsremlRAnalyze(AsremlAnalyze):
             r_base.detach("package:asreml", unload=True)
 
         except (rpy2.rinterface_lib.embedded.RRuntimeError, ValueError) as e:
-            self._raise_analysis_error(job, e)
+            self.analysis.status = "FAILURE"
+            db_services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
+            utils.zip_dir(job_dir, self.output_file_path, job.name)
+            raise AnalysisError(str(e))
 
         job_result.job_result_dir = job_dir
 
@@ -263,6 +266,22 @@ class AsremlRAnalyze(AsremlAnalyze):
         )
 
         utils.zip_dir(job_result.job_result_dir, self.output_file_path, job_result.job_name)
+
+        # TODO: below code duplicates from base class. can be reformated.
+        db_services.update_job(
+            self.db_session, job, JobStatus.FINISHED, "LogL converged" 
+        )
+
+        # gather occurrences from the jobs, so we don't have to read occurrences again.
+        # will not work for parallel jobs. For parallel job, gather will happen in finalize
+        if "occurrences" not in gathered_objects:
+            gathered_objects["occurrences"] = {}
+
+        for occurrence in job_result.occurrences:
+            if occurrence.occurrence_id not in gathered_objects["occurrences"]:
+                gathered_objects["occurrences"][occurrence.occurrence_id] = occurrence
+
+        self.db_session.commit()
         return gathered_objects
 
     def finalize(self, gathered_objects):

@@ -209,6 +209,11 @@ class AsremlProcessData(ProcessData):
 
         job_data.data_file = os.path.join(job_data.job_result_dir, data_file_name)
 
+        # by default sort by columns 'row' and 'col'. row and col here denotes plot's row and column
+        plots_and_measurements.row = pd.to_numeric(plots_and_measurements.row, errors='coerce')
+        plots_and_measurements.col = pd.to_numeric(plots_and_measurements.col, errors='coerce')
+        plots_and_measurements = plots_and_measurements.sort_values(by=['row', 'col'])
+
         plots_and_measurements.to_csv(job_data.data_file, index=False)
 
         self._set_job_params(job_data, trait)

@@ -21,6 +21,7 @@ from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.db import services as db_services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.dpo import ProcessData
+from af.pipeline.job_status import JobStatus
 from af.pipeline.exceptions import AnalysisError, DpoException, InvalidAnalysisRequest
 from pydantic import ValidationError
 
@@ -142,7 +143,7 @@ class Analyze(abc.ABC):
     def _raise_job_error(self, job, e):
         self.analysis.status = "FAILURE"
         db_services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
-        utils.zip_dir(job_dir, self.output_file_path, job_data.job_name)
+        utils.zip_dir(job_dir, self.output_file_path, job.name)
         raise AnalysisError(str(e))
 
 

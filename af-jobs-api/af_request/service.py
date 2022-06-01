@@ -30,8 +30,15 @@ def submit(request_params: api_models.AnalysisRequestParameters):
 
     req_data = RequestData(**request_params.dict())
 
-    additionalInfo = {"data_sources":
-    [{'source' : request_params.dataSource, 'url' : request_params.dataSourceUrl, 'token' : request_params.dataSourceAccessToken}]}
+    additionalInfo = {
+        "data_sources": [
+            {
+                "source": request_params.dataSource,
+                "url": request_params.dataSourceUrl,
+                "token": request_params.dataSourceAccessToken,
+            }
+        ]
+    }
 
     analysis = db_models.Analysis(
         request=req,
@@ -44,7 +51,7 @@ def submit(request_params: api_models.AnalysisRequestParameters):
         exp_loc_pattern_id=request_params.expLocAnalysisPatternPropertyId,
         model_id=request_params.analysisConfigPropertyId,
         analysis_request_data=req_data.dict(),
-        additional_info=additionalInfo
+        additional_info=additionalInfo,
     )
     with db.session.begin():
         db.session.add(analysis)
