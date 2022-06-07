@@ -10,4 +10,17 @@
 	<!-- BA2-44 Add analysis config 20025  -->
 	<include file="changesets/22.05/data/template/add_asreml_r_analysis_configuration_20025.sql"/>
 
+  	<!-- BA2-89 SDM: Add the On-Farm trial to the DB -->
+  	<include file="changesets/22.05/data/template/add_rand_ibd_oft.sql"/>
+
+  	<!-- BA2-89 SDM: Add the On-Farm trial to the DB -->
+  	<include file="changesets/22.05/data/template/add_rand_rcbd_oft.sql"/>
+
+    <!-- DB-1233 Update model descriptions -->
+  	<include file="changesets/22.05/data/template/update_model_descriptions.sql"/>
+
+    <!-- DB-1239 Update OFT model names -->
+  	<include file="changesets/22.05/data/template/update_model_names.sql"/>
+
+
   </databaseChangeLog>

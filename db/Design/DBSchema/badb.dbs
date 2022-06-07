@@ -1,0 +1,1234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="PostgreSQL" id="Project-65a" database="PostgreSQL" >
+	<schema name="af" >
+		<comment><![CDATA[Analythical Framework]]></comment>
+		<table name="analysis" >
+			<comment><![CDATA[A compartment of an analysis request. One analysis request can have more than one analysis (Usually it is 1 request : 1 analysis).]]></comment>
+			<column name="name" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Name of the analysis]]></comment>
+			</column>
+			<column name="description" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Description of the analysis]]></comment>
+			</column>
+			<column name="prediction_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id of the type of the prediction used in the analysis (Property table)]]></comment>
+			</column>
+			<column name="status" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Status of the analysis ()]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false).]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."analysis_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="model_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the Model id related to the analysis.]]></comment>
+			</column>
+			<column name="request_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the request related to the analysis.]]></comment>
+			</column>
+			<column name="formula_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the formula stored in the property table.]]></comment>
+			</column>
+			<column name="residual_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the residual id stored in the property table.]]></comment>
+			</column>
+			<column name="trait_analysis_pattern_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the trait analysis pattern id stored in the property table.]]></comment>
+			</column>
+			<column name="exp_loc_pattern_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the experiment location pattern id stored in the property table.]]></comment>
+			</column>
+			<column name="analysis_objective_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the analysis objective id stored in the property table.]]></comment>
+			</column>
+			<column name="analysis_request_data" type="jsonb" decimal="0" jt="2000" >
+				<comment><![CDATA[Relevant data of the analysis request]]></comment>
+			</column>
+			<column name="additional_info" type="jsonb" decimal="0" jt="2000" >
+				<comment><![CDATA[Additional info related to the analysis]]></comment>
+			</column>
+			<index name="PK_analysis" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="IX_additional_info" unique="NORMAL" >
+				<column name="additional_info" />
+			</index>
+			<index name="IX_analays_request_data" unique="NORMAL" >
+				<column name="analysis_request_data" />
+			</index>
+			<fk name="FK_analysis_property" to_schema="af" to_table="property" >
+				<fk_column name="model_id" pk="id" />
+			</fk>
+			<fk name="FK_analysis_property_analysis" to_schema="af" to_table="property" >
+				<fk_column name="analysis_objective_id" pk="id" />
+			</fk>
+			<fk name="FK_analysis_property_exp" to_schema="af" to_table="property" >
+				<fk_column name="exp_loc_pattern_id" pk="id" />
+			</fk>
+			<fk name="FK_analysis_property_formula" to_schema="af" to_table="property" >
+				<fk_column name="formula_id" pk="id" />
+			</fk>
+			<fk name="FK_analysis_property_residual" to_schema="af" to_table="property" >
+				<fk_column name="residual_id" pk="id" />
+			</fk>
+			<fk name="FK_analysis_property_trait" to_schema="af" to_table="property" >
+				<fk_column name="trait_analysis_pattern_id" pk="id" />
+			</fk>
+			<fk name="FK_analysis_request" to_schema="af" to_table="request" >
+				<fk_column name="request_id" pk="id" />
+			</fk>
+		</table>
+		<table name="fitted_values" >
+			<comment><![CDATA[An analysis result table. Stores the fitted values estimations from an analysis job.]]></comment>
+			<column name="record" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[The number that identifies the data point in the analysis input data (csv).]]></comment>
+			</column>
+			<column name="trait_value" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[The original data (observation collected).]]></comment>
+			</column>
+			<column name="yhat" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[Fitted value for the observation.]]></comment>
+			</column>
+			<column name="residual" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[Residual associated to the observation in the linear model.]]></comment>
+			</column>
+			<column name="hat" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[Diagonal Element of the Hat matrix.]]></comment>
+			</column>
+			<column name="plot_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the plot_id. Particular place where the entry is planted.]]></comment>
+			</column>
+			<column name="stat_factor" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Reference to the statistical factor.]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" mandatory="y" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" mandatory="y" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."fitted_values_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="job_id" type="integer" length="10" decimal="0" jt="4" />
+			<column name="additional_info" type="jsonb" decimal="0" jt="2000" >
+				<comment><![CDATA[Additional information that may be generated about the fitted value. Usually some statistics regarding outliers.]]></comment>
+			</column>
+			<index name="PK_fitted_values" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_fitted_values_job" to_schema="af" to_table="job" >
+				<fk_column name="job_id" pk="id" />
+			</fk>
+		</table>
+		<table name="job" >
+			<comment><![CDATA[Work unit for computation in the analysis. One analysis can have more than one job]]></comment>
+			<column name="name" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Name of the job]]></comment>
+			</column>
+			<column name="time_start" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Timestamp when the job was initiated.]]></comment>
+			</column>
+			<column name="time_end" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Timestamp when the job was finalized.]]></comment>
+			</column>
+			<column name="output_path" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Path where the results of the job are saved.]]></comment>
+			</column>
+			<column name="status" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Status of the job]]></comment>
+			</column>
+			<column name="status_message" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Message delivered to the client about the status.]]></comment>
+			</column>
+			<column name="size" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Size]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id of the selected Tenant]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."job_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="analysis_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the analysis.]]></comment>
+			</column>
+			<column name="job_data" type="jsonb" decimal="0" jt="2000" >
+				<comment><![CDATA[Data used for running the analysis job]]></comment>
+			</column>
+			<index name="PK_job" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="IX_job_data" unique="NORMAL" >
+				<column name="job_data" />
+			</index>
+			<fk name="FK_job_analysis" to_schema="af" to_table="analysis" >
+				<fk_column name="analysis_id" pk="id" />
+			</fk>
+		</table>
+		<table name="job_data" >
+			<comment><![CDATA[An analysis result table. Register the data that were used for each particular job.]]></comment>
+			<column name="data" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Reference for the data value (Experiment, Occurrence, Trait).]]></comment>
+			</column>
+			<column name="value" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[IDs of the data the job is analyzing.]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Id of the selected Tenant]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" mandatory="y" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" mandatory="y" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."job_data_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="job_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the job.]]></comment>
+			</column>
+			<index name="PK_job_data" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_job_data_job" to_schema="af" to_table="job" >
+				<fk_column name="job_id" pk="id" />
+			</fk>
+		</table>
+		<table name="model_stat" >
+			<comment><![CDATA[An analysis result table. Stores the results and statistics of the model from an analysis job.]]></comment>
+			<column name="log_lik" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[Log-likelihood of the last iteration.]]></comment>
+			</column>
+			<column name="aic" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[Akaike Information Criterion.]]></comment>
+			</column>
+			<column name="bic" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[Bayesian Information Criterion.]]></comment>
+			</column>
+			<column name="components" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Number of components (variance parameters) associated to the model.]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Id of the selected Tenant]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" mandatory="y" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" mandatory="y" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."model_stat_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="job_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the Job.]]></comment>
+			</column>
+			<column name="conclusion" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Last message the engine generates after running the job.]]></comment>
+			</column>
+			<column name="is_converged" type="boolean" length="1" decimal="0" jt="-7" >
+				<comment><![CDATA[Whether the model has converged or not.]]></comment>
+			</column>
+			<column name="aditional_info" type="jsonb" decimal="0" jt="2000" >
+				<comment><![CDATA[Additional information]]></comment>
+			</column>
+			<index name="PK_model_stat" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_model_stat_job" to_schema="af" to_table="job" >
+				<fk_column name="job_id" pk="id" />
+			</fk>
+		</table>
+		<table name="prediction_effect" >
+			<comment><![CDATA[An analysis result table. Stores the predictions and effects estimations from an analysis job.]]></comment>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."prediction_effect_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="job_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Reference to the Job.]]></comment>
+			</column>
+			<column name="factor" type="jsonb" decimal="0" jt="2000" mandatory="y" >
+				<comment><![CDATA[Statistical factor and its level that the predicted value and effects are for.]]></comment>
+			</column>
+			<column name="value" type="numeric" jt="2" >
+				<comment><![CDATA[Predicted value of the given factor and level.]]></comment>
+			</column>
+			<column name="std_error" type="numeric" jt="2" >
+				<comment><![CDATA[Standard error associated to the predicted value.]]></comment>
+			</column>
+			<column name="e_code" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Code of the predicted value. E means "Estimable", * not estimable]]></comment>
+			</column>
+			<column name="effect" type="numeric" jt="2" mandatory="y" >
+				<comment><![CDATA[Estimated effect of each level factor.]]></comment>
+			</column>
+			<column name="se_effect" type="numeric" jt="2" mandatory="y" >
+				<comment><![CDATA[Standard error associated to the estimated effect]]></comment>
+			</column>
+			<column name="additional_info" type="jsonb" decimal="0" jt="2000" >
+				<comment><![CDATA[Additional information that may be generated about the effects. Usually some statistics regarding the effect outliers.]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id of the selected Tenant]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" mandatory="y" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<index name="PK_prediction_effect" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_prediction_effect_job" to_schema="af" to_table="job" >
+				<fk_column name="job_id" pk="id" />
+			</fk>
+		</table>
+		<table name="property" >
+			<comment><![CDATA[Single element of configuration for an analysis or a design (e.g. model, prediction, error, etc)]]></comment>
+			<column name="code" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Identifier of the property within its context, the context is found in the property_config table]]></comment>
+			</column>
+			<column name="name" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Name of the property]]></comment>
+			</column>
+			<column name="label" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Label displayed to the client]]></comment>
+			</column>
+			<column name="description" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Detail of the purpose/function of a property.]]></comment>
+			</column>
+			<column name="type" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Classifier of properties within it s context (e.g. catalog_item, catalog_root)]]></comment>
+			</column>
+			<column name="data_type" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Data type of the property (e.g. csv, character varying, integer, etc.)]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."property_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="statement" type="varchar" length="250" decimal="0" jt="12" />
+			<index name="PK_property" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+		</table>
+		<table name="property_acl" >
+			<comment><![CDATA[Access Control List]]></comment>
+			<column name="property_item_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[identifier of the property to be filtered.]]></comment>
+			</column>
+			<column name="breeding_program_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Breeding program with access to the property.]]></comment>
+			</column>
+			<column name="phase_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Identifier of the phase with access to a certain property.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."property_acl_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="property_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the property.]]></comment>
+			</column>
+			<index name="PK_property_acl" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_property_acl_property" to_schema="af" to_table="property" >
+				<fk_column name="property_id" pk="id" />
+			</fk>
+		</table>
+		<table name="property_config" >
+			<comment><![CDATA[Provides context to use the properties (e.g. defines the required properties for a design, defines the elements of a catalogs or the output elements of a request)]]></comment>
+			<column name="is_required" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Specify in the property is a required parameter for a design.]]></comment>
+			</column>
+			<column name="order_number" type="integer" length="10" decimal="0" jt="4" >
+				<defo><![CDATA[1]]></defo>
+				<comment><![CDATA[Defines an arbitrary order for configuration properties.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."property_config_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="property_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the property]]></comment>
+			</column>
+			<column name="config_property_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the property that will help to filter.]]></comment>
+			</column>
+			<column name="property_ui_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the property ui id that will link the type of configuration in the user interface.]]></comment>
+			</column>
+			<column name="is_layout_variable" type="boolean" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Specifies if a property is required to generate a layout in randomizations.]]></comment>
+			</column>
+			<index name="PK_property_config" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="property_config_property_id_fkey" to_schema="af" to_table="property" >
+				<fk_column name="property_id" pk="id" />
+			</fk>
+			<fk name="property_config_property_ui_id_fkey" to_schema="af" to_table="property_ui" >
+				<fk_column name="property_ui_id" pk="id" />
+			</fk>
+		</table>
+		<table name="property_meta" >
+			<comment><![CDATA[Stores additional information of a property]]></comment>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."property_meta_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="code" type="text" decimal="0" jt="12" mandatory="y" >
+				<comment><![CDATA[Code of the property]]></comment>
+			</column>
+			<column name="value" type="text" decimal="0" jt="12" mandatory="y" >
+				<comment><![CDATA[Value of the property metadata]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="property_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Reference to the property.]]></comment>
+			</column>
+			<index name="PK_property_meta" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_property_meta_property" to_schema="af" to_table="property" >
+				<fk_column name="property_id" pk="id" />
+			</fk>
+		</table>
+		<table name="property_rule" >
+			<comment><![CDATA[Defines custom validation rules for a property value (e.g. defines if a property is required based on the value of another property) The property rule is associated to the property_config.]]></comment>
+			<column name="type" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Classifier of the rule (e.g. required if, allow value, etc.)]]></comment>
+			</column>
+			<column name="expression" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Definition of the rule to be applied.]]></comment>
+			</column>
+			<column name="group" type="integer" length="10" decimal="0" jt="4" >
+				<defo><![CDATA[0]]></defo>
+				<comment><![CDATA[Allows to group several rules as a singular composite rule.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."property_rule_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="property_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the property.]]></comment>
+			</column>
+			<column name="property_config_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the property config.]]></comment>
+			</column>
+			<column name="order_number" type="integer" length="10" decimal="0" jt="4" mandatory="y" />
+			<column name="notification" type="text" decimal="0" jt="12" />
+			<column name="action" type="text" decimal="0" jt="12" />
+			<index name="PK_property_rule" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="property_rule_property_id_fkey" to_schema="af" to_table="property" >
+				<fk_column name="property_id" pk="id" />
+			</fk>
+			<fk name="property_rule_property_config_id_fkey" to_schema="af" to_table="property_config" >
+				<fk_column name="property_config_id" pk="id" />
+			</fk>
+		</table>
+		<table name="property_ui" >
+			<comment><![CDATA[Defines the behavior of a user interface component when its associated to a property]]></comment>
+			<column name="is_visible" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[true]]></defo>
+				<comment><![CDATA[Set the property visible/invisible in the interface]]></comment>
+			</column>
+			<column name="minimum" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Minimum value for a numeric property]]></comment>
+			</column>
+			<column name="maximum" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Maximum value for a numeric property.]]></comment>
+			</column>
+			<column name="unit" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Defines the unit type of numeric properties.]]></comment>
+			</column>
+			<column name="default" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Default value of a property.]]></comment>
+			</column>
+			<column name="is_disabled" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Defines if the property is disabled fro the user.]]></comment>
+			</column>
+			<column name="is_multiple" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Defines if the property has more than one value (e.g define multiple error values for a single request)]]></comment>
+			</column>
+			<column name="is_catalogue" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Defines if the property is displayed in the user interface as a select list.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."property_ui_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<index name="PK_property_ui" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+		</table>
+		<table name="request" >
+			<comment><![CDATA[Stores the requests to execute a function of the analytical framework.]]></comment>
+			<column name="uuid" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Universal Unique Identifier for the request.]]></comment>
+			</column>
+			<column name="category" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Defines if the request is for a randomization or for an analysis.]]></comment>
+			</column>
+			<column name="type" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Subcategory of the request (e.g. trial design)]]></comment>
+			</column>
+			<column name="design" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Specific design of the request]]></comment>
+			</column>
+			<column name="requestor_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Identifier of the person that made the request.]]></comment>
+			</column>
+			<column name="institute" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Name of the Institute where the request is coming from]]></comment>
+			</column>
+			<column name="crop" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Crop of the request.]]></comment>
+			</column>
+			<column name="program" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Program of the request]]></comment>
+			</column>
+			<column name="status" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Status of the request, it can be New, Processed and Expired.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."request_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="method_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the Property table that contains the method.]]></comment>
+			</column>
+			<column name="engine" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Version of the R Engine to use in the request.]]></comment>
+			</column>
+			<column name="msg" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Specific message for the request.]]></comment>
+			</column>
+			<index name="PK_request" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="request_method_id_fkey" to_schema="af" to_table="property" >
+				<fk_column name="method_id" pk="id" />
+			</fk>
+		</table>
+		<table name="request_entry" >
+			<comment><![CDATA[Entries of a request]]></comment>
+			<column name="experiment_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Experiment id associated to the entries]]></comment>
+			</column>
+			<column name="entry_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Entry_ids coming from b4r to be used in the analysis.]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."request_entry_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="request_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Reference to the Request related.]]></comment>
+			</column>
+			<column name="entry_number" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Entry number coming from b4r.]]></comment>
+			</column>
+			<index name="PK_request_entry" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_request_entry_request" to_schema="af" to_table="request" >
+				<fk_column name="request_id" pk="id" />
+			</fk>
+		</table>
+		<table name="request_parameter" >
+			<comment><![CDATA[Parameter of the request that are provided to the AEO (Analysis Execute Object).]]></comment>
+			<column name="value" type="text" decimal="0" jt="12" />
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."request_parameter_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="property_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference the property related to the request.]]></comment>
+			</column>
+			<column name="request_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the Request.]]></comment>
+			</column>
+			<index name="PK_request_parameter" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="request_parameter_property_id_fkey" to_schema="af" to_table="property" >
+				<fk_column name="property_id" pk="id" />
+			</fk>
+			<fk name="request_parameter_request_id_fkey" to_schema="af" to_table="request" >
+				<fk_column name="request_id" pk="id" />
+			</fk>
+		</table>
+		<table name="residual_outlier" >
+			<comment><![CDATA[An analysis result table. Stores the predictions and effects estimations from an analysis job.]]></comment>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."residual_outlier_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="outlier" type="jsonb" decimal="0" jt="2000" >
+				<comment><![CDATA[List of the outliers (Key value pairs)]]></comment>
+			</column>
+			<column name="job_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Reference to the job.]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" mandatory="y" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<index name="PK_residual_outlier" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_residual_outlier_job" to_schema="af" to_table="job" >
+				<fk_column name="job_id" pk="id" />
+			</fk>
+		</table>
+		<table name="task" >
+			<comment><![CDATA[Register the actions (tasks) of the analytical pipeline. A request triggers a sequence of tasks.]]></comment>
+			<column name="name" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Name of the task.]]></comment>
+			</column>
+			<column name="time_start" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Time when the task was started.]]></comment>
+			</column>
+			<column name="time_end" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Time when the task was finished.]]></comment>
+			</column>
+			<column name="status" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Current status of the task. In process, Started, Finished.]]></comment>
+			</column>
+			<column name="err_msg" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Error message if exists.]]></comment>
+			</column>
+			<column name="processor" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Type of processor used in the task.]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" mandatory="y" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" mandatory="y" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."task_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="request_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the Request related to the task.]]></comment>
+			</column>
+			<column name="parent_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Recursive relation to identify if a task has a parent task.]]></comment>
+			</column>
+			<index name="PK_task" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_task_request" to_schema="af" to_table="request" >
+				<fk_column name="request_id" pk="id" />
+			</fk>
+			<fk name="FK_task_task" to_schema="af" to_table="task" >
+				<fk_column name="parent_id" pk="id" />
+			</fk>
+		</table>
+		<table name="variance" >
+			<comment><![CDATA[An analysis result table. Stores the variance components from analysis jobs]]></comment>
+			<column name="source" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Model term (component) associated to the variance.]]></comment>
+			</column>
+			<column name="model" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[How the component was modeled.]]></comment>
+			</column>
+			<column name="gamma" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[Reports the actual parameter fitted.]]></comment>
+			</column>
+			<column name="component" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[Quantity of parameters (components) that were estimated.]]></comment>
+			</column>
+			<column name="component_ratio" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[Ratio of the component relative to the square root of the diagonal element of the inverse of the average information matrix.]]></comment>
+			</column>
+			<column name="last_change_percentage" type="double precision" length="17" decimal="17" jt="3" >
+				<comment><![CDATA[The percentage change in the parameter at the last iteration.]]></comment>
+			</column>
+			<column name="code" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[Code of the estimation status.]]></comment>
+			</column>
+			<column name="tenant_id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<comment><![CDATA[Id reference to the Tenant table. Indicates the selected Tenant in the system.]]></comment>
+			</column>
+			<column name="creation_timestamp" type="timestamp" decimal="6" jt="93" mandatory="y" >
+				<defo><![CDATA[now()]]></defo>
+				<comment><![CDATA[Timestamp when the record was added to the table]]></comment>
+			</column>
+			<column name="modification_timestamp" type="timestamp" decimal="6" jt="93" >
+				<comment><![CDATA[Timestamp when the record was last modified]]></comment>
+			</column>
+			<column name="creator_id" type="text" decimal="0" jt="12" mandatory="y" >
+				<comment><![CDATA[ID of the user who added the record to the table]]></comment>
+			</column>
+			<column name="modifier_id" type="text" decimal="0" jt="12" >
+				<comment><![CDATA[ID of the user who last modified the record]]></comment>
+			</column>
+			<column name="is_void" type="boolean" length="1" decimal="0" jt="-7" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+				<comment><![CDATA[Indicator whether the record is deleted (true) or not (false)]]></comment>
+			</column>
+			<column name="id" type="integer" length="10" decimal="0" jt="4" mandatory="y" >
+				<defo><![CDATA[nextval(('af."variance_id_seq"'::text)::regclass)]]></defo>
+				<comment><![CDATA[Unique identifier of the record within the table.]]></comment>
+			</column>
+			<column name="job_id" type="integer" length="10" decimal="0" jt="4" >
+				<comment><![CDATA[Reference to the Job associated to this variance results.]]></comment>
+			</column>
+			<index name="PK_variance" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="FK_variance_job" to_schema="af" to_table="job" >
+				<fk_column name="job_id" pk="id" />
+			</fk>
+		</table>
+		<sequence name="analysis_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="fitted_values_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="job_data_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="job_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="model_stat_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="prediction_effect_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="property_acl_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="property_config_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="property_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="property_meta_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="property_rule_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="property_ui_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="request_entry_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="request_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="request_parameter_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="residual_outlier_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="task_id_seq" options="START WITH 1 INCREMENT BY 1" />
+		<sequence name="variance_id_seq" options="START WITH 1 INCREMENT BY 1" />
+	</schema>
+	<connector name="PostgreSQL" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-42.3.2.jar" driver_desc="Standard" host="localhost" port="5432" instance="badb" user="postgres" passwd="cG9zdGdyZXM=" />
+	<layout name="Main Layout" id="Layout-122b" show_relation="columns" >
+		<comment><![CDATA[BA_Af]]></comment>
+		<entity schema="af" name="analysis" color="F4DDBE" x="688" y="432" />
+		<entity schema="af" name="fitted_values" color="BED3F4" x="1584" y="464" />
+		<entity schema="af" name="job" color="BED3F4" x="1296" y="464" />
+		<entity schema="af" name="job_data" color="BED3F4" x="1584" y="864" />
+		<entity schema="af" name="model_stat" color="BED3F4" x="1296" y="864" />
+		<entity schema="af" name="prediction_effect" color="BED3F4" x="1008" y="864" />
+		<entity schema="af" name="property" color="F4DDBE" x="368" y="432" />
+		<entity schema="af" name="property_acl" color="F4DDBE" x="48" y="80" />
+		<entity schema="af" name="property_config" color="F4DDBE" x="368" y="832" />
+		<entity schema="af" name="property_meta" color="F4DDBE" x="48" y="496" />
+		<entity schema="af" name="property_rule" color="F4DDBE" x="48" y="832" />
+		<entity schema="af" name="property_ui" color="F4DDBE" x="688" y="1216" />
+		<entity schema="af" name="request" color="C7F4BE" x="1008" y="1648" />
+		<entity schema="af" name="request_entry" color="C7F4BE" x="1008" y="2096" />
+		<entity schema="af" name="request_parameter" color="C7F4BE" x="1296" y="2096" />
+		<entity schema="af" name="residual_outlier" color="BED3F4" x="1008" y="576" />
+		<entity schema="af" name="task" color="C7F4BE" x="1296" y="1648" />
+		<entity schema="af" name="variance" color="BED3F4" x="1008" y="80" />
+		<callout x="368" y="304" pointer="Round" >
+			<comment><![CDATA[This is a layout - a diagram with tools. 
+Add tables by drag and drop from the project structure tree. 
+For a better understanding of the schema, create multiple layouts with the same or different tables. 
+Double-click table headers, columns, or foreign keys to edit. 
+Drop this callout from its right-click popup menu.]]></comment>
+		</callout>
+		<group name="request" color="EEF7EC" >
+			<entity schema="af" name="request" />
+			<entity schema="af" name="task" />
+			<entity schema="af" name="request_parameter" />
+			<entity schema="af" name="request_entry" />
+		</group>
+		<group name="job" color="ECF0F7" >
+			<entity schema="af" name="job" />
+			<entity schema="af" name="fitted_values" />
+			<entity schema="af" name="job_data" />
+			<entity schema="af" name="model_stat" />
+			<entity schema="af" name="prediction_effect" />
+			<entity schema="af" name="residual_outlier" />
+			<entity schema="af" name="variance" />
+		</group>
+		<group name="property" color="F7F2EC" >
+			<entity schema="af" name="property" />
+			<entity schema="af" name="analysis" />
+			<entity schema="af" name="property_config" />
+			<entity schema="af" name="property_rule" />
+			<entity schema="af" name="property_meta" />
+			<entity schema="af" name="property_acl" />
+			<entity schema="af" name="property_ui" />
+		</group>
+	</layout>
+	<layout name="~Layout with Sample Tools" id="Layout-1be6" show_column_type="y" show_relation="columns" >
+		<entity schema="af" name="analysis" color="F4DDBE" x="816" y="400" />
+		<entity schema="af" name="fitted_values" color="BED3F4" x="1936" y="432" />
+		<entity schema="af" name="job" color="BED3F4" x="1584" y="432" />
+		<entity schema="af" name="job_data" color="BED3F4" x="1936" y="832" />
+		<entity schema="af" name="model_stat" color="BED3F4" x="1584" y="832" />
+		<entity schema="af" name="prediction_effect" color="BED3F4" x="1232" y="832" />
+		<entity schema="af" name="property" color="F4DDBE" x="432" y="400" />
+		<entity schema="af" name="property_acl" color="F4DDBE" x="48" y="48" />
+		<entity schema="af" name="property_config" color="F4DDBE" x="432" y="800" />
+		<entity schema="af" name="property_meta" color="F4DDBE" x="48" y="464" />
+		<entity schema="af" name="property_rule" color="F4DDBE" x="48" y="800" />
+		<entity schema="af" name="property_ui" color="F4DDBE" x="816" y="1184" />
+		<entity schema="af" name="request" color="C7F4BE" x="1200" y="1616" />
+		<entity schema="af" name="request_entry" color="C7F4BE" x="1200" y="2064" />
+		<entity schema="af" name="request_parameter" color="C7F4BE" x="1552" y="2064" />
+		<entity schema="af" name="residual_outlier" color="BED3F4" x="1232" y="544" />
+		<entity schema="af" name="task" color="C7F4BE" x="1552" y="1616" />
+		<entity schema="af" name="variance" color="BED3F4" x="1200" y="48" />
+		<script name="SQL Editor" id="Editor-6fc" language="SQL" >
+			<string><![CDATA[SELECT code, name, label, description, "type", data_type, creation_timestamp, modification_timestamp, creator_id, modifier_id, 
+	is_void, tenant_id, id, "statement"
+FROM
+	af.property y;]]></string>
+		</script>
+		<browser id="Browse-2166" name="Relational Data Explorer" confirm_updates="y" >
+			<browse_table schema="af" entity="property" x="20" y="20" width="400" height="300" >
+				<browse_table schema="af" entity="analysis" fk="FK_analysis_property" x="440" y="20" width="500" height="350" >
+					<browse_table schema="af" entity="job" fk="FK_job_analysis" x="960" y="20" width="500" height="350" />
+				</browse_table>
+			</browse_table>
+		</browser>
+		<query id="Query-1e9a" name="Query Builder" >
+			<query_table schema="af" name="property" alias="p" x="48" y="48" >
+				<column name="code" />
+				<column name="name" />
+				<column name="label" />
+				<column name="description" />
+				<column name="type" />
+				<column name="data_type" />
+				<column name="creation_timestamp" />
+				<column name="modification_timestamp" />
+				<column name="creator_id" />
+				<column name="modifier_id" />
+				<column name="is_void" />
+				<column name="tenant_id" />
+				<column name="id" />
+				<column name="statement" />
+				<query_table schema="af" name="analysis" alias="a" x="304" y="48" fk="FK_analysis_property" type="Inner Join" >
+					<column name="name" />
+					<column name="description" />
+					<column name="prediction_id" />
+					<column name="status" />
+					<column name="creation_timestamp" />
+					<column name="modification_timestamp" />
+					<column name="creator_id" />
+					<column name="modifier_id" />
+					<column name="is_void" />
+					<column name="tenant_id" />
+					<column name="id" />
+					<column name="model_id" />
+					<column name="request_id" />
+					<column name="formula_id" />
+					<column name="residual_id" />
+					<column name="trait_analysis_pattern_id" />
+					<column name="exp_loc_pattern_id" />
+					<column name="analysis_objective_id" />
+					<column name="analysis_request_data" />
+					<column name="additional_info" />
+					<query_table schema="af" name="job" alias="j" x="560" y="48" fk="FK_job_analysis" type="Inner Join" >
+						<column name="name" />
+						<column name="time_start" />
+						<column name="time_end" />
+						<column name="output_path" />
+						<column name="status" />
+						<column name="status_message" />
+						<column name="size" />
+						<column name="creation_timestamp" />
+						<column name="modification_timestamp" />
+						<column name="creator_id" />
+						<column name="modifier_id" />
+						<column name="is_void" />
+						<column name="tenant_id" />
+						<column name="id" />
+						<column name="analysis_id" />
+						<column name="job_data" />
+					</query_table>
+				</query_table>
+			</query_table>
+		</query>
+		<form name="Report" id="Report-124e" template="Page" css="container-fluid" view="frame" >
+			<var name="samplePageNumber" type="4" value="0" mandatory="n" />
+			<var name="sampleRecordsPerPage" type="4" value="100" mandatory="n" />
+			<body name="Body" template="Grid" pos="0,0,0,0,f,f" layout="{{-2,-2,-2,-2,-1},{-2,-2,-2,-2}}" scroll="n" html="n" >
+				<cell type="label" name="Property Data" template="H3" pos="0,0,1,0,l,c" />
+				<cell type="chart" name="Pie" template="Pie" pos="0,1,4,1,l,c" max_records="20" >
+					<form_script type="DataSource" language="SQL" >
+						<var name="code" />
+						<var name="name" />
+						<var name="label" />
+						<var name="description" />
+						<var name="type" />
+						<var name="data_type" />
+						<var name="creation_timestamp" type="93" />
+						<var name="modification_timestamp" type="93" />
+						<var name="creator_id" />
+						<var name="modifier_id" />
+						<var name="is_void" type="-7" />
+						<var name="tenant_id" type="4" />
+						<var name="id" type="4" />
+						<var name="statement" />
+						<script ><![CDATA[SELECT * FROM af.property]]></script>
+					</form_script>
+					<param name="i0" value="code" />
+					<param name="width" value="100%" />
+					<param name="v0" value="id" />
+					<param name="title" value="Sample Chart" />
+					<param name="height" value="400px" />
+				</cell>
+				<tableview name="sample" template="Table" css="table table-striped table-sm table-hover" pos="0,2,4,2,f,f" layout="{{-2,-2,-2,-2,-2,-2,-2},{-2,-2}}" scroll="n" html="n" header_rows="1" >
+					<form_script type="DataSource" language="SQL" >
+						<var name="code" />
+						<var name="name" />
+						<var name="label" />
+						<var name="description" />
+						<var name="type" />
+						<var name="data_type" />
+						<var name="creation_timestamp" type="93" />
+						<var name="modification_timestamp" type="93" />
+						<var name="creator_id" />
+						<var name="modifier_id" />
+						<var name="is_void" type="-7" />
+						<var name="tenant_id" type="4" />
+						<var name="id" type="4" />
+						<var name="statement" />
+						<script ><![CDATA[SELECT * FROM af.property]]></script>
+					</form_script>
+					<cell type="label" name="code" pos="0,0,0,0,c,c" />
+					<cell type="label" name="name" pos="1,0,1,0,c,c" />
+					<cell type="label" name="label" pos="2,0,2,0,c,c" />
+					<cell type="label" name="description" pos="3,0,3,0,c,c" />
+					<cell type="label" name="type" pos="4,0,4,0,c,c" />
+					<cell type="label" name="data_type" pos="5,0,5,0,c,c" />
+					<cell type="label" name="Button can open other pages." pos="6,0,6,0,c,c" />
+					<cell type="label" name="${code}" template="Plain" pos="0,1,0,1,l,c" />
+					<cell type="label" name="${name}" template="Plain" pos="1,1,1,1,l,c" />
+					<cell type="label" name="${label}" template="Plain" pos="2,1,2,1,l,c" />
+					<cell type="label" name="${description}" template="Plain" pos="3,1,3,1,l,c" />
+					<cell type="label" name="${type}" template="Plain" pos="4,1,4,1,l,c" />
+					<cell type="label" name="${data_type}" template="Plain" pos="5,1,5,1,l,c" />
+					<cell type="button" name="More" template="Plain" css="btn btn-default btn-success" pos="6,1,6,1,c,c" ref_id="Report-124e" />
+				</tableview>
+				<cell type="href" name="" disabled="${samplePageNumber&lt;1}" pos="0,3,0,3,l,c" glyph="FA-ANGLE_DOUBLE_LEFT" ref_id="Report-124e" >
+					<var name="samplePageNumber" value="0" />
+				</cell>
+				<cell type="href" name="" disabled="${samplePageNumber&lt;1}" pos="1,3,1,3,l,c" glyph="FA-ANGLE_LEFT" ref_id="Report-124e" >
+					<var name="samplePageNumber" value="${Math.max(0,samplePageNumber-1)}" />
+				</cell>
+				<cell type="label" name="Page ${samplePageNumber+1}" pos="2,3,2,3,l,c" />
+				<cell type="href" name="" disabled="${!sampleHasNextPage}" pos="3,3,3,3,l,c" glyph="FA-ANGLE_RIGHT" ref_id="Report-124e" >
+					<var name="samplePageNumber" value="${( samplePageNumber+1 )}" />
+				</cell>
+			</body>
+		</form>
+	</layout>
+</project>
