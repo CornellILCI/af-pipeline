@@ -2,41 +2,31 @@
 
 ![EBS BA Architecture](diagrams/breedinganalytics.jpg)
 
-## Developers:  
 
-### aeo, dpo, fpo 
+## Componenets 
 
-* vjmulat@gmail.com  
-* yn259@cornell.edu  
-  
-### models (stat design/analysis)
 
-* p.medeiros@cgiar.org  
-* a.gulles@irri.org  
-* f.toledo@cgiar.org  
-  
-### devops
+### Analysis Request Manager(ARM):
 
-* j.campos@cgiar.org  
-* j.lagare@irri.org  
-  
-### sg
+Web application to serve as user interface for submitting analysis requests to Analytics Framework.
 
-* j.a.rojas@cgiar.org  
-  
-This list will grow as we migrate to this repository.  
-  
-## Directories:
+[ARM UI Repo](https://bitbucket.org/ebsproject/arm-ui/)
 
-* af-jobs-api - Job request API, the HTTP based interface to our af job queue.
-* [af-task-orchestrator](./af-task-orchestrator/README.md) - AF Core Task Orchestrator, Python celery-based analysis job execution platform.
-* aeo - analysis execute object  
-* devops - deployment  
-* dpo - data preparation object  
-* engines - analysis engines  
-* fpo - file parse object  
-* models - stat models
 
+### BA Web services:
+
+Backend Web services that process the analysis requests and acts as a producer for analytics queue.
+Can accept requests for below two kind of data sources,
+
+1. EBS (EBS RESTful Webservices)
+2. BRAPI (RESTful webservices that follows BRAPI spcification)
+
+[Webservice Documentation](https://app.swaggerhub.com/apis/ebs_analytics/ebs-analytics/v1)
+
+### BA Analysis Workers:
+
+Asynchoronous workers to process analysis requests using engines specified in the analysis config selected
+by the user.
 
 
 
