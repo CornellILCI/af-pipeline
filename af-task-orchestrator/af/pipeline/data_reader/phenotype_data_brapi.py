@@ -23,7 +23,7 @@ GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
 GET_GERMPLASM_BY_DB_ID = "/search/germplasm/{searchResultDbId}"
 GET_OBSERVATION_UNITS_TABLE_URL = "/observationunits/table"
-GET_POST_OBSERVATION_UNITS_URL_BMS_V2 = "/bmsapi/{crop}/brapi/v2/search/observationunits"
+GET_POST_OBSERVATION_UNITS_URL_BMS_V2 = "/search/observationunits"
 
 
 class PhenotypeDataBrapi(PhenotypeData):
@@ -113,38 +113,13 @@ class PhenotypeDataBrapi(PhenotypeData):
 
         return germplasm, plots_data, plots_header
 
-    def get_plots_from_search(self, crop: str = None, exp_id: str = None) -> pd.DataFrame:
+    def get_plots_from_search(self, exp_id: str = None) -> pd.DataFrame:
+
         # first POST to /bmsapi/{crop}/brapi/v2/search/observationunits
-        observation_units_filters = ObservationUnitsSearchRequestDto(trialDbIds=[exp_id], observationLevel="PLOT")
-
-        {
-            "page": None,
-            "pageSize": None,
-            "additionalInfo": None,
-            "externalReferences": None,
-            "germplasmDbId": None,
-            "germplasmName": None,
-            "locationDbId": None,
-            "locationName": None,
-            "observationUnitName": None,
-            "observationUnitPUI": None,
-            "observationUnitPosition": None,
-            "programDbId": None,
-            "programName": None,
-            "seedLotDbId": None,
-            "studyDbId": None,
-            "studyName": None,
-            "treatments": None,
-            "trialDbId": None,
-            "trialName": None,
-            "observationUnitDbId": None,
-            "observations": None,
-        }
-
-        print(observation_units_filters.dict())
+        observation_units_filters = ObservationUnitsSearchRequestDto(studyDbIds=[exp_id], observationLevel="PLOT")
 
         post_response = self.post(
-            endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop), json=observation_units_filters.dict()
+            endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2, json=observation_units_filters.dict()
         )
         if not post_response.is_success:
             raise DataReaderException(post_response.error)
@@ -175,7 +150,7 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             observation_units_filters = ObservationUnitQueryParams(pageSize=self.brapi_list_page_size, page=page_num)
             get_response = self.get(
-                endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2.format(crop=crop) + "/" + observation_units_id
+                endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2 + "/" + observation_units_id
             )
 
             if not get_response.is_success:

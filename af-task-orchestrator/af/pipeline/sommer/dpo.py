@@ -85,7 +85,8 @@ class SommeRProcessData(ProcessData):
 
     def sesl(self):
         """Preprocess input data for SommeR Analysis"""
-        return [self.__prepare_Sommer_settings_file()]
+
+        pass
 
     def seml(self):
         raise NotImplementedError

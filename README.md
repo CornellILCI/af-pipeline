@@ -1,9 +1,8 @@
-# ebs-af (Enterprise Breeding System - Analytics Framework)  
-28 April 2020  
+# Enterprise Breeding Analytics Framework
 
+![EBS BA Architecture](diagrams/breedinganalytics.jpg)
 
 ## Developers:  
-
 
 ### aeo, dpo, fpo 
 
