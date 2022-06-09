@@ -6,6 +6,7 @@ from af.orchestrator.base import ResultReportingTask, StatusReportingTask
 from af.pipeline import analyze as pipeline_analyze
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.exceptions import AnalysisError
+from af.orchestrator.processing.analyze import common
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +39,7 @@ def pre_process(request_id, analysis_request):
     analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
     input_files = analyze_object.pre_process()
     # engine = analyze_object.get_engine_script()
+    print(input_files)
 
     results = []  # results initially empty
     args = request_id, analysis_request, input_files, results
@@ -45,8 +47,15 @@ def pre_process(request_id, analysis_request):
     engine = analyze_object.get_engine_script()
     if engine in ("asreml", "asreml-r"):
         app.send_task("run_asreml_analyze", args=args, queue="ASREML")
-    else:
+    elif engine in ("sommer"):
         app.send_task("run_analyze", args=args)
+    else:
+        raise NotImplementedError("Analysis engine not supported")
+
+
+@app.task(name="run_analyze", base=StatusReportingTask)
+def run_analyze(*args):
+    common.run_analyze(*args)
 
 
 @app.task(name="post_process", base=StatusReportingTask)

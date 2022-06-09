@@ -9,5 +9,8 @@
 
     <!-- BA2-162 Part 2 Add config_20040  -->
 	<include file="changesets/22.06/data/template/add_asreml_r_analysis_configuration_20040.sql"/>
+
+    <!-- Sommer Fix -->
+	<include file="changesets/22.06/data/template/add_sommer_analysis_configuration_data.sql"/>
     
 </databaseChangeLog>

@@ -46,6 +46,9 @@ class Analyze(abc.ABC):
 
         # load existing analysis record OR create if it does not exist
         self.analysis = db_services.get_analysis_by_request_id(self.db_session, request_id=analysis_request.requestId)
+        
+        self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
+        self.report_file_path = path.join(analysis_request.outputFolder, f"{analysis_request.requestId}_report.xlsx")
 
     def get_process_data(self, analysis_request, *args, **kwargs):
         """Get the associated ProcessData object for this Analyze"""

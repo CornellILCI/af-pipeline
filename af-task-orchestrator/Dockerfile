@@ -26,6 +26,11 @@ RUN Rscript -e  "install.packages('sommer')"
 RUN Rscript -e  "install.packages('RJSONIO')"
 RUN Rscript -e  "install.packages('gtools')"
 
+# install asreml-r dependencies
+RUN Rscript -e  "install.packages('data.table')"
+RUN Rscript -e  "install.packages('ggplot2')"
+RUN Rscript -e  "install.packages('jsonlite')"
+
 ENV PYTHONPATH "${PYTHONPATH}:/app/"
 WORKDIR /app/
 COPY . /app/

@@ -40,6 +40,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         "locationDbId": "locationDbId",
         "observationUnitPosition.positionCoordinateX": "positionCoordinateX",
         "observationUnitPosition.positionCoordinateY": "positionCoordinateY",
+        "REP": "replicate"
     }
 
     plot_measurements_api_fields_to_local_fields = {

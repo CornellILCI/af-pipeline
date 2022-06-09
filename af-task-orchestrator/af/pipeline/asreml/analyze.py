@@ -32,8 +32,6 @@ class AsremlAnalyze(Analyze):
     def __init__(self, analysis_request: AnalysisRequest, *args, **kwargs):
         super().__init__(analysis_request=analysis_request, *args, **kwargs)
 
-        self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
-        self.report_file_path = path.join(analysis_request.outputFolder, f"{analysis_request.requestId}_report.xlsx")
         # the engine script would have been determined from get_analyze_object so just pass it here
 
     def pre_process(self):
