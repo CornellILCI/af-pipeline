@@ -1926,6 +1926,8 @@ class ObservationUnit(ObservationUnitNewRequest):
 class ObservationUnitQueryParams(ObservationUnit, SearchRequestParametersPaging):
     pass
 
+class ObservationQueryParams(Observation, SearchRequestParametersPaging):
+    pass
 
 class ImageListResponse(BaseModel):
     _context: Optional[Context] = Field(None, alias="@context")

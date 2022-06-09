@@ -8,6 +8,8 @@ import os
 import sys
 from abc import ABC, abstractmethod
 
+from collections import OrderedDict
+
 # from collections import OrderedDict
 from os import path
 
@@ -24,6 +26,7 @@ import pathlib
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
+from af.pipeline import config, pandasutil
 
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
@@ -74,7 +77,7 @@ class ProcessData(ABC):
 
         self.db_session = DBConfig.get_session()
 
-        self.analysis_fields = None
+        self.__analysis_fields = None
         self.input_fields_to_config_fields = None
 
         self.output_folder = analysis_request.outputFolder
@@ -101,6 +104,65 @@ class ProcessData(ABC):
             self.trait_by_id[trait_id] = self.data_reader.get_trait(trait_id)
 
         return self.trait_by_id[trait_id]
+    
+    @property
+    def analysis_fields(self):
+        if not self.__analysis_fields:
+            self.__analysis_fields = services.get_analysis_config_module_fields(
+                self.db_session, self.analysis_request.analysisConfigPropertyId
+            )
+        return self.__analysis_fields
+
+    def __get_input_fields_config_fields(self):
+        """Map of input data fields to analysis configuration fields."""
+        if not self.input_fields_to_config_fields:
+
+            self.input_fields_to_config_fields = OrderedDict()
+
+            for field in self.analysis_fields:
+                input_field_name = field.property_meta.get("definition")
+
+                if input_field_name is None:
+                    raise DpoException("Analysis config fields have no definition")
+
+                self.input_fields_to_config_fields[input_field_name] = field.Property.code
+        return self.input_fields_to_config_fields
+
+
+    def format_input_data(self, plots_and_measurements, trait):
+        ''' 
+        Formats input data downloaded to analysis ready data.
+        Makes sure the column names of the input data are mapped according to analysis config.
+        '''
+
+        input_fields_to_config_fields = self.__get_input_fields_config_fields()
+
+        # drop trait id
+        plots_and_measurements.drop(["trait_id"], axis=1, inplace=True)
+
+        # fill trait value with NA string
+        plots_and_measurements[["trait_value"]] = plots_and_measurements[["trait_value"]].fillna(
+            config.UNIVERSAL_UNKNOWN
+        )
+
+        trait_qc = plots_and_measurements.trait_qc
+
+        # rename
+        plots_and_measurements.loc[trait_qc == "B", "trait_value"] = "NA"
+
+        # map trait value column to trait name
+        input_fields_to_config_fields["trait_value"] = trait.abbreviation
+
+        # Key only the config field columns
+        plots_and_measurements = pandasutil.df_keep_columns(
+            plots_and_measurements, input_fields_to_config_fields.keys()
+        )
+
+        plots_and_measurements = plots_and_measurements.rename(columns=input_fields_to_config_fields)
+
+        plots_and_measurements = plots_and_measurements[input_fields_to_config_fields.values()]
+
+        return plots_and_measurements
 
     @abstractmethod
     def sesl(self):

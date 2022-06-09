@@ -1,6 +1,5 @@
 import os
 import pathlib
-from collections import OrderedDict
 
 import pandas as pd
 from af.pipeline import config, pandasutil
@@ -110,7 +109,7 @@ class AsremlProcessData(ProcessData):
                 else:
                     plots_and_measurements = plots_and_measurements.append(_plots_and_measurements)
 
-            plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
+            plots_and_measurements = self.format_input_data(plots_and_measurements, trait)
 
             if not plots_and_measurements.empty:
                 self._write_job_data(job_data, plots_and_measurements, trait)
@@ -157,7 +156,7 @@ class AsremlProcessData(ProcessData):
                 # default is inner join
                 plots_and_measurements = plots.merge(plot_measurements_, on="plot_id", how="left")
 
-                plots_and_measurements = self._format_result_data(plots_and_measurements, trait)
+                plots_and_measurements = self.format_input_data(plots_and_measurements, trait)
 
                 if not plots_and_measurements.empty:
                     self._write_job_data(job_data, plots_and_measurements, trait)
@@ -169,37 +168,6 @@ class AsremlProcessData(ProcessData):
     def meml(self):
         raise NotImplementedError("MEML analysis pattern is not implemented")
 
-    def _format_result_data(self, plots_and_measurements, trait):
-
-        input_fields_to_config_fields = self._get_input_fields_config_fields()
-
-        # drop trait id
-        plots_and_measurements.drop(["trait_id"], axis=1, inplace=True)
-
-        # fill trait value with NA string
-        plots_and_measurements[["trait_value"]] = plots_and_measurements[["trait_value"]].fillna(
-            config.UNIVERSAL_UNKNOWN
-        )
-
-        trait_qc = plots_and_measurements.trait_qc
-
-        # rename
-        plots_and_measurements.loc[trait_qc == "B", "trait_value"] = "NA"
-
-        # map trait value column to trait name
-        input_fields_to_config_fields["trait_value"] = trait.abbreviation
-
-        # Key only the config field columns
-        plots_and_measurements = pandasutil.df_keep_columns(
-            plots_and_measurements, input_fields_to_config_fields.keys()
-        )
-
-        plots_and_measurements = plots_and_measurements.rename(columns=input_fields_to_config_fields)
-
-        plots_and_measurements = plots_and_measurements[input_fields_to_config_fields.values()]
-
-        return plots_and_measurements
-
     def _write_job_data(self, job_data, plots_and_measurements, trait):
         job_data.trait_name = trait.abbreviation
 
@@ -210,9 +178,9 @@ class AsremlProcessData(ProcessData):
         job_data.data_file = os.path.join(job_data.job_result_dir, data_file_name)
 
         # by default sort by columns 'row' and 'col'. row and col here denotes plot's row and column
-        plots_and_measurements.row = pd.to_numeric(plots_and_measurements.row, errors='coerce')
-        plots_and_measurements.col = pd.to_numeric(plots_and_measurements.col, errors='coerce')
-        plots_and_measurements = plots_and_measurements.sort_values(by=['row', 'col'])
+        plots_and_measurements.row = pd.to_numeric(plots_and_measurements.row, errors="coerce")
+        plots_and_measurements.col = pd.to_numeric(plots_and_measurements.col, errors="coerce")
+        plots_and_measurements = plots_and_measurements.sort_values(by=["row", "col"])
 
         plots_and_measurements.to_csv(job_data.data_file, index=False)
 
@@ -231,30 +199,6 @@ class AsremlProcessData(ProcessData):
         with open(job_data.job_file, "w") as j_f:
             for line in job_file_lines:
                 j_f.write("{}\n".format(line))
-
-    def _get_analysis_fields(self):
-        if not self.analysis_fields:
-            self.analysis_fields = services.get_analysis_config_module_fields(
-                self.db_session, self.analysis_request.analysisConfigPropertyId
-            )
-        return self.analysis_fields
-
-    def _get_input_fields_config_fields(self):
-        """Map of input data fields to analysis configuration fields."""
-        if not self.input_fields_to_config_fields:
-
-            self.input_fields_to_config_fields = OrderedDict()
-
-            analysis_fields = self._get_analysis_fields()
-
-            for field in analysis_fields:
-                input_field_name = field.property_meta.get("definition")
-
-                if input_field_name is None:
-                    raise DpoException("Analysis config fields have no definition")
-
-                self.input_fields_to_config_fields[input_field_name] = field.Property.code
-        return self.input_fields_to_config_fields
 
     def _get_asreml_job_file_lines(self, job_data, trait: Trait):
 

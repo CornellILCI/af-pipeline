@@ -8,6 +8,7 @@ from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study, T
 from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
 from af.pipeline.data_reader.models.brapi.phenotyping import (
     ObservationUnitQueryParams,
+    ObservationQueryParams,
     ObservationUnitsSearchRequestDto,
 )
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
@@ -21,106 +22,40 @@ GET_OBSERVATIONS_URL = "/observations"
 
 GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
-GET_GERMPLASM_BY_DB_ID = "/search/germplasm/{searchResultDbId}"
-GET_OBSERVATION_UNITS_TABLE_URL = "/observationunits/table"
-GET_POST_OBSERVATION_UNITS_URL_BMS_V2 = "/search/observationunits"
+POST_SEARCH_OBSERVATION_UNITS_URL = "/search/observationunits"
+
+GET_OBSERVATION_UNITS_SEARCH_RESULTS_URL = "/search/observationunits/{searchResultsDbId}"
 
 
 class PhenotypeDataBrapi(PhenotypeData):
     """Reads phenotype data from a brapi ebs data source."""
 
+    # TODO: termporary patching where same name mapping can be avoided by adding a logic in 
+    # code
     plots_api_fields_to_local_fields = {
-        "observationUnitDbId": "plot_id",
-        "germplasmDbId": "entry_id",
-        "studyDbId": "occurr_id",
-        "trialDbId": "expt_id",
-        "locationDbId": "loc_id",
-        "observationUnitPosition.positionCoordinateX": "pa_x",
-        "observationUnitPosition.positionCoordinateY": "pa_y",
-        "replicate": "rep_factor",
-        "block": "blk",
+        "observationUnitDbId": "observationUnitDbId",
+        "germplasmDbId": "germplasmDbId",
+        "studyDbId": "studyDbId",
+        "trialDbId": "trialDbId",
+        "locationDbId": "locationDbId",
+        "observationUnitPosition.positionCoordinateX": "positionCoordinateX",
+        "observationUnitPosition.positionCoordinateY": "positionCoordinateY",
     }
 
     plot_measurements_api_fields_to_local_fields = {
-        "observationUnitDbId": "plot_id",
+        "observationUnitDbId": "observationUnitDbId",
         "observationVariableDbId": "trait_id",
         "value": "trait_value",
     }
 
     brapi_list_page_size = 1000
 
-    def get_observations(
-        self, occurrence_id: str = None, observationLevel: str = None, observationUnitDbId: str = None
-    ) -> tuple:
-
-        observation_units_filters = ObservationUnitQueryParams(
-            studyDbId=occurrence_id,
-            observationLevel=observationLevel,
-            observationUnitDbId=observationUnitDbId,
-            pageSize=self.brapi_list_page_size,
-        )
-
-        api_response = self.get(endpoint=GET_OBSERVATION_UNITS_TABLE_URL, params=observation_units_filters.dict())
-
-        pass
-
-    def get_observation_units_table(
-        self, occurrence_id: str = None, observationLevel: str = None, observationUnitDbId: str = None
-    ) -> tuple:
-        plots_data = []
-        germplasm = []
-        germplasm_index = -1
-        plots_header = []
-
-        page_num = 0
-        total_pages = 0
-
-        observation_units_filters = ObservationUnitQueryParams(
-            studyDbId=occurrence_id,
-            observationLevel=observationLevel,
-            observationUnitDbId=observationUnitDbId,
-            pageSize=self.brapi_list_page_size,
-        )
-
-        while page_num == 0 or page_num < total_pages:
-
-            observation_units_filters.page = page_num
-
-            api_response = self.get(endpoint=GET_OBSERVATION_UNITS_TABLE_URL, params=observation_units_filters.dict())
-
-            if not api_response.is_success:
-                raise DataReaderException(api_response.error)
-
-            total_pages = api_response.body["metadata"]["pagination"]["totalPages"]
-
-            brapi_response = TableResponse(**api_response.body)
-            page_num += 1
-
-            plots_data.extend(brapi_response.result.data.copy())
-
-            if plots_header == []:
-                plots_header = brapi_response.result.headerRow.copy()
-
-            if germplasm_index == -1:
-                try:
-                    germplasm_index = brapi_response.result.headerRow.index("germplasmDbId")
-                except ValueError:
-                    germplasm_index = -1
-
-        if germplasm_index != -1:
-            for row in plots_data:
-                germplasm.append(row[germplasm_index])
-
-        return germplasm, plots_data, plots_header
-
     def get_plots_from_search(self, exp_id: str = None) -> pd.DataFrame:
 
         # first POST to /bmsapi/{crop}/brapi/v2/search/observationunits
         observation_units_filters = ObservationUnitsSearchRequestDto(studyDbIds=[exp_id], observationLevel="PLOT")
 
-        post_response = self.post(
-            endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2, json=observation_units_filters.dict()
-        )
+        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2, json=observation_units_filters.dict())
         if not post_response.is_success:
             raise DataReaderException(post_response.error)
 
@@ -144,14 +79,11 @@ class PhenotypeDataBrapi(PhenotypeData):
         data = []
 
         dataframes = []
-        idCounter = 0
 
         while get_more_plots:
 
             observation_units_filters = ObservationUnitQueryParams(pageSize=self.brapi_list_page_size, page=page_num)
-            get_response = self.get(
-                endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2 + "/" + observation_units_id
-            )
+            get_response = self.get(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2 + "/" + observation_units_id)
 
             if not get_response.is_success:
                 raise DataReaderException(get_response.error)
@@ -170,12 +102,6 @@ class PhenotypeDataBrapi(PhenotypeData):
             rows = []
             for x in get_response.body["result"]["data"]:
                 temp = {}
-
-                temp["ID"] = idCounter
-                idCounter += 1
-                temp["Location"] = x["locationName"]
-                temp["Trial"] = x["trialDbId"]
-                temp["Germplasm"] = x["germplasmDbId"]
 
                 for y in x["observationUnitPosition"]["observationLevelRelationships"]:
                     if y["levelName"] == "PLOT":
@@ -207,24 +133,36 @@ class PhenotypeDataBrapi(PhenotypeData):
             else:
                 get_more_plots = False
         ret = pd.concat(dataframes, ignore_index=True)
-        ret.set_index("ID")
         return ret
 
     def get_plots(self, occurrence_id: str = None) -> pd.DataFrame:
+        """Implementation for BMS get_plots."""
 
         plots_data = []
 
         page_num = 0
 
-        observation_units_filters = ObservationUnitQueryParams(
-            studyDbId=occurrence_id, observationLevel="plot", pageSize=self.brapi_list_page_size
+        observation_units_filters = ObservationUnitsSearchRequestDto(
+            studyDbIds=[occurrence_id], observationLevel="PLOT"
         )
+
+        post_response = self.post(
+            endpoint=POST_SEARCH_OBSERVATION_UNITS_URL, json=observation_units_filters.dict()
+        )
+        if not post_response.is_success:
+            raise DataReaderException(post_response.error)
+
+        search_result_id = post_response.body["result"]["searchResultsDbId"]
+
+        observation_units_filters = ObservationUnitQueryParams(pageSize=self.brapi_list_page_size)
 
         while len(plots_data) >= self.brapi_list_page_size or page_num == 0:
 
             observation_units_filters.page = page_num
 
-            api_response = self.get(endpoint=GET_OBSERVATION_UNITS_URL, params=observation_units_filters.dict())
+            results_endpoint = GET_OBSERVATION_UNITS_SEARCH_RESULTS_URL.format(searchResultsDbId=search_result_id)
+
+            api_response = self.get(endpoint=results_endpoint, params=observation_units_filters.dict())
 
             if not api_response.is_success:
                 raise DataReaderException(api_response.error)
@@ -296,10 +234,10 @@ class PhenotypeDataBrapi(PhenotypeData):
 
         page_num = 0
 
-        observations_filters = ObservationUnitQueryParams(
-            studyDbId=occurrence_id, observationVariableDbId=trait_id, observationLevel="plot", pageSize=1000
+        observations_filters = ObservationQueryParams(
+            studyDbId=occurrence_id, observationVariableDbId=trait_id, pageSize=1000
         )
-
+        
         while len(plot_measurements_data) >= self.brapi_list_page_size or page_num == 0:
 
             observations_filters.page = page_num

@@ -8,6 +8,7 @@ import openpyxl
 import pandas as pd
 from af.pipeline import exceptions
 
+import shlex
 
 def get_analysis_engine(analysis_request):
     engine = analysis_request["metadata"]["engine"]
@@ -89,6 +90,27 @@ def remove_empty_worksheets(workbook_file: str):
 
     wb.save(workbook_file)
 
+def parse_formula(formula):
+    """ Parse formula statments and returns a key value pair of formula parts,
+    for example, formula statements like 'fixed = {trait_name} ~ rep, random = ~ genotype'
+    will be parsed as
+        {
+            "fixed": " {trait_name} ~ rep",
+            "random": " ~ genotype"
+        }
+    """
+
+    if not formula or not formula.strip():
+        return {}
+
+    lexer = shlex.shlex(formula)
+
+    lexer.whitespace_split = True
+    lexer.whitespace = ","
+
+    params = dict([s.strip() for s in pair.split("=", 1)] for pair in lexer)
+
+    return params
 
 def zip_dir(dir_to_zip: str, zip_file_path: str, base_dir: str = ""):
     """Zips the input directory to destination zip file"""

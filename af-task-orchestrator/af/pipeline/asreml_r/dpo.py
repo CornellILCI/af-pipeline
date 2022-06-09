@@ -1,9 +1,9 @@
 import collections
-import shlex
 
 import pandas as pd
 from af.pipeline.asreml.dpo import AsremlProcessData
 from af.pipeline.job_data import JobData, JobParams
+from af.pipeline import utils
 
 
 class AsremlRProcessData(AsremlProcessData):
@@ -28,7 +28,7 @@ class AsremlRProcessData(AsremlProcessData):
 
             for trait_id in self.trait_ids:
 
-                job_name = self.__get_mesl_job_name(location_id, trait_id)
+                job_name = f"{self.analysis_request.requestId}_mesl_{location_id}_{trait_id}"
                 data = data_by_location_trait[(location_id, trait_id)]
                 metadata = metadata_by_location_trait[(location_id, trait_id)]
 
@@ -49,7 +49,7 @@ class AsremlRProcessData(AsremlProcessData):
 
         for trait_id in self.trait_ids:
 
-            job_name = self.__get_meml_job_name(trait_id)
+            job_name = f"{self.analysis_request.requestId}_meml_{trait_id}"
             data = data_by_trait[trait_id]
             metadata = metadata_by_trait[trait_id]
 
@@ -65,7 +65,7 @@ class AsremlRProcessData(AsremlProcessData):
 
         trait = self.get_trait_by_id(trait_id)
 
-        data = self._format_result_data(data, trait)
+        data = self.format_input_data(data, trait)
 
         self._write_job_data(job, data, trait)
 
@@ -81,8 +81,6 @@ class AsremlRProcessData(AsremlProcessData):
 
             for trait_id in self.trait_ids:
 
-                job_name = self.__get_mesl_job_name(occurrence.location_id, trait_id)
-
                 trait = self.get_trait_by_id(trait_id)
                 metadata = self._generate_metadata(plots, occurrence, trait)
 
@@ -92,29 +90,9 @@ class AsremlRProcessData(AsremlProcessData):
 
                 yield data, metadata, occurrence, trait
 
-    def __get_mesl_job_name(self, location_id, trait_id):
-        return f"{self.analysis_request.requestId}_mesl_{location_id}_{trait_id}"
-
-    def __get_meml_job_name(self, trait_id):
-        return f"{self.analysis_request.requestId}_meml_{trait_id}"
-
-    def __parse_formula(self, formula):
-
-        if not formula or not formula.strip():
-            return {}
-
-        lexer = shlex.shlex(formula)
-
-        lexer.whitespace_split = True
-        lexer.whitespace = ","
-
-        params = dict([s.strip() for s in pair.split("=", 1)] for pair in lexer)
-
-        return params
-
     def _set_job_params(self, job_data, trait):
 
-        formula = self.__parse_formula(self._get_formula(trait))
+        formula = utils.parse_formula(self._get_formula(trait))
 
         job_params = JobParams(**formula, residual=self._get_residual(), predictions=[])
 
@@ -127,9 +105,8 @@ class AsremlRProcessData(AsremlProcessData):
         job_params.predictions = [prediction.statement for prediction in predictions]
 
         # map analysis fields to their data type
-        analysis_fields = self._get_analysis_fields()
         job_params.analysis_fields_types = {}
-        for field in analysis_fields:
+        for field in self.analysis_fields:
             job_params.analysis_fields_types[field.Property.code] = field.Property.data_type.lower()
 
         job_data.job_params = job_params

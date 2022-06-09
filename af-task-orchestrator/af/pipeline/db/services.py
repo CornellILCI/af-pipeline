@@ -181,7 +181,6 @@ def query_variance(db_session, job_id: int = None, source: str = None):
 
     return query.all()
 
-
 def add(db_session, _object):
     db_session.add(_object)
     db_session.commit()
