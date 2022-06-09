@@ -118,9 +118,9 @@ stat_factor_config_10003_link AS (
 SELECT id AS stat_factor_id FROM stat_factor;
 
 
--- add ID as stat factor
+-- add genotype as stat factor
 WITH stat_factor AS (
-	INSERT INTO af.property (code, type) VALUES  ('ID', 'catalog_item') RETURNING id
+	INSERT INTO af.property (code, type) VALUES  ('genotype', 'catalog_item') RETURNING id
 ),
 stat_factor_config AS (
 	INSERT INTO af.property_config (order_number, creation_timestamp, creator_id,is_void, 
@@ -268,7 +268,7 @@ INSERT INTO af.property_meta(code,value,property_id) VALUES
 	('date', '13-Nov-2021', (SELECT id FROM analysis_config)),
 	('author', 'Pedro Barbosa', (SELECT id FROM analysis_config)),
 	('email', 'p.medeiros@cgiar.org', (SELECT id FROM analysis_config)),
-	('engine', 'R - sommer', (SELECT id FROM analysis_config)),
+	('engine', 'sommer', (SELECT id FROM analysis_config)),
     	('design',  'RCBD', (SELECT id FROM analysis_config)),
 	('trait_level', 'plot', (SELECT id FROM analysis_config)),
     	('analysis_objective', 'prediction', (SELECT id FROM analysis_config)),
