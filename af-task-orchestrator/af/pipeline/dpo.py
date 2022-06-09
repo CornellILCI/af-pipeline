@@ -26,7 +26,8 @@ import pathlib
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
-from af.pipeline import config, pandasutil
+from af.pipeline import config, pandasutil, utils
+from af.pipeline.job_data import JobData, JobParams
 
 # from af.pipeline.data_reader.models import Experiment, Occurrence
 # from af.pipeline.data_reader.models.enums import DataSource, DataType
@@ -104,7 +105,30 @@ class ProcessData(ABC):
             self.trait_by_id[trait_id] = self.data_reader.get_trait(trait_id)
 
         return self.trait_by_id[trait_id]
-    
+
+    def get_model_formula(self, trait) -> str:
+        formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
+        formula_statement = formula.statement.format(trait_name=trait.abbreviation)
+        return formula_statement
+
+    def get_model_residual(self) -> str:
+        residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
+        return residual.statement
+
+    def get_model_predictions(self) -> list[str]:
+
+        predictions = []
+
+        if len(self.analysis_request.configPredictionPropertyIds) == 0:
+            predictions = services.get_analysis_config_properties(
+                self.db_session, self.analysis_request.analysisConfigPropertyId, "prediction"
+            )
+        else:
+            for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
+                predictions.append(services.get_property(self.db_session, prediction_property_id))
+
+        return predictions
+
     @property
     def analysis_fields(self):
         if not self.__analysis_fields:
@@ -128,12 +152,27 @@ class ProcessData(ABC):
                 self.input_fields_to_config_fields[input_field_name] = field.Property.code
         return self.input_fields_to_config_fields
 
+    def _set_job_params(self, job_data, trait):
+
+        formula = utils.parse_formula(self.get_model_formula(trait))
+
+        job_params = JobParams(**formula, residual=self.get_model_residual(), predictions=[])
+
+        # set predictions statements
+        predictions = self.get_model_predictions()
+
+        if not predictions:
+            raise ValueError("Predictions are not available for the job to process")
+
+        job_params.predictions = [prediction.statement for prediction in predictions]
+
+        job_data.job_params = job_params
 
     def format_input_data(self, plots_and_measurements, trait):
-        ''' 
+        """
         Formats input data downloaded to analysis ready data.
         Makes sure the column names of the input data are mapped according to analysis config.
-        '''
+        """
 
         input_fields_to_config_fields = self.__get_input_fields_config_fields()
 

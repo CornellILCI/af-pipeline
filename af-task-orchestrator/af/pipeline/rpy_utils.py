@@ -50,3 +50,17 @@ def rdf_to_pydf(rdf: robjects.DataFrame):
     if type(pydf) == pd.DataFrame:
         return pydf
     return None
+
+
+class InvalidFormulaError(ValueError):
+    pass
+
+
+@robjects.packages.no_warnings
+def r_formula(formula: str):
+    if not formula or not formula.strip():
+        return None
+    try:
+        return robjects.Formula(formula)
+    except rpy2.rinterface_lib.embedded.RRuntimeError as e:
+        raise InvalidFormulaError(f"Invalid Formula: {formula}")

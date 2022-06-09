@@ -14,6 +14,8 @@ from af.pipeline import data_reader
 
 
 class SommeRProcessData(ProcessData):
+
+
     def __init__(self, analysis_request):
         super().__init__(analysis_request)
 
@@ -27,25 +29,37 @@ class SommeRProcessData(ProcessData):
         jobs = []
 
         for occurrence_id in self.occurrence_ids:
+
             for req_trait in self.analysis_request.traits:
 
                 trait: data_reader.models.Trait = data_reader.models.Trait(
                     trait_id=req_trait.traitId, trait_name=req_trait.traitName, abbreviation=req_trait.traitName
                 )
 
+                # pre process input job data
                 plot = self.data_reader.get_plots(occurrence_id=occurrence_id)
                 plot_measurements = self.data_reader.get_plot_measurements(
                     occurrence_id=occurrence_id, trait_id=trait.traitId
                 )
 
-                # input job data
                 plot_measurements = plots.merge(plot_measurements, on="observationUnitDbId", how="left")
 
                 plots_and_measurements = self.format_input_data(plots_and_measurements, trait)
+                
+                job_name = f"{self.analysis_request.requestId}_{occurrence_id}_{trait.trait_id}" 
+                job = JobData(
+                    job_name=job_name,
+                    trait_name=trait.trait_name,
+                    job_result_dir=self.get_job_folder(job_name)
+                )
 
-                job = JobData()
+                data_file_path = os.path.join(job_data.job_result_dir, f"{job_data.job_name}.csv")
+                
+                dpo.ProcessData._set_job_params(self, job_data, trait)
 
-        return data_file
+                jobs.append(job_data)
+
+        return jobs
 
     def seml(self):
         pass

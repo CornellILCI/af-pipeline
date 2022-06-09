@@ -3,7 +3,7 @@ import collections
 import pandas as pd
 from af.pipeline.asreml.dpo import AsremlProcessData
 from af.pipeline.job_data import JobData, JobParams
-from af.pipeline import utils
+from af.pipeline import utils, dpo
 
 
 class AsremlRProcessData(AsremlProcessData):
@@ -91,22 +91,11 @@ class AsremlRProcessData(AsremlProcessData):
                 yield data, metadata, occurrence, trait
 
     def _set_job_params(self, job_data, trait):
-
-        formula = utils.parse_formula(self._get_formula(trait))
-
-        job_params = JobParams(**formula, residual=self._get_residual(), predictions=[])
-
-        # set predictions statements
-        predictions = self._get_predictions()
-
-        if not predictions:
-            raise ValueError("Predictions are not available for the job to process")
-
-        job_params.predictions = [prediction.statement for prediction in predictions]
+        
+        # call grandparents base method
+        dpo.ProcessData._set_job_params(self, job_data, trait)
 
         # map analysis fields to their data type
-        job_params.analysis_fields_types = {}
+        job_data.job_params.analysis_fields_types = {}
         for field in self.analysis_fields:
-            job_params.analysis_fields_types[field.Property.code] = field.Property.data_type.lower()
-
-        job_data.job_params = job_params
+            job_data.job_params.analysis_fields_types[field.Property.code] = field.Property.data_type.lower()

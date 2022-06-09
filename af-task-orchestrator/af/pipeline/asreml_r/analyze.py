@@ -72,19 +72,6 @@ saveRDS(pred, paste("{job_dir}/{job_name}_pred.rds", sep=""))
 """
 
 
-class InvalidFormulaError(ValueError):
-    pass
-
-
-def r_formula(formula: str):
-    if not formula or not formula.strip():
-        return None
-    try:
-        return robjects.Formula(formula)
-    except rpy2.rinterface_lib.embedded.RRuntimeError as e:
-        raise InvalidFormulaError(f"Invalid Formula: {formula}")
-
-
 @dataclass
 class AsremlRJobResult(JobData):
     asr_rds_file: str = ""
@@ -134,15 +121,15 @@ class AsremlRAnalyze(AsremlAnalyze):
         # asreml has fixed, random and residual formulas.
         model_formulas = {}
 
-        fixed = r_formula(job_data.job_params.fixed)
+        fixed = rpy_utils.r_formula(job_data.job_params.fixed)
         if fixed is not None:
             model_formulas["fixed"] = fixed
 
-        random = r_formula(job_data.job_params.random)
+        random = rpy_utils.r_formula(job_data.job_params.random)
         if random is not None:
             model_formulas["random"] = random
 
-        residual = r_formula(job_data.job_params.residual)
+        residual = rpy_utils.r_formula(job_data.job_params.residual)
         if residual is not None:
             model_formulas["residual"] = residual
 
@@ -268,9 +255,7 @@ class AsremlRAnalyze(AsremlAnalyze):
         utils.zip_dir(job_result.job_result_dir, self.output_file_path, job_result.job_name)
 
         # TODO: below code duplicates from base class. can be reformated.
-        db_services.update_job(
-            self.db_session, job, JobStatus.FINISHED, "LogL converged" 
-        )
+        db_services.update_job(self.db_session, job, JobStatus.FINISHED, "LogL converged")
 
         # gather occurrences from the jobs, so we don't have to read occurrences again.
         # will not work for parallel jobs. For parallel job, gather will happen in finalize

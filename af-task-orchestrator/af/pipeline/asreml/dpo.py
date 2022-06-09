@@ -228,14 +228,14 @@ class AsremlProcessData(ProcessData):
         job_file_lines.append(tabulate_line)
 
         # 7: adding formula
-        job_file_lines.append(self._get_formula(trait))
+        job_file_lines.append(self.get_model_formula(trait))
 
         # 8: adding residual
-        residual = self._get_residual()
+        residual = self.get_model_residual()
         job_file_lines.append(f"residual {residual}")
 
         # 9: adding all the predictions if prediction not defined by the user.
-        predictions = self._get_predictions()
+        predictions = self.get_model_predictions()
         for prediction in predictions:
             job_file_lines.append(f"prediction {prediction.statement}")
 
@@ -250,14 +250,6 @@ class AsremlProcessData(ProcessData):
         else:
             raise DpoException("No ASREML engine options found.")
 
-    def _get_formula(self, trait):
-        formula = services.get_property(self.db_session, self.analysis_request.configFormulaPropertyId)
-        formula_statement = formula.statement.format(trait_name=trait.abbreviation)
-        return formula_statement
-
-    def _get_residual(self):
-        residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
-        return residual.statement
 
     def _get_tabulate(self):
         tabulate = services.get_analysis_config_properties(
@@ -281,17 +273,3 @@ class AsremlProcessData(ProcessData):
                 condition=field.property_meta.get("condition", ""),
             )
             yield field_line
-
-    def _get_predictions(self):
-
-        predictions = []
-
-        if len(self.analysis_request.configPredictionPropertyIds) == 0:
-            predictions = services.get_analysis_config_properties(
-                self.db_session, self.analysis_request.analysisConfigPropertyId, "prediction"
-            )
-        else:
-            for prediction_property_id in self.analysis_request.configPredictionPropertyIds:
-                predictions.append(services.get_property(self.db_session, prediction_property_id))
-
-        return predictions
