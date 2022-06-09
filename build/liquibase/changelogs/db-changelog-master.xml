@@ -55,9 +55,14 @@
 
     <!-- 22.04 -->
     <include file="changelogs/db-changelog-22.04.xml"/>
-    <!--include file="changesets/22.04/tag/dev-tag.xml"/-->
+    <include file="changesets/22.04/tag/dev-tag.xml"/>
 
     <!-- 22.05 -->
     <include file="changelogs/db-changelog-22.05.xml"/>
+    <include file="changesets/22.05/tag/dev-tag.xml"/>
+
+    <!-- 22.06 -->
+    <include file="changelogs/db-changelog-22.06.xml"/>
+    <!--include file="changesets/22.06/tag/dev-tag.xml"/-->
 
   </databaseChangeLog>
