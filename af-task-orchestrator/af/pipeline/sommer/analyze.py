@@ -9,6 +9,7 @@ from af.pipeline.job_status import JobStatus
 
 from af.pipeline import utils, db, rpy_utils
 from dataclasses import dataclass, field
+from af.pipeline.exceptions import AnalysisError
 
 from .dpo import SommeRProcessData
 
@@ -81,7 +82,7 @@ class SommeRAnalyze(Analyze):
 
         except (rpy2.rinterface_lib.embedded.RRuntimeError, ValueError) as e:
             self.analysis.status = "FAILURE"
-            db_services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
+            db.services.update_job(self.db_session, job, JobStatus.ERROR, str(e))
             utils.zip_dir(job_dir, self.output_file_path, job.name)
             raise AnalysisError(str(e))
 

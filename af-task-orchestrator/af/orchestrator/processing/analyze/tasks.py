@@ -39,7 +39,6 @@ def pre_process(request_id, analysis_request):
     analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
     input_files = analyze_object.pre_process()
     # engine = analyze_object.get_engine_script()
-    print(input_files)
 
     results = []  # results initially empty
     args = request_id, analysis_request, input_files, results
@@ -54,21 +53,27 @@ def pre_process(request_id, analysis_request):
 
 
 @app.task(name="run_analyze", base=StatusReportingTask)
-def run_analyze(*args):
-    common.run_analyze(*args)
+def run_analyze(request_id, analysis_request, input_files, results):
+    input_files = common.run_analyze(request_id, analysis_request, input_files, results)
+    if not input_files:
+        args = request_id, analysis_request, results
+        app.send_task("post_process", args=args)
+    else:
+        args = request_id, analysis_request, input_files, results
+        app.send_task("run_analyze", args=args)
 
 
 @app.task(name="post_process", base=StatusReportingTask)
 def post_process(request_id, analysis_request, results, gathered_objects=None):
 
-    result, results = results[0], results[1:]
 
     if gathered_objects is None:
         gathered_objects = {}
     try:
+        result, results = results[0], results[1:]
         analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
         gathered_objects = analyze_object.process_job_result(result, gathered_objects)
-    except AnalysisError as ae:
+    except Exception as ae:
         log.error("Encountered error: %s", str(ae))
     finally:
         # process the results here
