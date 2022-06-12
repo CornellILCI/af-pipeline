@@ -27,7 +27,7 @@ services:
     image: rabbitmq:3.8-management
     environment:
       - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=mypass
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     ports:
       - 5672
       - 15672
@@ -41,7 +41,7 @@ services:
       - af_data_volume:/data/
     environment:
       - C_FORCE_ROOT=true
-      - BROKER=amqp://admin:mypass@rabbitmq:5672
+      - BROKER=amqp://admin:${RABBITMQ_PASSWORD}@rabbitmq:5672
       - AFDB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/afdb
       - AFAPI_ALLOWABLE_ORIGINS=*
       - BA_DATA_DIR=/data/
@@ -61,7 +61,7 @@ services:
       - af_data_volume:/data/
     environment:
       - C_FORCE_ROOT=true
-      - BROKER=amqp://admin:mypass@rabbitmq:5672
+      - BROKER=amqp://admin:${RABBITMQ_PASSWORD}@rabbitmq:5672
       - BACKEND=rpc://
       - AFDB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/afdb
       - BA_DATA_DIR=/data/

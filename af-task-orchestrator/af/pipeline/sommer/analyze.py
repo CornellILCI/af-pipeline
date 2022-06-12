@@ -90,6 +90,25 @@ class SommeRAnalyze(Analyze):
         return job_result
 
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):
+        
+        job = db.services.get_job_by_name(self.db_session, job_result.job_name)
+
+        # lot of duplicacy between below code and asreml_r_result. They can be modularized.
+        r_base = rpy2.robjects.packages.importr("base")
+
+        sommer_result = r_base.readRDS(job_result.result_rds_file)
+        
+        if not (sommer_result or bool(sommer_result.rx2('convergence'))):
+            db.services.update_job(
+                self.db_session,
+                job,
+                JobStatus.FAILED,
+                "Failed to converge.",
+            )
+            return gathered_objects
+
+        db.services.update_job(self.db_session, job, JobStatus.FINISHED, "LogL converged")
+
         utils.zip_dir(job_result.job_result_dir, self.output_file_path, job_result.job_name)
 
     def finalize(self, gathered_objects):
