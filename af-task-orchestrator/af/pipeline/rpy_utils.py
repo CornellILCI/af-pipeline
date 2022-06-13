@@ -52,6 +52,15 @@ def rdf_to_pydf(rdf: robjects.DataFrame):
     return None
 
 
+def rdf_to_csv(rdf, file_path: str, **csv_kwargs):
+    """ Write r dataframe to csv file.
+    """
+
+    py_df = rdf_to_pydf(rdf)
+
+    py_df.to_csv(file_path, **csv_kwargs)
+
+
 class InvalidFormulaError(ValueError):
     pass
 
