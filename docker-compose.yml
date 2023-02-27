@@ -36,6 +36,7 @@ services:
     build:
       context: ./af-jobs-api
       dockerfile: Dockerfile
+      network: host
     working_dir: /app
     volumes:
       - af_data_volume:/data/
@@ -56,6 +57,7 @@ services:
     build:
       context: ./af-task-orchestrator
       dockerfile: Dockerfile
+      network: host
     working_dir: /app
     volumes:
       - af_data_volume:/data/
