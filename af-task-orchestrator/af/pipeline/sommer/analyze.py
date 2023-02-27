@@ -11,6 +11,7 @@ from af.pipeline import utils, db, rpy_utils
 from dataclasses import dataclass, field
 from af.pipeline.exceptions import AnalysisError
 
+
 from .dpo import SommeRProcessData
 
 
@@ -34,7 +35,19 @@ class SommeRAnalyze(Analyze):
         return ["sommer", job_data.job_file]
 
     def pre_process(self):
-        return super().pre_process()
+        try:
+            return super().pre_process()
+        #If we've failed in pre-processing, we do need to drop a 'job' so we can fail
+        #gracefully instead of infinitely retrying
+        except Exception as e:
+            db.services.create_job(
+            self.db_session,
+            self.analysis.id,
+            "Does name really matter?",
+            JobStatus.ERROR,
+            "Died horribly",
+            {},) 
+            return 
 
     @robjects.packages.no_warnings
     def run_job(self, job_data):
@@ -61,6 +74,13 @@ class SommeRAnalyze(Analyze):
         model_formulas["rcov"] = rpy_utils.r_formula(job_data.job_params.residual)
 
         input_data = rpy_utils.read_csv(file=job_data.data_file)
+
+        #if we contain an R 'factor' type - such as 'rep', import_csv will treat it as continuous
+        #Effectively we need to do - input_data$rep <- as.factor(input_data$rep)
+        #rep_idx = input_data.colnames.index('rep')
+        #input_data[rep_idx]=robjects.r('as.factor('+input_data[rep_idx].r_repr()+')')
+        input_data = rpy_utils.factorize(input_data,'rep')
+
         try:
             sommer = r_packages.importr("sommer")
 
@@ -87,6 +107,7 @@ class SommeRAnalyze(Analyze):
 
         job_result.job_result_dir = job_dir
         return job_result
+    
 
     @robjects.packages.no_warnings
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):

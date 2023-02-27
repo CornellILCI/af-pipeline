@@ -73,3 +73,12 @@ def r_formula(formula: str):
         return robjects.Formula(formula)
     except rpy2.rinterface_lib.embedded.RRuntimeError as e:
         raise InvalidFormulaError(f"Invalid Formula: {formula}")
+
+#Converts a column in an rpy2 dataframe to a factor, as if data_frame$col_name <- as.factor(data_frame$col_name)
+def factorize(data_frame, col_name):
+    #if we contain an R 'factor' type - such as 'rep', import_csv will treat it as continuous
+    #Effectively we need to do - input_data$rep <- as.factor(input_data$rep)
+    col_idx = data_frame.colnames.index(col_name)
+    if(col_idx < 0): raise Exception(f"Invalid column named {col_name} in request to 'factorize'")
+    data_frame[col_idx]=robjects.r(f"as.factor({data_frame[col_idx].r_repr()})")
+    return data_frame
