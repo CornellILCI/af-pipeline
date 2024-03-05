@@ -8,6 +8,8 @@ ANALYZE_IMPLEMENTATIONS = {
     "asreml": "af.pipeline.asreml.analyze.AsremlAnalyze",
     "asreml-r": "af.pipeline.asreml_r.analyze.AsremlRAnalyze",
     "sommer": "af.pipeline.sommer.analyze.SommeRAnalyze",
+    "sommer-mmec": "af.pipeline.sommer.analyze.SommeRAnalyze",
+    "R - sommer-mmec": "af.pipeline.sommer.analyze.SommeRAnalyze",
 }
 
 
@@ -28,6 +30,9 @@ def get_analysis_engine_script(engine_name: str):
 
     if engine in ["r - sommer", "sommer"]:
         return "sommer"
+    
+    if engine in ["r - sommer mmec", "sommer mmec", "sommer-mmec"]:
+        return "sommer-mmec"
 
     return None
 

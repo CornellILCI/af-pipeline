@@ -87,8 +87,8 @@ class Property(BaseModel):
     type: Optional[str] = Field(
         None, description="Classifier of properties within its context (e.g. catalog_item, catalog_root)"
     )
-    createdOn: Optional[datetime] = None
-    modifiedOn: Optional[datetime] = None
+    createdOn: Optional[datetime] = Field(None)#None - JDLS wtf why was it just none
+    modifiedOn: Optional[datetime] = Field(None)#None
     createdBy: Optional[str] = Field(None, description="Id of the user who created the property.")
     modifiedBy: Optional[str] = Field(None, description="Id of the user who modified the property.")
     isActive: Optional[bool] = Field(True, description="Whether the property is active in the system.")
@@ -132,15 +132,17 @@ def map_property(_property):
     if _property is None:
         return None
 
+
     property_dto = Property(
-        propertyId=_property.id,
-        propertyCode=_property.code,
-        propertyName=_property.name,
-        label=_property.label,
-        statement=_property.statement,
-        type=_property.type,
+        propertyId=str(_property.id), #property.id was numeric, Stringifying it - JDLS
+        propertyCode=str(_property.code),
+        propertyName=str(_property.name),
+        label=str(_property.label),
+        statement=str(_property.statement),
+        type=str(_property.type),
         createdOn=_property.creation_timestamp,
         modifiedOn=_property.modification_timestamp,
+        isActive=not _property.is_void
     )
 
     return property_dto

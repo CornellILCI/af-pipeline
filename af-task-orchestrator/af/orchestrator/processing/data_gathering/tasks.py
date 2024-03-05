@@ -2,15 +2,20 @@ from af.orchestrator import config
 from af.orchestrator.app import app
 from af.orchestrator.base import StatusReportingTask
 from af.orchestrator.exceptions import MissingTaskParameter
-from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
+from af.pipeline.data_reader import DataReaderFactory, PhenotypeData, GenotypeData
 from af.pipeline.data_reader.exceptions import DataSourceNotAvailableError, DataTypeNotAvailableError
-from af.pipeline.data_reader.models import Experiment, Occurrence, Trait
+from af.pipeline.data_reader.models import Experiment, Occurrence, Trait, Study
 from af.pipeline.data_reader.models.enums import DataSource, DataType
 from pandas import DataFrame
 
 
 @app.task(name="gather_data", base=StatusReportingTask)
 def gather_data(params):
+    params = gather_pheno_data(params)
+    params = gather_geno_data(params)
+    return params
+
+def gather_pheno_data(params):
     """Gather data using data_reader
 
     For Phenotype data, this task will extract any related data depending on what
@@ -90,6 +95,59 @@ def gather_data(params):
 
     raise DataTypeNotAvailableError(datatype.name)
 
+def gather_geno_data(params):
+    """Gather genotype data using genoSource
+
+    For Genotype data, this will pull all information related to 'studyId' list
+
+    Required Params:
+    genoSource - name of source type, only BrAPI
+    genoSourceUrl - url of geno database
+    genoSourceAccessToken - access token
+    genoConnectionType - how to meld geno and pheno data (useful for later)
+
+    genoStudyIds -- list of studies
+    """
+    source = params.get("genoDataSource") or None  # this is either EBS or BRAPI
+    if not source:
+        return params
+
+    api_token = params.get("genoSourceAccessToken")
+    if not api_token:
+        raise MissingTaskParameter("genoSourceAccessToken")
+
+    datasource = DataSource.BRAPI #Only BRAPI for now, so lets assume what they passed in was 'Brapi'
+    datatype = DataType.GENOTYPE#= _get_datatype(params.get("dataType", "PHENOTYPE"))  # putting phenotype as default
+    study_ids = params.get("genoStudyIds") or []
+
+    api_base_url = params.get("genoSourceUrl")
+
+    factory = DataReaderFactory(datasource)
+    reader: GenotypeData = _get_genotypedata_reader(factory, api_base_url, api_token)
+
+        # TODO:  determine from the analysis type and/pr datasource? which of these data sets
+        # are required
+
+    allele_matrix: DataFrame = None
+    study: Study = None
+
+    #studies = []
+    #for studyid in geno_study_ids:
+    #    #something?
+    studyIds = params.get("genoStudyIds")        
+    variant_sets:list=reader.get_variantsets(studyIds)
+    allele_matrices:list=reader.get_search_allelematrix(variantSetDbIds=variant_sets)
+        # TODO:  determine how large these data are, they might not fit into
+        # the parameter size limit for celery tasks
+    allele_matrix = DataFrame.concat(allele_matrices) #this one needs work too
+    results = {
+        "alleleMatrix":allele_matrix,
+        "connectType":params.get("genoConnectType")
+    }
+
+    params.update(results)  # include data in params for next task
+    return params
+
 
 def _get_api_details(datasource: DataSource, *args, **kwargs):
     if datasource == DataSource.EBS:
@@ -118,3 +176,5 @@ def _get_datatype(datatype: str, *args, **kwargs) -> DataType:
 
 def _get_phenotypedata_reader(factory: DataReaderFactory, base_url: str, token: str) -> PhenotypeData:
     return factory.get_phenotype_data(api_base_url=base_url, api_bearer_token=token)
+def _get_genotypedata_reader(factory:DataReaderFactory,base_url: str, token: str) -> GenotypeData:
+    return  factory.get_genotype_data(api_base_url=base_url, api_bearer_token=token)

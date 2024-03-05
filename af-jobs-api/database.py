@@ -2,14 +2,15 @@ import datetime
 from dataclasses import dataclass
 
 import sqlalchemy as sa
-from flask_sqlalchemy import Model, SessionBase, SignallingSession, SQLAlchemy
-from sqlalchemy.ext.declarative import declared_attr
+from flask_sqlalchemy import SQLAlchemy#, Model
+from flask_sqlalchemy.model import Model #Bruh
 from sqlalchemy.sql import func
 
 
-# Base Model
-class BaseModel(Model):
 
+# Base Model
+class BaseModel(Model): #WTF 'Model' used to work - JDLS
+    __abstract__ = True
     __table_args__ = {"schema": "af"}
 
     id = sa.Column(sa.Integer, primary_key=True)
@@ -23,7 +24,6 @@ class BaseModel(Model):
 
 # database instance
 db = SQLAlchemy(model_class=BaseModel)
-
 
 @dataclass
 class Task(db.Model):

@@ -19,7 +19,7 @@ services:
         source: ./postgres
         target: /docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PASSWORD={$POSTGRES_PASS}
       - POSTGRES_USER=${POSTGRES_USER}
 
   rabbitmq:
@@ -36,6 +36,7 @@ services:
     build:
       context: ./af-jobs-api
       dockerfile: Dockerfile
+      network: host
     working_dir: /app
     volumes:
       - af_data_volume:/data/
@@ -48,6 +49,7 @@ services:
     restart: always
     ports:
       - "5000:5000"
+      - "5678:5678"
     depends_on:
       - rabbitmq
       - database
@@ -56,6 +58,7 @@ services:
     build:
       context: ./af-task-orchestrator
       dockerfile: Dockerfile
+      network: host
     working_dir: /app
     volumes:
       - af_data_volume:/data/
@@ -65,13 +68,14 @@ services:
       - BACKEND=rpc://
       - AFDB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/afdb
       - BA_DATA_DIR=/data/
-      - ASREML_ACTIVATION_CODE=${ASREML_ACTIVATION_CODE}
-      - ASREML_SEATS=${ASREML_SEATS}
+      - ASREML_ACTIVATION_CODE=
+      - ASREML_SEATS=0
     links:
       - rabbitmq
     depends_on:
       - rabbitmq
       - database
+
 
   liquibase:
     image: liquibase/liquibase:3.10.3

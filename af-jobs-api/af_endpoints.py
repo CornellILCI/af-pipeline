@@ -160,7 +160,7 @@ def get_analysis_config_formulas(analysisConfigId):
 
     ret = []
     for row in result:
-        temp = row.values()
+        temp = row
         ret.append(
             {
                 "propertyId": str(temp[12]),
@@ -218,7 +218,7 @@ def get_analysis_config_residuals(analysisConfigId):
 
     ret = []
     for row in result:
-        temp = row.values()
+        temp = row
         ret.append(
             {
                 "propertyId": str(temp[12]),

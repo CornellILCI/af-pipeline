@@ -24,7 +24,7 @@ import pathlib
 
 # from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
-from af.pipeline.data_reader import DataReaderFactory, PhenotypeData
+from af.pipeline.data_reader import DataReaderFactory, PhenotypeData, GenotypeData
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from af.pipeline import config, pandasutil, utils
 from af.pipeline.job_data import JobData, JobParams
@@ -34,7 +34,7 @@ from af.pipeline.job_data import JobData, JobParams
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
-
+from af.pipeline.analysis_request import AnalysisRequest
 # from af.pipeline.db.models import Property
 # from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 # from af.pipeline.pandasutil import df_keep_columns
@@ -43,7 +43,7 @@ from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 class ProcessData(ABC):
     """Abstract class for ProcessData objects"""
 
-    def __init__(self, analysis_request, *args, **kwargs):
+    def __init__(self, analysis_request:AnalysisRequest, *args, **kwargs):
         """Constructor.
 
         Args:
@@ -52,10 +52,16 @@ class ProcessData(ABC):
 
         self.analysis_request = analysis_request
 
-        factory = DataReaderFactory(analysis_request.dataSource.name)
+        factory = DataReaderFactory(analysis_request.dataSource.name, analysis_request.genoSource.name if analysis_request.genoSourceUrl is not None else None) #This is the worst ternary I've ever seen - JDLS
         self.data_reader: PhenotypeData = factory.get_phenotype_data(
             api_base_url=analysis_request.dataSourceUrl, api_bearer_token=analysis_request.dataSourceAccessToken
         )
+        
+        #TODO - another horrible hack - genoSourceURL is optional
+        if(analysis_request.genoSourceUrl is not None):
+            self.geno_data_reader : GenotypeData = factory.get_genotype_data(api_base_url  = analysis_request.genoSourceUrl, 
+                                      api_bearer_token=analysis_request.genoSourceAccessToken)
+        else: self.geno_data_reader = None
 
         self.experiment_ids = []
         self.occurrence_ids = []
@@ -115,7 +121,7 @@ class ProcessData(ABC):
         residual = services.get_property(self.db_session, self.analysis_request.configResidualPropertyId)
         return residual.statement
 
-    def get_model_predictions(self) -> list[str]:
+    def get_model_predictions(self) -> 'list[str]':
 
         predictions = []
 

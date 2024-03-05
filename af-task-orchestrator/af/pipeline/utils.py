@@ -49,7 +49,7 @@ def is_valid_file(file_path: str) -> bool:
     return False
 
 
-def create_workbook(workbook_file: str, sheet_names: list[str]):
+def create_workbook(workbook_file: str, sheet_names: 'list[str]'):
     """Creates a excel workbook for given file path.
 
     Args:

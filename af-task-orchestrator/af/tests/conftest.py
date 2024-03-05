@@ -35,7 +35,8 @@ def engine():
 
 @pytest.fixture(scope="session")
 def tables(engine):
-    engine.execute("CREATE SCHEMA af")
+    with engine.connect as conn:
+        conn.execute("CREATE SCHEMA af")
     db.core.Base.metadata.create_all(engine)
     yield
     db.core.Base.metadata.drop_all(engine)

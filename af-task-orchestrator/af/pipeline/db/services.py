@@ -12,7 +12,7 @@ def get_property(db_session, property_id: str) -> Property:
     return db_session.query(Property).get(property_id)
 
 
-def get_child_properties(db_session, property_root: str, property_name: str) -> list[Property]:
+def get_child_properties(db_session, property_root: str, property_name: str) -> "list[Property]":
     child_property_root = db_session.query(Property).filter(Property.code == property_root).one()
     properties = (
         db_session.query(Property)
@@ -78,7 +78,7 @@ def update_job(db_session, job: Job, status: job_status.JobStatus, status_messag
     return job
 
 
-def get_analysis_config_properties(db_session, analysis_config_id: str, property_code: str) -> list[Property]:
+def get_analysis_config_properties(db_session, analysis_config_id: str, property_code: str) -> "list[Property]":
 
     _analysis_config_property_configs = aliased(PropertyConfig)
 

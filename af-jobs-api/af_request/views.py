@@ -128,7 +128,8 @@ def _map_analysis(analysis):
             trait_name = job.job_data.get("trait_name", "")
             location_name = job.job_data.get("location_name", "")
 
-        req_dto.jobs.append(
+        if job.id is not None:
+            req_dto.jobs.append(
             api_models.Job(
                 jobId=job.id,
                 jobName=job.name,

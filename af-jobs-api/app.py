@@ -2,8 +2,8 @@ import datetime
 
 from database import db
 from flask.app import Flask
-from flask.json import JSONEncoder
-
+#from flask.json import JSONEncoder
+from json import JSONEncoder #https://stackoverflow.com/a/76325779 - JDLS
 
 # encoder
 class CustomJSONEncoder(JSONEncoder):  # pragma: no cover

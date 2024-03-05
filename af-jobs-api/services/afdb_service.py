@@ -65,7 +65,8 @@ def select_analysis_configs(analysisConfigID, limit, offset, configType):
             + "LIMIT {} OFFSET {} "
         ).format(configType, analysisConfigID, limit, offset)
     )
-    result = db.engine.execute(sql)
+    with db.engine.connect() as conn:
+        result = conn.execute(sql)
     return result
 
 
@@ -84,7 +85,8 @@ def count_analysis_configs(analysisConfigID, configType):
             + "ON formula_property.id = formula_configs.config_property_id "
         ).format(configType, analysisConfigID)
     )
-    result = db.engine.execute(sql)
-    for row in result:
-        count = row.values()[0]
+    with db.engine.connect() as conn:
+        result = conn.execute(sql)
+        for row in result:
+            count = row[0]
     return count

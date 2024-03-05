@@ -52,7 +52,8 @@ def db(app, request):
         _db.drop_all()
 
     _db.init_app(app)
-    _db.engine.execute("CREATE SCHEMA af")
+    with _db.engine.connect() as conn:
+        conn.execute("CREATE SCHEMA af")
     _db.create_all()
 
     request.addfinalizer(teardown)

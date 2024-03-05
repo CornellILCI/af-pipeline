@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 from os import path
+import time
 
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.db.models import Analysis, Job
@@ -47,6 +48,14 @@ class Analyze(abc.ABC):
         # load existing analysis record OR create if it does not exist
         self.analysis = db_services.get_analysis_by_request_id(self.db_session, request_id=analysis_request.requestId)
         
+        #TODO - we never got to the above 'or' did we? 
+        # Seems to be a race condition. This'll fix it.
+        #    (famous last words) -JDLS
+        if self.analysis is None:
+            time.sleep(1)
+            self.analysis = db_services.get_analysis_by_request_id(self.db_session, request_id=analysis_request.requestId)
+            
+        
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
         self.report_file_path = path.join(analysis_request.outputFolder, f"{analysis_request.requestId}_report.xlsx")
 
@@ -61,7 +70,7 @@ class Analyze(abc.ABC):
         try:
             job_input_files = self.get_process_data(self.analysis_request).run()
             message = "Data preprocessing completed. Running jobs."
-            return job_input_files
+            #return job_input_files
         except (DataReaderException, DpoException) as e:
             status = "FAILURE"
             message = "Data preprocessing failed."
@@ -69,6 +78,7 @@ class Analyze(abc.ABC):
         finally:
             self._update_request_status(status, message)
             self.db_session.commit()
+            return job_input_files #JDLS-TODO - trying to figure out why this is null... Guessing the Finally bashes the return?
 
     def _update_request_status(self, status, message):
         self.analysis.request.status = status

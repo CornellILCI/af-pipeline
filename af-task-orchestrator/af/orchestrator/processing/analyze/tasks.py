@@ -38,7 +38,7 @@ def analyze(request_id: str, request_params):
 def pre_process(request_id, analysis_request):
     analyze_object = pipeline_analyze.get_analyze_object(analysis_request)
     input_files = analyze_object.pre_process()
-    # engine = analyze_object.get_engine_script()
+    #engine = analyze_object.get_engine_script()
 
     results = []  # results initially empty
     args = request_id, analysis_request, input_files, results
@@ -46,7 +46,7 @@ def pre_process(request_id, analysis_request):
     engine = analyze_object.get_engine_script()
     if engine in ("asreml", "asreml-r"):
         app.send_task("run_asreml_analyze", args=args, queue="ASREML")
-    elif engine in ("sommer"):
+    elif engine in ("sommer", "sommer-mmec"):
         app.send_task("run_analyze", args=args)
     else:
         raise NotImplementedError("Analysis engine not supported")
@@ -54,6 +54,10 @@ def pre_process(request_id, analysis_request):
 
 @app.task(name="run_analyze", base=StatusReportingTask)
 def run_analyze(request_id, analysis_request, input_files, results):
+    #We had no input files to begin with? Why can this happen?
+    if input_files is None:
+        args = request_id, analysis_request, results
+        app.send_task("post_process", args=args)
     input_files = common.run_analyze(request_id, analysis_request, input_files, results)
     if not input_files:
         args = request_id, analysis_request, results

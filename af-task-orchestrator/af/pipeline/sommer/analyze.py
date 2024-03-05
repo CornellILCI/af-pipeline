@@ -11,13 +11,14 @@ from af.pipeline import utils, db, rpy_utils
 from dataclasses import dataclass, field
 from af.pipeline.exceptions import AnalysisError
 
+
 from .dpo import SommeRProcessData
 
 
 @dataclass
 class SommeRJobResult(JobData):
     result_rds_file: str = ""
-    prediction_rds_files: list[str] = field(default_factory=list)
+    prediction_rds_files: 'list[str]' = field(default_factory=list)
 
 
 class SommeRAnalyze(Analyze):
@@ -34,10 +35,60 @@ class SommeRAnalyze(Analyze):
         return ["sommer", job_data.job_file]
 
     def pre_process(self):
-        return super().pre_process()
+        try:
+            return super().pre_process()
+        #If we've failed in pre-processing, we do need to drop a 'job' so we can fail
+        #gracefully instead of infinitely retrying
+        except Exception as e:
+            db.services.create_job(
+            self.db_session,
+            self.analysis.id,
+            "Does name really matter?",
+            JobStatus.ERROR,
+            str(e),
+            {},) 
+            return 
+
+    #Return a 'pure R' version of the run script. 
+    #This needs to be updated when the analysis changes, but it's better than
+    #rewriting this whole thing in pure R, but still lets an end-user get a 
+    #re-runnable representation of what happened. Bit of a hack. -Josh L.S.
+    @robjects.packages.no_warnings
+    def job_as_Rscript(self, job_data):
+        job_dir = utils.get_parent_dir(job_data.data_file)
+        
+        script = f"""
+        #install.packages('sommer')
+        #install.packages('readr')
+        
+        input_data<-read.csv(file='{job_data.data_file}',sep=',',header=TRUE)
+        input_data$rep <- as.factor(input_data$rep)
+        input_data$genotype <- as.factor(input_data$genotype)
+        """
+        #Placing variables 'in line' instead of in a kwargs... couldn't find a good substitute, given these are commands, not
+        #strings. -JDLS
+        script += f"""mix1 <- mmer(
+            fixed= {rpy_utils.r_formula(job_data.job_params.fixed).r_repr().strip()},
+            random= {rpy_utils.r_formula(job_data.job_params.random).r_repr().strip()},
+            rcov= {rpy_utils.r_formula(job_data.job_params.residual).r_repr().strip()},
+            data= input_data)
+        """
+        result_rds_file = utils.path_join(job_dir, self.sommer_rds_file_name)
+        script += f"""saveRDS(mix1, '{result_rds_file}')
+        """
+            # run predictions
+        for i, prediction_statement in enumerate(job_data.job_params.predictions):
+
+            prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name.format(i=i + 1))
+            script += f"""predictions <- predict.mmer(object=mix1, classify='{prediction_statement}')
+    saveRDS(predictions,'{prediction_rds_file}')
+            """
+
+            return script
+
 
     @robjects.packages.no_warnings
-    def run_job(self, job_data):
+    def run_job(self, job_data:JobData):
 
         job_dir = utils.get_parent_dir(job_data.data_file)
         job = db.services.create_job(
@@ -61,6 +112,17 @@ class SommeRAnalyze(Analyze):
         model_formulas["rcov"] = rpy_utils.r_formula(job_data.job_params.residual)
 
         input_data = rpy_utils.read_csv(file=job_data.data_file)
+
+        #if we contain an R 'factor' type - such as 'rep', import_csv will treat it as continuous
+        #Effectively we need to do - input_data$rep <- as.factor(input_data$rep)
+        input_data = rpy_utils.factorize(input_data,'rep')  
+        input_data = rpy_utils.factorize(input_data,'genotype')
+        #Copy a 'pure R' version of this script into the output directory
+        script_path = utils.path_join(job_dir,"script.r")#R script path
+        script_handle=open(script_path,"w")
+        script_handle.write(self.job_as_Rscript(job_data))
+        script_handle.close()
+        
         try:
             sommer = r_packages.importr("sommer")
 
@@ -87,6 +149,8 @@ class SommeRAnalyze(Analyze):
 
         job_result.job_result_dir = job_dir
         return job_result
+
+    
 
     @robjects.packages.no_warnings
     def process_job_result(self, job_result: JobData, gathered_objects: dict = None):

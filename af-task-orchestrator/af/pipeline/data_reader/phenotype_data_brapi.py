@@ -4,16 +4,15 @@ from typing import List
 import pandas as pd
 from af.pipeline.data_reader.exceptions import DataReaderException
 from af.pipeline.data_reader.models import Occurrence
-from af.pipeline.data_reader.models.brapi.core import BaseListResponse, Study, TableResponse
+from af.pipeline.data_reader.models.brapi.core import ListResponse, Study
 from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
-from af.pipeline.data_reader.models.brapi.phenotyping import (
-    ObservationUnitQueryParams,
-    ObservationQueryParams,
-    ObservationUnitsSearchRequestDto,
-)
+from af.pipeline.data_reader.models.observation_unit import ObservationUnitQueryParams
+from af.pipeline.data_reader.models.observation import ObservationQueryParams
+from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitSearchRequest, ObservationUnitListResponse, ObservationUnit, ObservationUnitLevelRelationship1, ObservationUnitListResponseResult
+
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
-from pydantic import BaseModel, ValidationError, parse_obj_as
+from pydantic import ValidationError, parse_obj_as
 
 # all urls are set here
 GET_OBSERVATION_UNITS_URL = "/observationunits"
@@ -26,6 +25,41 @@ POST_SEARCH_OBSERVATION_UNITS_URL = "/search/observationunits"
 
 GET_OBSERVATION_UNITS_SEARCH_RESULTS_URL = "/search/observationunits/{searchResultsDbId}"
 
+def flattenObservationObject(obs:List[ObservationUnit]):
+    output = list()
+    for x in obs:
+        oUP=x.observationUnitPosition;
+        if (oUP.observationLevelRelationships is None): 
+            oUP.observationLevelRelationships = list()
+        if len(oUP.observationLevelRelationships) < 1: 
+            y={"observationUnitDbId":x.observationUnitDbId,
+            "germplasmDbId": x.germplasmDbId,
+            "studyDbId": x.studyDbId,
+            "trialDbId": x.trialDbId,
+            "locationDbId": x.locationDbId,
+            "observationUnitPosition":str(oUP.positionCoordinateX) + " " + str(oUP.positionCoordinateY),
+            "positionCoordinateX":oUP.positionCoordinateX,
+            "positionCoordinateY":oUP.positionCoordinateY,
+            "levelName":"REP", #Just putting a blank 'rep' here for now
+            "levelCode":None,
+            "levelOrder":None,
+            }
+            output.append(y)        
+        for relationship in oUP.observationLevelRelationships: 
+            y={"observationUnitDbId":x.observationUnitDbId,
+            "germplasmDbId": x.germplasmDbId,
+            "studyDbId": x.studyDbId,
+            "trialDbId": x.trialDbId,
+            "locationDbId": x.locationDbId,
+            "observationUnitPosition":str(oUP.positionCoordinateX) + " " + str(oUP.positionCoordinateY),
+            "positionCoordinateX":oUP.positionCoordinateX,
+            "positionCoordinateY":oUP.positionCoordinateY,
+            "levelName":relationship.levelName,
+            "levelCode":relationship.levelCode,
+            "levelOrder":relationship.levelOrder,
+            }
+            output.append(y)
+    return output
 
 class PhenotypeDataBrapi(PhenotypeData):
     """Reads phenotype data from a brapi ebs data source."""
@@ -38,8 +72,8 @@ class PhenotypeDataBrapi(PhenotypeData):
         "studyDbId": "studyDbId",
         "trialDbId": "trialDbId",
         "locationDbId": "locationDbId",
-        "observationUnitPosition.positionCoordinateX": "positionCoordinateX",
-        "observationUnitPosition.positionCoordinateY": "positionCoordinateY",
+        "positionCoordinateX": "positionCoordinateX",
+        "positionCoordinateY": "positionCoordinateY",
         "REP": "replicate"
     }
 
@@ -54,9 +88,9 @@ class PhenotypeDataBrapi(PhenotypeData):
     def get_plots_from_search(self, exp_id: str = None) -> pd.DataFrame:
 
         # first POST to /bmsapi/{crop}/brapi/v2/search/observationunits
-        observation_units_filters = ObservationUnitsSearchRequestDto(studyDbIds=[exp_id], observationLevel="PLOT")
+        observation_units_filters = ObservationUnitSearchRequest(studyDbIds=[exp_id], observationLevel="PLOT")
 
-        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2, json=observation_units_filters.dict())
+        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2, json=observation_units_filters.dict()) 
         if not post_response.is_success:
             raise DataReaderException(post_response.error)
 
@@ -88,10 +122,11 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             if not get_response.is_success:
                 raise DataReaderException(get_response.error)
-
-            brapi_response = BaseListResponse(**get_response.body)
+ 
+            brapi_response = ObservationUnitListResponse(get_response.body)
 
             plots_data = brapi_response.result.data
+            
 
             if len(plots_data) == 0 and page_num == 0:
                 columns = list(self.plots_api_fields_to_local_fields.values())
@@ -143,7 +178,7 @@ class PhenotypeDataBrapi(PhenotypeData):
 
         page_num = 0
 
-        observation_units_filters = ObservationUnitsSearchRequestDto(
+        observation_units_filters = ObservationUnitSearchRequest(
             studyDbIds=[occurrence_id], observationLevel="PLOT"
         )
 
@@ -168,9 +203,12 @@ class PhenotypeDataBrapi(PhenotypeData):
             if not api_response.is_success:
                 raise DataReaderException(api_response.error)
 
-            brapi_response = BaseListResponse(**api_response.body)
+            brapi_response = ObservationUnitListResponse(**api_response.body)#It's a list of observation units
 
             plots_data = brapi_response.result.data
+            
+            # build a json object with all the info
+           
 
             if len(plots_data) == 0 and page_num == 0:
                 columns = list(self.plots_api_fields_to_local_fields.values())
@@ -191,15 +229,26 @@ class PhenotypeDataBrapi(PhenotypeData):
             # list record path to normalze
             list_record_path = ["observationUnitPosition", "observationLevelRelationships"]
 
+            new_plots_data=flattenObservationObject(plots_data) #Make into a proper flatish dictionary
             # this dataframe will have observation level array as seperate rows
-            plots_unpivoted = pd.json_normalize(
-                plots_data,
-                record_path=list_record_path,
-                meta=columns_path,
-            )
+            new_columns_path=[
+                "observationUnitDbId",
+                "germplasmDbId",
+                "studyDbId",
+                "trialDbId",
+                "locationDbId",
+                "observationUnitPosition",
+                "positionCoordinateX",
+                "positionCoordinateY",
+                "levelName",
+                "levelCode",
+                "levelOrder",
+            ]
+            new_plots_data_df = pd.DataFrame(data=new_plots_data,columns=new_columns_path)#,columns=columns_path)
 
+            plots_unpivoted=new_plots_data_df
             plots_observation_levels_pivoted = plots_unpivoted.pivot(
-                index="observationUnitDbId", columns="levelName", values="levelCode"
+                index="observationUnitDbId", columns=["levelName"], values="levelCode"  #columns = [[levelName]] was 'columns is the type of level name' aka plot, block, rep...deal with that tomorrow
             )
 
             plots_observation_levels_droped = (
@@ -212,14 +261,16 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             # keep only local field columns
             plots_page = df_keep_columns(plots_page, self.plots_api_fields_to_local_fields.keys())
-
+            
+           
             # since plot_qc not defined in brapi spec, set default value "G"
             plots_page["plot_qc"] = "G"
 
             if page_num == 0:
                 plots = plots_page
             else:
-                plots = plots.append(plots_page)
+                plots = pd.concat([plots,plots_page]) #was append - JDLS
+                
 
             # to get next page
             page_num += 1
@@ -248,7 +299,7 @@ class PhenotypeDataBrapi(PhenotypeData):
             if not api_response.is_success:
                 raise DataReaderException(api_response.error)
 
-            brapi_response = BaseListResponse(**api_response.body)
+            brapi_response = ListResponse(**api_response.body)  
 
             plot_measurements_data = brapi_response.result.data
 
@@ -257,7 +308,7 @@ class PhenotypeDataBrapi(PhenotypeData):
             if page_num == 0:
                 plot_measurements = plot_measurements_page
             else:
-                plot_measurements = plot_measurements.append(plot_measurements_page)
+                plot_measurements = pd.concat([plot_measurements,plot_measurements_page])
 
             page_num += 1
 
@@ -308,7 +359,7 @@ class PhenotypeDataBrapi(PhenotypeData):
     def get_trait(self, trait_id: int = None):
         raise NotImplementedError
 
-    def search_germplasm(self, germplasm_search_ids: list[str]):
+    def search_germplasm(self, germplasm_search_ids: list):
 
         search_query = {"germplasmDbIds": germplasm_search_ids}
 
@@ -327,13 +378,13 @@ class PhenotypeDataBrapi(PhenotypeData):
             germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
 
             get_germplasm = self.get(endpoint=germplasm_url)
-            germplasm_list = parse_obj_as(list[Germplasm], get_germplasm.body["result"]["data"])
+            germplasm_list = parse_obj_as('list[Germplasm]', get_germplasm.body["result"]["data"])#I have no idea if this is how to solve the VScode error but '' the list seems to placate it
 
             return germplasm_list
 
         if search_germplasm_response.http_status == 200:
 
-            germplasm_list = parse_obj_as(list[Germplasm], search_germplasm_response.body["result"]["data"])
+            germplasm_list = parse_obj_as('list[Germplasm]', search_germplasm_response.body["result"]["data"])
             return germplasm_list
 
         if not get_germplasm.is_success:

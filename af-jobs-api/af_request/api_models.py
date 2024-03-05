@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
+from typing import Annotated, Any
 
 from common.api_models import (
     AnalysisType,
@@ -12,7 +13,7 @@ from common.api_models import (
     create_metadata,
     map_property,
 )
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class AfBaseModel(BaseModel):
@@ -49,8 +50,8 @@ class Trait(BaseModel):
 
 
 class Job(AfBaseModel):
-
-    jobId: str = None
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+    jobId: str = Field(None, force=True,strict=False)
     jobName: Optional[str] = None
     status: Optional[str] = None
     statusMessage: Optional[str] = None

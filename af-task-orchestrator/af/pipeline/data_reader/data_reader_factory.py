@@ -2,6 +2,7 @@ from af.pipeline.data_reader.exceptions import DataSourceNotAvailableError
 from af.pipeline.data_reader.genotype_data_brapi import GenotypeDataBrapi
 from af.pipeline.data_reader.models.enums import DataSource
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
+from af.pipeline.data_reader.genotype_data import GenotypeData
 from af.pipeline.data_reader.phenotype_data_brapi import PhenotypeDataBrapi
 from af.pipeline.data_reader.phenotype_data_ebs import PhenotypeDataEbs
 
@@ -9,13 +10,14 @@ from af.pipeline.data_reader.phenotype_data_ebs import PhenotypeDataEbs
 class DataReaderFactory:
     """Factory to get phenotype data based on api data source"""
 
-    def __init__(self, data_source: DataSource):
+    def __init__(self, data_source: DataSource, geno_data_source: DataSource):
         """Constructs a data reader factory for given data source.
 
         Args:
             DataSource enum. eg., Datasource.EBS or DataSource.BRAPI
         """
         self.data_source = data_source
+        self.geno_data_source = geno_data_source
 
     def get_phenotype_data(self, **kwargs) -> PhenotypeData:
         """Returns an interface for reading phenotype data.
@@ -24,7 +26,7 @@ class DataReaderFactory:
             kwargs: Key word arguments for phenotype data.
 
         Returns:
-            A concretae phenotype object for the datasource selected.
+            A concrete phenotype object for the datasource selected.
 
         Raises:
             NotImplementedError: If the abstract method in the interface is not
@@ -37,5 +39,10 @@ class DataReaderFactory:
         else:
             raise DataSourceNotAvailableError
 
-    def get_genotype_data(self, **kwargs):
-        raise NotImplementedError
+    def get_genotype_data(self, **kwargs) -> GenotypeData:
+        if self.geno_data_source == DataSource.EBS:
+            raise NotImplementedError
+        elif self.geno_data_source == DataSource.BRAPI:
+            return GenotypeDataBrapi(**kwargs)
+        else:
+            raise NotImplementedError
