@@ -21,10 +21,10 @@ class SommeRJobResult(JobData):
     prediction_rds_files: 'list[str]' = field(default_factory=list)
 
 
-class SommeRAnalyze(Analyze):
+class SommeRmmecAnalyze(Analyze):
 
     dpo_cls = SommeRProcessData
-    engine_script = "sommer"
+    engine_script = "sommer-mmec"
     sommer_rds_file_name = "result.rds"
     prediction_rds_file_name = "prediction{i}.rds"
 
@@ -32,7 +32,7 @@ class SommeRAnalyze(Analyze):
         super().__init__(analysis_request=analysis_request, *args, **kwargs)
 
     def get_cmd(self, job_data, analysis_engine=None):
-        return ["sommer", job_data.job_file]
+        return ["sommer-mmec", job_data.job_file]
 
     def pre_process(self):
         return super().pre_process()
@@ -55,20 +55,22 @@ class SommeRAnalyze(Analyze):
         """
         #Placing variables 'in line' instead of in a kwargs... couldn't find a good substitute, given these are commands, not
         #strings. -JDLS
-        script += f"""mix1 <- mmer(
+        #TODO - update for MMEC perperly
+        script += f"""mix1 <- mmec(
             fixed= {rpy_utils.r_formula(job_data.job_params.fixed).r_repr().strip()},
             random= {rpy_utils.r_formula(job_data.job_params.random).r_repr().strip()},
             rcov= {rpy_utils.r_formula(job_data.job_params.residual).r_repr().strip()},
             data= input_data)
         """
         result_rds_file = utils.path_join(job_dir, self.sommer_rds_file_name)
-        script += f"""saveRDS(mix1, '{result_rds_file}')
+        script += f"""dTable<-mix1$Dtable
+        saveRDS(mix1, '{result_rds_file}')
         """
             # run predictions
         for i, prediction_statement in enumerate(job_data.job_params.predictions):
 
             prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name.format(i=i + 1))
-            script += f"""predictions <- predict.mmer(object=mix1, classify='{prediction_statement}')
+            script += f"""predictions <- predict.mmec(object=mix1, Dtable=dTable, D='{prediction_statement}')
     saveRDS(predictions,'{prediction_rds_file}')
             """
 
@@ -94,20 +96,20 @@ class SommeRAnalyze(Analyze):
         r_base = r_packages.importr("base")
 
         model_formulas = {}
-
-        model_formulas["fixed"] = rpy_utils.r_formula(job_data.job_params.fixed)
-        model_formulas["random"] = rpy_utils.r_formula(job_data.job_params.random)
-        model_formulas["rcov"] = rpy_utils.r_formula(job_data.job_params.residual)
+        model_formulas["fixed"] = rpy_utils.r_formula(job_data.job_params.fixed) #Field - user specified, like trial or loc
+        model_formulas["random"] = rpy_utils.r_formula(job_data.job_params.random) # ~units
+        model_formulas["rcov"] = rpy_utils.r_formula(job_data.job_params.residual) #Field - user specified, like trial or loc
 
         input_data = rpy_utils.read_csv(file=job_data.data_file)
-
         geno_data = ""
         if(job_data.data_geno_file != ""):
             geno_data = rpy_utils.read_csv(file=job_data.data_geno_file)
+            
         #if we contain an R 'factor' type - such as 'rep', import_csv will treat it as continuous
         #Effectively we need to do - input_data$rep <- as.factor(input_data$rep)
         input_data = rpy_utils.factorize(input_data,'rep')  
         input_data = rpy_utils.factorize(input_data,'genotype')
+        
         #Copy a 'pure R' version of this script into the output directory
         script_path = utils.path_join(job_dir,"script.r")#R script path
         script_handle=open(script_path,"w")
@@ -116,17 +118,24 @@ class SommeRAnalyze(Analyze):
         
         try:
             sommer = r_packages.importr("sommer")
-
+            
+        
             if(geno_data !=""):
-                
-                #JDLS - this one worked-ish
+                #clean_geno_data=rpy_utils
+                #robjects.r(f"Amat <- A.mat({geno_data.r_repr})")
+                #robjects.r(f"GT <- as.matrix(Amat)")
                 #snpRelMat= rpy_utils.relationship_mat(geno_data)
-                
-                
                 #snpRelMat= rpy_utils.add_diag(geno_data,.0005)
+                #robjects.globalenv["snpRelMat"]=snpRelMat
+                #robjects.r(f"Gsnp <- as.matrix(snpRelMat)")
                 #Gsnp=r_as.matrix(snpRelMat,sparse=True)
                 
-                #geno_data already cleaned to RRBlup spec above (probably)
+                #Expose 'GT' for things like random effect
+                #robjects.r(f"GT <- as.matrix(snpRelMat)")
+                #T = r_as(Gsnp, Class = "dgCMatrix")
+                #robjects.globalenv["GT"]=GT #Terrible: adding this name to the global namespace - JDLS 
+                #Should probably make an Environment() object and pass that, but that'd require also fixing all the calls to run in that environment
+                
                 robjects.r("library(rrBLUP)")
                 #rdf=rpy_utils.pydf_to_rdf(geno_data)
                 robjects.globalenv["snpRelMat"]=geno_data
@@ -136,9 +145,10 @@ class SommeRAnalyze(Analyze):
                 robjects.r("Gu <- GT") #Old code used 'Gu' as well TODO: workaround/hack -JDLS
 
 
-
-
-            mix1 = sommer.mmer(**model_formulas, data=input_data)
+            mix1 = sommer.mmec(**model_formulas, data=input_data)
+            
+            dTable=mix1.Dtable
+            #TODO - modify DTable[N, 'include']=TRUE and DTable[N,'average']=TRUE for inclusion and prediction if non-standard
 
             r_base.saveRDS(mix1, result_rds_file)
 
@@ -146,8 +156,8 @@ class SommeRAnalyze(Analyze):
 
             # run predictions
             for i, prediction_statement in enumerate(job_data.job_params.predictions):
-
-                predictions = sommer.predict_mmer(object=mix1, classify=prediction_statement)
+                #example prediction - Genotype
+                predictions = sommer.predict_mmec(object=mix1, Dtable=dTable,D=prediction_statement)
 
                 prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name.format(i=i + 1))
                 r_base.saveRDS(predictions, prediction_rds_file)
@@ -168,7 +178,7 @@ class SommeRAnalyze(Analyze):
 
         job = db.services.get_job_by_name(self.db_session, job_result.job_name)
 
-        # lot of duplicacy betlween below code and asreml_r_result. They can be modularized.
+        # lot of duplicacy between below code and asreml_r_result. They can be modularized.
         r_base = rpy2.robjects.packages.importr("base")
 
         sommer_result = r_base.readRDS(job_result.result_rds_file)

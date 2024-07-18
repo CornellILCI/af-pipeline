@@ -1,7 +1,7 @@
-amqp==5.0.9
+amqp>=5.0.9
 attrdict>=2.0.1
 attrs>=20.3.0
-billiard>=3.6.4.0
+billiard>=4.0.2
 celery>=5.2.3
 celery-message-consumer>=1.2.1
 certifi>=2020.12.5

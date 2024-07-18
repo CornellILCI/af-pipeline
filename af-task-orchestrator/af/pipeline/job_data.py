@@ -10,7 +10,7 @@ class JobParams:
     fixed: str = None
     random: str = None
     residual: str = None
-    predictions: list[str] = field(default_factory=list)
+    predictions: 'list[str]' = field(default_factory=list)
     analysis_fields_types: dict = None  # field datatypes.
 
 
@@ -22,12 +22,13 @@ class JobData:
 
     job_result_dir: str = ""
     data_file: str = ""
+    data_geno_file: str = ""
 
     job_file: str = ""
     job_params: JobParams = None
 
     metadata_file: str = ""
 
-    occurrences: list[Occurrence] = field(default_factory=list)
+    occurrences: 'list[Occurrence]' = field(default_factory=list)
     trait_name: str = ""
     location_name: str = ""

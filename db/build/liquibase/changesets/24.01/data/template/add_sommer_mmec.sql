@@ -53,7 +53,7 @@ WITH config_formula AS (
 		'catalog_item', 'character varying', 'formula_opt1', 
 		'Pheno from loc with variety', 
 		'Pheno from loc with variety', 
-		'phenotype~loc, random=~vsc(isc(variety),Gu=Gmat)'
+		'fixed = phenotype~loc, random = ~vsc(isc(variety),Gu=GT)'
 	) RETURNING id
 ),
 config_formula_property_config_link AS (
@@ -144,3 +144,120 @@ config_prediction_config_10001_link AS (
 
 ) SELECT * from config_prediction;
 
+
+-- add trial as stat factor
+WITH stat_factor AS (
+	INSERT INTO af.property (code, type) VALUES  ('trial', 'catalog_item') RETURNING id
+),
+stat_factor_config_110005_link AS (
+	INSERT INTO af.property_config (
+		order_number, creation_timestamp, creator_id, is_void,property_id, 
+		config_property_id, is_layout_variable
+	) VALUES (
+		5, 'now()', '1', false, 
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
+		(SELECT id FROM stat_factor), false
+	)
+)
+SELECT id AS stat_factor_id FROM stat_factor;
+
+-- add plot as stat factor
+WITH stat_factor AS (
+	INSERT INTO af.property (code, type) VALUES  ('plot', 'catalog_item') RETURNING id
+),
+stat_factor_config_110005_link AS (
+	INSERT INTO af.property_config (
+		order_number, creation_timestamp, creator_id, is_void,property_id, 
+		config_property_id, is_layout_variable
+	) VALUES (
+		5, 'now()', '1', false, 
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
+		(SELECT id FROM stat_factor), false
+	)
+)
+SELECT id AS stat_factor_id FROM stat_factor;
+
+
+-- add genotype as stat factor
+WITH stat_factor AS (
+	INSERT INTO af.property (code, type) VALUES  ('genotype', 'catalog_item') RETURNING id
+),
+stat_factor_config_110005_link AS (
+	INSERT INTO af.property_config (
+		order_number, creation_timestamp, creator_id, is_void,property_id, 
+		config_property_id, is_layout_variable
+	) VALUES (
+		5, 'now()', '1', false, 
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
+		(SELECT id FROM stat_factor), false
+	)
+)
+SELECT id AS stat_factor_id FROM stat_factor;
+
+
+-- add rep as stat factor
+WITH stat_factor AS (
+	INSERT INTO af.property (code, type) VALUES  ('rep', 'catalog_item') RETURNING id
+),
+stat_factor_config_110005_link AS (
+	INSERT INTO af.property_config (
+		order_number, creation_timestamp, creator_id, is_void,property_id, 
+		config_property_id, is_layout_variable
+	) VALUES (
+		5, 'now()', '1', false, 
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
+		(SELECT id FROM stat_factor), false
+	)
+)
+SELECT id AS stat_factor_id FROM stat_factor;
+
+
+-- add loc as stat factor
+WITH stat_factor AS (
+	INSERT INTO af.property (code, type) VALUES  ('loc', 'catalog_item') RETURNING id
+),
+stat_factor_config_110005_link AS (
+	INSERT INTO af.property_config (
+		order_number, creation_timestamp, creator_id, is_void,property_id, 
+		config_property_id, is_layout_variable
+	) VALUES (
+		5, 'now()', '1', false, 
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
+		(SELECT id FROM stat_factor), false
+	)
+)
+SELECT id AS stat_factor_id FROM stat_factor;
+
+
+-- add col as stat factor
+WITH stat_factor AS (
+	INSERT INTO af.property (code, type) VALUES  ('col', 'catalog_item') RETURNING id
+),
+stat_factor_config_110005_link AS (
+	INSERT INTO af.property_config (
+		order_number, creation_timestamp, creator_id, is_void,property_id, 
+		config_property_id, is_layout_variable
+	) VALUES (
+		5, 'now()', '1', false, 
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
+		(SELECT id FROM stat_factor), false
+	)
+)
+SELECT id AS stat_factor_id FROM stat_factor;
+
+
+-- add row as stat factor
+WITH stat_factor AS (
+	INSERT INTO af.property (code, type) VALUES  ('row', 'catalog_item') RETURNING id
+),
+stat_factor_config_110005_link AS (
+	INSERT INTO af.property_config (
+		order_number, creation_timestamp, creator_id, is_void,property_id, 
+		config_property_id, is_layout_variable
+	) VALUES (
+		5, 'now()', '1', false, 
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
+		(SELECT id FROM stat_factor), false
+	)
+)
+SELECT id AS stat_factor_id FROM stat_factor;

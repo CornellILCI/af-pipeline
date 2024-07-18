@@ -22,14 +22,15 @@ RUN apt install -y -t buster-cran40
 RUN apt-get install -y -f r-base
 
 # install R packages
-RUN Rscript -e  "install.packages('sommer')"
-RUN Rscript -e  "install.packages('RJSONIO')"
-RUN Rscript -e  "install.packages('gtools')"
+RUN Rscript -e "install.packages('sommer')"
+RUN Rscript -e "install.packages('RJSONIO')"
+RUN Rscript -e "install.packages('gtools')"
 
 # install asreml-r dependencies
-RUN Rscript -e  "install.packages('data.table')"
-RUN Rscript -e  "install.packages('ggplot2')"
-RUN Rscript -e  "install.packages('jsonlite')"
+RUN Rscript -e "install.packages('data.table')"
+RUN Rscript -e "install.packages('ggplot2')"
+RUN Rscript -e "install.packages('jsonlite')"
+RUN Rscript -e "install.packages('rrBLUP')"
 
 ENV PYTHONPATH "${PYTHONPATH}:/app/"
 WORKDIR /app/
@@ -40,6 +41,8 @@ RUN Rscript /app/packages/install_asreml.R
 # RUN apt-get update && pip3 install  -r requirements.txt
 RUN pip3 install --upgrade setuptools
 RUN pip install --upgrade pip &&  pip3 install  -r requirements.txt
+
+#RUN Rscript -e "install.packages('sommer')" #Again, because it keeps being 'out of date' -JDLS
 
 ENTRYPOINT [ "./start-worker.sh" ]
 

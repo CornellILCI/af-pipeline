@@ -7,6 +7,7 @@ from af.pipeline import analyze as pipeline_analyze
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.exceptions import AnalysisError
 from af.orchestrator.processing.analyze import common
+from celery.result import AsyncResult
 
 log = logging.getLogger(__name__)
 

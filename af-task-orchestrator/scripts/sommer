@@ -54,6 +54,7 @@ output <- if("output" %in% names(jsonInput)) jsonInput$output else ''
 library(sommer)
 #install.packages('gtools')
 library(gtools)
+library(rrBlup)
 
 # Phenofounders <- read.csv('/Users/sb2597/Documents/TestPythonToR/Sommer ILCI code/Phenofounders.csv', header=T)
 inputData <- read.csv(input_phenotypic_data, header=T)

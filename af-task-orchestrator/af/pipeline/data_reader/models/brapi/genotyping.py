@@ -8,7 +8,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyUrl, BaseModel, Field, conint
+from pydantic import AnyUrl, BaseModel, Field, conint,root_validator
 import pydantic
 
 from af.pipeline.data_reader.models.brapi.core import *
@@ -51,7 +51,8 @@ class DataFormat(Enum):
     Hapmap = 'Hapmap'
     tabular = 'tabular'
     JSON = 'JSON'
-
+    Flapjack = 'Flapjack'
+  #Adding a flapjack format
 
 class FileFormat(Enum):
     text_csv = 'text/csv'
@@ -2511,10 +2512,19 @@ class VendorSpecificationService(BaseModel):
     )
 
 
-class AlleleMatrixResponse(BaseModel):
+class   AlleleMatrixResponse(BaseModel):
     field_context: Optional[Context] = Field(None, alias='@context')
     metadata: Metadata
     result: AlleleMatrix
+    @root_validator(pre=True) #JDLS - removes completely empty elements, like metadata:{}, which otherwise attempts to instantiate metadata status subobjects
+    def remove_empty(cls, values):
+        fields = list(values.keys())
+        for field in fields:
+            value = values[field]
+            if isinstance(value, dict) or isinstance(value, list):
+                if not values[field]:
+                    values.pop(field)
+        return values
 
 
 class GenomeMapListResponse(BaseModel):

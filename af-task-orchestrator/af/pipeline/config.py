@@ -4,12 +4,14 @@ AFDB_URI = os.getenv("AFDB_URL")
 
 UNIVERSAL_UNKNOWN = "NA"
 
+#Why is this here? Why is it hiding? Why are we returning 'name' in one place then having a lookup table to the class impl, and why is it ALL STRINGLY TYPED 
+# We could load the 'kls' once, attach it to some kind of object.... <trails off>
+#   - Respectfully, JDLS
 ANALYZE_IMPLEMENTATIONS = {
     "asreml": "af.pipeline.asreml.analyze.AsremlAnalyze",
     "asreml-r": "af.pipeline.asreml_r.analyze.AsremlRAnalyze",
     "sommer": "af.pipeline.sommer.analyze.SommeRAnalyze",
-    "sommer-mmec": "af.pipeline.sommer.analyze.SommeRAnalyze",
-    "R - sommer-mmec": "af.pipeline.sommer.analyze.SommeRAnalyze",
+    "sommer-mmec": "af.pipeline.sommer.analyze-mmec.SommeRmmecAnalyze",
 }
 
 
@@ -31,9 +33,10 @@ def get_analysis_engine_script(engine_name: str):
     if engine in ["r - sommer", "sommer"]:
         return "sommer"
     
-    if engine in ["r - sommer mmec", "sommer mmec", "sommer-mmec"]:
+    if engine in ["r - sommer mmec", "sommer mmec", "sommer-mmec", "sommer - mmec"]:
         return "sommer-mmec"
 
+    print(f"Invalid engine name: {engine}")#This is uaually a straight lookup, why this table in the first place?
     return None
 
 

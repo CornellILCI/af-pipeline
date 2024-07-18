@@ -4,6 +4,8 @@ import os
 
 from pandas import DataFrame
 
+from typing import List
+
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.dpo import ProcessData
@@ -11,8 +13,9 @@ from af.pipeline.job_data import JobData
 from af.pipeline import data_reader
 from af.pipeline.data_reader import GenotypeData
 from af.pipeline.data_reader.models.brapi.genotyping import VariantSet, AlleleMatrixDataMatrices, AlleleMatrix, Variant, CallSet, Sample
+from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
 
-def getVariantDbId(v:VariantSet) -> str:
+def getVariantSetDbId(v:VariantSet) -> str:
     return v.variantSetDbId
 
 def getCallsetSampleId(c:CallSet) -> str:
@@ -21,9 +24,19 @@ def getCallsetSampleId(c:CallSet) -> str:
 def getSampleName(s:Sample)->str:
     return s.sampleName
 
+def getGermplasmId(g:Germplasm) -> str:
+    return g.germplasmDbId
+
+def getGermplasmName(g:Germplasm) -> str:
+    return g.germplasmName
+
+def getVariantName(v:Variant) -> str:
+    return v.variantNames[0]
+
+
 def getVariantNamesFromIds(ids:'list[str]',geno_reader:GenotypeData)->'list[str]':
     retlist=[]
-    variants:list[Variant] = geno_reader.get_variant(ids)
+    variants:list[Variant] = geno_reader.get_variant(variantDbIds=ids)
     for variant in variants:
         retlist.extend(variant.variantNames[0])#First name is fine
     return retlist    
@@ -38,14 +51,27 @@ def getSampleNamesFromCallsetIds(ids:'list[str]',geno_reader:GenotypeData)->'lis
 def getVariantName(v:Variant) -> str:
     return v.variantNames
 
+#TODO - 
 def homozygoteToDosage(homozygote:str)->str:
     count = 0
     if len(homozygote) !=3: return homozygote #Pass back NA/. unchanged 
     firstChar = homozygote[0]
     lastChar = homozygote[-1]
     if(firstChar == "0"):count=count+1
+    elif (firstChar != "1"): print(f"Unusual character in 'homozygote' {homozygote}")
     if(lastChar == "0"):count=count+1
+    elif (lastChar != "1"): print(f"Unusual character in 'homozygote' {homozygote}")
     return str(count)
+
+# RRBlup's A.mat calculation expects -1,0,1 where -1 is all aa and 1 is all AA... 
+def homozygoteToDosageForRRBlup(homozygote:str) -> str:
+    dosage = homozygoteToDosage(homozygote)
+    if(dosage == "0"): return "-1"
+    if(dosage == "1"): return "0"
+    if(dosage == "2"): return "1"
+    if(dosage == "."): return "NA"
+    print(f"Unusual doasage {dosage}")
+    return "NA"
 
 def getGenoMatrices(mats:'list[AlleleMatrix]')->'list[AlleleMatrixDataMatrices]':
     return list(map(getGenoMatrix,mats))
@@ -61,11 +87,11 @@ def formatGenoData(mats:'list[AlleleMatrixDataMatrices]',strFmtFunction)->'list[
     retlist=[] #single matrix
     
     for gmat in mats:
-        genoMat = gmat.dataMatrix
+        genoMat:List[List[str]] = gmat.dataMatrix
         #fmtGenoMat=map(map(strFmtFunction),genoMat) Nope -JDLS
         fmtGenoMat=[list(map(strFmtFunction,subList)) for subList in genoMat] #StackOverflow second best comment? https://stackoverflow.com/questions/34080828/map-a-nested-list-in-python
         if(len(retlist)==0):retlist=fmtGenoMat
-        else: retlist.extend(fmtGenoMat)
+        else: retlist+=fmtGenoMat #Appends every sublist - Not sure if perfect or terrible if we have multiple matrices
 
     return retlist
 
@@ -95,7 +121,7 @@ class SommeRProcessData(ProcessData):
         # TODO: put this in ProcessData
         return f"{self.analysis_request.requestId}"
 
-    def sesl(self):
+    def sesl(self) -> 'list[JobData]':
         """Preprocess input data for SommeR Analysis"""
 
         jobs = []
@@ -118,15 +144,36 @@ class SommeRProcessData(ProcessData):
 
                 plots_measurements = self.format_input_data(plots_measurements, trait)
                 
+                allele_matrix = None
+                
                 if self.geno_data_reader is not None:
-                    variant_sets:list=self.geno_data_reader.get_variantsets(self.analysis_request.genoStudyIds)
-                    allele_matrices:list[AlleleMatrix]=self.geno_data_reader.post_search_allelematrix(variantSetDbIds=list(map(getVariantDbId,variant_sets)), expandHomozygotes=True)
+                    genoData:GenotypeData=self.geno_data_reader
+                    studyDbIds = self.analysis_request.genoStudyIds
+                    print(f"Study Ids: {studyDbIds[:10]}")                   
+                    germplasms=genoData.get_germplasm(studyDbIds=studyDbIds)
+                    germplasmDbIds=list(map(getGermplasmId,germplasms))
+                    print(f"Germplasm Ids: {germplasmDbIds[:10]}")
+            
+                    variant_sets:list=genoData.get_variantsets(studyDbIds=studyDbIds)
+                    
+                    print(f"Variant Sets: {variant_sets}")#Todo - debugging
+                    variantSetDbIds=list(map(getVariantSetDbId,variant_sets))
+                    allele_matrices:list[AlleleMatrix]=self.geno_data_reader.post_search_allelematrix(studyDbIds=studyDbIds,variantSetDbIds=variantSetDbIds,germplasmDbIds=germplasmDbIds, expandHomozygotes=True)
                     callsetIds=allele_matrices[0].callSetDbIds
                     variantIds=[]
                     for mat in allele_matrices: variantIds.extend(mat.variantDbIds) #we're assuming the same calls on every matrixfor now
-                    variantNameList = getVariantNamesFromIds(ids=variantIds,geno_reader=self.geno_data_reader) #markers
-                    sampleNameList = getSampleNamesFromCallsetIds(ids=callsetIds,geno_reader=self.geno_data_reader) #plants
-                    allele_matrix = DataFrame(data=formatGenoData(allele_matrices,homozygoteToDosage), index=sampleNameList,columns=variantNameList)
+                    
+                    
+                    ##Todo - these are probably better, but don't work
+                    #variantNameList = getVariantNamesFromIds(ids=variantIds,geno_reader=self.geno_data_reader) #markers  To future josh - I got here!
+                    #sampleNameList = getSampleNamesFromCallsetIds(ids=callsetIds,geno_reader=self.geno_data_reader) #plants
+                    data_matrices:list[AlleleMatrixDataMatrices]=getGenoMatrices(allele_matrices)
+                    germplasmNames = list(map(getGermplasmName,germplasms))
+                    #variants=genoData.get_variant(variantDbIds=variantIds)#List of variants from matrix
+                    variants=genoData.get_variant(variantSetDbIds=variantSetDbIds)#List of variants from returned variantset
+                    variantNames = list(map(getVariantName,variants))
+                    print(f"Got {len(mat.dataMatrices)} matrices. Got {len(variantIds)} variants and {len(germplasmNames)} callsetIds")
+                    allele_matrix = DataFrame(data=formatGenoData(data_matrices,homozygoteToDosageForRRBlup), index=variantIds,columns=germplasmNames)
                     
                     #TODO - make into a GRM when needed - when is it needed?
                     #For now, lets just see if it works
@@ -148,8 +195,14 @@ class SommeRProcessData(ProcessData):
                 )
 
                 data_file_path = os.path.join(job.job_result_dir, f"{job.job_name}.csv")
-                allele_matrix.to_csv(data_file_path + ".geno", index=False)#write a geno file
+                if allele_matrix is not None:
+                    geno_file_path = os.path.join(job.job_result_dir,f"{job.job_name}_geno.csv")
+                    allele_matrix.to_csv(geno_file_path, index=False)#write a geno file
+                    job.data_geno_file=geno_file_path
+
+                data_file = open(data_file_path,'w',newline="")#JDLS - open file specifically as a handle, so I can force a close as per https://stackoverflow.com/a/73961896
                 plots_measurements.to_csv(data_file_path, index=False)
+                data_file.close() #Force a flush and close
 
                 job.data_file = data_file_path
                 

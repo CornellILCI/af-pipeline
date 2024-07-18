@@ -179,13 +179,15 @@ class PhenotypeDataBrapi(PhenotypeData):
         page_num = 0
 
         observation_units_filters = ObservationUnitSearchRequest(
-            studyDbIds=[occurrence_id], observationLevel="PLOT"
+            studyDbIds=[occurrence_id], observationLevel="plot"
         )
 
         post_response = self.post(
             endpoint=POST_SEARCH_OBSERVATION_UNITS_URL, json=observation_units_filters.dict()
         )
         if not post_response.is_success:
+            print(post_response.body)#Lets give the error to standard out as well - JDLS
+            print(post_response.error)
             raise DataReaderException(post_response.error)
 
         search_result_id = post_response.body["result"]["searchResultsDbId"]

@@ -19,3 +19,9 @@ class AnalysisRequestParameters(BaseModel):
     expLocAnalysisPatternPropertyId: str
     configFormulaPropertyId: str
     configResidualPropertyId: str
+    genoSource: DataSourceEnum
+    genoSourceUrl: str 
+    genoSourceAccessToken: str
+    genoConnectionType: str
+    genoConnectionAction: str 
+    genoStudyIds:'list[str]'

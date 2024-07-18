@@ -8,7 +8,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, Union, Mapping
 
-from pydantic import AnyUrl, BaseModel, Field, Json
+from pydantic import AnyUrl, BaseModel, Field, Json, root_validator
 import pydantic
 
 IntStr = Union[int, str]
@@ -488,6 +488,7 @@ class DataType(Enum):
     Numerical = 'Numerical'
     Ordinal = 'Ordinal'
     Text = 'Text'
+    String= 'string' #JDLS - it's what they sent back.... 
 
 
 class SearchRequestParametersCommonCropNames(BaseModel):
@@ -2006,8 +2007,8 @@ class MetadataDatafiles(BaseModel):
 
 
 class MetadataPagination(BaseModel):
-    currentPage: int = Field(
-        ...,
+    currentPage: Optional[int] = Field(#JDLS - why is this omitted
+        None,
         description='The index number for the returned page of data. This should always match the requested page number or the default page (0).',
         example=0,
     )
@@ -2036,19 +2037,19 @@ class MessageType1(Enum):
 
 
 class MetadataStatus(BaseModel):
-    message: str = Field(
-        ...,
+    message: Optional[str] = Field(
+        None,
         description='A short message concerning the status of this request/response',
         example='Request accepted, response successful',
     )
-    messageType: MessageType1 = Field(
-        ..., description='The logging level for the attached message', example='INFO'
-    )
+    messageType: Optional[MessageType1] = Field(
+        None, description='The logging level for the attached message', example='INFO'
+    ) #JDLS - somehow there's a list with an entry with neither of these, so making them optional... this json parser is not very good at its job
 
 
 class MetadataTokenPaginationPagination(BaseModel):
-    currentPage: int = Field(
-        ...,
+    currentPage: Optional[int] = Field( # JDLS - probably shouldn't be, but I'm missing it on this
+        None,
         description='The index number for the returned page of data. This should always match the requested page number or the default page (0).',
         example=0,
     )
@@ -3671,6 +3672,15 @@ class Metadata(BaseModel):
         None,
         description='The status field contains a list of informational status messages from the server. \nIf no status is reported, an empty list should be returned. See Error Reporting for more information.',
     )
+    @root_validator(pre=True)#Removes things like a missing status list - JDLS
+    def remove_empty(cls, values):
+        fields = list(values.keys())
+        for field in fields:
+            value = values[field]
+            if isinstance(value, dict) or isinstance(value, list):
+                if not values[field]:
+                    values.pop(field)
+        return values
 
 
 class MetadataBase(BaseModel):

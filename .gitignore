@@ -30,3 +30,5 @@ venv-dev
 docs/notebooks/.ipynb*
 .vscode
 htmlcov/
+.env
+venvs/

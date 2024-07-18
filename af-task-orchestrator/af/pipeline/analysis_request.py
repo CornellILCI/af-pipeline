@@ -27,12 +27,12 @@ class AnalysisRequest(BaseModel):
     dataSource: DataSource
     dataSourceUrl: str 
     dataSourceAccessToken: str
-    genoSource: Optional[DataSource] = Field(None)#TODO - genoSource is a terrible hack to get a separate genotype database entry.
-    genoSourceUrl: Optional[str] = Field(None)
-    genoSourceAccessToken: Optional[str]= Field(None)
-    genoConnectionType: Optional[str] = Field(None)#How to get geno from pheno data, bit TODO
-    genoConnectionAction: Optional[str] = Field(None) #How to combine geno/pheno data - 
-    genoStudyIds:Optional['list[str]']=Field(None)
+    genoSource: DataSource
+    genoSourceUrl: str 
+    genoSourceAccessToken: str
+    genoConnectionType: str
+    genoConnectionAction: str 
+    genoStudyIds:'list[str]'
     experiments: 'list[Experiment]'
     traits: 'list[Trait]'
     analysisObjectivePropertyId: str
@@ -42,4 +42,4 @@ class AnalysisRequest(BaseModel):
     configResidualPropertyId: str
     configPredictionPropertyIds: 'list[str]' = []
     outputFolder: str
-    crop: Optional[str] = Field(None)
+    crop: str

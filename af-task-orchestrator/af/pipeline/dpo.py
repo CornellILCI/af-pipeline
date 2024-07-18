@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 
+import pandas as pd
 # import pathlib
 import sys
 from abc import ABC, abstractmethod
@@ -52,16 +53,15 @@ class ProcessData(ABC):
 
         self.analysis_request = analysis_request
 
-        factory = DataReaderFactory(analysis_request.dataSource.name, analysis_request.genoSource.name if analysis_request.genoSourceUrl is not None else None) #This is the worst ternary I've ever seen - JDLS
+        factory = DataReaderFactory(analysis_request.dataSource, analysis_request.genoSource)#if analysis_request.genoSourceUrl is not None else None) #This is the worst ternary I've ever seen - JDLS
         self.data_reader: PhenotypeData = factory.get_phenotype_data(
             api_base_url=analysis_request.dataSourceUrl, api_bearer_token=analysis_request.dataSourceAccessToken
         )
         
-        #TODO - another horrible hack - genoSourceURL is optional
-        if(analysis_request.genoSourceUrl is not None):
-            self.geno_data_reader : GenotypeData = factory.get_genotype_data(api_base_url  = analysis_request.genoSourceUrl, 
-                                      api_bearer_token=analysis_request.genoSourceAccessToken)
-        else: self.geno_data_reader = None
+        #TODO - another horrible hack - genoSourceURL is optional - this seems to be not triggering
+        #if(analysis_request.genoSourceUrl is not None):
+        self.geno_data_reader : GenotypeData = factory.get_genotype_data(api_base_url  = analysis_request.genoSourceUrl, api_bearer_token=analysis_request.genoSourceAccessToken)
+        #else: self.geno_data_reader = None
 
         self.experiment_ids = []
         self.occurrence_ids = []
@@ -174,7 +174,7 @@ class ProcessData(ABC):
 
         job_data.job_params = job_params
 
-    def format_input_data(self, plots_and_measurements, trait):
+    def format_input_data(self, plots_and_measurements:pd.DataFrame, trait) -> pd.DataFrame:
         """
         Formats input data downloaded to analysis ready data.
         Makes sure the column names of the input data are mapped according to analysis config.
@@ -210,22 +210,22 @@ class ProcessData(ABC):
         return plots_and_measurements
 
     @abstractmethod
-    def sesl(self):
+    def sesl(self) -> 'list[JobData]':
         pass
 
     @abstractmethod
-    def seml(self):
+    def seml(self) -> 'list[JobData]':
         pass
 
     @abstractmethod
-    def mesl(self):
+    def mesl(self) -> 'list[JobData]':
         pass
 
     @abstractmethod
-    def mesl(self):
+    def mesl(self) -> 'list[JobData]':
         pass
 
-    def run(self):
+    def run(self)  -> 'list[JobData]':
         """Pre process input data before inputing into analytical engine.
 
         Extracts plots and plot measurements from api source.

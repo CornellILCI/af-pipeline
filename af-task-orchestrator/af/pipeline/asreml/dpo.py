@@ -159,7 +159,7 @@ class AsremlProcessData(ProcessData):
                 plots_and_measurements = self.format_input_data(plots_and_measurements, trait)
 
                 if not plots_and_measurements.empty:
-                    self._write_job_data(job_data, plots_and_measurements, trait)
+                    self._write_job_data(job_data, plots_and_measurements:DataFrame, trait)
                     yield job_data
 
     def mesl(self):
@@ -168,7 +168,7 @@ class AsremlProcessData(ProcessData):
     def meml(self):
         raise NotImplementedError("MEML analysis pattern is not implemented")
 
-    def _write_job_data(self, job_data, plots_and_measurements, trait):
+    def _write_job_data(self, job_data, plots_and_measurements:pd.DataFrame, trait):
         job_data.trait_name = trait.abbreviation
 
         data_file_name = f"{job_data.job_name}.csv"

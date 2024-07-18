@@ -75,7 +75,7 @@ saveRDS(pred, paste("{job_dir}/{job_name}_pred.rds", sep=""))
 @dataclass
 class AsremlRJobResult(JobData):
     asr_rds_file: str = ""
-    prediction_rds_files: list[str] = field(default_factory=list)
+    prediction_rds_files: 'list[str]' = field(default_factory=list)
 
 
 class AsremlRAnalyze(AsremlAnalyze):

@@ -31,7 +31,7 @@ class Analyze(abc.ABC):
 
     dpo_cls: ProcessData = None
     engine_script: str = ""
-
+    analysis: Analysis = None #This seems to be expected but does not exist....?
     def __init__(self, analysis_request: AnalysisRequest, *args, **kwargs):
         """Constructor.
 
@@ -55,11 +55,12 @@ class Analyze(abc.ABC):
             time.sleep(1)
             self.analysis = db_services.get_analysis_by_request_id(self.db_session, request_id=analysis_request.requestId)
             
-        
+        if self.analysis is None:
+            raise Exception(f"There is no analysis object for request {analysis_request.requestId}")
         self.output_file_path = path.join(analysis_request.outputFolder, "result.zip")
         self.report_file_path = path.join(analysis_request.outputFolder, f"{analysis_request.requestId}_report.xlsx")
 
-    def get_process_data(self, analysis_request, *args, **kwargs):
+    def get_process_data(self, analysis_request, *args, **kwargs) -> ProcessData:
         """Get the associated ProcessData object for this Analyze"""
         return self.dpo_cls(analysis_request)
 
@@ -70,7 +71,7 @@ class Analyze(abc.ABC):
         try:
             job_input_files = self.get_process_data(self.analysis_request).run()
             message = "Data preprocessing completed. Running jobs."
-            #return job_input_files
+            return job_input_files
         except (DataReaderException, DpoException) as e:
             status = "FAILURE"
             message = "Data preprocessing failed."
@@ -78,8 +79,7 @@ class Analyze(abc.ABC):
         finally:
             self._update_request_status(status, message)
             self.db_session.commit()
-            return job_input_files #JDLS-TODO - trying to figure out why this is null... Guessing the Finally bashes the return?
-
+            
     def _update_request_status(self, status, message):
         self.analysis.request.status = status
         self.analysis.request.msg = message
@@ -160,7 +160,7 @@ class Analyze(abc.ABC):
         raise AnalysisError(str(e))
 
 
-def get_analyze_object(analysis_request: AnalysisRequest, session=None):
+def get_analyze_object(analysis_request: AnalysisRequest, session=None) -> Analyze:
     """Returns the configured Analyze object based on engine name"""
     if not session:
         session = DBConfig.get_session()

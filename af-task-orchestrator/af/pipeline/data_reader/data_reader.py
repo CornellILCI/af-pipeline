@@ -48,17 +48,27 @@ class DataReader:
         """
 
         url = url_join(self.api_base_url, endpoint)
-
+        #headers = {'Content-Type': 'application/json'}
+        
         if isinstance(self.api_bearer_token, str):
             token_header = f"Bearer {self.api_bearer_token}"
             kwargs.setdefault("headers", {})["Authorization"] = token_header
 
+        #kwargs.setdefault("headers",{})["Content-Type"]="application/json" #maybe?
+        #kwargs.headers['Content-Type']='application/json'#Maybe?  
+        #print(f"Api token: {token_header}")
+            
         try:
-            response = request_method(url, **kwargs)
+            response:requests.models.Response = request_method(url, **kwargs)#Headers = headers looks stupid, but is right syntax based on stackoverflow? -JDLS
         except RequestException as r_e:
             raise DataReaderException(r_e)
 
-        api_response = ApiResponse(http_status=response.status_code, body=response.json())
+        if (response.status_code == 400):print(f"Code: {response.status_code} Body: {response.content}")
+        try:
+            api_response = ApiResponse(http_status=response.status_code, body=response.json())
+        except requests.exceptions.JSONDecodeError:
+            print(f"BrAPI response was not real JSON {response.status_code}  ||  {response.content}")
+            api_response = ApiResponse(http_status=response.status_code,body=response.content)#Body was not valid json - seems to happen in POSTs to Gigwa... probably GIGWA correct, and naive assumption that everything is valid .json is wrong - JDLS
 
         try:
             response.raise_for_status()

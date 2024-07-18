@@ -46,7 +46,7 @@ def gather_pheno_data(params):
 
     api_base_url = params.get("dataSourceUrl")
 
-    factory = DataReaderFactory(datasource)
+    factory = DataReaderFactory(datasource,datasource)
 
     if datatype == DataType.PHENOTYPE:
         reader: PhenotypeData = _get_phenotypedata_reader(factory, api_base_url, api_token)
@@ -122,7 +122,7 @@ def gather_geno_data(params):
 
     api_base_url = params.get("genoSourceUrl")
 
-    factory = DataReaderFactory(datasource)
+    factory = DataReaderFactory(source,source)
     reader: GenotypeData = _get_genotypedata_reader(factory, api_base_url, api_token)
 
         # TODO:  determine from the analysis type and/pr datasource? which of these data sets

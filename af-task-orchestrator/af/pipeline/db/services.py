@@ -35,7 +35,7 @@ def get_request(db_session, request_id) -> Request:
     return db_session.query(Request).filter(Request.uuid == request_id).one()
 
 
-def get_analysis_by_request_id(db_session, request_id):
+def get_analysis_by_request_id(db_session, request_id) -> Analysis:
     return db_session.query(Analysis).join(Request).filter(Request.uuid == request_id).first()
 
 
