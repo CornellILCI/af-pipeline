@@ -28,21 +28,21 @@ INSERT INTO af.property_config(
 
 -- add config_110005 meta data
 WITH analysis_config AS (
-	SELECT id FROM af.property WHERE code = 'config_110005.cfg'
+	SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1
 )
-INSERT INTO af.property_meta(code,value,property_id) VALUES
+INSERT INTO af.property_meta(code,value,property_id) VALUES 
 	('config_version', '2', (SELECT id FROM analysis_config)),
 	('date', '13-Nov-2021', (SELECT id FROM analysis_config)),
 	('author', 'Josh L.S.', (SELECT id FROM analysis_config)),
 	('email', 'jdl232@cornell.edu', (SELECT id FROM analysis_config)),
 	('engine', 'sommer - mmec', (SELECT id FROM analysis_config)),
-    	('design',  'RCBD', (SELECT id FROM analysis_config)),
+    ('design',  'RCBD', (SELECT id FROM analysis_config)),
 	('trait_level', 'plot', (SELECT id FROM analysis_config)),
-    	('analysis_objective', 'prediction', (SELECT id FROM analysis_config)),
-    	('exp_analysis_pattern', 'single', (SELECT id FROM analysis_config)),
-    	('loc_analysis_pattern', 'single', (SELECT id FROM analysis_config)),
-    	('year_analysis_pattern', 'single', (SELECT id FROM analysis_config)),
-    	('trait_pattern', 'univariate', (SELECT id FROM analysis_config));
+    ('analysis_objective', 'prediction', (SELECT id FROM analysis_config)),
+    ('exp_analysis_pattern', 'single', (SELECT id FROM analysis_config)),
+    ('loc_analysis_pattern', 'single', (SELECT id FROM analysis_config)),
+    ('year_analysis_pattern', 'single', (SELECT id FROM analysis_config)),
+    ('trait_pattern', 'univariate', (SELECT id FROM analysis_config));
 
 
 -- add formula to config_110005
@@ -62,7 +62,7 @@ config_formula_property_config_link AS (
 		is_void, property_id, config_property_id, is_layout_variable
 	) VALUES (
 		1, 'now()', '1', false,
-		(SELECT id FROM af.property WHERE code='formula'), 
+		(SELECT id FROM af.property WHERE code='formula' LIMIT 1), 
 		(SELECT id FROM config_formula), false
 	)
 ),
@@ -72,7 +72,7 @@ config_formula_config_110005_link AS (
 		is_void, property_id, config_property_id, is_layout_variable
 	) VALUES (
 		1, 'now()', '1', false,
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
 		(SELECT id FROM config_formula), false
 	)
 
@@ -97,29 +97,30 @@ config_residual_property_config_link AS (
 		is_void, property_id, config_property_id, is_layout_variable
 	) VALUES (
 		1, 'now()', '1', false,
-		(SELECT id FROM af.property WHERE code='residual'), 
-		(SELECT id FROM config_residual), false
+		(SELECT id FROM af.property WHERE code='residual' LIMIT 1), 
+		(SELECT id FROM config_residual LIMIT 1), false
 	)
 ),
-config_residual_config_10001_link AS (
+config_residual_config_110005_link AS (
 	INSERT INTO af.property_config(
 		order_number, creation_timestamp, creator_id,
 		is_void, property_id, config_property_id, is_layout_variable
 	) VALUES (
 		1, 'now()', '1', false,
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
-		(SELECT id FROM config_residual), false
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
+		(SELECT id FROM config_residual LIMIT 1), false
 	)
 
 )
 SELECT * FROM config_residual;
 
 
+
 WITH config_prediction AS (
 	INSERT INTO af.property(
 		type, data_type, code, "name", "statement"
 	) VALUES (
-		'catalog_item', 'character varying', 'loc:var', 'loc:var', 'loc:variety'
+		'catalog_item', 'character varying', 'Yield', 'Yield', 'YLDPLOT'
 	) RETURNING id
 ),
 config_prediction_property_config_link AS (
@@ -128,42 +129,40 @@ config_prediction_property_config_link AS (
 		is_void, property_id, config_property_id, is_layout_variable
 	) VALUES (
 		1, 'now()', '1', false,
-		(SELECT id FROM af.property WHERE code='prediction'), 
-		(SELECT id FROM config_prediction), false
+		(SELECT id FROM af.property WHERE code='prediction' LIMIT 1) , 
+		(SELECT id FROM config_prediction LIMIT 1), false
 	)
 ),
-config_prediction_config_10001_link AS (
+config_prediction_config_110005_link AS (
 	INSERT INTO af.property_config(
 		order_number, creation_timestamp, creator_id,
 		is_void, property_id, config_property_id, is_layout_variable
 	) VALUES (
 		1, 'now()', '1', false,
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
-		(SELECT id FROM config_prediction), false
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
+		(SELECT id FROM config_prediction LIMIT 1), false
 	)
 
 ) SELECT * from config_prediction;
-
 
 -- add trial as stat factor
 WITH stat_factor AS (
 	INSERT INTO af.property (code, type) VALUES  ('trial', 'catalog_item') RETURNING id
 ),
-stat_factor_config_110005_link AS (
-	INSERT INTO af.property_config (
-		order_number, creation_timestamp, creator_id, is_void,property_id, 
-		config_property_id, is_layout_variable
-	) VALUES (
-		5, 'now()', '1', false, 
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
-		(SELECT id FROM stat_factor), false
+stat_factor_config AS (
+	INSERT INTO af.property_config (order_number, creation_timestamp, creator_id,is_void, 
+		property_id, config_property_id, is_layout_variable
+	) VALUES(
+		4, 'now()', '1', false,
+		(SELECT id FROM af.property WHERE code = 'analysis_module_fields' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
 	)
-)
-SELECT id AS stat_factor_id FROM stat_factor;
-
--- add plot as stat factor
-WITH stat_factor AS (
-	INSERT INTO af.property (code, type) VALUES  ('plot', 'catalog_item') RETURNING id
+), 
+stat_factor_meta AS (
+	INSERT INTO af.property_meta(code,value,property_id) 
+	VALUES(
+		'definition', 'trialDbId', (SELECT id FROM stat_factor LIMIT 1)
+	)
 ),
 stat_factor_config_110005_link AS (
 	INSERT INTO af.property_config (
@@ -171,8 +170,39 @@ stat_factor_config_110005_link AS (
 		config_property_id, is_layout_variable
 	) VALUES (
 		5, 'now()', '1', false, 
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
-		(SELECT id FROM stat_factor), false
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
+	)
+)
+SELECT id AS stat_factor_id FROM stat_factor LIMIT 1;
+
+-- add plot as stat factor
+WITH stat_factor AS (
+	INSERT INTO af.property (code, type) VALUES  ('plot', 'catalog_item') RETURNING id
+),
+stat_factor_config AS (
+	INSERT INTO af.property_config (order_number, creation_timestamp, creator_id,is_void, 
+		property_id, config_property_id, is_layout_variable
+	) VALUES(
+		4, 'now()', '1', false,
+		(SELECT id FROM af.property WHERE code = 'analysis_module_fields' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
+	)
+), 
+stat_factor_meta AS (
+	INSERT INTO af.property_meta(code,value,property_id) 
+	VALUES(	
+		'definition', 'observationUnitDbId', (SELECT id FROM stat_factor)
+	)
+),
+stat_factor_config_110005_link AS (
+	INSERT INTO af.property_config (
+		order_number, creation_timestamp, creator_id, is_void,property_id, 
+		config_property_id, is_layout_variable
+	) VALUES (
+		5, 'now()', '1', false, 
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
 	)
 )
 SELECT id AS stat_factor_id FROM stat_factor;
@@ -182,14 +212,29 @@ SELECT id AS stat_factor_id FROM stat_factor;
 WITH stat_factor AS (
 	INSERT INTO af.property (code, type) VALUES  ('genotype', 'catalog_item') RETURNING id
 ),
+stat_factor_config AS (
+	INSERT INTO af.property_config (order_number, creation_timestamp, creator_id,is_void, 
+		property_id, config_property_id, is_layout_variable
+	) VALUES(
+		4, 'now()', '1', false,
+		(SELECT id FROM af.property WHERE code = 'analysis_module_fields'),
+		(SELECT id FROM stat_factor LIMIT 1), false
+	)
+), 
+stat_factor_meta AS (
+	INSERT INTO af.property_meta(code,value,property_id) 
+	VALUES(
+		'definition', 'germplasmDbId', (SELECT id FROM stat_factor LIMIT 1)
+	)
+),
 stat_factor_config_110005_link AS (
 	INSERT INTO af.property_config (
 		order_number, creation_timestamp, creator_id, is_void,property_id, 
 		config_property_id, is_layout_variable
 	) VALUES (
 		5, 'now()', '1', false, 
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
-		(SELECT id FROM stat_factor), false
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
 	)
 )
 SELECT id AS stat_factor_id FROM stat_factor;
@@ -199,14 +244,29 @@ SELECT id AS stat_factor_id FROM stat_factor;
 WITH stat_factor AS (
 	INSERT INTO af.property (code, type) VALUES  ('rep', 'catalog_item') RETURNING id
 ),
+stat_factor_config AS (
+	INSERT INTO af.property_config (order_number, creation_timestamp, creator_id,is_void, 
+		property_id, config_property_id, is_layout_variable
+	) VALUES(
+		4, 'now()', '1', false,
+		(SELECT id FROM af.property WHERE code = 'analysis_module_fields' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
+	)
+), 
+stat_factor_meta AS (
+	INSERT INTO af.property_meta(code,value,property_id) 
+	VALUES(
+		'definition', 'replicate', (SELECT id FROM stat_factor)
+	)
+),
 stat_factor_config_110005_link AS (
 	INSERT INTO af.property_config (
 		order_number, creation_timestamp, creator_id, is_void,property_id, 
 		config_property_id, is_layout_variable
 	) VALUES (
 		5, 'now()', '1', false, 
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
-		(SELECT id FROM stat_factor), false
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
 	)
 )
 SELECT id AS stat_factor_id FROM stat_factor;
@@ -216,14 +276,29 @@ SELECT id AS stat_factor_id FROM stat_factor;
 WITH stat_factor AS (
 	INSERT INTO af.property (code, type) VALUES  ('loc', 'catalog_item') RETURNING id
 ),
+stat_factor_config AS (
+	INSERT INTO af.property_config (order_number, creation_timestamp, creator_id,is_void, 
+		property_id, config_property_id, is_layout_variable
+	) VALUES(
+		4, 'now()', '1', false,
+		(SELECT id FROM af.property WHERE code = 'analysis_module_fields' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
+	)
+), 
+stat_factor_meta AS (
+	INSERT INTO af.property_meta(code,value,property_id) 
+	VALUES(
+		'definition', 'locationDbId', (SELECT id FROM stat_factor)
+	)
+),
 stat_factor_config_110005_link AS (
 	INSERT INTO af.property_config (
 		order_number, creation_timestamp, creator_id, is_void,property_id, 
 		config_property_id, is_layout_variable
 	) VALUES (
 		5, 'now()', '1', false, 
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
-		(SELECT id FROM stat_factor), false
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
 	)
 )
 SELECT id AS stat_factor_id FROM stat_factor;
@@ -233,14 +308,29 @@ SELECT id AS stat_factor_id FROM stat_factor;
 WITH stat_factor AS (
 	INSERT INTO af.property (code, type) VALUES  ('col', 'catalog_item') RETURNING id
 ),
+stat_factor_config AS (
+	INSERT INTO af.property_config (order_number, creation_timestamp, creator_id,is_void, 
+		property_id, config_property_id, is_layout_variable
+	) VALUES(
+		4, 'now()', '1', false,
+		(SELECT id FROM af.property WHERE code = 'analysis_module_fields' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
+	)
+), 
+stat_factor_meta AS (
+	INSERT INTO af.property_meta(code,value,property_id) 
+	VALUES(
+		'definition', 'positionCoordinateX', (SELECT id FROM stat_factor)
+	)
+),
 stat_factor_config_110005_link AS (
 	INSERT INTO af.property_config (
 		order_number, creation_timestamp, creator_id, is_void,property_id, 
 		config_property_id, is_layout_variable
 	) VALUES (
 		5, 'now()', '1', false, 
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
-		(SELECT id FROM stat_factor), false
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
 	)
 )
 SELECT id AS stat_factor_id FROM stat_factor;
@@ -250,14 +340,29 @@ SELECT id AS stat_factor_id FROM stat_factor;
 WITH stat_factor AS (
 	INSERT INTO af.property (code, type) VALUES  ('row', 'catalog_item') RETURNING id
 ),
+stat_factor_config AS (
+	INSERT INTO af.property_config (order_number, creation_timestamp, creator_id,is_void, 
+		property_id, config_property_id, is_layout_variable
+	) VALUES(
+		4, 'now()', '1', false,
+		(SELECT id FROM af.property WHERE code = 'analysis_module_fields' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
+	)
+), 
+stat_factor_meta AS (
+	INSERT INTO af.property_meta(code,value,property_id) 
+	VALUES(
+		'definition', 'positionCoordinateY', (SELECT id FROM stat_factor LIMIT 1)
+	)
+),
 stat_factor_config_110005_link AS (
 	INSERT INTO af.property_config (
 		order_number, creation_timestamp, creator_id, is_void,property_id, 
 		config_property_id, is_layout_variable
 	) VALUES (
 		5, 'now()', '1', false, 
-		(SELECT id FROM af.property WHERE code = 'config_110005.cfg'),
-		(SELECT id FROM stat_factor), false
+		(SELECT id FROM af.property WHERE code = 'config_110005.cfg' LIMIT 1),
+		(SELECT id FROM stat_factor LIMIT 1), false
 	)
 )
 SELECT id AS stat_factor_id FROM stat_factor;
