@@ -38,3 +38,11 @@ To run with G-Crunch, the UI needs to be run, and pointed at this instance eithe
 For simple G-Crunch installation - edit the example '.env' file to include your requirements, then docker compose build on this folder, then docker compose run to get a simple, testable environment. Of course, to get multiple worker nodes, or to separate features across different systems, check the docker compose and run something like docker-swarm. All the nessisary communication paths are listed in the docker-compose (there's a lot of database access).
 
 Warning - the postgres password may not take effect. docker exec -it <database's address> bash  then sudo psql -U <user> then ALTER USER <> WITH PASSWORD <>   to force it. I'll try to figure out why the script didn't stick later -JDLS
+
+
+### Known Issues
+Configuration requires correct linkages in the database, and these can be hard to track down and correct. See 2024.01's liquibase chages for more info.
+
+The id response for genotype data currently is only returning 1000 of the entries, which is truncating the genotype file matrix to 1000 entries when applied. This is likely pagination issues in the genotype_brapi call.
+
+mmer() is using a lot of memory when called. mmec() calls should fix this.
