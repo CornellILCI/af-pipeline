@@ -136,14 +136,18 @@ class SommeRProcessData(ProcessData):
 
                 # pre process input job data
                 plots = self.data_reader.get_plots(occurrence_id=occurrence_id)
+                print(f"{plots.columns.size} Columns: {plots.columns}")
                 plot_measurements = self.data_reader.get_plot_measurements(
                     occurrence_id=occurrence_id, trait_id=trait.trait_id
                 )
 
                 plots_measurements = plots.merge(plot_measurements, on="observationUnitDbId", how="left")
 
+                print(f"{plots_measurements.columns.size} plots_measurements columns: {plots_measurements.columns}")
                 plots_measurements = self.format_input_data(plots_measurements, trait)
                 
+                print(f"{plots_measurements.columns.size} plots_measurements columns after input formatting: {plots_measurements.columns}")
+             
                 allele_matrix = None
                 
                 if self.geno_data_reader is not None:
@@ -201,7 +205,9 @@ class SommeRProcessData(ProcessData):
                     job.data_geno_file=geno_file_path
 
                 data_file = open(data_file_path,'w',newline="")#JDLS - open file specifically as a handle, so I can force a close as per https://stackoverflow.com/a/73961896
-                plots_measurements.to_csv(data_file_path, index=False)
+                plots_measurements.to_csv(data_file, index=False)
+                print(f"{plots_measurements.columns.size} plots_measurements columns after writing: {plots_measurements.columns}")
+         
                 data_file.close() #Force a flush and close
 
                 job.data_file = data_file_path

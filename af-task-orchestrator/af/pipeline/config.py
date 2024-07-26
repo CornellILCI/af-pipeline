@@ -22,6 +22,7 @@ def get_afdb_uri():
 def get_analysis_engine_script(engine_name: str):
     # This needs to configured from db
     engine = engine_name.lower()
+    print(f"Looking for engine: {engine_name}")
 
     # Or this can just be defined by their respective Analyze classes
     if engine == "asreml":
@@ -30,11 +31,13 @@ def get_analysis_engine_script(engine_name: str):
     if engine in ["asremlr", "asreml-r", "asreml_r"]:
         return "asreml-r"
 
+    if engine in ["r - sommer mmec", "sommer mmec", "sommer-mmec", "sommer - mmec"]:
+        return "sommer-mmec"
+    
     if engine in ["r - sommer", "sommer"]:
         return "sommer"
     
-    if engine in ["r - sommer mmec", "sommer mmec", "sommer-mmec", "sommer - mmec"]:
-        return "sommer-mmec"
+
 
     print(f"Invalid engine name: {engine}")#This is uaually a straight lookup, why this table in the first place?
     return None

@@ -136,7 +136,10 @@ def get_analysis_config_module_fields(db_session, analysis_config_id: str):
     analysis_field_root = db_session.query(Property).filter(Property.code == "analysis_module_fields").one()
 
     _property_meta = func.jsonb_object_agg(PropertyMeta.code, PropertyMeta.value).label("property_meta")
-
+    #JDLS - note: here it is, the master 'what fields should be in the output csv line. You found it!  Why TF is this a cross-linked 
+    # For each property, select property config
+    #From that list, join with Property config on property id = analysis_module_fields and config_id = this property AND property id = this property and config id = whatever analysis we're looking at
+    print(f"Looking for analysis id {analysis_config_id}")
     module_fields = (
         db_session.query(Property, _property_meta)
         .select_from(PropertyConfig)
@@ -153,6 +156,7 @@ def get_analysis_config_module_fields(db_session, analysis_config_id: str):
         .group_by(Property.id)
         .all()
     )
+    print(f"Found: {module_fields}")
 
     return module_fields
 

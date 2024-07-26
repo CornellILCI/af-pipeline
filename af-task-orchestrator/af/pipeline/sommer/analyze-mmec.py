@@ -24,7 +24,7 @@ class SommeRJobResult(JobData):
 class SommeRmmecAnalyze(Analyze):
 
     dpo_cls = SommeRProcessData
-    engine_script = "sommer-mmec"
+    engine_script = "sommer-mmec" #sommer-mmec
     sommer_rds_file_name = "result.rds"
     prediction_rds_file_name = "prediction{i}.rds"
 
@@ -139,11 +139,19 @@ class SommeRmmecAnalyze(Analyze):
                 robjects.r("library(rrBLUP)")
                 #rdf=rpy_utils.pydf_to_rdf(geno_data)
                 robjects.globalenv["snpRelMat"]=geno_data
+                robjects.globalenv["input_data"]=input_data
                 robjects.r(f"Amatrix <- rrBLUP::A.mat(snpRelMat)")
-                robjects.r(f"GT <- as.matrix(Amatrix)")
+                robjects.r(f"GT <- as.matrix(Amatrix)") #Add a diag?
+                
+                ## Map elements in the relationship matrix to the phenotypes
+                #robjects.r(f'rownames(GT)=levels(input_data$genotype)')
+                #robjects.r(f'colnames(GT)=levels(input_data$genotype)')
+                robjects.r(f'rownames(GT) <- as.factor(colnames(GT))')
+                robjects.r(f'colnames(GT) <- as.factor(colnames(GT))')
+                robjects.r(f'attr(GT, "INVERSE")=FALSE')
+                robjects.r(f"GT <- as(GT, Class = 'dgCMatrix')") #MMEC needs dgCMatrix
                 robjects.r("A <- GT") #Old code used 'A', so I'll use A as well as GT TODO: workaround/hack -JDLS
-                robjects.r("Gu <- GT") #Old code used 'Gu' as well TODO: workaround/hack -JDLS
-
+               
 
             mix1 = sommer.mmec(**model_formulas, data=input_data)
             
