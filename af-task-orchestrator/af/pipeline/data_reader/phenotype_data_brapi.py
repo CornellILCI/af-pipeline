@@ -10,6 +10,8 @@ from af.pipeline.data_reader.models.observation_unit import ObservationUnitQuery
 from af.pipeline.data_reader.models.observation import ObservationQueryParams
 from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitSearchRequest, ObservationUnitListResponse, ObservationUnit, ObservationUnitLevelRelationship1, ObservationUnitListResponseResult
 
+from af.pipeline.data_reader.models.brapi.genotyping import Sample, SampleListResponse, SampleSearchRequest
+
 from af.pipeline.data_reader.phenotype_data import PhenotypeData
 from af.pipeline.pandasutil import df_keep_columns
 from pydantic import ValidationError, parse_obj_as
@@ -24,6 +26,12 @@ GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 POST_SEARCH_OBSERVATION_UNITS_URL = "/search/observationunits"
 
 GET_OBSERVATION_UNITS_SEARCH_RESULTS_URL = "/search/observationunits/{searchResultsDbId}"
+
+GET_SAMPLES_URL = "/samples"
+
+POST_SAMPLES_URL = "/search/samples"
+
+POST_SAMPLES_RESULTS_URL = "/search/samples/{searchResultDbId}"
 
 def flattenObservationObject(obs:List[ObservationUnit]):
     output = list()
@@ -394,3 +402,60 @@ class PhenotypeDataBrapi(PhenotypeData):
 
         if get_germplasm.body is None:
             raise DataReaderException("Germplasms are not found")
+        
+        
+        """Gets samples based on sample Ids, observation Ids, study Ids, or germplasm IDs, using BRAPIcalls
+        """
+    def get_samples(self, sample_ids: List[str]=None, observation_ids: List[str]=None , studyDbIds:List[str] = None, germplasmDbIds:List[str]=None) -> List[Sample]:
+        sample_filters = SampleSearchRequest(sampleDbIds=sample_ids,observationUnitDbIds=observation_ids,studyDbIds=studyDbIds, germplasmDbIds=germplasmDbIds) #Nones are ignored, so this can do either or or both
+
+
+        post_response = self.post(endpoint=POST_SAMPLES_URL, json=sample_filters.dict()) 
+        if not post_response.is_success:
+            raise DataReaderException(post_response.error)
+
+        sample_request_id = post_response.body["result"]["searchResultsDbId"]
+        page_num = 0
+
+        get_more_samples = True
+        
+        data = []
+        while get_more_samples:
+
+            sample_filters = SampleSearchRequest(pageSize=self.brapi_list_page_size, page=page_num)  #-Unused?
+            get_response = self.get(endpoint=POST_SAMPLES_URL + "/" + sample_request_id, json=sample_filters.dict() ) #Or postsamplesresultsurl
+
+            if not get_response.is_success:
+                raise DataReaderException(get_response.error)
+ 
+            brapi_response = SampleListResponse(**get_response.body)
+            
+            samples_data = brapi_response.result.data
+            
+            data.extend(samples_data)
+            
+            if page_num < get_response.body["metadata"]["pagination"]["totalPages"]:
+                page_num += 1
+            else:
+                get_more_samples = False
+
+            
+        return data
+
+        
+    
+    
+#    def get_samples_naive(self, sample_ids: List[str]=None, observation_ids: List[str]=None) -> List[Sample]:
+#        sample_filters = SampleSearchRequest(sampleDbIds=sample_ids,observationUnitDbIds=observation_ids) #Nones are ignored, so this can do either or or both#
+
+#
+#        api_response = self.get(endpoint=GET_SAMPLES_URL, params=sample_filters.dict())
+#
+ #       if not api_response.is_success:
+  #          raise DataReaderException(api_response.error)
+#
+ #       brapi_response = SampleListResponse(**api_response.body)
+#
+ #       return brapi_response.result.data
+    
+    

@@ -54,7 +54,7 @@ class GenotypeDataBrapi(GenotypeData):
         api_response = self.post(endpoint=POST_SEARCH_GERMPLASM_URL,json=filters.dict())
 
         if not api_response.is_success:
-            print(api_response.body)
+            print(api_response.body) # JDLS - leaving this for diagnostics. Sorry if this clutters your output
             raise DataReaderException(api_response.error)
         
         brapi_response:GermplasmListResponseResult = GermplasmListResponseResult(**api_response.body["result"])
@@ -79,7 +79,7 @@ class GenotypeDataBrapi(GenotypeData):
         response = VariantsListResponse(**api_response.body)
         brapi_response:VariantsListResponseResult = response.result#VariantsListResponseResult(**api_response.body["result"])
         totalPages=1
-        print(f"Variant Response metadata was {response.metadata}")
+        #print(f"Variant Response metadata was {response.metadata}")
         if( response.metadata is not None and 
             response.metadata.pagination is not None and 
             response.metadata.pagination.totalPages is not None and 
@@ -92,7 +92,7 @@ class GenotypeDataBrapi(GenotypeData):
             page=page+1
             api_response = self.post(endpoint=POST_SEARCH_VARIANTS_URL,json=filters.dict())
             next_response:VariantsListResponseResult = response.result#VariantsListResponseResult(**api_response.body["result"])
-            print(f"Variant page {page} had {len(brapi_response.data)} elements, adding to {len(fullresponse)} existing elements")
+            #print(f"Variant page {page} had {len(brapi_response.data)} elements, adding to {len(fullresponse)} existing elements")
             fullresponse+=next_response.data
         return fullresponse
     
@@ -141,7 +141,7 @@ class GenotypeDataBrapi(GenotypeData):
          raise DataReaderException(api_response.error)
 
         brapi_response:VariantSetsListResponseResult = VariantSetsListResponseResult(**api_response.body["result"])
-        print(f"Study: {studyDbIds} || VariantSets: {brapi_response.data}")#Todo - debugging
+        #print(f"Study: {studyDbIds} || VariantSets: {brapi_response.data}")#Todo - debugging
         return brapi_response.data
     
     def get_search_callsets(self, id, page: int = 0) -> ApiResponse:

@@ -43,12 +43,8 @@ def read_csv(file: str) -> vectors.DataFrame:
 #  locusMat <- scale(locusMat, center=TRUE, scale=F)
 #  return(tcrossprod(locusMat) / sum(2*freq*(1-freq)))
 #}
-#def relationship_mat(r_df):
-#    freq= r_base.colMeans(r_df) / 2
-#    locusMat = r_base.scale(r_df,center=True,scale='F')
-#    ret=r_base.tcrossprod(locusMat)/r_base.sum(2*freq*(1.0-freq)) #if this works it's magic?
-#    return ret #TODO - does this work - It does not
 
+#Just write it in R and call it
 def relationship_mat_env(r_df):
     #Saw this on someone's blog, no way this works
     robjects.r['source']('scripts/GRM.R')
@@ -57,19 +53,6 @@ def relationship_mat_env(r_df):
     r_result=funcGRM(r_df)
     return r_result
 
-#def relationship_mat_env(r_df):
-#    env=Environment()
-#    env['locusMat']=r_df
-#    robjects.r("req <- colMeans(locusMat) / 2")
-#    robjects.r("locusMat <- scale(locusMat, center=TRUE, scale=F)")
-#    robjects.r("returnVal <- tcrossprod(locusMat) / sum(2*freq*(1-freq))")
-#    return env['returnVal']
-    
- #   env['freq']= r_base.colMeans.rcall((('locusMat',r_base.as_symbol('locusMat')),),env)/2
-    #Nope, this is not better
-    #env['locusMat']=r_base.scale.rcall((('locusMat',r_base.as_symbol('locusMat'),('center',True),('scale','F')),),env)
-    
-#    return ret
 
 def relationship_mat(pydf):
     rdf=pydf_to_rdf(pydf)
@@ -138,7 +121,7 @@ def factorize(data_frame:vectors.DataFrame, col_name):
     
     #if(col_idx < 0): raise Exception(f"Invalid column named {col_name} in request to 'factorize' {data_frame.colnames}")
     if(col_idx < 0): 
-        print(f"Invalid column named {col_name} in request to 'factorize' {data_frame.colnames}") 
+        #print(f"Warning: invalid column named {col_name} in request to 'factorize' {data_frame.colnames}") #Annoying, but catching a lot of stupid errors 
         return data_frame #disable this failure for now
 
     data_frame[col_idx]=robjects.r(f"as.factor({data_frame[col_idx].r_repr()})")

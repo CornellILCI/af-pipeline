@@ -140,11 +140,21 @@ class SommeRProcessData(ProcessData):
                 plot_measurements = self.data_reader.get_plot_measurements(
                     occurrence_id=occurrence_id, trait_id=trait.trait_id
                 )
-
+                observation_ids= plots['observationUnitDbId'].tolist()
+                germplasm_ids = plots['germplasmDbId'].tolist()
+                samples= self.data_reader.get_samples_df(germplasmDbIds=germplasm_ids)#this study
                 plots_measurements = plots.merge(plot_measurements, on="observationUnitDbId", how="left")
+                
+                sample_ids = samples[['germplasmDbId','sampleDbId']]#Grab sample DbId (unique pheno -> geno identifier)
+                #sample_ids.rename(columns={'sampleDbId':'sample'}) #Just call it sample
+                plots_measurements = plots_measurements.merge(sample_ids, on="germplasmDbId", how="left")#I hate this so much, but ObservationUnitDbid is not linkable, 
+                # as they do not line up. So we'll take the first sample as sample Id and then that can match the genotype data sample item. 
+
 
                 print(f"{plots_measurements.columns.size} plots_measurements columns: {plots_measurements.columns}")
                 plots_measurements = self.format_input_data(plots_measurements, trait)
+                
+                
                 
                 print(f"{plots_measurements.columns.size} plots_measurements columns after input formatting: {plots_measurements.columns}")
              
@@ -153,14 +163,11 @@ class SommeRProcessData(ProcessData):
                 if self.geno_data_reader is not None:
                     genoData:GenotypeData=self.geno_data_reader
                     studyDbIds = self.analysis_request.genoStudyIds
-                    print(f"Study Ids: {studyDbIds[:10]}")                   
                     germplasms=genoData.get_germplasm(studyDbIds=studyDbIds)
                     germplasmDbIds=list(map(getGermplasmId,germplasms))
-                    print(f"Germplasm Ids: {germplasmDbIds[:10]}")
-            
+                    
                     variant_sets:list=genoData.get_variantsets(studyDbIds=studyDbIds)
                     
-                    print(f"Variant Sets: {variant_sets}")#Todo - debugging
                     variantSetDbIds=list(map(getVariantSetDbId,variant_sets))
                     allele_matrices:list[AlleleMatrix]=self.geno_data_reader.post_search_allelematrix(studyDbIds=studyDbIds,variantSetDbIds=variantSetDbIds,germplasmDbIds=germplasmDbIds, expandHomozygotes=True)
                     callsetIds=allele_matrices[0].callSetDbIds
@@ -176,11 +183,9 @@ class SommeRProcessData(ProcessData):
                     #variants=genoData.get_variant(variantDbIds=variantIds)#List of variants from matrix
                     variants=genoData.get_variant(variantSetDbIds=variantSetDbIds)#List of variants from returned variantset
                     variantNames = list(map(getVariantName,variants))
-                    print(f"Got {len(mat.dataMatrices)} matrices. Got {len(variantIds)} variants and {len(germplasmNames)} callsetIds")
+                    #print(f"Got {len(mat.dataMatrices)} matrices. Got {len(variantIds)} variants and {len(germplasmNames)} callsetIds")
                     allele_matrix = DataFrame(data=formatGenoData(data_matrices,homozygoteToDosageForRRBlup), index=variantIds,columns=germplasmNames)
                     
-                    #TODO - make into a GRM when needed - when is it needed?
-                    #For now, lets just see if it works
                     
                     
                     #mergeHow=self.analysis_request.genoConnectionAction
@@ -206,8 +211,7 @@ class SommeRProcessData(ProcessData):
 
                 data_file = open(data_file_path,'w',newline="")#JDLS - open file specifically as a handle, so I can force a close as per https://stackoverflow.com/a/73961896
                 plots_measurements.to_csv(data_file, index=False)
-                print(f"{plots_measurements.columns.size} plots_measurements columns after writing: {plots_measurements.columns}")
-         
+                
                 data_file.close() #Force a flush and close
 
                 job.data_file = data_file_path

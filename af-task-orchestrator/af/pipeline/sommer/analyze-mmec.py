@@ -48,15 +48,35 @@ class SommeRmmecAnalyze(Analyze):
         script = f"""
         #install.packages('sommer')
         #install.packages('readr')
-        
-        input_data<-read.csv(file='{job_data.data_file}',sep=',',header=TRUE)
+        #devtools::install_github('covaruber/sommer')
+             
+        input_data<-read.csv(file='{utils.get_name_part(job_data.data_file)}',sep=',',header=TRUE)
         input_data$rep <- as.factor(input_data$rep)
         input_data$genotype <- as.factor(input_data$genotype)
         """
+        
+        if(job_data.data_geno_file != ""):
+                script +=f"""
+                library(rrBLUP)
+                snpRelMat <- read.csv(file='{utils.get_name_part(job_data.data_geno_file)}', sep=',',header=TRUE)
+                Amatrix <- rrBLUP::A.mat(t(snpRelMat))
+
+                AMat <- as.matrix(Amatrix)
+                
+                keep_cols <- intersect(input_data$sample,colnames(AMat))
+                
+                input_data <- subset(input_data,sample %in% keep_cols)
+ 
+                GT <- as(AMat, Class = 'dgCMatrix')
+                """               
+               
+
+            
         #Placing variables 'in line' instead of in a kwargs... couldn't find a good substitute, given these are commands, not
         #strings. -JDLS
         #TODO - update for MMEC perperly
-        script += f"""mix1 <- mmec(
+        script += f"""library('sommer')
+        mix1 <- mmec(
             fixed= {rpy_utils.r_formula(job_data.job_params.fixed).r_repr().strip()},
             random= {rpy_utils.r_formula(job_data.job_params.random).r_repr().strip()},
             rcov= {rpy_utils.r_formula(job_data.job_params.residual).r_repr().strip()},
@@ -64,14 +84,14 @@ class SommeRmmecAnalyze(Analyze):
         """
         result_rds_file = utils.path_join(job_dir, self.sommer_rds_file_name)
         script += f"""dTable<-mix1$Dtable
-        saveRDS(mix1, '{result_rds_file}')
+        saveRDS(mix1, '{utils.get_name_part(result_rds_file)}')
         """
             # run predictions
         for i, prediction_statement in enumerate(job_data.job_params.predictions):
 
             prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name.format(i=i + 1))
             script += f"""predictions <- predict.mmec(object=mix1, Dtable=dTable, D='{prediction_statement}')
-    saveRDS(predictions,'{prediction_rds_file}')
+    saveRDS(predictions,'{utils.get_name_part(prediction_rds_file)}')
             """
 
             return script
@@ -121,41 +141,29 @@ class SommeRmmecAnalyze(Analyze):
             
         
             if(geno_data !=""):
-                #clean_geno_data=rpy_utils
-                #robjects.r(f"Amat <- A.mat({geno_data.r_repr})")
-                #robjects.r(f"GT <- as.matrix(Amat)")
-                #snpRelMat= rpy_utils.relationship_mat(geno_data)
-                #snpRelMat= rpy_utils.add_diag(geno_data,.0005)
-                #robjects.globalenv["snpRelMat"]=snpRelMat
-                #robjects.r(f"Gsnp <- as.matrix(snpRelMat)")
-                #Gsnp=r_as.matrix(snpRelMat,sparse=True)
-                
-                #Expose 'GT' for things like random effect
-                #robjects.r(f"GT <- as.matrix(snpRelMat)")
-                #T = r_as(Gsnp, Class = "dgCMatrix")
-                #robjects.globalenv["GT"]=GT #Terrible: adding this name to the global namespace - JDLS 
-                #Should probably make an Environment() object and pass that, but that'd require also fixing all the calls to run in that environment
-                
+
                 robjects.r("library(rrBLUP)")
-                #rdf=rpy_utils.pydf_to_rdf(geno_data)
+
                 robjects.globalenv["snpRelMat"]=geno_data
                 robjects.globalenv["input_data"]=input_data
-                robjects.r(f"Amatrix <- rrBLUP::A.mat(snpRelMat)")
-                robjects.r(f"GT <- as.matrix(Amatrix)") #Add a diag?
+                robjects.r(f"Amatrix <- rrBLUP::A.mat(t(snpRelMat))") #A matrix should be squarer. t() is transpose - needed
+
+                robjects.r(f"AMat <- as.matrix(Amatrix)") #Could add a diag here, but mmec should do that automatically
                 
-                ## Map elements in the relationship matrix to the phenotypes
-                #robjects.r(f'rownames(GT)=levels(input_data$genotype)')
-                #robjects.r(f'colnames(GT)=levels(input_data$genotype)')
-                robjects.r(f'rownames(GT) <- as.factor(colnames(GT))')
-                robjects.r(f'colnames(GT) <- as.factor(colnames(GT))')
-                robjects.r(f'attr(GT, "INVERSE")=FALSE')
-                robjects.r(f"GT <- as(GT, Class = 'dgCMatrix')") #MMEC needs dgCMatrix
-                robjects.r("A <- GT") #Old code used 'A', so I'll use A as well as GT TODO: workaround/hack -JDLS
+                robjects.r("keep_cols <- intersect(input_data$sample,colnames(AMat))")
+                
+                #Keep only what is in both, or get an error
+                robjects.r("input_data <- subset(input_data,sample %in% keep_cols)")
+ 
+                #robjects.r(f'attr(GT, "INVERSE")=FALSE')
+                robjects.r(f"GT <- as(AMat, Class = 'dgCMatrix')") #MMEC needs dgCMatrix
+                
+                input_data=robjects.globalenv["input_data"]
                
 
-            mix1 = sommer.mmec(**model_formulas, data=input_data)
-            
-            dTable=mix1.Dtable
+            mix1 = sommer.mmec(**model_formulas, data=input_data) 
+            robjects.globalenv["mix1"]=mix1
+            dTable=robjects.r("mix1$Dtable")
             #TODO - modify DTable[N, 'include']=TRUE and DTable[N,'average']=TRUE for inclusion and prediction if non-standard
 
             r_base.saveRDS(mix1, result_rds_file)

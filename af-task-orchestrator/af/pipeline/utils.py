@@ -35,6 +35,10 @@ def get_parent_dir(file_path: str) -> str:
     _file_path = Path(file_path)
     return _file_path.parent
 
+def get_name_part(file_path: str) -> str:
+    _file_path = Path(file_path)
+    return _file_path.name
+
 
 def path_join(dir_: str, file_: str) -> str:
     return os.path.join(dir_, file_)

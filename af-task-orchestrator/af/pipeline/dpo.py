@@ -23,22 +23,16 @@ if os.getenv("PIPELINE_EXECUTOR") is not None and os.getenv("PIPELINE_EXECUTOR")
 
 import pathlib
 
-# from af.pipeline import config
 from af.pipeline.analysis_request import AnalysisRequest
 from af.pipeline.data_reader import DataReaderFactory, PhenotypeData, GenotypeData
 from af.pipeline.data_reader.models import Trait  # noqa: E402; noqa: E402
 from af.pipeline import config, pandasutil, utils
 from af.pipeline.job_data import JobData, JobParams
 
-# from af.pipeline.data_reader.models import Experiment, Occurrence
-# from af.pipeline.data_reader.models.enums import DataSource, DataType
 from af.pipeline.db import services
 from af.pipeline.db.core import DBConfig
 from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
 from af.pipeline.analysis_request import AnalysisRequest
-# from af.pipeline.db.models import Property
-# from af.pipeline.exceptions import DpoException, InvalidAnalysisRequest
-# from af.pipeline.pandasutil import df_keep_columns
 
 
 class ProcessData(ABC):
@@ -205,8 +199,9 @@ class ProcessData(ABC):
 
         plots_and_measurements = plots_and_measurements.rename(columns=input_fields_to_config_fields)
 
-        plots_and_measurements = plots_and_measurements[input_fields_to_config_fields.values()]
-
+ 
+        #only fields that are in the data (plots_and_measurements.columns) and the keys list (input_fields_to_config_fields.values)            
+        #plots_and_measurements = plots_and_measurements[input_fields_to_config_fields.values()] #Didn't actually do anything, as the keys step also pruned. Does cause errors if any field is missing. -JDLS
         return plots_and_measurements
 
     @abstractmethod

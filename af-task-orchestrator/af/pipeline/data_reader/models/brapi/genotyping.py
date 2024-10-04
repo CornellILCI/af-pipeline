@@ -1972,7 +1972,6 @@ class ReferenceSet(BaseModel):
     )
     species: Optional[OntologyTerm] = None
 
-
 class Sample(BaseModel):
     additionalInfo: Optional[Dict[str, str]] = Field(
         None,
@@ -2045,6 +2044,9 @@ class Sample(BaseModel):
         description='The human readable name of the `Sample`',
         example='Sample_alpha_20191022',
     )
+    sampleDbId: str = Field(...,
+                            description='The ID which uniquely identifies a `Sample`\n<br> MIAPPE V1.1 (DM-76) Sample ID - Unique identifier for the sample.',
+                            )
     samplePUI: Optional[str] = Field(
         None,
         description='A permanent unique identifier for the `Sample` (DOI, URL, UUID, etc)\n<br> MIAPPE V1.1 (DM-81) External ID - An identifier for the sample in a persistent repository, comprising the name of the repository and the accession number of the observation unit therein. Submission to the EBI Biosamples repository is recommended. URI are recommended when possible. ',
