@@ -26,7 +26,9 @@ class SommeRmmecAnalyze(Analyze):
     dpo_cls = SommeRProcessData
     engine_script = "sommer-mmec" #sommer-mmec
     sommer_rds_file_name = "result.rds"
+    sommer_result_csv_file_name = "result.csv"
     prediction_rds_file_name = "prediction{i}.rds"
+    prediction_csv_file_name = "prediction{i}.csv"
 
     def __init__(self, analysis_request: AnalysisRequest, *args, **kwargs):
         super().__init__(analysis_request=analysis_request, *args, **kwargs)
@@ -61,13 +63,16 @@ class SommeRmmecAnalyze(Analyze):
                 snpRelMat <- read.csv(file='{utils.get_name_part(job_data.data_geno_file)}', sep=',',header=TRUE)
                 Amatrix <- rrBLUP::A.mat(t(snpRelMat))
 
-                AMat <- as.matrix(Amatrix)
+                AMat <- as.matrix(Amatrix) + diag(0.005,dim(Amatrix))
                 
                 keep_cols <- intersect(input_data$sample,colnames(AMat))
                 
                 input_data <- subset(input_data,sample %in% keep_cols)
+                
+                # %in% doesn't work if they're not character types
+                input_data$sample <- as.factor(input_data$sample)
  
-                GT <- as(AMat, Class = 'dgCMatrix')
+                GT <- as(solve(AMat), Class = 'dgCMatrix')
                 """               
                
 
@@ -90,8 +95,10 @@ class SommeRmmecAnalyze(Analyze):
         for i, prediction_statement in enumerate(job_data.job_params.predictions):
 
             prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name.format(i=i + 1))
+            prediction_csv_file = utils.path_join(job_dir,self.prediction_csv_file_name.format(i=i + 1))
             script += f"""predictions <- predict.mmec(object=mix1, Dtable=dTable, D='{prediction_statement}')
     saveRDS(predictions,'{utils.get_name_part(prediction_rds_file)}')
+    write.csv(predictions[0],'{utils.get_name_part(prediction_csv_file)}')
             """
 
             return script
@@ -148,15 +155,16 @@ class SommeRmmecAnalyze(Analyze):
                 robjects.globalenv["input_data"]=input_data
                 robjects.r(f"Amatrix <- rrBLUP::A.mat(t(snpRelMat))") #A matrix should be squarer. t() is transpose - needed
 
-                robjects.r(f"AMat <- as.matrix(Amatrix)") #Could add a diag here, but mmec should do that automatically
+                robjects.r(f"AMat <- as.matrix(Amatrix) + diag(0.005,dim(Amatrix))") #Adding a diag here just in case - JDLS (Solves issue with unsolvable matrix in example data)
                 
                 robjects.r("keep_cols <- intersect(input_data$sample,colnames(AMat))")
                 
                 #Keep only what is in both, or get an error
                 robjects.r("input_data <- subset(input_data,sample %in% keep_cols)")
+                
+                input_data = rpy_utils.factorize(input_data,'sample') #subset fails if sample's a factor before here - JDLS
  
-                #robjects.r(f'attr(GT, "INVERSE")=FALSE')
-                robjects.r(f"GT <- as(AMat, Class = 'dgCMatrix')") #MMEC needs dgCMatrix
+                robjects.r(f"GT <- as(solve(AMat), Class = 'dgCMatrix')") #MMEC needs dgCMatrix
                 
                 input_data=robjects.globalenv["input_data"]
                
@@ -165,9 +173,11 @@ class SommeRmmecAnalyze(Analyze):
             robjects.globalenv["mix1"]=mix1
             dTable=robjects.r("mix1$Dtable")
             #TODO - modify DTable[N, 'include']=TRUE and DTable[N,'average']=TRUE for inclusion and prediction if non-standard
+            #TODO: average and include all fixed effects, include but do not average genotype by default
+
 
             r_base.saveRDS(mix1, result_rds_file)
-
+            #TODO - write as a csv as well
             job_result.result_rds_file = result_rds_file
 
             # run predictions
@@ -176,7 +186,11 @@ class SommeRmmecAnalyze(Analyze):
                 predictions = sommer.predict_mmec(object=mix1, Dtable=dTable,D=prediction_statement)
 
                 prediction_rds_file = utils.path_join(job_dir, self.prediction_rds_file_name.format(i=i + 1))
+                prediction_csv_file = utils.path_join(job_dir,self.prediction_csv_file_name.format(i=i+1))
                 r_base.saveRDS(predictions, prediction_rds_file)
+                robjects.globalenv["predictions"]=predictions
+                #robjects.r(f"write.csv(predictions[0],'{prediction_csv_file}')") TODO - this writes an empty file
+                #r_base.write_csv(predictions,prediction_csv_file)
                 job_result.prediction_rds_files.append(prediction_rds_file)
 
         except (rpy2.rinterface_lib.embedded.RRuntimeError, ValueError) as e:
@@ -199,7 +213,7 @@ class SommeRmmecAnalyze(Analyze):
 
         sommer_result = r_base.readRDS(job_result.result_rds_file)
 
-        if not (sommer_result or bool(sommer_result.rx2("convergence"))):
+        if not (sommer_result): #-JDLS, there's no such thing as rx2('convergence')? #or bool(sommer_result.rx2("convergence"))):
             db.services.update_job(
                 self.db_session,
                 job,
@@ -213,11 +227,13 @@ class SommeRmmecAnalyze(Analyze):
 
         # TODO: Need to find a way to replace all hardcoded variable names like U, PevU, genotype.
         # Not sure if it is only entry that the end users are interested in!
+        
+        #TODO on the TODO - all these hardcodes are now wrong and point to nothing in mmec land - JDLS
 
         # write variances
-        variances = sommer_result_summary.rx2("varcomp")
-        variances_file_path = utils.path_join(job_result.job_result_dir, "variances")
-        rpy_utils.rdf_to_csv(variances, variances_file_path)
+        #variances = sommer_result_summary.rx2("varcomp")
+        #variances_file_path = utils.path_join(job_result.job_result_dir, "variances")
+        #rpy_utils.rdf_to_csv(variances, variances_file_path)
 
         #
         #   #outliers
@@ -229,28 +245,28 @@ class SommeRmmecAnalyze(Analyze):
         #   }
 
         # write sln file
-        breeding_values_file_path = utils.path_join(job_result.job_result_dir, "breeding_values")
-        breeding_values = r_base.as_data_frame(sommer_result.rx2("U").rx2("genotype").rx2(job_result.trait_name))
-        breeding_values.colnames = "breeding_values"
-        breeding_values.std_error = r_base.sqrt(
-            r_base.diag(sommer_result.rx2("PevU").rx2("genotype").rx2(job_result.trait_name))
-        )
-        breeding_values_sln = r_base.data_frame(
-            genotype=r_base.rownames(breeding_values),
-            breeding_values=breeding_values,
-            std_error=breeding_values.std_error,
-        )
-        rpy_utils.rdf_to_csv(breeding_values_sln, breeding_values_file_path)
+        #breeding_values_file_path = utils.path_join(job_result.job_result_dir, "breeding_values")
+        #breeding_values = r_base.as_data_frame(sommer_result.rx2("U").rx2("genotype").rx2(job_result.trait_name))
+        #breeding_values.colnames = "breeding_values"
+        #breeding_values.std_error = r_base.sqrt(
+        #    r_base.diag(sommer_result.rx2("PevU").rx2("genotype").rx2(job_result.trait_name))
+        #)
+        #breeding_values_sln = r_base.data_frame(
+        #    genotype=r_base.rownames(breeding_values),
+        #    breeding_values=breeding_values,
+        #    std_error=breeding_values.std_error,
+        #)
+        #rpy_utils.rdf_to_csv(breeding_values_sln, breeding_values_file_path)
         
-        residuals = sommer_result.rx2('residuals')
+        #residuals = sommer_result.rx2('residuals')
 
         # write yhat
-        yhat_file_path = utils.path_join(job_result.job_result_dir, "y_hat")
-        y_hat = sommer_result.rx2('fitted')
-        hat = r_base.diag(sommer_result.rx2('P'))
-        fitted = r_base.as_data_frame(r_base.cbind(y_hat, residuals, hat))
-        fitted.colnames = r_base.c("Yhat", "Residuals", "Hat")
-        rpy_utils.rdf_to_csv(fitted, yhat_file_path)
+        #yhat_file_path = utils.path_join(job_result.job_result_dir, "y_hat")
+        #y_hat = sommer_result.rx2('fitted')
+        #hat = r_base.diag(sommer_result.rx2('P'))
+        #fitted = r_base.as_data_frame(r_base.cbind(y_hat, residuals, hat))
+        #fitted.colnames = r_base.c("Yhat", "Residuals", "Hat")
+        #rpy_utils.rdf_to_csv(fitted, yhat_file_path)
         
         # TODO: Adding outliers is pending. It needs more explanation from req analysts about the operators
         # used

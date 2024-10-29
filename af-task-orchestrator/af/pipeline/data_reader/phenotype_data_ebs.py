@@ -110,6 +110,11 @@ class PhenotypeDataEbs(PhenotypeData):
         plots.rename(columns=self.plots_api_fields_to_local_fields, inplace=True)
 
         return plots.astype(str)
+    
+    
+    def get_plot_measurements_list(self,occurrence_id:list[str],trait_ids:list[str]) -> pd.DataFrame:
+        #Not impl
+        raise NotImplementedError
 
     def get_plot_measurements(self, occurrence_id: str = None, trait_id: str = None) -> pd.DataFrame:
 

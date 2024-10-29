@@ -8,7 +8,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyUrl, BaseModel, Field, constr
+from pydantic import AnyUrl, BaseModel, Field, constr, ConfigDict
 import pydantic
 
 from af.pipeline.data_reader.models.brapi.core import *
@@ -1875,6 +1875,7 @@ class ObservationNewRequest(BaseModel):
 
 
 class ObservationSearchRequest(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
     commonCropNames: Optional[List[str]] = Field(
         None,
         description="The BrAPI Common Crop Name is the simple, generalized, widely accepted name of the organism being researched. It is most often used in multi-crop systems where digital resources need to be divided at a high level. Things like 'Maize', 'Wheat', and 'Rice' are examples of common crop names.\n\nUse this parameter to only return results associated with the given crops. \n\nUse `GET /commoncropnames` to find the list of available crops on a server.",

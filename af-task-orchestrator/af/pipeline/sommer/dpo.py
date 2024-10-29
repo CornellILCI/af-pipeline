@@ -33,6 +33,12 @@ def getGermplasmName(g:Germplasm) -> str:
 def getVariantName(v:Variant) -> str:
     return v.variantNames[0]
 
+#Debugging, print the first couple lines of a dataframe
+def printFirstLineOfDataframe(df:DataFrame,dfName):
+    df2 = df.head(4)
+    print(f"DataFrame {dfName}")
+    print(df2)
+    return
 
 def getVariantNamesFromIds(ids:'list[str]',geno_reader:GenotypeData)->'list[str]':
     retlist=[]
@@ -127,98 +133,114 @@ class SommeRProcessData(ProcessData):
         jobs = []
 
         for occurrence_id in self.occurrence_ids:
-
+            req_trait_ids = [trait.traitId for trait in self.analysis_request.traits]
+            req_traits = list()
             for req_trait in self.analysis_request.traits:
 
                 trait: data_reader.models.Trait = data_reader.models.Trait(
-                    trait_id=req_trait.traitId, trait_name=req_trait.traitName, abbreviation=req_trait.traitName
+                trait_id=req_trait.traitId, trait_name=req_trait.traitName, abbreviation=req_trait.traitName
                 )
-
-                # pre process input job data
-                plots = self.data_reader.get_plots(occurrence_id=occurrence_id)
-                print(f"{plots.columns.size} Columns: {plots.columns}")
-                plot_measurements = self.data_reader.get_plot_measurements(
-                    occurrence_id=occurrence_id, trait_id=trait.trait_id
+                req_traits.append(trait)
+           
+            plots = self.data_reader.get_plots(occurrence_id=occurrence_id)
+            plot_measurements = self.data_reader.get_plot_measurements_list(
+                    occurrence_ids=[occurrence_id], trait_ids=req_trait_ids
                 )
-                observation_ids= plots['observationUnitDbId'].tolist()
-                germplasm_ids = plots['germplasmDbId'].tolist()
-                samples= self.data_reader.get_samples_df(germplasmDbIds=germplasm_ids)#this study
-                plots_measurements = plots.merge(plot_measurements, on="observationUnitDbId", how="left")
-                
-                sample_ids = samples[['germplasmDbId','sampleDbId']]#Grab sample DbId (unique pheno -> geno identifier)
-                #sample_ids.rename(columns={'sampleDbId':'sample'}) #Just call it sample
-                plots_measurements = plots_measurements.merge(sample_ids, on="germplasmDbId", how="left")#I hate this so much, but ObservationUnitDbid is not linkable, 
-                # as they do not line up. So we'll take the first sample as sample Id and then that can match the genotype data sample item. 
+            
 
-
-                print(f"{plots_measurements.columns.size} plots_measurements columns: {plots_measurements.columns}")
-                plots_measurements = self.format_input_data(plots_measurements, trait)
-                
-                
-                
-                print(f"{plots_measurements.columns.size} plots_measurements columns after input formatting: {plots_measurements.columns}")
-             
-                allele_matrix = None
-                
-                if self.geno_data_reader is not None:
-                    genoData:GenotypeData=self.geno_data_reader
-                    studyDbIds = self.analysis_request.genoStudyIds
-                    germplasms=genoData.get_germplasm(studyDbIds=studyDbIds)
-                    germplasmDbIds=list(map(getGermplasmId,germplasms))
-                    
-                    variant_sets:list=genoData.get_variantsets(studyDbIds=studyDbIds)
-                    
-                    variantSetDbIds=list(map(getVariantSetDbId,variant_sets))
-                    allele_matrices:list[AlleleMatrix]=self.geno_data_reader.post_search_allelematrix(studyDbIds=studyDbIds,variantSetDbIds=variantSetDbIds,germplasmDbIds=germplasmDbIds, expandHomozygotes=True)
-                    callsetIds=allele_matrices[0].callSetDbIds
-                    variantIds=[]
-                    for mat in allele_matrices: variantIds.extend(mat.variantDbIds) #we're assuming the same calls on every matrixfor now
-                    
-                    
-                    ##Todo - these are probably better, but don't work
-                    #variantNameList = getVariantNamesFromIds(ids=variantIds,geno_reader=self.geno_data_reader) #markers  To future josh - I got here!
-                    #sampleNameList = getSampleNamesFromCallsetIds(ids=callsetIds,geno_reader=self.geno_data_reader) #plants
-                    data_matrices:list[AlleleMatrixDataMatrices]=getGenoMatrices(allele_matrices)
-                    germplasmNames = list(map(getGermplasmName,germplasms))
-                    #variants=genoData.get_variant(variantDbIds=variantIds)#List of variants from matrix
-                    variants=genoData.get_variant(variantSetDbIds=variantSetDbIds)#List of variants from returned variantset
-                    variantNames = list(map(getVariantName,variants))
-                    #print(f"Got {len(mat.dataMatrices)} matrices. Got {len(variantIds)} variants and {len(germplasmNames)} callsetIds")
-                    allele_matrix = DataFrame(data=formatGenoData(data_matrices,homozygoteToDosageForRRBlup), index=variantIds,columns=germplasmNames)
-                    
-                    
-                    
-                    #mergeHow=self.analysis_request.genoConnectionAction
-                    #validateMerge=None
-                    #if mergeHow == "fail":
-                    #    validateMerge="1:1"
-                    #    mergeHow="full"
+            job_trait=req_traits[0]#Job trait is first trait
+            
+            
+            germplasm_ids = plots['germplasmDbId'].tolist()
+            samples= self.data_reader.get_samples_df(germplasmDbIds=germplasm_ids)#this study
+            sample_ids = samples[['germplasmDbId','sampleDbId']]#Grab sample DbId (unique pheno -> geno identifier)
+            
+            printFirstLineOfDataframe(plots,f"plots(dpo)[{len(plots)}]")
+            #Merge plots into plots_measurements
+            plots_measurements = plots.merge(plot_measurements, on="observationUnitDbId", how="left",validate="m:1")
+            
+            sample_ids=sample_ids.drop_duplicates(subset="germplasmDbId",keep="first")
+            #TODO - this should be a join on left, but I can't have empty sample ids
+            plots_measurements = plots_measurements.merge(sample_ids, on="germplasmDbId", how="inner", validate="m:1")#I hate this so much, but ObservationUnitDbid is not linkable, 
+            printFirstLineOfDataframe(plots_measurements,f"plots_measurements(pre-format)[{len(plots_measurements)}]")
+            
+            plots_measurements = self.format_input_data(plots_measurements, req_traits)
+            #printFirstLineOfDataframe(plots_measurements,f"plots_measurements(post-format)[{len(plots_measurements)}]")
                         
-                    #plot_measurements = plot_measurements.merge(right=allele_matrix,left_on="germplasm",right_index=True,how=mergeHow,validate="1:1")#Keep all pheno info, only keep geno info that relates
+                    
+           #sample_ids.rename(columns={'sampleDbId':'sample'}) #Just call it sample
+            # as they do not line up. So we'll take the first sample as sample Id and then that can match the genotype data sample item. 
+
+
                 
-                job_name = f"{self.analysis_request.requestId}_{occurrence_id}_{trait.trait_id}" 
-                job = JobData(
-                    job_name=job_name,
-                    trait_name=trait.trait_name,
-                    job_result_dir=self.get_job_folder(job_name)
-                )
-
-                data_file_path = os.path.join(job.job_result_dir, f"{job.job_name}.csv")
-                if allele_matrix is not None:
-                    geno_file_path = os.path.join(job.job_result_dir,f"{job.job_name}_geno.csv")
-                    allele_matrix.to_csv(geno_file_path, index=False)#write a geno file
-                    job.data_geno_file=geno_file_path
-
-                data_file = open(data_file_path,'w',newline="")#JDLS - open file specifically as a handle, so I can force a close as per https://stackoverflow.com/a/73961896
-                plots_measurements.to_csv(data_file, index=False)
                 
-                data_file.close() #Force a flush and close
-
-                job.data_file = data_file_path
                 
-                self._set_job_params(job, trait)
+             
+            allele_matrix = None
+                
+            if self.geno_data_reader is not None:
+                genoData:GenotypeData=self.geno_data_reader
+                studyDbIds = self.analysis_request.genoStudyIds
+                germplasms=genoData.get_germplasm(studyDbIds=studyDbIds)
+                germplasmDbIds=list(map(getGermplasmId,germplasms))
+            
+                variant_sets:list=genoData.get_variantsets(studyDbIds=studyDbIds)
+                
+                variantSetDbIds=list(map(getVariantSetDbId,variant_sets))
+                allele_matrices:list[AlleleMatrix]=self.geno_data_reader.post_search_allelematrix(studyDbIds=studyDbIds,variantSetDbIds=variantSetDbIds,germplasmDbIds=germplasmDbIds, expandHomozygotes=True)
+                callsetIds=allele_matrices[0].callSetDbIds
+                variantIds=[]
+                for mat in allele_matrices: variantIds.extend(mat.variantDbIds) #we're assuming the same calls on every matrixfor now
+                
+                
+                ##Todo - these are probably better, but don't work
+                #variantNameList = getVariantNamesFromIds(ids=variantIds,geno_reader=self.geno_data_reader) #markers  To future josh - I got here!
+                #sampleNameList = getSampleNamesFromCallsetIds(ids=callsetIds,geno_reader=self.geno_data_reader) #plants
+                #variants=genoData.get_variant(variantSetDbIds=variantSetDbIds)#List of variants from returned variantset
+                #variantNames = list(map(getVariantName,variants))
+                
+                
+                data_matrices:list[AlleleMatrixDataMatrices]=getGenoMatrices(allele_matrices)
+                germplasmNames = list(map(getGermplasmName,germplasms))
+                allele_matrix = DataFrame(data=formatGenoData(data_matrices,homozygoteToDosageForRRBlup), index=variantIds,columns=germplasmNames)
+                
+                
+                #Filtering now happening in R - JDLS
+                #TODO - this needs to happen downstream in the 'R' code now    
+                #mergeHow=self.analysis_request.genoConnectionAction
+                #validateMerge=None
+                #if mergeHow == "fail":
+                #    validateMerge="1:1"
+                #    mergeHow="full"
+                
+                #plot_measurements = plot_measurements.merge(right=allele_matrix,left_on="germplasm",right_index=True,how=mergeHow,validate="1:1")#Keep all pheno info, only keep geno info that relates
+            
+            job_name = f"{self.analysis_request.requestId}_{occurrence_id}_{job_trait.trait_id}" 
+            job = JobData(
+                job_name=job_name,
+                trait_name=job_trait.trait_name,
+                job_result_dir=self.get_job_folder(job_name)
+            )
 
-                jobs.append(job)
+            data_file_path = os.path.join(job.job_result_dir, f"{job.job_name}.csv")
+            if allele_matrix is not None:
+                geno_file_path = os.path.join(job.job_result_dir,f"{job.job_name}_geno.csv")
+                allele_matrix.to_csv(geno_file_path, index=False)#write a geno file
+                job.data_geno_file=geno_file_path
+
+            data_file = open(data_file_path,'w',newline="")#JDLS - open file specifically as a handle, so I can force a close as per https://stackoverflow.com/a/73961896
+            
+            printFirstLineOfDataframe(plots_measurements,f"plots_measurements(pre-print)[{len(plots_measurements)}]")
+
+            plots_measurements.to_csv(data_file, index=False)
+            
+            data_file.close() #Force a flush and close
+
+            job.data_file = data_file_path
+            
+            self._set_job_params(job, job_trait)
+
+            jobs.append(job)
         return jobs
 
     def seml(self):

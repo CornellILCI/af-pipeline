@@ -67,18 +67,21 @@ def gather_pheno_data(params):
 
         occurrences = []
         plots = {}
+        
+        traits = []
+        for trait_id in trait_ids:
+            trait = reader.get_trait(trait_id)
+            traits.append(trait)
+            
         plot_measurements = {}
         for occurrence_id in occurrence_ids:
             occurrence = reader.get_occurrence(occurrence_id)
             occurrences.append(occurrence)
 
             plots[occurrence_id] = reader.get_plots(occurrence_id)
-            plot_measurements[occurrence_id] = reader.get_plot_measurements(occurrence_id)
-
-        traits = []
-        for trait_id in trait_ids:
-            trait = reader.get_trait(trait_id)
-            traits.append(trait)
+            plot_measurements[occurrence_id] = reader.get_plot_measurements_list([occurrence_id],trait_ids)
+            
+        
 
         # TODO:  determine how large these data are, they might not fit into
         # the parameter size limit for celery tasks

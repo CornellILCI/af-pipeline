@@ -168,29 +168,38 @@ class ProcessData(ABC):
 
         job_data.job_params = job_params
 
-    def format_input_data(self, plots_and_measurements:pd.DataFrame, trait) -> pd.DataFrame:
+    def format_input_data(self, plots_and_measurements:pd.DataFrame, traitList:list[Trait]) -> pd.DataFrame:
         """
         Formats input data downloaded to analysis ready data.
         Makes sure the column names of the input data are mapped according to analysis config.
         """
 
+        #trait_id  value
+        #yield     37
+        #height    6'2
+        #plots_and_measurements.melt(id_vars="trait_id",value_vars="trait_value",var_name="trait",value_name="trait_value")
+        #Do this elsewhere
+        #plots_and_measurements.pivot_table(values="value",columns="trait_id", index=<every other column>, fill_value=config.UNIVERSAL_UNKNOWN)//TODO - every other column
+        #blah  yield height
+        #      37     6'2
+        
         input_fields_to_config_fields = self.__get_input_fields_config_fields()
 
         # drop trait id
-        plots_and_measurements.drop(["trait_id"], axis=1, inplace=True)
+        #plots_and_measurements.drop(["trait_id"], axis=1, inplace=True)
 
         # fill trait value with NA string
-        plots_and_measurements[["trait_value"]] = plots_and_measurements[["trait_value"]].fillna(
-            config.UNIVERSAL_UNKNOWN
-        )
+        #plots_and_measurements[["trait_value"]] = plots_and_measurements[["trait_value"]].fillna(
+         ##   config.UNIVERSAL_UNKNOWN
 
         trait_qc = plots_and_measurements.trait_qc
 
         # rename
         plots_and_measurements.loc[trait_qc == "B", "trait_value"] = "NA"
 
-        # map trait value column to trait name
-        input_fields_to_config_fields["trait_value"] = trait.abbreviation
+        # map trait value column to trait name - trait name matches column in input now -JDLS
+        for trait in traitList:
+            input_fields_to_config_fields[trait.trait_name] = trait.abbreviation
 
         # Key only the config field columns
         plots_and_measurements = pandasutil.df_keep_columns(

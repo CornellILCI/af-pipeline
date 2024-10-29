@@ -7,8 +7,10 @@ from af.pipeline.data_reader.models import Occurrence
 from af.pipeline.data_reader.models.brapi.core import ListResponse, Study
 from af.pipeline.data_reader.models.brapi.germplasm import Germplasm
 from af.pipeline.data_reader.models.observation_unit import ObservationUnitQueryParams
-from af.pipeline.data_reader.models.observation import ObservationQueryParams
-from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitSearchRequest, ObservationUnitListResponse, ObservationUnit, ObservationUnitLevelRelationship1, ObservationUnitListResponseResult
+
+from af.pipeline.data_reader.models.brapi.phenotyping import ObservationUnitSearchRequest, ObservationUnitLevel1,ObservationUnitListResponse, ObservationUnit, ObservationUnitLevelRelationship1, ObservationUnitListResponseResult, ObservationSearchRequest,ObservationListResponse
+
+
 
 from af.pipeline.data_reader.models.brapi.genotyping import Sample, SampleListResponse, SampleSearchRequest
 
@@ -21,6 +23,8 @@ GET_OBSERVATION_UNITS_URL = "/observationunits"
 
 GET_OBSERVATIONS_URL = "/observations"
 
+GET_SEARCH_OBSERVATIONS_URL = "/search/observations"
+
 GET_STUDIES_BY_ID_URL = "/studies/{studyDbId}"  # noqa:
 
 POST_SEARCH_OBSERVATION_UNITS_URL = "/search/observationunits"
@@ -32,7 +36,19 @@ GET_SAMPLES_URL = "/samples"
 POST_SAMPLES_URL = "/search/samples"
 
 POST_SAMPLES_RESULTS_URL = "/search/samples/{searchResultDbId}"
+    
+#Debugging - prints the top couple lines of a dataframe
+def printFirstLineOfDataframe(df:pd.DataFrame,dfName):
+    df2 = df.head(4)
+    print(f"DataFrame {dfName}")
+    print(df2)
+    return
 
+#'flattens' an observation unit to a 'row' for every observation unit relationship, and if there are no relationship, adds a 'rep' of nothing. 
+# This tries to replicate a bit of clever code using doubly nested column lists that no longer works - JDLS
+# The caller then pulls out the observations it cares about, and deduplicates the resulting dataframe. The logic for what 'it cares about' should probably go into this function...
+# in the next revamping pass
+#Original had some problems with dataframe trying to 'flatten' the object. This 'flattens' the objects out in what I think is the same logic the old code used to do when it worked. -JDLS
 def flattenObservationObject(obs:List[ObservationUnit]):
     output = list()
     for x in obs:
@@ -74,6 +90,7 @@ class PhenotypeDataBrapi(PhenotypeData):
 
     # TODO: termporary patching where same name mapping can be avoided by adding a logic in 
     # code
+    # TODO on the TODO: 'temporary'. api_to_local(*) needs to be reworked
     plots_api_fields_to_local_fields = {
         "observationUnitDbId": "observationUnitDbId",
         "germplasmDbId": "germplasmDbId",
@@ -87,8 +104,8 @@ class PhenotypeDataBrapi(PhenotypeData):
 
     plot_measurements_api_fields_to_local_fields = {
         "observationUnitDbId": "observationUnitDbId",
-        "observationVariableDbId": "trait_id",
-        "value": "trait_value",
+        #"observationVariableDbId": "trait_id",
+       # "value": "trait_value", JDLS - we're using pivot_table to pull the names the DB used for the traits
     }
 
     brapi_list_page_size = 1000
@@ -98,7 +115,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         # first POST to /bmsapi/{crop}/brapi/v2/search/observationunits
         observation_units_filters = ObservationUnitSearchRequest(studyDbIds=[exp_id], observationLevel="PLOT")
 
-        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2, json=observation_units_filters.dict()) 
+        post_response = self.post(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2, json=observation_units_filters.dict()) #TODO: BMS name in the brapi? Glad this was never used
         if not post_response.is_success:
             raise DataReaderException(post_response.error)
 
@@ -126,7 +143,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         while get_more_plots:
 
             observation_units_filters = ObservationUnitQueryParams(pageSize=self.brapi_list_page_size, page=page_num)
-            get_response = self.get(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2 + "/" + observation_units_id)
+            get_response = self.get(endpoint=GET_POST_OBSERVATION_UNITS_URL_BMS_V2 + "/" + observation_units_id) #TODO: BMS name in the brapi? Glad this was never used
 
             if not get_response.is_success:
                 raise DataReaderException(get_response.error)
@@ -185,9 +202,9 @@ class PhenotypeDataBrapi(PhenotypeData):
         plots_data = []
 
         page_num = 0
-
+        level:ObservationUnitLevel1=ObservationUnitLevel1(levelName="plot")
         observation_units_filters = ObservationUnitSearchRequest(
-            studyDbIds=[occurrence_id], observationLevel="plot"
+            studyDbIds=[occurrence_id], observationLevels=[level]
         )
 
         post_response = self.post(
@@ -238,8 +255,11 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             # list record path to normalze
             list_record_path = ["observationUnitPosition", "observationLevelRelationships"]
-
+            
             new_plots_data=flattenObservationObject(plots_data) #Make into a proper flatish dictionary
+            
+            #printFirstLineOfDataframe(new_plots_data,'new_plots_data')
+            
             # this dataframe will have observation level array as seperate rows
             new_columns_path=[
                 "observationUnitDbId",
@@ -254,13 +274,14 @@ class PhenotypeDataBrapi(PhenotypeData):
                 "levelCode",
                 "levelOrder",
             ]
-            new_plots_data_df = pd.DataFrame(data=new_plots_data,columns=new_columns_path)#,columns=columns_path)
-
+            
+            new_plots_data_df = pd.DataFrame(data=new_plots_data,columns=new_columns_path)#,columns=columns_path);
+            
             plots_unpivoted=new_plots_data_df
             plots_observation_levels_pivoted = plots_unpivoted.pivot(
-                index="observationUnitDbId", columns=["levelName"], values="levelCode"  #columns = [[levelName]] was 'columns is the type of level name' aka plot, block, rep...deal with that tomorrow
+                index="observationUnitDbId", columns="levelName", values="levelCode"  #columns = [[levelName]] was 'columns is the type of level name' aka plot, block, rep...deal with that tomorrow
             )
-
+ 
             plots_observation_levels_droped = (
                 plots_unpivoted.drop(columns=["levelOrder", "levelCode", "levelName"]).drop_duplicates().reset_index()
             )
@@ -268,6 +289,7 @@ class PhenotypeDataBrapi(PhenotypeData):
             plots_page = plots_observation_levels_droped.join(
                 plots_observation_levels_pivoted, on="observationUnitDbId"
             )
+ 
 
             # keep only local field columns
             plots_page = df_keep_columns(plots_page, self.plots_api_fields_to_local_fields.keys())
@@ -288,16 +310,102 @@ class PhenotypeDataBrapi(PhenotypeData):
         # rename dataframe column with local field names
         plots.rename(columns=self.plots_api_fields_to_local_fields, inplace=True)
 
+        #printFirstLineOfDataframe(plots,f'plots[{len(plots)}]') #GetPlots seems to be working - JDLS
         return plots.astype(str)
 
+    def get_plot_measurements_list(self,occurrence_ids: list[str] = None, trait_ids:list[str] = None) -> pd.DataFrame:
+        
+        plot_measurements_data = []
+
+        page_num = 0
+
+        observations_filters = ObservationSearchRequest(
+            studyDbIds=occurrence_ids,observationVariableDbIds=trait_ids, pageSize=1000
+        )
+        
+        post_response = self.post(endpoint=GET_SEARCH_OBSERVATIONS_URL, json=observations_filters.dict())
+        if not post_response.is_success:
+            raise DataReaderException(post_response.error)
+
+        request_id = post_response.body["result"]["searchResultsDbId"]
+        page_num = 0
+
+        get_more = True
+        
+        data = []
+        while get_more:
+
+            filters = ObservationSearchRequest(pageSize=self.brapi_list_page_size, page=page_num)
+            get_response = self.get(endpoint=GET_SEARCH_OBSERVATIONS_URL + "/" + request_id, json=filters.dict())
+
+            if not get_response.is_success:
+                raise DataReaderException(get_response.error)
+ 
+            brapi_response = ObservationListResponse(**get_response.body)        
+        
+        
+            plot_measurements_data = brapi_response.result.data
+
+            plot_measurements_page = pd.DataFrame(data=[obs.dict() for obs in plot_measurements_data])
+
+            if page_num == 0:
+                plot_measurements = plot_measurements_page
+            else:
+                plot_measurements = pd.concat([plot_measurements,plot_measurements_page])                       
+            if page_num < brapi_response.metadata.pagination.totalPages:
+                page_num += 1
+            else:
+                get_more = False
+
+        #Taken from 'formatInputData', which munged it and ran it on a much larger dataset. Sorry future maintainer for breaking the containment
+        #Pivot the traits so instead of having traitId as a column, each trait gets its own column    
+            # From:
+            #OVName  value
+            #yield     37
+            #height    6'2\
+                #Note - ObservationVaraibleName might not be the greatest choice, but observationvariabledbid is the search term. We'll need the name later, though... So it saves a step
+                #to do here... May kill multi-linqual support. Sorry - JDLS
+                
+        #printFirstLineOfDataframe(plot_measurements['observationUnitDbId','value','observationVariableName'],"plot_measurements_useful_columns")
+        #plot_measurements.pivot(index='observationUnitDbId',values="value",columns="observationVariableName")#fill_value=config.UNIVERSAL_UNKNOWN)#TODO - index - every other column?
+        #aggfunction -> take first value if there's duplicates.
+        #TODO - why are there duplicates? JDLS
+        
+        plot_measurements=plot_measurements.pivot_table(index='observationUnitDbId',values="value",columns="observationVariableName",aggfunc='first', fill_value="NA")#fill_value=config.UNIVERSAL_UNKNOWN)#TODO - index - every other column?
+        
+         #printFirstLineOfDataframe(plot_measurements,f"plot_measurements_pivoted [{len(plot_measurements)}]")       
+
+        plot_measurements=plot_measurements.reset_index()
+
+        plot_measurements = plot_measurements.rename(columns={'observationVariableName':'observationUnitDbId'})
+        plot_measurements = plot_measurements.drop_duplicates(keep='first',subset='observationUnitDbId') #Sometimes there's 4+ rows... confusing
+
+        # keep only local field columns - already done in pivot
+        #plot_measurements = df_keep_columns(plot_measurements, self.plot_measurements_api_fields_to_local_fields.keys())
+        # rename columns to local field names
+        plot_measurements = plot_measurements.rename(
+            columns=self.plot_measurements_api_fields_to_local_fields,
+        )
+        
+        # trait_qc not part of brapi spec, so set to default value
+        plot_measurements["trait_qc"] = "G"
+            
+
+        return plot_measurements.astype(str)
+
+
+        
     def get_plot_measurements(self, occurrence_id: str = None, trait_id: str = None) -> pd.DataFrame:
 
         plot_measurements_data = []
 
         page_num = 0
 
-        observations_filters = ObservationQueryParams(
-            studyDbId=occurrence_id, observationVariableDbId=trait_id, pageSize=1000
+       # observations_filters = ObservationQueryParams(
+        ##    studyDbId=occurrence_id, observationVariableDbId=trait_id, pageSize=1000
+       # )
+        observations_filters = ObservationSearchRequest(
+            studyDbIds=[occurrence_id],observationVariableDbIds=[trait_id], pageSize=1000 #JDLS - don't we have a page.size config param now?
         )
         
         while len(plot_measurements_data) >= self.brapi_list_page_size or page_num == 0:
@@ -321,15 +429,16 @@ class PhenotypeDataBrapi(PhenotypeData):
                 plot_measurements = pd.concat([plot_measurements,plot_measurements_page])
 
             page_num += 1
+            
 
         # keep only local field columns
         plot_measurements = df_keep_columns(plot_measurements, self.plot_measurements_api_fields_to_local_fields.keys())
-
+        #printFirstLineOfDataframe(plot_measurements,'plot_measurements')
         # rename columns to local field names
         plot_measurements = plot_measurements.rename(
             columns=self.plot_measurements_api_fields_to_local_fields,
         )
-
+        
         # trait_qc not part of brapi spec, so set to default value
         plot_measurements["trait_qc"] = "G"
 
@@ -388,7 +497,7 @@ class PhenotypeDataBrapi(PhenotypeData):
             germplasm_url = GET_GERMPLASM_BY_DB_ID.format(searchResultDbId=search_germplasm_dbid)
 
             get_germplasm = self.get(endpoint=germplasm_url)
-            germplasm_list = parse_obj_as('list[Germplasm]', get_germplasm.body["result"]["data"])#I have no idea if this is how to solve the VScode error but '' the list seems to placate it
+            germplasm_list = parse_obj_as('list[Germplasm]', get_germplasm.body["result"]["data"])
 
             return germplasm_list
 
@@ -441,21 +550,3 @@ class PhenotypeDataBrapi(PhenotypeData):
 
             
         return data
-
-        
-    
-    
-#    def get_samples_naive(self, sample_ids: List[str]=None, observation_ids: List[str]=None) -> List[Sample]:
-#        sample_filters = SampleSearchRequest(sampleDbIds=sample_ids,observationUnitDbIds=observation_ids) #Nones are ignored, so this can do either or or both#
-
-#
-#        api_response = self.get(endpoint=GET_SAMPLES_URL, params=sample_filters.dict())
-#
- #       if not api_response.is_success:
-  #          raise DataReaderException(api_response.error)
-#
- #       brapi_response = SampleListResponse(**api_response.body)
-#
- #       return brapi_response.result.data
-    
-    

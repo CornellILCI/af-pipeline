@@ -15,7 +15,7 @@ class PhenotypeData(ABC, DataReader):
 
     @abstractmethod
     def get_plots(self, experiment_id=None, occurrence_id: str = None, location_id=None) -> pd.DataFrame:
-        """Gets plots as pandas dataframe.
+         """Gets plots as pandas dataframe.
 
         Args:
             occurrence_id: To get plots belonging to the given occurrence id.
@@ -23,7 +23,12 @@ class PhenotypeData(ABC, DataReader):
         Returns:
             Plot data as pandas dataframe.
         """
-        pass
+         pass   
+        
+    @abstractmethod
+    def get_plot_measurements_list(self,occurrence_id:list[str],trait_ids:list[str]) -> pd.DataFrame:
+        
+      pass
 
     @abstractmethod
     def get_plot_measurements(self, occurrence_id: str, trait_id: str) -> pd.DataFrame:
