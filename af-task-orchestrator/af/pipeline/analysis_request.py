@@ -27,12 +27,12 @@ class AnalysisRequest(BaseModel):
     dataSource: DataSource
     dataSourceUrl: str 
     dataSourceAccessToken: str
-    genoSource: DataSource
-    genoSourceUrl: str 
-    genoSourceAccessToken: str
-    genoConnectionType: str
-    genoConnectionAction: str 
-    genoStudyIds:'list[str]'
+    genoSource: Optional[DataSource] =Field(None)
+    genoSourceUrl: Optional[str]=Field(None)
+    genoSourceAccessToken: Optional[str]=Field(None)
+    genoConnectionType: Optional[str]=Field(None)
+    genoConnectionAction: Optional[str] =Field(None)
+    genoStudyIds:Optional['list[str]'] =Field(None)
     experiments: 'list[Experiment]'
     traits: 'list[Trait]'
     analysisObjectivePropertyId: str

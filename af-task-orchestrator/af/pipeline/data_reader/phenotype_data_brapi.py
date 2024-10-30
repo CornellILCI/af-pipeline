@@ -385,7 +385,7 @@ class PhenotypeDataBrapi(PhenotypeData):
         # rename columns to local field names
         plot_measurements = plot_measurements.rename(
             columns=self.plot_measurements_api_fields_to_local_fields,
-        )
+        )# ToDO - pretty sure this is a no-op now - JDLS
         
         # trait_qc not part of brapi spec, so set to default value
         plot_measurements["trait_qc"] = "G"

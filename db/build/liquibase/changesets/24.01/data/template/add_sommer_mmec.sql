@@ -202,12 +202,16 @@ INSERT INTO af.property_meta(code,value,property_id) VALUES
 
 
 SELECT * FROM add_config_formula('config_110005.cfg',4,'formula_opt2',
-'Trait from geno with AMat','Trait from geno with AMat', 
-'fixed = {trait_name} ~ genotype, random = ~vsc(isc(sample),Gu=GT)');
+'Trait from geno with AMat','Trait from rep with AMat', 
+'fixed = {trait_name} ~ rep, random = ~vsc(isc(sample),Gu=GT)'); --note - file name doesn't really correspond to a file
 
 SELECT * FROM add_config_formula('config_110005.cfg',2, 'formula_opt1',
 'Pheno from loc with variety','Pheno from loc with variety',
 'fixed = phenotype~loc, random = ~vsc(isc(variety),Gu=GT)');
+
+SELECT * FROM add_config_formula('config_110005.cfg',4,'formula_opt3',
+'Yield from trait with AMat','Yield from trait with AMat', 
+'fixed = YLDPLOT ~ {trait_name}, random = ~vsc(isc(sample),Gu=GT)');
 
 
 SELECT * FROM add_config_residual('config_110005.cfg',1,'residual_opt1','Units','Units','~ units');

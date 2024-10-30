@@ -53,9 +53,9 @@ class ProcessData(ABC):
         )
         
         #TODO - another horrible hack - genoSourceURL is optional - this seems to be not triggering
-        #if(analysis_request.genoSourceUrl is not None):
-        self.geno_data_reader : GenotypeData = factory.get_genotype_data(api_base_url  = analysis_request.genoSourceUrl, api_bearer_token=analysis_request.genoSourceAccessToken)
-        #else: self.geno_data_reader = None
+        if analysis_request.genoSourceUrl is not None:
+            self.geno_data_reader : GenotypeData = factory.get_genotype_data(api_base_url  = analysis_request.genoSourceUrl, api_bearer_token=analysis_request.genoSourceAccessToken)
+        else: self.geno_data_reader = None
 
         self.experiment_ids = []
         self.occurrence_ids = []
