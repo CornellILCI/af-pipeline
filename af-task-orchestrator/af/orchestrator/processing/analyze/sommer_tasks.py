@@ -8,7 +8,7 @@ def run_sommer_analyze(request_id, analysis_request, input_files, results):
     # pop 1 from input_files
     input_file, input_files = input_files[0], input_files[1:]
 
-    # run analysis on input file, TODO: call Analyze.run_job() here
+    # run analysis on input file
     result = pipeline_analyze.get_analyze_object(analysis_request).run_job(input_file)
     results.append(result)
 

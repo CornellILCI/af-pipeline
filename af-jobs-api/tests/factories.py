@@ -307,7 +307,6 @@ class AnalysisRequestParametersFacotry(Factory):
     expLocAnalysisPatternPropertyId = factory.Faker("pyint", min_value=1)
     configFormulaPropertyId = factory.Faker("pyint", min_value=1)
     configResidualPropertyId = factory.Faker("pyint", min_value=1)
-    #TODO - geno source parameters - fix spelling of 'facotry' --JDLS
 
     class Meta:
         model = api_models.AnalysisRequestParameters

@@ -57,7 +57,11 @@ def getSampleNamesFromCallsetIds(ids:'list[str]',geno_reader:GenotypeData)->'lis
 def getVariantName(v:Variant) -> str:
     return v.variantNames
 
-#TODO - 
+# 0/1 -> 1  
+# 0/0 -> 0 
+# 1/1 -> 2
+# Unfortunately, '1b1' -> 2
+# and 'luv' -> 0
 def homozygoteToDosage(homozygote:str)->str:
     count = 0
     if len(homozygote) !=3: return homozygote #Pass back NA/. unchanged 
@@ -193,7 +197,7 @@ class SommeRProcessData(ProcessData):
                 for mat in allele_matrices: variantIds.extend(mat.variantDbIds) #we're assuming the same calls on every matrixfor now
                 
                 
-                ##Todo - these are probably better, but don't work
+                ##Todo - these are probably better, but don't match up in this data set
                 #variantNameList = getVariantNamesFromIds(ids=variantIds,geno_reader=self.geno_data_reader) #markers  To future josh - I got here!
                 #sampleNameList = getSampleNamesFromCallsetIds(ids=callsetIds,geno_reader=self.geno_data_reader) #plants
                 #variants=genoData.get_variant(variantSetDbIds=variantSetDbIds)#List of variants from returned variantset
