@@ -89,6 +89,13 @@ class SommeRmmecAnalyze(Analyze):
         """
         result_rds_file = utils.path_join(job_dir, self.sommer_rds_file_name)
         script += f"""dTable<-mix1$Dtable
+        for(i in 0:length(mix1$partitionsX) ){{
+          dTable[i,'average']=TRUE
+          dTable[i,'include']=TRUE
+        }}
+        for(i in length(mix1$partitionsX): (length(mix1$partitions)+length(mix1$partitionsX))){{
+          dTable[i,'include']=TRUE
+        }}
         saveRDS(mix1, '{utils.get_name_part(result_rds_file)}')
         """
             # run predictions
@@ -98,7 +105,7 @@ class SommeRmmecAnalyze(Analyze):
             prediction_csv_file = utils.path_join(job_dir,self.prediction_csv_file_name.format(i=i + 1))
             script += f"""predictions <- predict.mmec(object=mix1, Dtable=dTable, D='{prediction_statement}')
     saveRDS(predictions,'{utils.get_name_part(prediction_rds_file)}')
-    write.csv(predictions[0],'{utils.get_name_part(prediction_csv_file)}')
+    write.csv(as.matrix(predictions),'{utils.get_name_part(prediction_csv_file)}')
             """
 
             return script
@@ -171,10 +178,21 @@ class SommeRmmecAnalyze(Analyze):
 
             mix1 = sommer.mmec(**model_formulas, data=input_data) 
             robjects.globalenv["mix1"]=mix1
-            dTable=robjects.r("mix1$Dtable")
+            robjects.r("dTable <- mix1$Dtable")
+            robjects.r(f"""
+                        for(i in 0:length(mix1$partitionsX) ){{
+                            dTable[i,'average']=TRUE
+                            dTable[i,'include']=TRUE
+                        }}
+                        for(i in length(mix1$partitionsX): (length(mix1$partitions)+length(mix1$partitionsX))){{
+                            dTable[i,'include']=TRUE
+                        }}
+                        """)#JDLS - for each fixed parameter (length of partitionsX), include and average. For each random parameter (from partitionsX to partitions) just include.
+            dTable=robjects.r("dTable")
             #TODO - modify DTable[N, 'include']=TRUE and DTable[N,'average']=TRUE for inclusion and prediction if non-standard
-            #TODO: average and include all fixed effects, include but do not average genotype by default
-
+            #average and include all fixed effects, include but do not average genotype by default
+            #For current effects, this is going to be 1 for the only fixed effect, and 2 for the first random effect
+            
 
             r_base.saveRDS(mix1, result_rds_file)
             #TODO - write as a csv as well
@@ -189,9 +207,13 @@ class SommeRmmecAnalyze(Analyze):
                 prediction_csv_file = utils.path_join(job_dir,self.prediction_csv_file_name.format(i=i+1))
                 r_base.saveRDS(predictions, prediction_rds_file)
                 robjects.globalenv["predictions"]=predictions
+                #TODO - writing predictions is harder than writing the file to a predictions file, sadly
                 #robjects.r(f"write.csv(predictions[0],'{prediction_csv_file}')") TODO - this writes an empty file
                 #r_base.write_csv(predictions,prediction_csv_file)
                 job_result.prediction_rds_files.append(prediction_rds_file)
+                
+                #TODO - this creates a dense matrix using as.matrix out of the sparse matrix, and takes a bit of time. May be worth disabling
+                robjects.r(f"write.csv(as.matrix(predictions),'{prediction_csv_file}')")
 
         except (rpy2.rinterface_lib.embedded.RRuntimeError, ValueError) as e:
             self.analysis.status = "FAILURE"
